@@ -28,6 +28,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query(value = "update User  u set u.isDelete = 1 where u.id=?1")
     @Modifying
     int deleteUserById(Long id);
+     int deleteByIdAndIsDeleteEquals1(Long id);
 
     /**
      * 更新状态
