@@ -43,11 +43,6 @@ public class User extends BaseEntity {
      */
     @Column(precision = 1)
     private Integer status = 1;
-    /**
-     * 是否删除 0否 1是
-     */
-    @Column(precision = 1)
-    private Integer isDelete = 0;
 
 
     /**

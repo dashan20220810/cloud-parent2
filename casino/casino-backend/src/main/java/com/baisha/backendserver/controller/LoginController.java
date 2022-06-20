@@ -55,7 +55,7 @@ public class LoginController {
             return new ResponseEntity("帐号或密码错误");
         }
         //已经删除或者禁用
-        if (!Constants.close.equals(user.getIsDelete()) || !Constants.open.equals(user.getStatus())) {
+        if (!Constants.open.equals(user.getStatus())) {
             return new ResponseEntity("该帐号不可操作");
         }
         //验证密码

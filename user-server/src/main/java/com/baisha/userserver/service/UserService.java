@@ -30,15 +30,13 @@ import java.util.Optional;
 @Slf4j
 @Service
 @Transactional
-@CacheConfig(cacheNames = "user")
+@CacheConfig(cacheNames = "user::info")
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
 
-    @Caching(put = {
-            @CachePut(key = "#user.id")}
-    )
+    @Caching(put = {@CachePut(key = "#user.id")})
 //    @CachePut(key = "#p0.id")
     public User saveUser(User user) {
         userRepository.save(user);
@@ -54,7 +52,6 @@ public class UserService {
         Pageable pageable = PageRequest.of(vo.getPageNumber() - 1, vo.getPageSize());
         Specification<User> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
-            predicates.add(cb.equal(root.get("isDelete"), UserServerConstants.DELETE_NORMAL));
             if (StringUtils.isNotBlank(vo.getUserName())) {
                 predicates.add(cb.equal(root.get("userName"), vo.getUserName()));
             }
@@ -64,23 +61,25 @@ public class UserService {
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }
 
-    public User findByUserNameSql(String userName) {
-        return userRepository.findByUserName(userName);
+    @Cacheable
+    public User findById(Long id) {
+        Optional<User> optional = userRepository.findById(id);
+        return optional.orElse(null);
     }
 
-    @CacheEvict(allEntries = true)
-    public void doDelete(Long id) {
-        userRepository.deleteUserById(id);
+    @CacheEvict
+    public void deleteById(Long id) {
+        userRepository.deleteById(id);
     }
 
-    @Caching(put = {
-            @CachePut(key = "#user.id")}
-    )
-    public User doStatus(Integer status, Long id) {
+    @Caching(put = {@CachePut(key = "#id")})
+    public User statusById(Integer status, Long id) {
         int i = userRepository.updateUserStatusById(status, id);
         if (i > 0) {
             return userRepository.findById(id).get();
         }
-       return null;
+        return null;
     }
+
+
 }

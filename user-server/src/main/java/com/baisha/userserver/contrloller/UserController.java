@@ -1,5 +1,6 @@
 package com.baisha.userserver.contrloller;
 
+import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.userserver.model.Assets;
 import com.baisha.userserver.model.User;
@@ -59,7 +60,7 @@ public class UserController {
             return new ResponseEntity("ip不规范");
         }
         // 查询用户名是否存在
-        User isExist = userService.findByUserNameSql(vo.getUserName());
+        User isExist = userService.findByUserName(vo.getUserName());
         if (Objects.nonNull(isExist)) {
             return new ResponseEntity("用户名已存在");
         }
@@ -105,20 +106,28 @@ public class UserController {
         if (Objects.isNull(vo)) {
             return ResponseUtil.parameterNotNull();
         }
-        userService.doDelete(vo.getId());
+        userService.deleteById(vo.getId());
         return ResponseUtil.success();
     }
 
     @ApiOperation(("启用/禁用用户"))
     @PostMapping("status")
-    public ResponseEntity status(StatusVO vo) {
+    public ResponseEntity status(IdVO vo) {
         if (Objects.isNull(vo) || null == vo.getId()) {
             return ResponseUtil.parameterNotNull();
         }
-        if (UserServerUtil.checkStatus(vo.getStatus())) {
-            return new ResponseEntity("状态不规范");
+        User user = userService.findById(vo.getId());
+        if (Objects.isNull(user)) {
+            return new ResponseEntity("会员不存在");
         }
-        userService.doStatus(vo.getStatus(), vo.getId());
+        int status = user.getStatus();
+        //后端自动判断
+        if (status == Constants.open) {
+            status = Constants.close;
+        } else {
+            status = Constants.open;
+        }
+        userService.statusById(status, vo.getId());
         return ResponseUtil.success();
     }
 
@@ -133,7 +142,20 @@ public class UserController {
         }
         User user = userService.findByUserName(vo.getUserName());
         if (Objects.isNull(user)) {
-            return new ResponseEntity("用户名不存在");
+            return new ResponseEntity("会员不存在");
+        }
+        return ResponseUtil.success(UserBO.builder().id(user.getId()).userName(user.getUserName()).nickName(user.getNickName()).build());
+    }
+
+    @ApiOperation(("根据id称查询"))
+    @GetMapping("findById")
+    public ResponseEntity findById(IdVO vo) {
+        if (Objects.isNull(vo.getId())) {
+            return ResponseUtil.parameterNotNull();
+        }
+        User user = userService.findById(vo.getId());
+        if (Objects.isNull(user)) {
+            return new ResponseEntity("会员不存在");
         }
         return ResponseUtil.success(UserBO.builder().id(user.getId()).userName(user.getUserName()).nickName(user.getNickName()).build());
     }

@@ -4,10 +4,10 @@ import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.service.AdminService;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.vo.IdVO;
-import com.baisha.backendserver.vo.StatusVO;
 import com.baisha.backendserver.vo.admin.AdminAddVO;
 import com.baisha.backendserver.vo.admin.AdminPageVO;
 import com.baisha.backendserver.vo.admin.AdminUpdatePasswordVO;
+import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
@@ -77,20 +77,25 @@ public class AdminController {
         if (Objects.isNull(vo.getId())) {
             return ResponseUtil.parameterNotNull();
         }
-        adminService.doDelete(vo.getId());
+        adminService.deleteById(vo.getId());
         return ResponseUtil.success();
     }
 
     @ApiOperation(("启用/禁用管理员"))
     @PostMapping("status")
-    public ResponseEntity status(StatusVO vo) {
+    public ResponseEntity status(IdVO vo) {
         if (Objects.isNull(vo) || null == vo.getId()) {
             return ResponseUtil.parameterNotNull();
         }
-        if (BackendServerUtil.checkStatus(vo.getStatus())) {
-            return new ResponseEntity("状态不规范");
+        Admin admin = adminService.findAdminById(vo.getId());
+        int status = admin.getStatus();
+        //后端自动判断
+        if (status == Constants.open) {
+            status = Constants.close;
+        } else {
+            status = Constants.open;
         }
-        adminService.doStatus(vo.getStatus(), vo.getId());
+        adminService.statusById(status, vo.getId());
         return ResponseUtil.success();
     }
 
@@ -130,7 +135,7 @@ public class AdminController {
             return new ResponseEntity("旧密码错误");
         }
         //更新新密码
-        adminService.doUpdatePassword(BackendServerUtil.bcrypt(vo.getNewPassword()), authId);
+        adminService.updatePasswordById(BackendServerUtil.bcrypt(vo.getNewPassword()), authId);
         return ResponseUtil.success();
     }
 

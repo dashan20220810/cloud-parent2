@@ -39,6 +39,7 @@ public class GloabConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/swagger**/**")
                 .excludePathPatterns("/webjars/**")
                 .excludePathPatterns("/v3/**")
+                .excludePathPatterns("imageView**/**")
                 .excludePathPatterns("/doc.html");
     }
 
