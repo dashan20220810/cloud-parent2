@@ -132,7 +132,7 @@ public class BackendServerUtil {
         if (null == isDelete) {
             return true;
         }
-        if (isDelete != BackendServerConstants.DELETE_NORMAL && isDelete != BackendServerConstants.DELETE_DISABLED) {
+        if (!Constants.open.equals(isDelete) && !Constants.close.equals(isDelete)) {
             return true;
         }
         return false;
