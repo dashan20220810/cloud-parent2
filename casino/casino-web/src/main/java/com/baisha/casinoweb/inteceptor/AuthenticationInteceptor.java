@@ -102,7 +102,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
 //        if (token.equals(redisToken1.getOldToken())||token.equals(redisToken1.getNewToken())) {
 //            return true;
 //        }
-        return false;
+        return true;
     }
 
     /**

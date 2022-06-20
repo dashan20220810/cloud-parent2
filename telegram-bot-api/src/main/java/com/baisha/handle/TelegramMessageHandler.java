@@ -5,8 +5,10 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.enums.RequestPathEnum;
+import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.util.HttpClient4Util;
+import com.baisha.modulejjwt.JjwtUtil;
 import com.baisha.util.TelegramBotUtil;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -54,8 +56,13 @@ public class TelegramMessageHandler {
         String requestUrl= TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_REGISTER_USER.getApiName();
         // 设置请求参数
         Map<String, Object> param = Maps.newHashMap();
-        param.put("userName", userName);
-        param.put("nickName", null);
+        param.put("userName", id);
+        param.put("nickName", userName);
+
+//        JjwtUtil.Subject subject=new JjwtUtil.Subject();
+//        subject.setUserId(id);
+//        String jwtToken=JjwtUtil.generic(subject, Constants.TELEGRAM_BOT_API);
+
         // 远程调用
         String forObject = HttpClient4Util.doPost(requestUrl, param);
         if (StrUtil.isNotEmpty(forObject)) {

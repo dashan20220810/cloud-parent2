@@ -1,11 +1,11 @@
-package com.baisha.modulecommon.util;
+package com.baisha.util;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.mysql.cj.util.StringUtils;
 import com.baisha.modulecommon.Constants;
-import com.baisha.modulecommon.config.LocaleConfig;
+import com.baisha.modulejjwt.JjwtUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -18,17 +18,15 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
+
 @Slf4j
-public class HttpClient4Util {
+public class TgHttpClient4Util {
     public static String get(String url) throws Exception {
         log.info("get请求参数{}",url);
         CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -93,6 +91,10 @@ public class HttpClient4Util {
     }
 
     public static String doGet(String url) {
+        return doGet(url, null);
+    }
+
+    public static String doGet(String url,String tgId) {
         log.info("doGet请求参数{}",url);
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse response = null;
@@ -104,7 +106,14 @@ public class HttpClient4Util {
             HttpGet httpGet = new HttpGet(url);
             // 设置请求头信息，鉴权
 //            httpGet.setHeader("Authorization", "Bearer da3efcbf-0845-4fe3-8aba-ee040be542c0");
-            httpGet.setHeader("Accept-Encoding", "gzip,deflate");
+            httpGet.addHeader("Accept-Encoding", "gzip,deflate");
+            httpGet.addHeader(Constants.TELEGRAM, "true");
+            if (StringUtils.isNotEmpty(tgId)) {
+                JjwtUtil.Subject subject=new JjwtUtil.Subject();
+                subject.setUserId(tgId);
+                String jwtToken = JjwtUtil.generic(subject, Constants.CASINO_WEB);
+                httpGet.addHeader(Constants.AUTHORIZATION,"Bearer "+ jwtToken);
+            }
             // 设置配置请求参数
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(35000)// 连接主机服务超时时间
                     .setConnectionRequestTimeout(60000)// 请求超时时间
@@ -145,6 +154,10 @@ public class HttpClient4Util {
     }
 
     public static String doPost(String url, Map<String, Object> paramMap) {
+        return doPost(url, paramMap);
+    }
+
+    public static String doPost(String url, Map<String, Object> paramMap,String tgId) {
         log.info("doPost请求路径,url:{},paramMap",url, JSONObject.toJSONString(paramMap));
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse httpResponse = null;
@@ -162,6 +175,13 @@ public class HttpClient4Util {
         httpPost.setConfig(requestConfig);
         // 设置请求头
         httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded");
+        httpPost.addHeader(Constants.TELEGRAM, "true");
+        if (StringUtils.isNotEmpty(tgId)) {
+            JjwtUtil.Subject subject=new JjwtUtil.Subject();
+            subject.setUserId(tgId);
+            String jwtToken = JjwtUtil.generic(subject, Constants.CASINO_WEB);
+            httpPost.addHeader(Constants.AUTHORIZATION,"Bearer "+ jwtToken);
+        }
         // 封装post请求参数
         if (null != paramMap && paramMap.size() > 0) {
             List<NameValuePair> nvps = new ArrayList<NameValuePair>();
