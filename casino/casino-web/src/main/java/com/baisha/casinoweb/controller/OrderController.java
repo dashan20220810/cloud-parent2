@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baisha.casinoweb.constant.Constants;
 import com.baisha.casinoweb.enums.RequestPathEnum;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.vo.BetVO;
@@ -42,22 +43,21 @@ public class OrderController {
     @PostMapping("bet")
     @ApiOperation("下注")
     @NoAuthentication
-    public ResponseEntity<String> bet(BetVO betRequest) {
+    public ResponseEntity<String> bet(BetVO betVO) {
 
-		log.info("[下注] 使用者 {}", betRequest.getUserName());
+		log.info("[下注]");
     	
-    	if ( BetVO.checkRequest(betRequest)==false ) {
+    	if ( BetVO.checkRequest(betVO)==false ) {
     		log.info("[下注] 检核失败");
     		return ResponseUtil.fail();
     	}
 
     	//  呼叫
     	//	会员管理-下分api
-
     	Map<String, Object> params2 = new HashMap<>();
-    	params2.put("userName", betRequest.getUserName());
-    	params2.put("amount", betRequest.getAmount());
-    	params2.put("balanceType", 2);
+    	params2.put("userName", betVO.getUserName());
+    	params2.put("amount", betVO.getAmount());
+    	params2.put("balanceType", Constants.BALANCE_TYPE_WITHDRAW);
     	params2.put("remark", "下注");
 
     	String result = HttpClient4Util.doPost(
@@ -70,12 +70,9 @@ public class OrderController {
 
 		JSONObject balanceJson = JSONObject.parseObject(result);
 		Integer code = balanceJson.getInteger("code");
-		if ( code==null ) {
-			return ResponseUtil.fail();
-		}
 
 		if ( code!=0 ) {
-            return new ResponseEntity(balanceJson.getString("msg"));
+            return ResponseUtil.fail();
 		}
     	
 		// 记录IP
@@ -83,12 +80,15 @@ public class OrderController {
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
 		
 		params.put("clientIP", ip);
-		params.put("userName", betRequest.getUserName());
-		params.put("betOption", betRequest.getBetOption());
-		params.put("amount", betRequest.getAmount());
-		params.put("clientType", betRequest.getClientType());
-		params.put("noRun", betRequest.getNoRun());
-		params.put("noActive", betRequest.getNoActive());
+		// TODO 來自token解析
+		// tg有可能沒有token，必須直接從bot取得user id
+//		params.put("userId", );  
+		params.put("betOption", betVO.getBetOption());
+		params.put("amount", betVO.getAmount());
+		
+		//	TODO 輪/局號 應來自荷官端，不得從請求中代入
+		params.put("noRun", "00001");
+		params.put("noActive", "00001");
 		params.put("status", 1);
 		params.put("orderNo", SnowFlakeUtils.getSnowId());
 
@@ -102,17 +102,14 @@ public class OrderController {
         
 		JSONObject betJson = JSONObject.parseObject(result);
 		code = betJson.getInteger("code");
-		if ( code==null ) {
-			return ResponseUtil.fail();
-		}
 
 		if ( code!=0 ) {
-            return new ResponseEntity(betJson.getString("msg"));
+            return ResponseUtil.fail();
 		}
 
 		log.debug("==== ORDER_BET ==== \r\nreponse: {}", result);
 		log.info("[下注] 成功");
-		return JSONObject.parseObject(result, ResponseEntity.class);
+        return ResponseUtil.success();
     }
 	
 }

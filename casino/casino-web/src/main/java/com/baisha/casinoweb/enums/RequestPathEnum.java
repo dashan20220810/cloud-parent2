@@ -10,6 +10,8 @@ public enum RequestPathEnum {
 	 */
 	/** 使用者注册 */
     USER_REGISTER("/user/addUser"),
+	/** 使用者登入 */
+    USER_LOGIN("/user/login"), // TODO apiName
 	/** 上下分 */
     ASSETS_BALANCE("/assets/balance"),
 

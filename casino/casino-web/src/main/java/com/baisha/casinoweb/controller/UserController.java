@@ -1,5 +1,13 @@
 package com.baisha.casinoweb.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.casinoweb.enums.RequestPathEnum;
 import com.baisha.casinoweb.util.CasinoWebUtil;
@@ -9,19 +17,12 @@ import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.util.IpUtil;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("user")
@@ -47,7 +48,7 @@ public class UserController {
 	@ApiOperation("telegram注册")
 	@NoAuthentication
 	public ResponseEntity<?> registerTG(String name, String nickname) {
-		log.info("注册使用者: %s", name);
+		log.info("注册使用者");
 		if (CommonUtil.checkNull(name, nickname)) {
 			log.info("注册检核失败");
 			return ResponseUtil.parameterNotNull();
@@ -70,9 +71,48 @@ public class UserController {
             return ResponseUtil.fail();
         }
 
-		log.debug("==== BACKEND_REGISTER_USER ==== \r\nreponse: %s", result);
 		log.info("注册成功");
-		return JSONObject.parseObject(result, ResponseEntity.class);
+        return ResponseUtil.success();
 	}
 
+	/**
+	 * 用户登入
+	 * @param userName
+	 * @param password
+	 * @return
+	 */
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "userName", value = "用户名", dataType = "string", required = true, paramType = "query"),
+		@ApiImplicitParam(name = "password", value = "密码", dataType = "string", required = true, paramType = "query")
+	})
+	@ApiOperation("用户登入")
+	@NoAuthentication
+	@PostMapping("login")
+	public ResponseEntity<?> login( String userName, String password ) {
+		
+		log.info("[用户登入]");
+		if (CommonUtil.checkNull(userName, password)) {
+			log.info("[用户登入] 检核失败");
+			return ResponseUtil.parameterNotNull();
+		}
+		
+		
+		//USER_LOGIN
+		Map<String, Object> params = new HashMap<>();
+		params.put("userName", userName);
+		params.put("password", password);
+
+		String result = HttpClient4Util.doPost(
+				userServerDomain + RequestPathEnum.USER_LOGIN.getApiName(),
+				params);
+		
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
+
+		//TODO
+		log.info("[用户登入] 成功");
+        return ResponseUtil.success();
+	}
+	
 }

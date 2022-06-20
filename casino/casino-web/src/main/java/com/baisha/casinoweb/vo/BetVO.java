@@ -18,22 +18,13 @@ public class BetVO {
 
 	@ApiModelProperty(required=true, name="user_name")
 	private String userName;
-    
-    @ApiModelProperty(required=true, name="下注类型")
+
+    @ApiModelProperty(required=true, name="下注类型", notes="ZD庄对,XD闲对,Z庄,X闲,H和,D对,SS超六")
 	private BetOption betOption;
 
     @ApiModelProperty(required=true, name="下注金额")
 	private Long amount;
 	
-    @ApiModelProperty(required=true, name="客户端类型: 1网版, 2手机版, 3飞机")
-	private String clientType;
-
-    @ApiModelProperty(required=true, name="游戏轮号")
-    private String noRun;
-
-    @ApiModelProperty(required=true, name="游戏局号")
-    private String noActive;
-
     /**
      * 检核下注请求
      * @param bet
@@ -50,18 +41,6 @@ public class BetVO {
     	}
 
     	if ( bet.getAmount()==null || bet.getAmount()<=0L ) {
-    		return false;
-    	}
-
-    	if ( StringUtils.isBlank(bet.getClientType()) ) {
-    		return false;
-    	}
-
-    	if ( StringUtils.isBlank(bet.getNoRun()) ) {
-    		return false;
-    	}
-
-    	if ( StringUtils.isBlank(bet.getNoActive()) ) {
     		return false;
     	}
 

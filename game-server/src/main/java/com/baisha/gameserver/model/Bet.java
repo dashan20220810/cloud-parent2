@@ -27,9 +27,9 @@ public class Bet extends BaseEntity{
     @Column(name="order_no")
 	private String orderNo;
 
-	@ApiModelProperty("user_name")
-    @Column(name="user_name")
-	private String userName;
+	@ApiModelProperty("user_id")
+    @Column(name="user_id")
+	private String userId;
     
     @ApiModelProperty("下注类型")
     @Column(name="bet_option")
@@ -64,7 +64,7 @@ public class Bet extends BaseEntity{
      */
     public static boolean checkRequest ( Bet bet ) {
     	
-    	if ( StringUtils.isBlank(bet.getUserName()) ) {
+    	if ( StringUtils.isBlank(bet.getUserId()) ) {
     		return false;
     	}
 
