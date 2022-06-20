@@ -1,0 +1,23 @@
+package com.baisha;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+/**
+ * @author
+ */
+@Slf4j
+@EnableTransactionManagement
+@SpringBootApplication
+@EnableJpaAuditing
+public class UserServerApplication {
+
+    public static void main(String[] args) {
+        log.info("启动用户中心");
+        SpringApplication.run(UserServerApplication.class, args);
+    }
+
+}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>casino</artifactId>
+        <groupId>com.baisha</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <groupId>com.baisha</groupId>
+    <artifactId>backend-server</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>管理后台</name>
+    <description>backend-server</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.baisha</groupId>
+            <artifactId>module-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baisha</groupId>
+            <artifactId>module-swagger2</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baisha</groupId>
+            <artifactId>module-jjwt</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baisha</groupId>
+            <artifactId>module-springcache-redis</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

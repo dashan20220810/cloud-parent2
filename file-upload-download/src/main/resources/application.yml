@@ -1,0 +1,9 @@
+server:
+  port: 9700
+
+minio:
+  endpoint: localhost
+  port: 9000
+  accessKey: dashan
+  secretKey: dashan
+  bucketName: bs

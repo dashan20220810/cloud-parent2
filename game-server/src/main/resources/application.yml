@@ -1,0 +1,35 @@
+server:
+  port: 9500
+
+
+project:
+  title: GameServer
+  swagger:
+    enable: true
+
+spring:
+#  security:
+#    user:
+#      name: baisha
+#      password: baisha
+  jpa:
+    database: mysql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+  datasource:
+    url: jdbc:mysql://18.162.214.252:3306/game?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
+    username: wt_games
+    password: Aa123!@#
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      auto-commit: true
+      minimum-idle: 4
+      idle-timeout: 60000
+      connection-timeout: 30000
+      max-lifetime: 1800000
+      pool-name: DatebookHikariCP
+      maximum-pool-size: 16
+      connection-test-query: select 1
