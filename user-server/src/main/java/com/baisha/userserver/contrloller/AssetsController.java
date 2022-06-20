@@ -105,7 +105,7 @@ public class AssetsController {
         if (Objects.isNull(assets)) {
             return new ResponseEntity("资产不存在");
         }
-        if (assets.getBalance().compareTo(vo.getAmount()) <= 0) {
+        if (assets.getBalance().compareTo(vo.getAmount()) < 0) {
             return new ResponseEntity("余额不足");
         }
         BalanceChange balanceChange = new BalanceChange();
