@@ -1,5 +1,6 @@
 package com.baisha.userserver.util;
 
+import com.baisha.modulecommon.Constants;
 import com.baisha.userserver.constants.UserServerConstants;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
@@ -79,7 +80,7 @@ public class UserServerUtil {
         if (null == status) {
             return true;
         }
-        if (status != UserServerConstants.STATUS_NORMAL && status != UserServerConstants.STATUS_DISABLED) {
+        if (!Constants.open.equals(status) && !Constants.close.equals(status)) {
             return true;
         }
         return false;

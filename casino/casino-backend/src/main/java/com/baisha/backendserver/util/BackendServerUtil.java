@@ -116,7 +116,7 @@ public class BackendServerUtil {
         if (null == status) {
             return true;
         }
-        if (status != BackendServerConstants.STATUS_NORMAL && status != BackendServerConstants.STATUS_DISABLED) {
+        if (!Constants.open.equals(status) && !Constants.close.equals(status)) {
             return true;
         }
         return false;
