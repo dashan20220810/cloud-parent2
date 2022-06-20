@@ -2,6 +2,8 @@ package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.constants.TgBotServerConstants;
+import com.baisha.backendserver.model.Admin;
+import com.baisha.backendserver.service.AdminService;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.vo.StatusVO;
 import com.baisha.backendserver.vo.tgBot.TgBotPageVO;
@@ -13,6 +15,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +35,9 @@ public class TgBotController {
     @Value("${url.tgBotServer}")
     private String tgBotServerUrl;
 
+    @Autowired
+    private AdminService adminService;
+
     @ApiOperation("新开机器人")
     @ApiImplicitParams({
             @ApiImplicitParam(name="username", value="机器人名称", required = true),
@@ -44,11 +50,15 @@ public class TgBotController {
         if (CommonUtil.checkNull(username, token, chatId)) {
             return ResponseUtil.parameterNotNull();
         }
+        // 后台登陆用户
+        Admin current = adminService.getCurrent();
         String url = tgBotServerUrl + TgBotServerConstants.OPEN_TG_BOT;
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("username", username);
         paramMap.put("token", token);
         paramMap.put("chatId", chatId);
+        paramMap.put("createBy", current.getCreateBy());
+        paramMap.put("updateBy", current.getUpdateBy());
         String result = HttpClient4Util.doPost(url, paramMap);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();

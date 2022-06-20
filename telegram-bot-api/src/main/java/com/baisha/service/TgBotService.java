@@ -7,12 +7,13 @@ import com.baisha.constants.BotConstant;
 import com.baisha.constants.TgBotRedisConstant;
 import com.baisha.model.TgBot;
 import com.baisha.model.vo.TgBotPageVO;
-import com.baisha.modulecommon.reponse.ResponseEntity;
-import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulespringcacheredis.util.RedisUtil;
 import com.baisha.repository.TgBotRepository;
+import com.baisha.util.TelegramServerUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
+@CacheConfig(cacheNames = "tgBot::botId")
 @Service
 public class TgBotService {
 
@@ -35,17 +37,17 @@ public class TgBotService {
     @Autowired
     private TgBotRepository tgBotRepository;
 
-    public ResponseEntity saveTgBot(TgBot tgBot) {
-        TgBot tgBotDb = tgBotRepository.findByBotName(tgBot.getBotName());
-        if (null == tgBotDb) {
-            TgBot save = tgBotRepository.save(tgBot);
-            return ResponseUtil.success(save);
-        }
-        return ResponseUtil.custom("当前机器人已经存在！");
+    public TgBot findByBotName(String botName) {
+        return tgBotRepository.findByBotName(botName);
+    }
+
+    @CachePut(key = "#tgBot.id")
+    public TgBot save(TgBot tgBot) {
+        return tgBotRepository.save(tgBot);
     }
 
     public Page<TgBot> getTgBotPage(TgBotPageVO vo) {
-        Pageable pageable = PageRequest.of(vo.getPageNumber() - 1, vo.getPageSize());
+        Pageable pageable = TelegramServerUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
         Specification<TgBot> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             if (StrUtil.isNotEmpty(vo.getBotName())) {
@@ -57,14 +59,14 @@ public class TgBotService {
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }
 
-    public void updateStatus(Long id, Integer status) {
+    @CachePut(key = "#id")
+    public TgBot updateStatus(Long id, Integer status) {
         Optional<TgBot> optionalTgBot = tgBotRepository.findById(id);
         optionalTgBot.ifPresent(tgBot -> {
             tgBot.setStatus(status);
             tgBotRepository.save(tgBot);
         });
-        // TODO 在此处 更新redis的key
-//        redisUtil
+        return tgBotRepository.findById(id).get();
     }
 
     public void registerAllBot() {

@@ -1,11 +1,10 @@
 package com.baisha.controller;
 
 import com.baisha.bot.MyTelegramLongPollingBot;
-import com.baisha.constants.BotConstant;
-import com.baisha.constants.TgBotRedisConstant;
 import com.baisha.model.TgBot;
 import com.baisha.model.vo.StatusVO;
 import com.baisha.model.vo.TgBotPageVO;
+import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -40,15 +39,20 @@ public class TgbotController {
     @ApiImplicitParams({
         @ApiImplicitParam(name="username", value="机器人名称", required = true),
         @ApiImplicitParam(name="token", value="机器人token", required = true),
-        @ApiImplicitParam(name="chatId", value="TG群id", required = true)
+        @ApiImplicitParam(name="chatId", value="TG群id", required = true),
+        @ApiImplicitParam(name="createBy", value="创建人"),
+        @ApiImplicitParam(name="updateBy", value="最后更新人")
     })
     @PostMapping("open")
-    public ResponseEntity open(String username, String token, String chatId) {
+    public ResponseEntity open(String username, String token, String chatId, String createBy, String updateBy) {
         // 参数校验
         if (CommonUtil.checkNull(username, token, chatId)) {
             return ResponseUtil.parameterNotNull();
         }
         try {
+            if (null != tgBotService.findByBotName(username)) {
+                return ResponseUtil.custom("当前机器人已经存在！");
+            }
             // 实例化机器人
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
             botsApi.registerBot(new MyTelegramLongPollingBot(username, token, chatId));
@@ -57,17 +61,11 @@ public class TgbotController {
                     .setBotName(username)
                     .setBotToken(token)
                     .setChatId(chatId)
-                    .setStatus(BotConstant.NORMAL)
-                    .setCreateBy("测试数据")
-                    .setUpdateBy("测试数据");
-            ResponseEntity responseEntity = tgBotService.saveTgBot(tgBot);
-            if (responseEntity.getCode() == 0) {
-                // 存入redis
-                TgBot tgBotRedis = (TgBot) responseEntity.getData();
-                redisUtil.set(TgBotRedisConstant.TG_BOT_SAVE_PREFIX + username, tgBotRedis);
-                return ResponseUtil.success();
-            }
-            return responseEntity;
+                    .setStatus(Constants.open)
+                    .setCreateBy(createBy)
+                    .setUpdateBy(updateBy);
+            tgBotService.save(tgBot);
+            return ResponseUtil.success();
         } catch (Throwable e) {
             log.error("新开机器人失败", e);
             return ResponseUtil.custom("新开机器人失败");
@@ -81,9 +79,9 @@ public class TgbotController {
         return ResponseUtil.success(pageList);
     }
 
-    @ApiOperation("更新状态 1正常 2禁用")
-    @PostMapping("updateStatus")
-    public ResponseEntity updateStatus(StatusVO statusVO) {
+    @ApiOperation("更新状态 0禁用 1启用")
+    @PostMapping("updateStatusById")
+    public ResponseEntity updateStatusById(StatusVO statusVO) {
         Long id = statusVO.getId();
         Integer status = statusVO.getStatus();
         // 参数校验

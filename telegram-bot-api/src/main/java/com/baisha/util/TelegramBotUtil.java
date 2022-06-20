@@ -10,8 +10,4 @@ public class TelegramBotUtil {
 	public static String getCasinoWebDomain() {
 		return casinoWebDomain;
 	}
-
-    public static Long getCurrentUserId() {
-		return 1l;
-    }
 }

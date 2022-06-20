@@ -14,6 +14,6 @@ public class StatusVO {
     @ApiModelProperty(value = "ID", required = true)
     private Long id;
 
-    @ApiModelProperty(value = "状态(1正常,2禁用)", required = true)
+    @ApiModelProperty(value = "状态(0禁用 1启用)", required = true)
     private Integer status;
 }
