@@ -39,9 +39,6 @@ public class AdminController {
     @ApiOperation(("新增管理员"))
     @PostMapping("add")
     public ResponseEntity addAdmin(AdminAddVO vo) {
-        if (Objects.isNull(vo)) {
-            return ResponseUtil.parameterNotNull();
-        }
         if (Admin.checkUserName(vo.getUserName())) {
             return new ResponseEntity("用户名不规范");
         }
@@ -77,9 +74,6 @@ public class AdminController {
     @ApiOperation(("删除管理员"))
     @PostMapping("delete")
     public ResponseEntity delete(IdVO vo) {
-        if (Objects.isNull(vo)) {
-            return ResponseUtil.parameterNotNull();
-        }
         adminService.doDelete(vo.getId());
         return ResponseUtil.success();
     }
@@ -112,9 +106,6 @@ public class AdminController {
     @ApiOperation(("更新密码"))
     @GetMapping("updatePassword")
     public ResponseEntity updatePassword(AdminUpdatePasswordVO vo) {
-        if (Objects.isNull(vo)) {
-            return ResponseUtil.parameterNotNull();
-        }
         if (Admin.checkPassword(vo.getOldPassword())) {
             return new ResponseEntity("旧密码不规范");
         }
@@ -143,9 +134,6 @@ public class AdminController {
     @ApiOperation(("获取单个管理员"))
     @GetMapping("query")
     public ResponseEntity query(IdVO vo) {
-        if (Objects.isNull(vo)) {
-            return ResponseUtil.parameterNotNull();
-        }
         return ResponseUtil.success(adminService.findAdminById(vo.getId()));
     }
 
