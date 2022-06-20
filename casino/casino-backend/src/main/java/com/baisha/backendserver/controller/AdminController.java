@@ -74,6 +74,9 @@ public class AdminController {
     @ApiOperation(("删除管理员"))
     @PostMapping("delete")
     public ResponseEntity delete(IdVO vo) {
+        if (Objects.isNull(vo.getId())) {
+            return ResponseUtil.parameterNotNull();
+        }
         adminService.doDelete(vo.getId());
         return ResponseUtil.success();
     }
