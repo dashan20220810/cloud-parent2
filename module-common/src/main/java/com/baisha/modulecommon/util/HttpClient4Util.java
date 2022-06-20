@@ -1,10 +1,11 @@
 package com.baisha.modulecommon.util;
 
 
-import com.mysql.cj.util.StringUtils;
+import com.alibaba.fastjson.JSONObject;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.config.LocaleConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -92,6 +93,10 @@ public class HttpClient4Util {
     }
 
     public static String doGet(String url) {
+        return doGet(url, null);
+    }
+
+    public static String doGet(String url,String jwtToken) {
         log.info("doGet请求参数{}",url);
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse response = null;
@@ -104,6 +109,9 @@ public class HttpClient4Util {
             // 设置请求头信息，鉴权
 //            httpGet.setHeader("Authorization", "Bearer da3efcbf-0845-4fe3-8aba-ee040be542c0");
             httpGet.setHeader("Accept-Encoding", "gzip,deflate");
+            if (StringUtils.isNotEmpty(jwtToken)) {
+                httpGet.addHeader(Constants.AUTHORIZATION, jwtToken);
+            }
             // 设置配置请求参数
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(35000)// 连接主机服务超时时间
                     .setConnectionRequestTimeout(60000)// 请求超时时间
@@ -144,8 +152,11 @@ public class HttpClient4Util {
     }
 
     public static String doPost(String url, Map<String, Object> paramMap) {
-        log.info("doPost请求路径{}",url);
-        log.info("doPost请求参数{}",paramMap);
+        return doPost(url, paramMap, null);
+    }
+
+    public static String doPost(String url, Map<String, Object> paramMap,String jwtToken) {
+        log.info("doPost请求路径,url:{},paramMap",url, JSONObject.toJSONString(paramMap));
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse httpResponse = null;
         String result = "";
@@ -162,6 +173,9 @@ public class HttpClient4Util {
         httpPost.setConfig(requestConfig);
         // 设置请求头
         httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded");
+        if (StringUtils.isNotEmpty(jwtToken)) {
+            httpPost.addHeader(Constants.AUTHORIZATION, jwtToken);
+        }
         // 封装post请求参数
         if (null != paramMap && paramMap.size() > 0) {
             List<NameValuePair> nvps = new ArrayList<NameValuePair>();
