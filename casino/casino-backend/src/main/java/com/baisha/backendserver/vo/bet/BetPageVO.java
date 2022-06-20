@@ -19,9 +19,6 @@ public class BetPageVO extends PageVO {
     @ApiModelProperty("下注类型")
 	private BetOption betOption;
 
-    @ApiModelProperty("客户端类型: 1网版, 2手机版, 3飞机")
-	private String clientType;
-
     @ApiModelProperty("游戏轮号")
     private String noRun;
 

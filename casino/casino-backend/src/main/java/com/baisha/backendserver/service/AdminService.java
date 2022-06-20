@@ -14,7 +14,6 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -45,12 +44,12 @@ public class AdminService {
     }
 
     @CacheEvict(key = "#id")
-    public int doDelete(Long id) {
-        return adminRepository.deleteAdminById(id);
+    public void deleteById(Long id) {
+        adminRepository.deleteById(id);
     }
 
     @CachePut(key = "#id")
-    public Admin doStatus(Integer status, Long id) {
+    public Admin statusById(Integer status, Long id) {
         adminRepository.updateAdminStatusById(status, id);
         return findAdminByIdSql(id);
     }
@@ -59,7 +58,6 @@ public class AdminService {
         Pageable pageable = BackendServerUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
         Specification<Admin> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
-            predicates.add(cb.equal(root.get("isDelete"), BackendServerConstants.DELETE_NORMAL));
             if (StringUtils.isNotBlank(vo.getUserName())) {
                 predicates.add(cb.equal(root.get("userName"), vo.getUserName()));
             }
@@ -76,7 +74,7 @@ public class AdminService {
     }
 
     @CachePut(key = "#id")
-    public Admin doUpdatePassword(String password, Long id) {
+    public Admin updatePasswordById(String password, Long id) {
         adminRepository.updateAdminPasswordById(password, id);
         return findAdminByIdSql(id);
     }

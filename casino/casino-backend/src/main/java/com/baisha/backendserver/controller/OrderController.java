@@ -43,7 +43,6 @@ public class OrderController {
     	Map<String, Object> params = new HashMap<>();
     	params.put("userName", betRequest.getUserName());
     	params.put("betOption", betRequest.getBetOption());
-    	params.put("clientType", betRequest.getClientType());
     	params.put("noRun", betRequest.getNoRun());
     	params.put("noActive", betRequest.getNoActive());
     	params.put("status", betRequest.getStatus());

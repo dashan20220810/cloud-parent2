@@ -20,15 +20,6 @@ public interface AdminRepository extends JpaRepository<Admin, Long>, JpaSpecific
      */
     Admin findByUserName(String userName);
 
-    /**
-     * 删除用户
-     *
-     * @param id
-     * @return
-     */
-    @Query(value = "update Admin  u set u.isDelete = 1 where u.id=?1")
-    @Modifying
-    int deleteAdminById(Long id);
 
     /**
      * 更新状态
