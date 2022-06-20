@@ -1,7 +1,6 @@
 package com.baisha.gameserver.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,10 +31,10 @@ public class OrderController {
 
     @PostMapping("bet")
     @ApiOperation("下注")
-    public ResponseEntity<String> bet(BetVO betRequest) {
+    public ResponseEntity<String> bet(BetVO betVO) {
 
-		log.info("[下注] 使用者 {}", betRequest.getUserName());
-    	Bet bet = betRequest.generateBet();
+		log.info("[下注] ");
+    	Bet bet = betVO.generateBet();
     	
     	if ( Bet.checkRequestForGs(bet)==false ) {
     		log.info("[下注] 检核失败");
@@ -44,12 +43,15 @@ public class OrderController {
     	
     	betService.save(bet);
 
+		log.info("[下注] 成功! 押{} 共{}", betVO.getBetOption().getDisplay(), betVO.getAmount());
     	return ResponseUtil.success();
     }
 
     @PostMapping("page")
     @ApiOperation(("订单查询"))
     public ResponseEntity<Page<Bet>> page(BetPageVO vo) {
+    	
+    	log.info("订单查询");
         Page<Bet> pageList = betService.getBetPage(vo);
         return ResponseUtil.success(pageList);
     }
