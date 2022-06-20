@@ -19,7 +19,7 @@ public class AdminAddVO {
     @ApiModelProperty(value = "昵称(长度限制1~20位,并且只能输入中英文)", required = true)
     private String nickName;
 
-    @ApiModelProperty(value = "昵称(长度限制1~20位,并且只能输入中英文)", required = true)
+    @ApiModelProperty(value = "密码(长度限制6~15位,并且必须是数字和字母的组合)", required = true)
     private String password;
 
     @ApiModelProperty(value = "手机号(长度限制1~20位,并且必须是数字或字母)", required = true)
