@@ -69,12 +69,9 @@ public class UserController {
 
     @ApiOperation(("启用/禁用用户"))
     @PostMapping("status")
-    public ResponseEntity status(StatusVO vo) {
+    public ResponseEntity status(IdVO vo) {
         if (Objects.isNull(vo) || null == vo.getId()) {
             return ResponseUtil.parameterNotNull();
-        }
-        if (BackendServerUtil.checkStatus(vo.getStatus())) {
-            return new ResponseEntity("状态不规范");
         }
         String url = userServerUrl + UserServerConstants.USERSERVER_USERSTATUS;
         Map<String, Object> param = BackendServerUtil.objectToMap(vo);

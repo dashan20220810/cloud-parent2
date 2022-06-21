@@ -56,7 +56,9 @@ public class AdminController {
         if (Objects.nonNull(isExist)) {
             return new ResponseEntity("用户名已存在");
         }
-        Admin admin = createAdmin(vo);
+        //获取当前登陆用户
+        Admin currentUser = adminService.getCurrent();
+        Admin admin = createAdmin(vo, currentUser);
         admin = adminService.save(admin);
         if (Objects.isNull(admin)) {
             return ResponseUtil.fail();
@@ -64,10 +66,12 @@ public class AdminController {
         return ResponseUtil.success();
     }
 
-    private Admin createAdmin(AdminAddVO vo) {
+    private Admin createAdmin(AdminAddVO vo, Admin currentUser) {
         Admin admin = new Admin();
         BeanUtils.copyProperties(vo, admin);
         admin.setPassword(BackendServerUtil.bcrypt(vo.getPassword()));
+        admin.setCreateBy(currentUser.getUserName());
+        admin.setUpdateBy(currentUser.getUserName());
         return admin;
     }
 
@@ -77,7 +81,10 @@ public class AdminController {
         if (Objects.isNull(vo.getId())) {
             return ResponseUtil.parameterNotNull();
         }
+        //获取当前登陆用户
+        Admin currentUser = adminService.getCurrent();
         adminService.deleteById(vo.getId());
+        log.info("{}删除管理员id={}", currentUser.getUserName(), vo.getId());
         return ResponseUtil.success();
     }
 
@@ -95,7 +102,10 @@ public class AdminController {
         } else {
             status = Constants.open;
         }
+        //获取当前登陆用户
+        Admin currentUser = adminService.getCurrent();
         adminService.statusById(status, vo.getId());
+        log.info("{}修改管理员状态id={}，status={}", currentUser.getUserName(), vo.getId(), status);
         return ResponseUtil.success();
     }
 
@@ -123,19 +133,19 @@ public class AdminController {
         if (vo.getOldPassword().equals(vo.getNewPassword())) {
             return new ResponseEntity("新旧密码不能一样");
         }
-        //获取管理员用户 应该获取当前后台登录用户 目前先用ID查询
-        Long authId = BackendServerUtil.getCurrentUserId();
-        Admin admin = adminService.findAdminById(authId);
-        if (Objects.isNull(admin)) {
+        //获取当前登陆用户
+        Admin currentUser = adminService.getCurrent();
+        if (Objects.isNull(currentUser)) {
             return new ResponseEntity("管理员不存在");
         }
-        String bcryptPassword = admin.getPassword();
+        String bcryptPassword = currentUser.getPassword();
         boolean bcrypt = BackendServerUtil.checkBcrypt(vo.getOldPassword(), bcryptPassword);
         if (!bcrypt) {
             return new ResponseEntity("旧密码错误");
         }
         //更新新密码
-        adminService.updatePasswordById(BackendServerUtil.bcrypt(vo.getNewPassword()), authId);
+        adminService.updatePasswordById(BackendServerUtil.bcrypt(vo.getNewPassword()), currentUser.getId());
+        log.info("{}修改管理员密码id={}", currentUser.getUserName(), currentUser.getId());
         return ResponseUtil.success();
     }
 
