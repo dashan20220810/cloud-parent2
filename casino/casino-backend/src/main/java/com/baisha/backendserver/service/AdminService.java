@@ -34,11 +34,6 @@ public class AdminService {
     @Autowired
     private AdminRepository adminRepository;
 
-    public Admin getCurrent() {
-        Long authId = BackendServerUtil.getCurrentUserId();
-        return this.findAdminById(authId);
-    }
-
     public Admin findByUserNameSql(String userName) {
         return adminRepository.findByUserName(userName);
     }

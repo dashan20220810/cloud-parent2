@@ -1,5 +1,6 @@
 package com.baisha.backendserver.controller;
 
+import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.service.AdminService;
 import com.baisha.backendserver.util.BackendServerUtil;
@@ -40,6 +41,8 @@ public class AdminController {
 
     @Autowired
     private AdminService adminService;
+    @Autowired
+    private CommonService commonService;
 
     @ApiOperation(("新增管理员"))
     @PostMapping("add")
@@ -62,7 +65,7 @@ public class AdminController {
             return new ResponseEntity("用户名已存在");
         }
         //获取当前登陆用户
-        Admin currentUser = adminService.getCurrent();
+        Admin currentUser = commonService.getCurrentUser();
         Admin admin = createAdmin(vo, currentUser);
         admin = adminService.save(admin);
         if (Objects.isNull(admin)) {
@@ -87,7 +90,7 @@ public class AdminController {
             return ResponseUtil.parameterNotNull();
         }
         //获取当前登陆用户
-        Admin currentUser = adminService.getCurrent();
+        Admin currentUser = commonService.getCurrentUser();
         adminService.deleteById(vo.getId());
         log.info("{}删除管理员id={}", currentUser.getUserName(), vo.getId());
         return ResponseUtil.success();
@@ -108,7 +111,7 @@ public class AdminController {
             status = Constants.open;
         }
         //获取当前登陆用户
-        Admin currentUser = adminService.getCurrent();
+        Admin currentUser = commonService.getCurrentUser();
         adminService.statusById(status, vo.getId());
         log.info("{}修改管理员状态id={}，status={}", currentUser.getUserName(), vo.getId(), status);
         return ResponseUtil.success();
@@ -129,7 +132,7 @@ public class AdminController {
             }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };
-        Page<Admin> pageList = adminService.getAdminPage(spec,pageable);
+        Page<Admin> pageList = adminService.getAdminPage(spec, pageable);
         return ResponseUtil.success(pageList);
     }
 
@@ -147,7 +150,7 @@ public class AdminController {
             return new ResponseEntity("新旧密码不能一样");
         }
         //获取当前登陆用户
-        Admin currentUser = adminService.getCurrent();
+        Admin currentUser = commonService.getCurrentUser();
         if (Objects.isNull(currentUser)) {
             return new ResponseEntity("管理员不存在");
         }

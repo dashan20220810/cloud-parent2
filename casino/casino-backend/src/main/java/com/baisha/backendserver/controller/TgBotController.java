@@ -1,6 +1,7 @@
 package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.constants.TgBotServerConstants;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.service.AdminService;
@@ -36,14 +37,13 @@ public class TgBotController {
     private String tgBotServerUrl;
 
     @Autowired
-    private AdminService adminService;
+    private CommonService commonService;
+
 
     @ApiOperation("新开机器人")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name="username", value="机器人名称", required = true),
-            @ApiImplicitParam(name="token", value="机器人token", required = true),
-            @ApiImplicitParam(name="chatId", value="TG群id", required = true)
-    })
+    @ApiImplicitParams({@ApiImplicitParam(name = "username", value = "机器人名称", required = true),
+            @ApiImplicitParam(name = "token", value = "机器人token", required = true), @ApiImplicitParam(name = "chatId"
+            , value = "TG群id", required = true)})
     @PostMapping("open")
     public ResponseEntity open(String username, String token, String chatId) {
         // 参数校验
@@ -51,7 +51,7 @@ public class TgBotController {
             return ResponseUtil.parameterNotNull();
         }
         // 后台登陆用户
-        Admin current = adminService.getCurrent();
+        Admin current = commonService.getCurrentUser();
         String url = tgBotServerUrl + TgBotServerConstants.OPEN_TG_BOT;
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("username", username);
