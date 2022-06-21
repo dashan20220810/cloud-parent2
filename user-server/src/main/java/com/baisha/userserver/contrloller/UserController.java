@@ -4,14 +4,13 @@ import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.userserver.model.Assets;
 import com.baisha.userserver.model.User;
-import com.baisha.userserver.response.UserBO;
+import com.baisha.userserver.bo.UserBO;
 import com.baisha.userserver.service.AssetsService;
 import com.baisha.userserver.service.UserService;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.userserver.util.UserServerUtil;
 import com.baisha.userserver.vo.IdVO;
-import com.baisha.userserver.vo.StatusVO;
 import com.baisha.userserver.vo.user.UserAddVO;
 import com.baisha.userserver.vo.user.UserPageVO;
 import com.baisha.userserver.vo.user.UserSearchVO;
@@ -73,16 +72,18 @@ public class UserController {
         User user = createUser(vo);
         userService.saveUser(user);
         //资产
-        Assets assets = createAssets(user.getId());
+        Assets assets = createAssets(user);
         assetsService.saveAssets(assets);
         return ResponseUtil.success();
     }
 
-    private Assets createAssets(Long userId) {
+    private Assets createAssets(User user) {
         Assets assets = new Assets();
-        assets.setUserId(userId);
+        assets.setUserId(user.getId());
         assets.setBalance(BigDecimal.ZERO);
         assets.setFreezeAmount(BigDecimal.ZERO);
+        assets.setCreateBy(user.getUserName());
+        assets.setUpdateBy(user.getUserName());
         return assets;
     }
 
@@ -93,6 +94,8 @@ public class UserController {
         String bcryptPassword = CommonUtil.checkNull(vo.getPassword()) ? null : UserServerUtil.bcrypt(vo.getPassword());
         user.setPassword(bcryptPassword);
         user.setIp(vo.getIp());
+        user.setCreateBy(vo.getUserName());
+        user.setUpdateBy(vo.getUserName());
         return user;
     }
 

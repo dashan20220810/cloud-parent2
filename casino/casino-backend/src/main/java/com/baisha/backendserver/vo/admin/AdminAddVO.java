@@ -10,7 +10,7 @@ import javax.persistence.Column;
  * @author yihui
  */
 @Data
-@ApiModel(value = "后台-新增管理员请求对象s")
+@ApiModel(value = "后台-新增管理员请求对象")
 public class AdminAddVO {
 
     @ApiModelProperty(value = "用户名(必须是6-15位的字母或数字)", required = true)
