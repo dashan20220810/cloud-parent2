@@ -2,22 +2,14 @@ package com.baisha.handle;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.enums.RequestPathEnum;
-import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
-import com.baisha.modulecommon.reponse.ResponseUtil;
-import com.baisha.modulecommon.util.CommonUtil;
-import com.baisha.modulecommon.util.HttpClient4Util;
-import com.baisha.modulejjwt.JjwtUtil;
 import com.baisha.util.TelegramBotUtil;
 import com.baisha.util.TgHttpClient4Util;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -57,7 +49,7 @@ public class TelegramMessageHandler {
     }
 
     public void registerUser(String id, MyTelegramLongPollingBot bot, String userName) {
-        String requestUrl= TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_REGISTER_USER.getApiName();
+        String requestUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_REGISTER_USER.getApiName();
         // 设置请求参数
         Map<String, Object> param = Maps.newHashMap();
         param.put("name", id);

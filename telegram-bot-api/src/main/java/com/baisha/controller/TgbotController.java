@@ -1,6 +1,7 @@
 package com.baisha.controller;
 
 import com.baisha.bot.MyTelegramLongPollingBot;
+import com.baisha.business.TgBotBusiness;
 import com.baisha.model.TgBot;
 import com.baisha.model.vo.StatusVO;
 import com.baisha.model.vo.TgBotPageVO;
@@ -8,7 +9,6 @@ import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
-import com.baisha.modulespringcacheredis.util.RedisUtil;
 import com.baisha.service.TgBotService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -33,7 +33,7 @@ public class TgbotController {
     private TgBotService tgBotService;
 
     @Autowired
-    private RedisUtil redisUtil;
+    private TgBotBusiness tgBotBusiness;
 
     @ApiOperation("新开机器人")
     @ApiImplicitParams({
@@ -75,7 +75,7 @@ public class TgbotController {
     @ApiOperation("分页查询")
     @PostMapping("page")
     public ResponseEntity<Page<TgBot>> page(TgBotPageVO vo) {
-        Page<TgBot> pageList = tgBotService.getTgBotPage(vo);
+        Page<TgBot> pageList = tgBotBusiness.getTgBotPage(vo);
         return ResponseUtil.success(pageList);
     }
 
@@ -89,7 +89,7 @@ public class TgbotController {
             return ResponseUtil.parameterNotNull();
         }
         // 更新状态
-        tgBotService.updateStatus(id, status);
+        tgBotService.updateStatusById(id, status);
         return ResponseUtil.success();
     }
 }

@@ -1,6 +1,6 @@
 package com.baisha.config.init;
 
-import com.baisha.service.TgBotService;
+import com.baisha.business.TgBotBusiness;
 import com.baisha.util.TelegramBotUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 /**
- * @author: yh
+ * @author: kimi
  */
 @Slf4j
 @Component
@@ -20,7 +20,7 @@ public class ApplicationRunnerInit implements ApplicationRunner {
     private String casinoWebDomain;
 
     @Autowired
-    private TgBotService tgBotService;
+    private TgBotBusiness tgBotBusiness;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -28,7 +28,7 @@ public class ApplicationRunnerInit implements ApplicationRunner {
         TelegramBotUtil.casinoWebDomain = casinoWebDomain;
 
         // 初始化-注册机器人到TelegramBotsApi
-        tgBotService.registerAllBot();
+        tgBotBusiness.registerAllBot();
         log.info("初始化-注册机器人到TelegramBotsApi run success");
     }
 }
