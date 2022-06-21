@@ -33,6 +33,20 @@ public class User extends BaseEntity {
      */
     @Column(length = 64)
     private String password;
+
+    /**
+     * TG用户ID
+     */
+    @Column(length = 64)
+    private String tgUserId;
+
+    /**
+     * TG群ID
+     */
+    @Column(length = 64)
+    private String tgGroupId;
+
+
     /**
      * IP
      */
@@ -43,6 +57,9 @@ public class User extends BaseEntity {
      */
     @Column(precision = 1)
     private Integer status = 1;
+
+    @Column(length = 20)
+    private String origin;
 
 
     /**
