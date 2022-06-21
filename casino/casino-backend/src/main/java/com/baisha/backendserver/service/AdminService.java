@@ -58,15 +58,7 @@ public class AdminService {
         return findAdminByIdSql(id);
     }
 
-    public Page<Admin> getAdminPage(AdminPageVO vo) {
-        Pageable pageable = BackendServerUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
-        Specification<Admin> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new LinkedList<>();
-            if (StringUtils.isNotBlank(vo.getUserName())) {
-                predicates.add(cb.equal(root.get("userName"), vo.getUserName()));
-            }
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
-        };
+    public Page<Admin> getAdminPage(Specification<Admin> spec, Pageable pageable) {
         Page<Admin> page = adminRepository.findAll(spec, pageable);
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }

@@ -17,11 +17,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.persistence.criteria.Predicate;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -116,7 +121,15 @@ public class AdminController {
         if (StringUtils.isNotEmpty(vo.getUserName()) && Admin.checkUserName(vo.getUserName())) {
             return new ResponseEntity("用户名不规范");
         }
-        Page<Admin> pageList = adminService.getAdminPage(vo);
+        Pageable pageable = BackendServerUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
+        Specification<Admin> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new LinkedList<>();
+            if (StringUtils.isNotBlank(vo.getUserName())) {
+                predicates.add(cb.equal(root.get("userName"), vo.getUserName()));
+            }
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+        };
+        Page<Admin> pageList = adminService.getAdminPage(spec,pageable);
         return ResponseUtil.success(pageList);
     }
 

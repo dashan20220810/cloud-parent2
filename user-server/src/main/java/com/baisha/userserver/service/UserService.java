@@ -48,15 +48,7 @@ public class UserService {
         return userRepository.findByUserName(userName);
     }
 
-    public Page<User> getUserPage(UserPageVO vo) {
-        Pageable pageable = PageRequest.of(vo.getPageNumber() - 1, vo.getPageSize());
-        Specification<User> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new LinkedList<>();
-            if (StringUtils.isNotBlank(vo.getUserName())) {
-                predicates.add(cb.equal(root.get("userName"), vo.getUserName()));
-            }
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
-        };
+    public Page<User> getUserPage(Specification<User> spec, Pageable pageable) {
         Page<User> page = userRepository.findAll(spec, pageable);
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }

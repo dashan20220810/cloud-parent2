@@ -20,9 +20,15 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.Predicate;
 import java.math.BigDecimal;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -96,7 +102,15 @@ public class UserController {
         if (StringUtils.isNotEmpty(vo.getUserName()) && User.checkUserName(vo.getUserName())) {
             return new ResponseEntity("用户名不规范");
         }
-        Page<User> pageList = userService.getUserPage(vo);
+        Pageable pageable = PageRequest.of(vo.getPageNumber() - 1, vo.getPageSize());
+        Specification<User> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new LinkedList<>();
+            if (StringUtils.isNotBlank(vo.getUserName())) {
+                predicates.add(cb.equal(root.get("userName"), vo.getUserName()));
+            }
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+        };
+        Page<User> pageList = userService.getUserPage(spec, pageable);
         return ResponseUtil.success(pageList);
     }
 
