@@ -21,7 +21,7 @@ public class OrderBusiness {
 	@Value("${project.server-url.game-server-domain}")
 	private String gameServerDomain;
 	
-	public boolean bet ( String clientIP, Long userId, String userName, BetOption betOption, 
+	public boolean bet ( String clientIP, Long userId, BetOption betOption, 
 			Long amount, String noRun, String noActive ) {
 
 		// 记录IP
@@ -30,7 +30,6 @@ public class OrderBusiness {
 		
 		params.put("clientIP", ip);
 		params.put("userId", userId);  
-		params.put("userName", userName);
 		params.put("betOption", betOption);
 		params.put("amount", amount);
 		params.put("noRun", noRun);

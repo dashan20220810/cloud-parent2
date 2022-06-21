@@ -44,16 +44,17 @@ public class OrderController {
     public ResponseEntity<String> bet(BetVO betVO) {
 
 		log.info("[下注]");
+    	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
     	
-    	if ( BetVO.checkRequest(betVO)==false ) {
+    	if ( BetVO.checkRequest(betVO)==false 
+    			|| (isTgRequest && betVO.getTgChatId()==null) ) {
     		log.info("[下注] 检核失败");
     		return ResponseUtil.fail();
     	}
     	
     	//  user id查user
-    	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
     	String userIdOrName = CasinoWebUtil.getCurrentUserId();
-    	UserVO userVO = userBusiness.getUserVO(isTgRequest, userIdOrName);
+    	UserVO userVO = userBusiness.getUserVO(isTgRequest, userIdOrName, Math.abs(betVO.getTgChatId()) );
     	
     	if ( userVO==null ) {
             return ResponseUtil.fail();
@@ -61,14 +62,14 @@ public class OrderController {
 
     	//  呼叫
     	//	会员管理-下分api
-    	if ( assetsBusiness.withdraw(userVO.getUserName(), betVO.getAmount())==false ) {
+    	if ( assetsBusiness.withdraw(userVO.getId(), betVO.getAmount())==false ) {
             return ResponseUtil.fail();
     	}
     	
 		// 记录IP
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
 		//	TODO 輪/局號 應來自荷官端，不得從請求中代入
-    	boolean betResult = orderBusiness.bet(ip, userVO.getId(), userVO.getUserName(), betVO.getBetOption(), betVO.getAmount(), "00001", "00001");
+    	boolean betResult = orderBusiness.bet(ip, userVO.getId(), betVO.getBetOption(), betVO.getAmount(), "00001", "00001");
     	if ( betResult==false ) {
             return ResponseUtil.fail();
     	}

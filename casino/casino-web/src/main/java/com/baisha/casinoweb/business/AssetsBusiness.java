@@ -18,11 +18,11 @@ public class AssetsBusiness {
 	@Value("${project.server-url.user-server-domain}")
 	private String userServerDomain;
 	
-	public boolean withdraw ( String userName, Long amount ) {
+	public boolean withdraw ( Long userId, Long amount ) {
 
     	//	会员管理-下分api
     	Map<String, Object> params2 = new HashMap<>();
-    	params2.put("userName", userName);
+    	params2.put("userId", userId);
     	params2.put("amount", amount);
     	params2.put("balanceType", Constants.BALANCE_TYPE_WITHDRAW);
     	params2.put("remark", "下注");

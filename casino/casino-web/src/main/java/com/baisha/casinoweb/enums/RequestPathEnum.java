@@ -9,7 +9,7 @@ public enum RequestPathEnum {
 	 * 使用者中心  
 	 */
 	/** 使用者注册 */
-    USER_REGISTER("/user/addUser"),
+    USER_REGISTER("/user/save"),
     /** id查找使用者 */
     USER_QUERY_BY_ID("/user/findById"),
     /** user_name查找使用者 */

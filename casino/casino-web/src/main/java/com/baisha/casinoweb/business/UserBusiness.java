@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import com.baisha.casinoweb.enums.RequestPathEnum;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.vo.UserVO;
-import com.baisha.modulecommon.reponse.ResponseUtil;
+import com.baisha.modulecommon.enums.UserOriginEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 
@@ -23,31 +23,23 @@ public class UserBusiness {
 	private String tgRegisterPassword;
 	
 	public UserVO getUserVO( String userIdOrName ) {
-		return getUserVO( false, userIdOrName );
+		return getUserVO( false, userIdOrName, null );
 	}
 	
-	public UserVO getUserVO( boolean isTelegramRequest, String userIdOrName ) {
+	public UserVO getUserVO( boolean isTelegramRequest, String userId, Long tgChatId ) {
 
     	//  user id查user
-    	String userName = null;
-    	Long userId = null;
     	UserVO userVO = null;
     	
     	if ( isTelegramRequest ) {
-    		userName = userIdOrName;
-        	userVO = CasinoWebUtil.getUserVO(userServerDomain, userName);
-        	if ( userVO!=null ) {
-        		userId = userVO.getId();
-        	} else {
+        	userVO = CasinoWebUtil.getUserVO(userServerDomain, userId, tgChatId);
+        	if ( userVO==null ) {
         		//	token中查无user资料
                 return null;
         	}
     	} else {
-    		userId = Long.parseLong(userIdOrName);
-        	userVO = CasinoWebUtil.getUserVO(userServerDomain, userId);
-        	if ( userVO!=null ) {
-        		userName = userVO.getUserName();
-        	} else {
+        	userVO = CasinoWebUtil.getUserVO(userServerDomain, Long.parseLong(userId));
+        	if ( userVO==null ) {
         		//	token中查无user资料
                 return null;
         	}
@@ -56,13 +48,15 @@ public class UserBusiness {
     	return userVO;
 	}
 
-	public boolean registerTG( String clientIP, String userName, String nickName ) {
+	public boolean registerTG( String clientIP, String id, String nickName, Long groupId ) {
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("ip", clientIP);
-		params.put("userName", userName);
+		params.put("tgUserId", id);
+		params.put("tgGroupId", Math.abs(groupId));
 		params.put("nickName", nickName);
 		params.put("password", tgRegisterPassword);
+		params.put("origin", UserOriginEnum.TG_ORIGIN.getOrigin());
 
 		String result = HttpClient4Util.doPost(
 				userServerDomain + RequestPathEnum.USER_REGISTER.getApiName(),

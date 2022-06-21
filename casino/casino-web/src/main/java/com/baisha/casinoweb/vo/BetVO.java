@@ -1,7 +1,5 @@
 package com.baisha.casinoweb.vo;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.baisha.modulecommon.enums.BetOption;
 
 import io.swagger.annotations.ApiModel;
@@ -21,6 +19,9 @@ public class BetVO {
 
     @ApiModelProperty(required=true, name="下注金额")
 	private Long amount;
+
+    @ApiModelProperty(name="telegram chat id")
+    private Long tgChatId;
 	
     /**
      * 检核下注请求

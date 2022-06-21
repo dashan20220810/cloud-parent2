@@ -1,12 +1,9 @@
 package com.baisha.casinoweb.util;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.baisha.modulecommon.enums.UserOriginEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baisha.casinoweb.enums.RequestPathEnum;
 import com.baisha.casinoweb.vo.UserVO;
 import com.baisha.modulecommon.Constants;
+import com.baisha.modulecommon.enums.UserOriginEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulejjwt.JjwtUtil;
@@ -96,9 +94,9 @@ public class CasinoWebUtil {
 				params);
     }
 
-    public static UserVO getUserVO( String userServerDomain, String userName ) {
+    public static UserVO getUserVO( String userServerDomain, String tgUserId, Long tgGroupId ) {
 
-    	String params = "?userName=" + userName;
+    	String params = "?tgUserId=" + tgUserId +"&tgGroupId=" +tgGroupId;
 
 		return getUserVO(userServerDomain, RequestPathEnum.USER_QUERY_BY_USER_NAME.getApiName(), 
 				params);
