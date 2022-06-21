@@ -54,10 +54,7 @@ public class BalanceService {
     }
 
     private ResponseEntity doReduceBalance(User user, BalanceVO vo) {
-        Assets assets = assetsService.getAssetsByUserId(user.getId());
-        if (Objects.isNull(assets)) {
-            return new ResponseEntity("资产不存在");
-        }
+        Assets assets = findAssetsByUserId(user.getId());
         if (assets.getBalance().compareTo(vo.getAmount()) < 0) {
             return new ResponseEntity("余额不足");
         }
@@ -86,11 +83,8 @@ public class BalanceService {
 
     private ResponseEntity doIncomeBalance(User user, BalanceVO vo) {
         //使用用户ID 使用redisson 公平锁
+        Assets assets = findAssetsByUserId(user.getId());
         //插入余额变动表
-        Assets assets = assetsService.getAssetsByUserId(user.getId());
-        if (Objects.isNull(assets)) {
-            return new ResponseEntity("资产不存在");
-        }
         BalanceChange balanceChange = new BalanceChange();
         balanceChange.setUserId(user.getId());
         balanceChange.setBalanceType(UserServerConstants.INCOME);
@@ -113,4 +107,17 @@ public class BalanceService {
         log.info("(收入)创建余额变化失败(userId={})", user.getId());
         return ResponseUtil.fail();
     }
+
+    public Assets findAssetsByUserId(Long userId) {
+        Assets assets = assetsService.getAssetsByUserId(userId);
+        if (Objects.isNull(assets)) {
+            assets = new Assets();
+            assets.setUserId(userId);
+            assetsService.saveAssets(assets);
+            return assets;
+        }
+        return assets;
+    }
+
+
 }

@@ -23,12 +23,12 @@ public class Assets extends BaseEntity {
      * 余额
      */
     @Column(precision = 16, scale = 2)
-    private BigDecimal balance;
+    private BigDecimal balance = BigDecimal.ZERO;
     /**
      * 冻结余额
      */
     @Column(precision = 16, scale = 2)
-    private BigDecimal freezeAmount;
+    private BigDecimal freezeAmount = BigDecimal.ZERO;
 
 
 }

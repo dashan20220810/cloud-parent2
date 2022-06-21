@@ -102,6 +102,37 @@ public class UserServerUtil {
         return false;
     }
 
+    /**
+     * 获取TG的userName
+     *
+     * @param tgGroupId
+     * @param tgUserId
+     * @return
+     */
+    public static String getTgUserName(String tgGroupId, String tgUserId) {
+        //去掉 - 负号
+        String regex = "-";
+        if (tgGroupId.contains(regex)) {
+            tgGroupId = tgGroupId.replaceAll(regex, "");
+        }
+        return tgUserId + "_" + tgGroupId;
+    }
+
+    /**
+     * 去掉负号
+     *
+     * @param tgGroupId
+     * @return
+     */
+    public static String getTgGroupId(String tgGroupId) {
+        //去掉 - 负号
+        String regex = "-";
+        if (tgGroupId.contains(regex)) {
+            tgGroupId = tgGroupId.replaceAll(regex, "");
+        }
+        return tgGroupId;
+    }
+
 
     public static void main(String[] args) {
         String us = "111q11_Q```";

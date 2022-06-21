@@ -41,8 +41,6 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-    @Autowired
-    private AssetsService assetsService;
 
     @ApiOperation(("新增用户"))
     @PostMapping("save")
@@ -67,13 +65,8 @@ public class UserController {
         if (StringUtils.isNoneEmpty(vo.getIp()) && User.checkIp(vo.getIp())) {
             return new ResponseEntity("ip不规范");
         }
-        //去掉 - 负号
-        String regex = "-";
-        if (vo.getTgGroupId().contains(regex)) {
-            vo.setTgGroupId(vo.getTgGroupId().replaceAll(regex, ""));
-        }
-        String userName = vo.getTgUserId() + "_" + vo.getTgGroupId();
-        vo.setUserName(userName);
+        vo.setTgGroupId(UserServerUtil.getTgGroupId(vo.getTgGroupId()));
+        vo.setUserName(UserServerUtil.getTgUserName(vo.getTgGroupId(), vo.getTgUserId()));
         // 查询用户名是否存在
         User isExist = userService.findByUserName(vo.getUserName());
         if (Objects.nonNull(isExist)) {
@@ -82,12 +75,12 @@ public class UserController {
         User user = createTelegramUser(vo);
         userService.saveUser(user);
         //资产
-        Assets assets = createAssets(user);
-        assetsService.saveAssets(assets);
+        //Assets assets = createAssets(user);
+        //assetsService.saveAssets(assets);
         return ResponseUtil.success();
     }
 
-    private Assets createAssets(User user) {
+   /* private Assets createAssets(User user) {
         Assets assets = new Assets();
         assets.setUserId(user.getId());
         assets.setBalance(BigDecimal.ZERO);
@@ -95,7 +88,7 @@ public class UserController {
         assets.setCreateBy(user.getUserName());
         assets.setUpdateBy(user.getUserName());
         return assets;
-    }
+    }*/
 
     private User createTelegramUser(UserAddVO vo) {
         User user = new User();
@@ -192,13 +185,7 @@ public class UserController {
         if (StringUtils.isEmpty(vo.getTgGroupId())) {
             return new ResponseEntity("TG群ID为空");
         }
-        //去掉 - 负号
-        String regex = "-";
-        if (vo.getTgGroupId().contains(regex)) {
-            vo.setTgGroupId(vo.getTgGroupId().replaceAll(regex, ""));
-        }
-        String userName = vo.getTgUserId() + "_" + vo.getTgGroupId();
-        vo.setUserName(userName);
+        vo.setUserName(UserServerUtil.getTgUserName(vo.getTgGroupId(), vo.getTgUserId()));
         User user = userService.findByUserName(vo.getUserName());
         if (Objects.isNull(user)) {
             return new ResponseEntity("会员不存在");

@@ -14,8 +14,8 @@ import java.math.BigDecimal;
 @ApiModel(value = "用户中心-上/下分请求请对象")
 public class BalanceVO {
 
-    @ApiModelProperty(value = "用户名(长度3-30位,只能输入字母或数字或_)", required = true)
-    private String userName;
+    @ApiModelProperty(value = "用户ID", required = true)
+    private Long userId;
 
     @ApiModelProperty(value = "金额", required = true)
     private BigDecimal amount;
