@@ -13,6 +13,6 @@ import lombok.Data;
 public class AdminPageVO extends PageVO {
 
     @ApiModelProperty(value = "用户名(必须是6-15位的字母或数字)")
-    String userName;
+    private String userName;
 
 }
