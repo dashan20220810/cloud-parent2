@@ -1,4 +1,4 @@
-package com.baisha.userserver.response;
+package com.baisha.userserver.bo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
