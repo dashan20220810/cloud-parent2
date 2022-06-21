@@ -74,21 +74,8 @@ public class UserController {
         }
         User user = createTelegramUser(vo);
         userService.saveUser(user);
-        //资产
-        //Assets assets = createAssets(user);
-        //assetsService.saveAssets(assets);
         return ResponseUtil.success();
     }
-
-   /* private Assets createAssets(User user) {
-        Assets assets = new Assets();
-        assets.setUserId(user.getId());
-        assets.setBalance(BigDecimal.ZERO);
-        assets.setFreezeAmount(BigDecimal.ZERO);
-        assets.setCreateBy(user.getUserName());
-        assets.setUpdateBy(user.getUserName());
-        return assets;
-    }*/
 
     private User createTelegramUser(UserAddVO vo) {
         User user = new User();
