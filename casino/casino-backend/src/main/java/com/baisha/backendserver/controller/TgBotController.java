@@ -78,7 +78,7 @@ public class TgBotController {
         return JSON.parseObject(result, ResponseEntity.class);
     }
 
-    @ApiOperation("更新状态 1正常 2禁用")
+    @ApiOperation("更新状态 0禁用 1启用")
     @PostMapping("updateStatus")
     public ResponseEntity updateStatus(StatusVO statusVO) {
         Long id = statusVO.getId();
