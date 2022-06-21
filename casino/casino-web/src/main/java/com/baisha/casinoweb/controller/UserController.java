@@ -33,8 +33,11 @@ public class UserController {
 	@Value("${project.server-url.user-server-domain}")
 	private String userServerDomain;
 	
-	@Value("${project.telegram.register-password")
+	@Value("${project.telegram.register-password}")
 	private String tgRegisterPassword;
+	
+	@Value("${project.telegram.user-name-prefix:TG}")
+	private String tgUsernamePrefix;
 
 	/**
 	 * TG注册
@@ -44,22 +47,24 @@ public class UserController {
 	@PostMapping("registerTG")
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "nickname", value = "用户名(長度3-20,只能輸入_,字母,數字)", dataType = "string", required = true, paramType = "query"),
-			@ApiImplicitParam(name = "name", value = "用户名(長度3-20,只能輸入_,字母,數字)", dataType = "string", required = true, paramType = "query"), })
+			@ApiImplicitParam(name = "name", value = "用户名(長度3-20,只能輸入_,字母,數字)", dataType = "string", required = true, paramType = "query"), 
+			@ApiImplicitParam(name = "groupId", value = "telegram group id", dataType = "long", required = true, paramType = "query")})
 	@ApiOperation("telegram注册")
 	@NoAuthentication
-	public ResponseEntity<?> registerTG(String name, String nickname) {
+	public ResponseEntity<?> registerTG(String name, String nickname, Long groupId) {
 		log.info("注册使用者");
-		if (CommonUtil.checkNull(name, nickname)) {
+		if (CommonUtil.checkNull(name, nickname) || groupId==null) {
 			log.info("注册检核失败");
 			return ResponseUtil.parameterNotNull();
 		}
-
+		String userName = tgUsernamePrefix +name +Math.abs(groupId);
+		
 		// 记录IP
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("ip", ip);
-		params.put("userName", name);
+		params.put("userName", userName);
 		params.put("nickName", nickname);
 		params.put("password", tgRegisterPassword);
 

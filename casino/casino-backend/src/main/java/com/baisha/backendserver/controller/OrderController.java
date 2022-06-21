@@ -3,6 +3,7 @@ package com.baisha.backendserver.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -64,8 +65,15 @@ public class OrderController {
 
     @GetMapping("betOption")
     @ApiOperation("下注类型")
-    public ResponseEntity<List<BetOption>> betOption() {
+    public ResponseEntity<List<Map<String, String>>> betOption() {
     	log.info("下注类型");
-        return ResponseUtil.success(BetOption.getList());
+        return ResponseUtil.success(BetOption.getList()
+        		.stream()
+        		.map(option -> { 
+        			Map<String, String> map = new HashMap<>();
+        			map.put("name", option.getDisplay());
+        			map.put("value", option.toString());
+        			return map;
+        		}).collect(Collectors.toList()));
     }
 }
