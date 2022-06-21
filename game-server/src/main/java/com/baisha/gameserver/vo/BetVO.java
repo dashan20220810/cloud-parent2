@@ -25,7 +25,10 @@ public class BetVO implements Serializable {
     private String orderNo;
 
 	@ApiModelProperty(required=true, name="user_id")
-	private String userId;
+	private Long userId;
+
+	@ApiModelProperty(required=true, name="user_name")
+	private String userName;
 
     @ApiModelProperty(required=true, name="下注类型", notes="ZD庄对,XD闲对,Z庄,X闲,H和,D对,SS超六")
 	private BetOption betOption;
@@ -41,6 +44,9 @@ public class BetVO implements Serializable {
 
     @ApiModelProperty(required=true, name="订单状态")
     private Integer status;
+
+    @ApiModelProperty(required=true, name="IP")
+    private String clientIP;
 
     public Bet generateBet() {
     	Bet result = new Bet();

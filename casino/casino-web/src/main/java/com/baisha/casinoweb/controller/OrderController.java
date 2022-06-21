@@ -13,6 +13,7 @@ import com.baisha.casinoweb.constant.Constants;
 import com.baisha.casinoweb.enums.RequestPathEnum;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.vo.BetVO;
+import com.baisha.casinoweb.vo.UserVO;
 import com.baisha.modulecommon.annotation.NoAuthentication;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -51,11 +52,37 @@ public class OrderController {
     		log.info("[下注] 检核失败");
     		return ResponseUtil.fail();
     	}
+    	
+    	//  user id查user
+    	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
+    	String userName = null;
+    	Long userId = null;
+    	String userIdOrName = CasinoWebUtil.getCurrentUserId();
+    	
+    	if ( isTgRequest ) {
+    		userName = userIdOrName;
+        	UserVO userVO = CasinoWebUtil.getUserVO(userServerDomain, userName);
+        	if ( userVO!=null ) {
+        		userId = userVO.getId();
+        	} else {
+        		//	token中查无user资料
+                return ResponseUtil.fail();
+        	}
+    	} else {
+    		userId = Long.parseLong(userIdOrName);
+        	UserVO userVO = CasinoWebUtil.getUserVO(userServerDomain, userId);
+        	if ( userVO!=null ) {
+        		userName = userVO.getUserName();
+        	} else {
+        		//	token中查无user资料
+                return ResponseUtil.fail();
+        	}
+    	}
 
     	//  呼叫
     	//	会员管理-下分api
     	Map<String, Object> params2 = new HashMap<>();
-    	params2.put("userName", betVO.getUserName());
+    	params2.put("userName", userName);
     	params2.put("amount", betVO.getAmount());
     	params2.put("balanceType", Constants.BALANCE_TYPE_WITHDRAW);
     	params2.put("remark", "下注");
@@ -80,9 +107,8 @@ public class OrderController {
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
 		
 		params.put("clientIP", ip);
-		// TODO 來自token解析
-		// tg有可能沒有token，必須直接從bot取得user id
-//		params.put("userId", );  
+		params.put("userId", userId);  
+		params.put("userName", userName);
 		params.put("betOption", betVO.getBetOption());
 		params.put("amount", betVO.getAmount());
 		
@@ -107,7 +133,6 @@ public class OrderController {
             return ResponseUtil.fail();
 		}
 
-		log.debug("==== ORDER_BET ==== \r\nreponse: {}", result);
 		log.info("[下注] 成功");
         return ResponseUtil.success();
     }

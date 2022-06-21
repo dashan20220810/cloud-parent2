@@ -1,7 +1,10 @@
 package com.baisha.gameserver.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,6 +13,7 @@ import com.baisha.gameserver.model.Bet;
 import com.baisha.gameserver.service.BetService;
 import com.baisha.gameserver.vo.BetPageVO;
 import com.baisha.gameserver.vo.BetVO;
+import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 
@@ -48,12 +52,12 @@ public class OrderController {
     }
 
     @PostMapping("page")
-    @ApiOperation(("订单查询"))
+    @ApiOperation("订单查询")
     public ResponseEntity<Page<Bet>> page(BetPageVO vo) {
     	
     	log.info("订单查询");
         Page<Bet> pageList = betService.getBetPage(vo);
         return ResponseUtil.success(pageList);
     }
-	
+    
 }

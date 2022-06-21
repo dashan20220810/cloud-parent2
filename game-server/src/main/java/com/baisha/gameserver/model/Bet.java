@@ -29,7 +29,11 @@ public class Bet extends BaseEntity{
 
 	@ApiModelProperty("user_id")
     @Column(name="user_id")
-	private String userId;
+	private Long userId;
+
+	@ApiModelProperty("user_name")
+    @Column(name="user_name")
+	private String userName;
     
     @ApiModelProperty("下注类型")
     @Column(name="bet_option")
@@ -37,10 +41,6 @@ public class Bet extends BaseEntity{
 
     @ApiModelProperty("下注金额")
 	private Long amount;
-
-    @ApiModelProperty("客户端类型: 1网版, 2手机版, 3飞机")
-    @Column(name="client_type")
-	private String clientType;
 
     @ApiModelProperty("客户端IP")
     @Column(name="client_ip")
@@ -64,7 +64,11 @@ public class Bet extends BaseEntity{
      */
     public static boolean checkRequest ( Bet bet ) {
     	
-    	if ( StringUtils.isBlank(bet.getUserId()) ) {
+    	if ( bet.getUserId()==null ) {
+    		return false;
+    	}
+
+    	if ( StringUtils.isBlank(bet.getUserName()) ) {
     		return false;
     	}
 
@@ -73,10 +77,6 @@ public class Bet extends BaseEntity{
     	}
 
     	if ( bet.getAmount()==null || bet.getAmount()<=0L ) {
-    		return false;
-    	}
-
-    	if ( StringUtils.isBlank(bet.getClientType()) ) {
     		return false;
     	}
 

@@ -1,10 +1,12 @@
 package com.baisha.backendserver.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.constants.GameServerConstants;
 import com.baisha.backendserver.vo.bet.BetPageVO;
+import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -57,5 +60,12 @@ public class OrderController {
             return ResponseUtil.fail();
         }
         return JSON.parseObject(result, ResponseEntity.class);
+    }
+
+    @GetMapping("betOption")
+    @ApiOperation("下注类型")
+    public ResponseEntity<List<BetOption>> betOption() {
+    	log.info("下注类型");
+        return ResponseUtil.success(BetOption.getList());
     }
 }

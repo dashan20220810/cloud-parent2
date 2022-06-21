@@ -1,8 +1,11 @@
 package com.baisha.casinoweb.util;
 
-import cn.hutool.core.util.StrUtil;
-import com.baisha.modulecommon.Constants;
-import com.baisha.modulejjwt.JjwtUtil;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -11,8 +14,13 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Objects;
+import com.alibaba.fastjson.JSONObject;
+import com.baisha.casinoweb.enums.RequestPathEnum;
+import com.baisha.casinoweb.vo.UserVO;
+import com.baisha.modulecommon.Constants;
+import com.baisha.modulecommon.util.CommonUtil;
+import com.baisha.modulecommon.util.HttpClient4Util;
+import com.baisha.modulejjwt.JjwtUtil;
 
 public class CasinoWebUtil {
 
@@ -43,15 +51,13 @@ public class CasinoWebUtil {
 
         return false;
     }
-    public static Long getCurrentUserId() {
+    public static String getCurrentUserId() {
         String token = getToken();
         JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
         if (subject == null || ObjectUtils.isEmpty(subject.getUserId())) {
             return null;
         }
-        //获取登陆用户ID
-        Long authId = Long.parseLong(subject.getUserId());
-        return authId;
+        return subject.getUserId();
     }
 
     public static Pageable setPageable(Integer pageCode, Integer pageSize, Sort sort) {
@@ -81,5 +87,40 @@ public class CasinoWebUtil {
         return setPageable(pageCode, pageSize, null);
     }
 
+    public static UserVO getUserVO( String userServerDomain, Long userId ) {
 
+    	String params = "?userId=" + userId;
+
+		return getUserVO(userServerDomain, RequestPathEnum.USER_QUERY_BY_ID.getApiName(), 
+				params);
+    }
+
+    public static UserVO getUserVO( String userServerDomain, String userName ) {
+
+    	String params = "?userName=" + userName;
+
+		return getUserVO(userServerDomain, RequestPathEnum.USER_QUERY_BY_USER_NAME.getApiName(), 
+				params);
+    }
+    
+    private static UserVO getUserVO( String userServerDomain, String api, String params ) {
+
+    	String result = HttpClient4Util.doGet(userServerDomain + api + params);
+        if (CommonUtil.checkNull(result)) {
+            return null;
+        }
+
+		JSONObject json = JSONObject.parseObject(result);
+		Integer code = json.getInteger("code");
+		if ( code==null || code!=0 ) {
+			return null;
+		}
+
+		JSONObject data = json.getJSONObject("data");
+		UserVO vo = new UserVO();
+		vo.setId(data.getLong("id"));
+		vo.setNickName(data.getString("nickName"));
+		vo.setUserName(data.getString("userName"));
+		return vo;
+    }
 }

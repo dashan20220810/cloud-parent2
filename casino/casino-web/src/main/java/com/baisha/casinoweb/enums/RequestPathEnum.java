@@ -10,6 +10,10 @@ public enum RequestPathEnum {
 	 */
 	/** 使用者注册 */
     USER_REGISTER("/user/addUser"),
+    /** id查找使用者 */
+    USER_QUERY_BY_ID("/user/findById"),
+    /** user_name查找使用者 */
+    USER_QUERY_BY_USER_NAME("/user/query"),
 	/** 使用者登入 */
     USER_LOGIN("/user/login"), // TODO apiName
 	/** 上下分 */

@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.baisha.gameserver.model.Bet;
 import com.baisha.gameserver.repository.BetRepository;
 import com.baisha.gameserver.vo.BetPageVO;
+import com.baisha.modulecommon.util.PageUtil;
 
 /**
  * @author: alvin
@@ -37,7 +37,7 @@ public class BetService {
     }
 
     public Page<Bet> getBetPage(BetPageVO vo) {
-        Pageable pageable = PageRequest.of(vo.getPageNumber() - 1, vo.getPageSize());
+        Pageable pageable = PageUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
         Specification<Bet> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             if (StringUtils.isNotBlank(vo.getUserName())) {
