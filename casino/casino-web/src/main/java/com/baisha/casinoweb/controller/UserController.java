@@ -57,7 +57,7 @@ public class UserController {
 			log.info("注册检核失败");
 			return ResponseUtil.parameterNotNull();
 		}
-		String userName = tgUsernamePrefix +name +Math.abs(groupId);
+		String userName = tgUsernamePrefix +name +"_" +Math.abs(groupId);
 		
 		// 记录IP
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
