@@ -57,8 +57,8 @@ public class TgBotController {
         paramMap.put("username", username);
         paramMap.put("token", token);
         paramMap.put("chatId", chatId);
-        paramMap.put("createBy", current.getCreateBy());
-        paramMap.put("updateBy", current.getUpdateBy());
+        paramMap.put("createBy", current.getUserName());
+        paramMap.put("updateBy", current.getUserName());
         String result = HttpClient4Util.doPost(url, paramMap);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
