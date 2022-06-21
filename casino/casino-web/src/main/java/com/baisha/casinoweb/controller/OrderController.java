@@ -3,13 +3,15 @@ package com.baisha.casinoweb.controller;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.casinoweb.constant.Constants;
+import com.baisha.casinoweb.business.AssetsBusiness;
+import com.baisha.casinoweb.business.OrderBusiness;
+import com.baisha.casinoweb.business.UserBusiness;
 import com.baisha.casinoweb.enums.RequestPathEnum;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.vo.BetVO;
@@ -34,12 +36,15 @@ import lombok.extern.slf4j.Slf4j;
 @Api(tags = { "订单管理" })
 @Slf4j
 public class OrderController {
-
-	@Value("${project.server-url.game-server-domain}")
-	private String gameServerDomain;
-
-	@Value("${project.server-url.user-server-domain}")
-	private String userServerDomain;
+	
+	@Autowired
+	private UserBusiness userBusiness;
+	
+	@Autowired
+	private AssetsBusiness assetsBusiness;
+	
+	@Autowired
+	private OrderBusiness orderBusiness;
 
     @PostMapping("bet")
     @ApiOperation("下注")
@@ -55,83 +60,26 @@ public class OrderController {
     	
     	//  user id查user
     	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
-    	String userName = null;
-    	Long userId = null;
     	String userIdOrName = CasinoWebUtil.getCurrentUserId();
+    	UserVO userVO = userBusiness.getUserVO(isTgRequest, userIdOrName);
     	
-    	if ( isTgRequest ) {
-    		userName = userIdOrName;
-        	UserVO userVO = CasinoWebUtil.getUserVO(userServerDomain, userName);
-        	if ( userVO!=null ) {
-        		userId = userVO.getId();
-        	} else {
-        		//	token中查无user资料
-                return ResponseUtil.fail();
-        	}
-    	} else {
-    		userId = Long.parseLong(userIdOrName);
-        	UserVO userVO = CasinoWebUtil.getUserVO(userServerDomain, userId);
-        	if ( userVO!=null ) {
-        		userName = userVO.getUserName();
-        	} else {
-        		//	token中查无user资料
-                return ResponseUtil.fail();
-        	}
+    	if ( userVO==null ) {
+            return ResponseUtil.fail();
     	}
 
     	//  呼叫
     	//	会员管理-下分api
-    	Map<String, Object> params2 = new HashMap<>();
-    	params2.put("userName", userName);
-    	params2.put("amount", betVO.getAmount());
-    	params2.put("balanceType", Constants.BALANCE_TYPE_WITHDRAW);
-    	params2.put("remark", "下注");
-
-    	String result = HttpClient4Util.doPost(
-				userServerDomain + RequestPathEnum.ASSETS_BALANCE.getApiName(),
-				params2);
-		
-        if (CommonUtil.checkNull(result)) {
+    	if ( assetsBusiness.withdraw(userVO.getUserName(), betVO.getAmount())==false ) {
             return ResponseUtil.fail();
-        }
-
-		JSONObject balanceJson = JSONObject.parseObject(result);
-		Integer code = balanceJson.getInteger("code");
-
-		if ( code!=0 ) {
-            return ResponseUtil.fail();
-		}
+    	}
     	
 		// 记录IP
-    	Map<String, Object> params = new HashMap<>();
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
-		
-		params.put("clientIP", ip);
-		params.put("userId", userId);  
-		params.put("userName", userName);
-		params.put("betOption", betVO.getBetOption());
-		params.put("amount", betVO.getAmount());
-		
 		//	TODO 輪/局號 應來自荷官端，不得從請求中代入
-		params.put("noRun", "00001");
-		params.put("noActive", "00001");
-		params.put("status", 1);
-		params.put("orderNo", SnowFlakeUtils.getSnowId());
-
-		result = HttpClient4Util.doPost(
-				gameServerDomain + RequestPathEnum.ORDER_BET.getApiName(),
-				params);
-
-        if (CommonUtil.checkNull(result)) {
+    	boolean betResult = orderBusiness.bet(ip, userVO.getId(), userVO.getUserName(), betVO.getBetOption(), betVO.getAmount(), "00001", "00001");
+    	if ( betResult==false ) {
             return ResponseUtil.fail();
-        }
-        
-		JSONObject betJson = JSONObject.parseObject(result);
-		code = betJson.getInteger("code");
-
-		if ( code!=0 ) {
-            return ResponseUtil.fail();
-		}
+    	}
 
 		log.info("[下注] 成功");
         return ResponseUtil.success();
