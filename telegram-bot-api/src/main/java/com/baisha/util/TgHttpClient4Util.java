@@ -154,10 +154,10 @@ public class TgHttpClient4Util {
     }
 
     public static String doPost(String url, Map<String, Object> paramMap) {
-        return doPost(url, paramMap);
+        return doPost(url, paramMap, null);
     }
 
-    public static String doPost(String url, Map<String, Object> paramMap,String tgId) {
+    public static String doPost(String url, Map<String, Object> paramMap, String tgId) {
         log.info("doPost请求路径,url:{},paramMap",url, JSONObject.toJSONString(paramMap));
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse httpResponse = null;
@@ -179,6 +179,7 @@ public class TgHttpClient4Util {
         if (StringUtils.isNotEmpty(tgId)) {
             JjwtUtil.Subject subject=new JjwtUtil.Subject();
             subject.setUserId(tgId);
+            subject.setBcryptPassword("123456");
             String jwtToken = JjwtUtil.generic(subject, Constants.CASINO_WEB);
             httpPost.addHeader(Constants.AUTHORIZATION,"Bearer "+ jwtToken);
         }

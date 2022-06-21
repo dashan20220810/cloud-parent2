@@ -36,7 +36,7 @@ public class JjwtUtil {
      */
     public static String generic(Subject subject,String iss) {
 
-        return genericJwt(subject, ttl,iss);
+        return genericJwt(subject, ttl, iss);
     }
 
     /**
@@ -44,9 +44,9 @@ public class JjwtUtil {
      *
      * @return
      */
-    private static String genericJwt(Subject subject, long ttl,String iss) {
+    private static String genericJwt(Subject subject, long ttl, String iss) {
         if (ObjectUtils.isEmpty(subject) || ObjectUtils.isEmpty(subject.getUserId())
-                || ObjectUtils.isEmpty(subject.getBcryptPassword())||ObjectUtils.isEmpty(iss)) {
+                || ObjectUtils.isEmpty(subject.getBcryptPassword()) || ObjectUtils.isEmpty(iss)) {
             return null;
         }
 

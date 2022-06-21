@@ -15,5 +15,5 @@ public class TgBotServerConstants {
     /**
      * 更新状态
      */
-    public static final String UPDATE_STATUS_TG_BOT = "/tgBot/updateStatus";
+    public static final String UPDATE_STATUS_TG_BOT = "/tgBot/updateStatusById";
 }

@@ -27,8 +27,8 @@ public class ApplicationRunnerInit implements ApplicationRunner {
         log.info(casinoWebDomain + " run success");
         TelegramBotUtil.casinoWebDomain = casinoWebDomain;
 
-        // 初始化 注册机器人到TelegramBotsApi
+        // 初始化-注册机器人到TelegramBotsApi
         tgBotService.registerAllBot();
+        log.info("初始化-注册机器人到TelegramBotsApi run success");
     }
-
 }

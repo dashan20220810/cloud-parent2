@@ -28,9 +28,9 @@ import java.util.Map;
 /**
  * @author kimi
  */
+@Api(tags = "机器人管理")
 @RestController
 @RequestMapping("tgBot")
-@Api(tags = "机器人管理")
 public class TgBotController {
 
     @Value("${url.tgBotServer}")
