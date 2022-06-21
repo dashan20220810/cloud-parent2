@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.baisha.modulecommon.enums.UserOriginEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +45,7 @@ public class CasinoWebUtil {
     }
 
     public static boolean isTelegramRequest() {
-        String tg = getRequest().getHeader(Constants.TELEGRAM);
+        String tg = getRequest().getHeader(UserOriginEnum.TG_ORIGIN.getOrigin());
         if (StringUtils.isNotEmpty(tg)) {
             return true;
         }
