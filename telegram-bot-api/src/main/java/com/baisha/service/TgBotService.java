@@ -1,12 +1,10 @@
 package com.baisha.service;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baisha.bot.MyTelegramLongPollingBot;
-import com.baisha.constants.BotConstant;
-import com.baisha.constants.TgBotRedisConstant;
 import com.baisha.model.TgBot;
 import com.baisha.model.vo.TgBotPageVO;
+import com.baisha.modulecommon.Constants;
 import com.baisha.modulespringcacheredis.util.RedisUtil;
 import com.baisha.repository.TgBotRepository;
 import com.baisha.util.TelegramServerUtil;
@@ -84,12 +82,8 @@ public class TgBotService {
     }
 
     public List<TgBot> getTgBots() {
-        List<Object> tgBots = redisUtil.lGet(TgBotRedisConstant.TG_BOT_ALL_PREFIX, 0, -1);
-        if (CollUtil.isNotEmpty(tgBots)) {
-//            return tgBots;
-        }
         TgBot tgBotExample = new TgBot();
-        tgBotExample.setStatus(BotConstant.NORMAL);
+        tgBotExample.setStatus(Constants.open);
         Example<TgBot> example = Example.of(tgBotExample);
         return tgBotRepository.findAll(example);
     }
