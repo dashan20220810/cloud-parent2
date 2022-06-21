@@ -1,21 +1,16 @@
 package com.baisha.casinoweb.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.alibaba.fastjson.JSONObject;
-import com.baisha.casinoweb.enums.RequestPathEnum;
+import com.baisha.casinoweb.business.UserBusiness;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.modulecommon.annotation.NoAuthentication;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
-import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.util.IpUtil;
 
 import io.swagger.annotations.Api;
@@ -29,15 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 @Api(tags = { "用户控制器" })
 @Slf4j
 public class UserController {
-
-	@Value("${project.server-url.user-server-domain}")
-	private String userServerDomain;
 	
-	@Value("${project.telegram.register-password}")
-	private String tgRegisterPassword;
-	
-	@Value("${project.telegram.user-name-prefix:TG}")
-	private String tgUsernamePrefix;
+	@Autowired
+	private UserBusiness userBusiness;
 
 	/**
 	 * TG注册
@@ -57,24 +46,12 @@ public class UserController {
 			log.info("注册检核失败");
 			return ResponseUtil.parameterNotNull();
 		}
-		String userName = tgUsernamePrefix +name +"_" +Math.abs(groupId);
 		
 		// 记录IP
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
-
-		Map<String, Object> params = new HashMap<>();
-		params.put("ip", ip);
-		params.put("userName", userName);
-		params.put("nickName", nickname);
-		params.put("password", tgRegisterPassword);
-
-		String result = HttpClient4Util.doPost(
-				userServerDomain + RequestPathEnum.USER_REGISTER.getApiName(),
-				params);
-		
-        if (CommonUtil.checkNull(result)) {
+		if ( userBusiness.registerTG(ip, name, nickname)==false ) {
             return ResponseUtil.fail();
-        }
+		}
 
 		log.info("注册成功");
         return ResponseUtil.success();
@@ -86,38 +63,38 @@ public class UserController {
 	 * @param password
 	 * @return
 	 */
-	@ApiImplicitParams({
-		@ApiImplicitParam(name = "userName", value = "用户名", dataType = "string", required = true, paramType = "query"),
-		@ApiImplicitParam(name = "password", value = "密码", dataType = "string", required = true, paramType = "query")
-	})
-	@ApiOperation("用户登入")
-	@NoAuthentication
-	@PostMapping("login")
-	public ResponseEntity<?> login( String userName, String password ) {
-		
-		log.info("[用户登入]");
-		if (CommonUtil.checkNull(userName, password)) {
-			log.info("[用户登入] 检核失败");
-			return ResponseUtil.parameterNotNull();
-		}
-		
-		
-		//USER_LOGIN
-		Map<String, Object> params = new HashMap<>();
-		params.put("userName", userName);
-		params.put("password", password);
-
-		String result = HttpClient4Util.doPost(
-				userServerDomain + RequestPathEnum.USER_LOGIN.getApiName(),
-				params);
-		
-        if (CommonUtil.checkNull(result)) {
-            return ResponseUtil.fail();
-        }
-
-		//TODO
-		log.info("[用户登入] 成功");
-        return ResponseUtil.success();
-	}
+//	@ApiImplicitParams({
+//		@ApiImplicitParam(name = "userName", value = "用户名", dataType = "string", required = true, paramType = "query"),
+//		@ApiImplicitParam(name = "password", value = "密码", dataType = "string", required = true, paramType = "query")
+//	})
+//	@ApiOperation("用户登入")
+//	@NoAuthentication
+//	@PostMapping("login")
+//	public ResponseEntity<?> login( String userName, String password ) {
+//		
+//		log.info("[用户登入]");
+//		if (CommonUtil.checkNull(userName, password)) {
+//			log.info("[用户登入] 检核失败");
+//			return ResponseUtil.parameterNotNull();
+//		}
+//		
+//		
+//		//USER_LOGIN
+//		Map<String, Object> params = new HashMap<>();
+//		params.put("userName", userName);
+//		params.put("password", password);
+//
+//		String result = HttpClient4Util.doPost(
+//				userServerDomain + RequestPathEnum.USER_LOGIN.getApiName(),
+//				params);
+//		
+//        if (CommonUtil.checkNull(result)) {
+//            return ResponseUtil.fail();
+//        }
+//
+//		//TODO
+//		log.info("[用户登入] 成功");
+//        return ResponseUtil.success();
+//	}
 	
 }

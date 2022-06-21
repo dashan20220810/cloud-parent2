@@ -1,16 +1,26 @@
 package com.baisha.casinoweb.business;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.baisha.casinoweb.enums.RequestPathEnum;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.vo.UserVO;
+import com.baisha.modulecommon.reponse.ResponseUtil;
+import com.baisha.modulecommon.util.CommonUtil;
+import com.baisha.modulecommon.util.HttpClient4Util;
 
 @Component
 public class UserBusiness {
 
 	@Value("${project.server-url.user-server-domain}")
 	private String userServerDomain;
+	
+	@Value("${project.telegram.register-password}")
+	private String tgRegisterPassword;
 	
 	public UserVO getUserVO( String userIdOrName ) {
 		return getUserVO( false, userIdOrName );
@@ -46,4 +56,23 @@ public class UserBusiness {
     	return userVO;
 	}
 
+	public boolean registerTG( String clientIP, String userName, String nickName ) {
+
+		Map<String, Object> params = new HashMap<>();
+		params.put("ip", clientIP);
+		params.put("userName", userName);
+		params.put("nickName", nickName);
+		params.put("password", tgRegisterPassword);
+
+		String result = HttpClient4Util.doPost(
+				userServerDomain + RequestPathEnum.USER_REGISTER.getApiName(),
+				params);
+		
+        if (CommonUtil.checkNull(result)) {
+            return false;
+        }
+        
+        return true;
+	}
+	
 }
