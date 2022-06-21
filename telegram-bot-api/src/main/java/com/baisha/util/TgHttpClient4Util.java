@@ -3,6 +3,7 @@ package com.baisha.util;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.modulecommon.Constants;
+import com.baisha.modulecommon.enums.UserOriginEnum;
 import com.baisha.modulejjwt.JjwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -107,7 +108,7 @@ public class TgHttpClient4Util {
             // 设置请求头信息，鉴权
 //            httpGet.setHeader("Authorization", "Bearer da3efcbf-0845-4fe3-8aba-ee040be542c0");
             httpGet.addHeader("Accept-Encoding", "gzip,deflate");
-            httpGet.addHeader(Constants.TELEGRAM, "true");
+            httpGet.addHeader(UserOriginEnum.TG_ORIGIN.getOrigin(), "true");
             if (StringUtils.isNotEmpty(tgId)) {
                 JjwtUtil.Subject subject=new JjwtUtil.Subject();
                 subject.setUserId(tgId);
@@ -175,7 +176,7 @@ public class TgHttpClient4Util {
         httpPost.setConfig(requestConfig);
         // 设置请求头
         httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded");
-        httpPost.addHeader(Constants.TELEGRAM, "true");
+        httpPost.addHeader(UserOriginEnum.TG_ORIGIN.getOrigin(), "true");
         if (StringUtils.isNotEmpty(tgId)) {
             JjwtUtil.Subject subject=new JjwtUtil.Subject();
             subject.setUserId(tgId);
