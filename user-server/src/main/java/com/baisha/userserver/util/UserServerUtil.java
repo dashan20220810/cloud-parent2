@@ -118,28 +118,13 @@ public class UserServerUtil {
         return tgUserId + "_" + tgGroupId;
     }
 
-    /**
-     * 去掉负号
-     *
-     * @param tgGroupId
-     * @return
-     */
-    public static String getTgGroupId(String tgGroupId) {
-        //去掉 - 负号
-        String regex = "-";
-        if (tgGroupId.contains(regex)) {
-            tgGroupId = tgGroupId.replaceAll(regex, "");
-        }
-        return tgGroupId;
-    }
 
-
-    public static void main(String[] args) {
+   /* public static void main(String[] args) {
         String us = "111q11_Q```";
         System.out.println(checkLetterAndNumber(us));
         String us2 = "111q11sas撒上v";
         System.out.println(checkLetterAndNumberAndChinese(us2));
-    }
+    }*/
 
 
 }

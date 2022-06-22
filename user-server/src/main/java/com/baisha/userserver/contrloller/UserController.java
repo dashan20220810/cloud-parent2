@@ -65,8 +65,7 @@ public class UserController {
         if (StringUtils.isNoneEmpty(vo.getIp()) && User.checkIp(vo.getIp())) {
             return new ResponseEntity("ip不规范");
         }
-        vo.setTgGroupId(UserServerUtil.getTgGroupId(vo.getTgGroupId()));
-        vo.setUserName(UserServerUtil.getTgUserName(vo.getTgGroupId(), vo.getTgUserId()));
+        vo.setUserName(vo.getTgUserId());
         // 查询用户名是否存在
         User isExist = userService.findByUserName(vo.getUserName());
         if (Objects.nonNull(isExist)) {
@@ -172,7 +171,7 @@ public class UserController {
         if (StringUtils.isEmpty(vo.getTgGroupId())) {
             return new ResponseEntity("TG群ID为空");
         }
-        vo.setUserName(UserServerUtil.getTgUserName(vo.getTgGroupId(), vo.getTgUserId()));
+        vo.setUserName(vo.getTgUserId());
         User user = userService.findByUserName(vo.getUserName());
         if (Objects.isNull(user)) {
             return new ResponseEntity("会员不存在");
