@@ -5,6 +5,7 @@ package com.baisha.enums;
  */
 public enum RequestPathEnum {
     TELEGRAM_REGISTER_USER("/user/registerTG"),
+    TELEGRAM_ORDER_BET("/order/bet"),
     ;
 
     /**
@@ -15,7 +16,7 @@ public enum RequestPathEnum {
     }
 
     /**
-     * key
+     * apiName
      */
     String apiName;
 

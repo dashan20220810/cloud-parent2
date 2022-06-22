@@ -1,6 +1,5 @@
 package com.baisha.util;
 
-
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.enums.UserOriginEnum;

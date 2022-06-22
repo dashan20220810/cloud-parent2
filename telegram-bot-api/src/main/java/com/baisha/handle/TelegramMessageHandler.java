@@ -10,9 +10,13 @@ import com.baisha.util.TelegramBotUtil;
 import com.baisha.util.TgHttpClient4Util;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -22,7 +26,8 @@ import java.util.regex.Pattern;
 public class TelegramMessageHandler {
 
     public void messageHandler(MyTelegramLongPollingBot bot, Update update) {
-        List<User> users = update.getMessage().getNewChatMembers();
+        Message message = update.getMessage();
+        List<User> users = message.getNewChatMembers();
         // 新用户注册
         if (CollUtil.isNotEmpty(users)) {
             for (User user : users) {
@@ -30,11 +35,11 @@ public class TelegramMessageHandler {
             }
             return;
         }
-
-        //TODO 下注
+        // 下注
+//        tgUserBet(message);
     }
 
-    private void registerEvery(MyTelegramLongPollingBot bot, User user) {
+    public void registerEvery(MyTelegramLongPollingBot bot, User user) {
         String userName = "";
         String id = user.getId().toString();
         if (StrUtil.isNotEmpty(user.getFirstName())) {
@@ -68,6 +73,50 @@ public class TelegramMessageHandler {
             return;
         }
         bot.sendMessage(userName + " 注册会员失败！服务异常！");
+    }
+
+//    public void tgUserBet(Message message) {
+//        // 输入的text
+//        String command = message.getText();
+//        if (StrUtil.isNotEmpty(command)) {
+//            User from = message.getFrom();
+//            String userName = "";
+//            String id = from.getId().toString();
+//            if (StrUtil.isNotEmpty(from.getFirstName())) {
+//                userName += from.getFirstName();
+//            }
+//            if (StrUtil.isNotEmpty(from.getLastName())) {
+//                userName += from.getLastName();
+//            }
+//            // 开始调用
+//            String requestUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_ORDER_BET.getApiName();
+//            // 设置请求参数
+//            Map<String, Object> param = Maps.newHashMap();
+//            param.put("name", id);
+//            param.put("nickname", userName);
+//            param.put("groupId", bot.getChatId());
+//            // 远程调用
+//            String forObject = TgHttpClient4Util.doPost(requestUrl, param, id);
+//            if (StrUtil.isNotEmpty(forObject)) {
+//                ResponseEntity result = JSONObject.parseObject(forObject, ResponseEntity.class);
+//                // 在telegram中提示文字
+//                if (result.getCode() == 0) {
+//                    bot.sendMessage(userName + " 注册会员成功！");
+//                } else {
+//                    bot.sendMessage(userName + " 注册会员失败！" + unicodeToString(result.getMsg()));
+//                }
+//                return;
+//            }
+//            bot.sendMessage(userName + " 注册会员失败！服务异常！");
+//
+//        }
+//    }
+
+    public static void main(String[] args) {
+        String ss = "Z1000";
+        String replace = ss.replace(" ", "");
+        String[] split = replace.split("1");
+        System.out.println(Arrays.toString(split));
     }
 
     /**
