@@ -80,7 +80,7 @@ public class UserController {
     private User createTelegramUser(UserAddVO vo) {
         User user = new User();
         user.setUserName(vo.getUserName());
-        user.setNickName(vo.getTgUserId());
+        user.setNickName(vo.getNickName());
         String bcryptPassword = CommonUtil.checkNull(vo.getPassword()) ? null : UserServerUtil.bcrypt(vo.getPassword());
         user.setPassword(bcryptPassword);
         user.setIp(vo.getIp());
