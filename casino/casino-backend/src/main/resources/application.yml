@@ -1,11 +1,11 @@
 server:
   port: 9402
 
-#用户中心接口
+#应用接口
 url:
-  userServer: http://localhost:9300
-  gameServer: http://localhost:9500
-  tgBotServer: http://localhost:9000
+  userServer: http://192.168.26.25:9300
+  gameServer: http://192.168.26.25:9500
+  tgBotServer: http://192.168.26.25:9000
 
 project:
   title: 管理后台
