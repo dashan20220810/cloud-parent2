@@ -1,56 +1,56 @@
-package com.baisha.fileuploaddownload;
+package com.baisha.fileuploaddownload.controller;
 
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.IpUtil;
-import io.minio.*;
-import io.minio.http.Method;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.UUID;
 
+/**
+ * @author sys
+ */
 @RestController
 @RequestMapping("minio")
 @Api(tags = "文件(图片)上传与下载")
 @Slf4j
 public class MinioController {
 
-    private static MinioClient client;
+    @Autowired
+    private MinioClient client;
 
-    @Value("${minio.endpoint:localhost}")
-    private String endpoint;
     @Value("${minio.secretKey}")
     private String configSecretKey;
+    @Value("${minio.domain}")
+    private String domain;
 
-    //endpoint: 域名或IP  ，bucket: 不同项目不同名称
     private MinioClient getInstance() {
-        if (client == null) {
-            MinioEntity entity = new MinioEntity(endpoint);
-
-            client = MinioClient.builder().endpoint(entity.getEndpoint(), entity.getPort(), false).credentials(entity.getAccessKey(), entity.getSecretKey()).build();
-        }
         return client;
     }
 
+    //endpoint: 域名或IP  ，bucket: 不同项目不同名称
     @ApiOperation("文件（图片）上传,成功返回文件地址")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "bigFileSecret", type = "String", value = "大文件(2M以上)需要秘钥。找管理员获取", required = false),
-            @ApiImplicitParam(name = "bucket", type = "String", value = "bucket名称,提前联系管理员获取", required = true),
-    })
+    @ApiImplicitParams({@ApiImplicitParam(name = "bigFileSecret", type = "String", value = "大文件(2M以上)需要秘钥。找管理员获取",
+            dataTypeClass = String.class), @ApiImplicitParam(name = "bucket", type = "String", value = "bucket" +
+            "名称,提前联系管理员获取", required = true, dataTypeClass = String.class),})
     @PostMapping("upload/{bucket}")
-    public ResponseEntity<String> upload(@PathVariable("bucket") String bucket, @RequestPart("file") MultipartFile file, String bigFileSecret) {
+    public ResponseEntity<String> upload(@PathVariable("bucket") String bucket,
+                                         @RequestPart("file") MultipartFile file, String bigFileSecret) {
         if (file == null) {
             return ResponseUtil.custom("文件不能为null");
         }
@@ -72,13 +72,16 @@ public class MinioController {
             String[] split = oriFilename.split("\\.");
             String suffix = split[split.length - 1];
             String filename = UUID.randomUUID().toString() + "." + suffix;
-            PutObjectArgs args = PutObjectArgs.builder().bucket(bucket).object(filename).stream(inputStream, size, -1).build();
+            PutObjectArgs args = PutObjectArgs.builder().bucket(bucket).object(filename).stream(inputStream, size,
+                    -1).build();
             //上传到MINIO
             getInstance().putObject(args);
-
+            String url = domain + "/" + bucket + "/" + filename;
+            return ResponseUtil.success(url);
             //http://10.0.2.15:9000/baisha/16cc42a1-84ba-48b4-9cc8-9cfa56406f15.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=A762M2VP3HO3IC9FALXZ%2F20211110%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20211110T051859Z&X-Amz-Expires=604799&X-Amz-Security-Token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NLZXkiOiJBNzYyTTJWUDNITzNJQzlGQUxYWiIsImV4cCI6MTYzNjUyMjgyMCwicG9saWN5IjoiY29uc29sZUFkbWluIn0.wt__9QLh-fq8YRWQwvcj8nro9x8CrF8sOSqpNPXJKfh7TPaZU7F7lcm_FkwMejCRcQKXkjhuGiUphYVrmGh0LQ&X-Amz-SignedHeaders=host&versionId=null&X-Amz-Signature=92b6592256640439d6c3a50d244951501ee2438f37d5e439f539cfd0152da8a7
-            String url = getInstance().getPresignedObjectUrl(new GetPresignedObjectUrlArgs().builder()
-                    .bucket(bucket).object(filename).method(Method.GET).build());
+           /* String url =
+                    getInstance().getPresignedObjectUrl(new GetPresignedObjectUrlArgs().builder().bucket(bucket)
+                    .object(filename).method(Method.GET).build());
             String[] urlStr = url.split("\\?");
 
             inputStream.close();
@@ -87,9 +90,10 @@ public class MinioController {
                 return ResponseUtil.success();
             }
             URL path = new URL(urlStr[0]);
-            return ResponseUtil.success(path.getPath());
+            return ResponseUtil.success(path.getPath());*/
         } catch (Exception e) {
             e.printStackTrace();
+            log.error("Exception:{}", e.toString());
             return ResponseUtil.fail();
         }
 
@@ -107,10 +111,9 @@ public class MinioController {
     //创建bucket
     @PostMapping("createBucket")
     @ApiOperation("创建bucket")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "name", type = "String", value = "bucket名称", required = true),
-            @ApiImplicitParam(name = "secretKey", type = "String", value = "秘钥", required = true),
-    })
+    @ApiImplicitParams({@ApiImplicitParam(name = "name", type = "String", value = "bucket名称", required = true,
+            dataTypeClass = String.class), @ApiImplicitParam(name = "secretKey", type = "String", value = "秘钥",
+            required = true, dataTypeClass = String.class),})
     public ResponseEntity createBucket(String name, String secretKey, HttpServletRequest request) {
         if (CommonUtil.checkNull(name) || name.length() < 3 || name.length() > 63) {
             return ResponseUtil.custom("名称长度3-63个字符");

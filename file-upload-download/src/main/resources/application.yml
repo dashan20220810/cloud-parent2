@@ -1,9 +1,13 @@
 server:
   port: 9700
 
+project:
+  title: 文件服务中心
+  swagger:
+    enable: true
+
 minio:
-  endpoint: localhost
-  port: 9000
-  accessKey: dashan
-  secretKey: dashan
-  bucketName: bs
+  endpoint: http://192.168.26.24:9000  #服务器链接
+  accessKey: minioadmin
+  secretKey: minioadmin
+  domain: http://192.168.26.24:9000  #对外访问的域名  比如 http://www.xxx.com
