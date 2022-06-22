@@ -53,7 +53,7 @@ public class UserBusiness {
 		Map<String, Object> params = new HashMap<>();
 		params.put("ip", clientIP);
 		params.put("tgUserId", id);
-		params.put("tgGroupId", Math.abs(groupId));
+		params.put("tgGroupId", groupId);
 		params.put("nickName", nickName);
 		params.put("password", tgRegisterPassword);
 		params.put("origin", UserOriginEnum.TG_ORIGIN.getOrigin());
