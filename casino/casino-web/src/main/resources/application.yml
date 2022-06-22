@@ -6,8 +6,8 @@ project:
   swagger:
     enable: true
   server-url:
-    user-server-domain: http://localhost:9300
-    game-server-domain: http://localhost:9500
+    user-server-domain: http://192.168.26.25:9300
+    game-server-domain: http://192.168.26.25:9500
   telegram:
     register-password: 123456
 
