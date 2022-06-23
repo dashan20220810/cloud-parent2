@@ -41,14 +41,12 @@ public class TgBotController {
     @ApiOperation("新开机器人")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", value = "机器人名称", required = true),
-            @ApiImplicitParam(name = "token", value = "机器人token", required = true),
-            @ApiImplicitParam(name = "chatId", value = "TG群id", required = true),
-            @ApiImplicitParam(name = "chatName", value = "TG群名称", required = true)
+            @ApiImplicitParam(name = "token", value = "机器人token", required = true)
     })
     @PostMapping("open")
-    public ResponseEntity open(String username, String token, String chatId, String chatName) {
+    public ResponseEntity open(String username, String token) {
         // 参数校验
-        if (CommonUtil.checkNull(username, token, chatId, chatName)) {
+        if (CommonUtil.checkNull(username, token)) {
             return ResponseUtil.parameterNotNull();
         }
         // 后台登陆用户
@@ -57,8 +55,6 @@ public class TgBotController {
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("username", username);
         paramMap.put("token", token);
-        paramMap.put("chatId", chatId);
-        paramMap.put("chatName", chatName);
         paramMap.put("createBy", current.getUserName());
         paramMap.put("updateBy", current.getUserName());
         String result = HttpClient4Util.doPost(url, paramMap);
