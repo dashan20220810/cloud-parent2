@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -49,8 +52,8 @@ public class MinioController {
             dataTypeClass = String.class), @ApiImplicitParam(name = "bucket", type = "String", value = "bucket" +
             "名称,提前联系管理员获取", required = true, dataTypeClass = String.class),})
     @PostMapping("upload/{bucket}")
-    public ResponseEntity<String> upload(@PathVariable("bucket") String bucket,
-                                         @RequestPart("file") MultipartFile file, String bigFileSecret) {
+    public ResponseEntity<Map<String, Object>> upload(@PathVariable("bucket") String bucket,
+                                                      @RequestPart("file") MultipartFile file, String bigFileSecret) {
         if (file == null) {
             return ResponseUtil.custom("文件不能为null");
         }
@@ -77,7 +80,11 @@ public class MinioController {
             //上传到MINIO
             getInstance().putObject(args);
             String url = domain + "/" + bucket + "/" + filename;
-            return ResponseUtil.success(url);
+            String fileKey = bucket + "/" + filename;
+            Map<String, Object> data = new HashMap<>(16);
+            data.put("url", url);
+            data.put("fileKey", fileKey);
+            return ResponseUtil.success(data);
             //http://10.0.2.15:9000/baisha/16cc42a1-84ba-48b4-9cc8-9cfa56406f15.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=A762M2VP3HO3IC9FALXZ%2F20211110%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20211110T051859Z&X-Amz-Expires=604799&X-Amz-Security-Token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NLZXkiOiJBNzYyTTJWUDNITzNJQzlGQUxYWiIsImV4cCI6MTYzNjUyMjgyMCwicG9saWN5IjoiY29uc29sZUFkbWluIn0.wt__9QLh-fq8YRWQwvcj8nro9x8CrF8sOSqpNPXJKfh7TPaZU7F7lcm_FkwMejCRcQKXkjhuGiUphYVrmGh0LQ&X-Amz-SignedHeaders=host&versionId=null&X-Amz-Signature=92b6592256640439d6c3a50d244951501ee2438f37d5e439f539cfd0152da8a7
            /* String url =
                     getInstance().getPresignedObjectUrl(new GetPresignedObjectUrlArgs().builder().bucket(bucket)
@@ -143,4 +150,16 @@ public class MinioController {
         BucketExistsArgs bucketExistsArgs = BucketExistsArgs.builder().bucket(bucket).build();
         return getInstance().bucketExists(bucketExistsArgs);
     }
+
+    @GetMapping("getFileUrl")
+    @ApiOperation("获取文件访问路径")
+    public ResponseEntity getFileUrl(String fileKey) {
+        if (StringUtils.isEmpty(fileKey)) {
+            return ResponseUtil.custom("key为空");
+        }
+        String url = domain + "/" + fileKey;
+        return ResponseUtil.success(url);
+    }
+
+
 }
