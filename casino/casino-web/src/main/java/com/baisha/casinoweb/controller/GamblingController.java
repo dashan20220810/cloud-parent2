@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @RestController
 @RequestMapping("/g")
-@Api(tags = { "配置管理" })
+@Api(tags = { "賭局s管理" })
 @Slf4j
 public class GamblingController {
 	
