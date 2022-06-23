@@ -15,13 +15,20 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.generics.BotSession;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Api(tags = "机器人管理")
 @Slf4j
@@ -39,38 +46,40 @@ public class TgbotController {
     @ApiImplicitParams({
         @ApiImplicitParam(name = "username", value="机器人名称", required = true),
         @ApiImplicitParam(name = "token", value="机器人token", required = true),
-        @ApiImplicitParam(name = "chatId", value="TG群id", required = true),
-        @ApiImplicitParam(name = "chatName", value = "TG群名称", required = true),
-        @ApiImplicitParam(name = "createBy", value="创建人"),
-        @ApiImplicitParam(name = "updateBy", value="最后更新人")
     })
     @PostMapping("open")
-    public ResponseEntity open(String username, String token, String chatId, String chatName, String createBy, String updateBy) {
+    public ResponseEntity open(String username, String token) {
         // 参数校验
-        if (CommonUtil.checkNull(username, token, chatId, chatName)) {
+        if (CommonUtil.checkNull(username, token)) {
             return ResponseUtil.parameterNotNull();
         }
-        try {
-            if (null != tgBotService.findByBotName(username)) {
-                return ResponseUtil.custom("当前机器人已经存在！");
-            }
-            // 实例化机器人
-            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-            botsApi.registerBot(new MyTelegramLongPollingBot(username, token, chatId, chatName));
-            // 保存到DB
-            TgBot tgBot = (TgBot) new TgBot()
-                    .setBotName(username)
-                    .setBotToken(token)
-                    .setChatId(chatId)
-                    .setStatus(Constants.open)
-                    .setCreateBy(createBy)
-                    .setUpdateBy(updateBy);
-            tgBotService.save(tgBot);
-            return ResponseUtil.success();
-        } catch (Throwable e) {
-            log.error("Token错误，请填写正确的机器人Token", e);
-            return ResponseUtil.custom("Token错误，请填写正确的机器人Token");
+
+        BotSession botSession = tgBotBusiness.getBotSession(username);
+        if (botSession != null && botSession.isRunning()) {
+            return ResponseUtil.custom("机器人已启动");
         }
+
+        boolean b=tgBotBusiness.startTg(username, token);
+
+        if (!b) {
+            return ResponseUtil.custom("机器人启动失败，请联系技术处理");
+        }
+
+        //业务
+        TgBot tgBot = tgBotService.findByBotName(username);
+        if(ObjectUtils.isEmpty(tgBot)|| StringUtils.isEmpty(tgBot.getBotName())){
+            //新增
+            tgBot.setBotName(username)
+                    .setBotToken(token)
+                    .setStatus(Constants.open);
+        }else {
+            //修改状态
+            tgBot.setStatus(Constants.open);
+        }
+
+        tgBotService.save(tgBot);
+
+        return ResponseUtil.success();
     }
 
     @ApiOperation("分页查询")

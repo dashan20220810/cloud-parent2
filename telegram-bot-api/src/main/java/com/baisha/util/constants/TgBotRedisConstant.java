@@ -1,4 +1,4 @@
-package com.baisha.constants;
+package com.baisha.util.constants;
 
 /**
  * 机器人 Redis常量

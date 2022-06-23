@@ -32,10 +32,6 @@ public class TgBot extends BaseEntity {
     @Column(name = "bot_token", nullable = false, length = 50)
     private String botToken;
 
-    @ApiModelProperty("机器人对应的TG群id")
-    @Column(name = "chat_id", nullable = false, length = 20)
-    private String chatId;
-
     @Column(name = "status", nullable = false)
     @ApiModelProperty("状态 1正常 2禁用")
     private Integer status;

@@ -1,4 +1,4 @@
-package com.baisha.enums;
+package com.baisha.util.enums;
 
 /**
  * 接口路径 枚举类

@@ -33,12 +33,11 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
         return chatName;
     }
 
-    public MyTelegramLongPollingBot(String username, String token, String chatId, String chatName) {
+    public MyTelegramLongPollingBot(String username, String token) {
         this.username = username;
         this.token = token;
-        this.chatId = chatId;
-        this.chatName = chatName;
     }
+
 
     @Override
     public String getBotUsername() {

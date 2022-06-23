@@ -1,4 +1,4 @@
-package com.baisha.config.init;
+package com.baisha.init;
 
 import com.baisha.business.TgBotBusiness;
 import com.baisha.util.TelegramBotUtil;
