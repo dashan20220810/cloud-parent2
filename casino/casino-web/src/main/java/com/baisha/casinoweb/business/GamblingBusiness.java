@@ -2,6 +2,7 @@ package com.baisha.casinoweb.business;
 
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -27,9 +28,9 @@ public class GamblingBusiness {
 	 * @return
 	 */
 	public String currentActive ( Long tgChatId ) {
-
+		
     	String yyyyMMdd = DateUtil.dateToyyyyMMdd(new Date());
-    	String result = TEMP_TABLE_ID +yyyyMMdd +(tempActiveCounter++);
+    	String result = TEMP_TABLE_ID +yyyyMMdd +StringUtils.leftPad(String.valueOf(tempActiveCounter++), 4, "0");
 		return result;
     	
 		// TODO call api, query table id by tgChatId
