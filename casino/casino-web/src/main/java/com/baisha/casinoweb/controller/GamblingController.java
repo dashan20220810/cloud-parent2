@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.baisha.casinoweb.business.GamblingBusiness;
+import com.baisha.modulecommon.annotation.NoAuthentication;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 
@@ -27,6 +28,7 @@ public class GamblingController {
 	
     @PostMapping("currentActive")
     @ApiOperation("当前局号")
+	@NoAuthentication
     public ResponseEntity<String> currentActive(Long tgChatId) {
 
 		log.info("[当前局号]");
@@ -35,6 +37,7 @@ public class GamblingController {
 	
     @PostMapping("limitStakes")
     @ApiOperation("限红")
+	@NoAuthentication
     public ResponseEntity<String> limitStakes(Long tgChatId) {
 
 		log.info("[限红]");
