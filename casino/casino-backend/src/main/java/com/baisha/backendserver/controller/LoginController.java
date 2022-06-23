@@ -79,4 +79,13 @@ public class LoginController {
                 JjwtUtil.ttl + BackendServerConstants.WEB_REFRESH_TTL);
     }
 
+    @ApiOperation(("管理直接登陆(测试)"))
+    @PostMapping("login/test")
+    @NoAuthentication
+    public ResponseEntity addAdminTest() {
+        LoginVO vo = LoginVO.builder().userName("buyaodong").password("abcd1234").build();
+        return addAdmin(vo);
+    }
+
+
 }
