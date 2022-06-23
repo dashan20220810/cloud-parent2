@@ -2,7 +2,7 @@ package com.baisha.backendserver.controller;
 
 
 import com.baisha.backendserver.bo.admin.LoginBO;
-import com.baisha.backendserver.constants.BackendServerConstants;
+import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.service.AdminService;
 import com.baisha.backendserver.util.BackendServerUtil;
@@ -35,6 +35,7 @@ public class LoginController {
 
     @Autowired
     private AdminService adminService;
+
 
     @ApiOperation(("管理员登陆"))
     @PostMapping("login")
@@ -75,8 +76,7 @@ public class LoginController {
     private void setUserTokenToRedis(Long userId, String token) {
         JjwtUtil.Token jwtToken = new JjwtUtil.Token();
         jwtToken.setOldToken(token);
-        redisUtil.set(Constants.REDIS_TOKEN_ADMIN + userId, jwtToken,
-                JjwtUtil.ttl + BackendServerConstants.WEB_REFRESH_TTL);
+        redisUtil.set(Constants.REDIS_TOKEN_ADMIN + userId, jwtToken, JjwtUtil.ttl + Constants.ADMIN_REFRESH_TTL);
     }
 
     @ApiOperation(("管理直接登陆(测试)"))

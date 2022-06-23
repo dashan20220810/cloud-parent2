@@ -48,7 +48,9 @@ public class Constants {
     public final static Integer review_the_order = 6;//审核接单
     public final static Integer pass_the_audit = 7;//审核通过
     public final static Integer paragraph_to_refuse = 8;//出款拒绝
-    /** 单个用户银行卡最大绑定数量 */
+    /**
+     * 单个用户银行卡最大绑定数量
+     */
     public final static Integer BANK_USER_BOUND_MAX = 6;
 
 
@@ -79,7 +81,7 @@ public class Constants {
 
     public final static String CASINO_WEB = "casino-web";
     public final static String PAY_ADMIN = "pay-admin";
-    public final static String TELEGRAM_BOT_API="telegram-bot-api";
+    public final static String TELEGRAM_BOT_API = "telegram-bot-api";
     public final static String CASINO_ADMIN = "casino-admin";
     public final static String CASINO_PROXY = "casino-proxy";
 
@@ -98,18 +100,18 @@ public class Constants {
     //校验数字
     public static final String regex = "^[0-9]*$";
     //校验手机号
-    public static final String regexPhone= "^[0-9 ()+-]{6,15}+$";
+    public static final String regexPhone = "^[0-9 ()+-]{6,15}+$";
     //推广类型,人人代
-    public static final String INVITE_TYPE_EVERYONE= "everyone";
+    public static final String INVITE_TYPE_EVERYONE = "everyone";
     //推广类型,基层代理
-    public static final String INVITE_TYPE_PROXY= "proxy";
+    public static final String INVITE_TYPE_PROXY = "proxy";
     //推广类型,官方
-    public static final String INVITE_TYPE_COMPANY= "888";
+    public static final String INVITE_TYPE_COMPANY = "888";
     //redis用户key前缀
-    public static final String REDIS_USERID= "userId::";
-    public static final String REDIS_GAMECODE= "gameCode::";
+    public static final String REDIS_USERID = "userId::";
+    public static final String REDIS_GAMECODE = "gameCode::";
     //redis每日短信发送数量前缀
-    public static final String REDIS_SMSIPSENDNUM= "sms::ipSendNum::";
+    public static final String REDIS_SMSIPSENDNUM = "sms::ipSendNum::";
     //redis每日短信前缀
     public static final String REDIS_SMSCODE = "sms::code::";
     //redis ip单位时间请求次数限制前缀
@@ -117,36 +119,42 @@ public class Constants {
     //三方总余额redis缓存可以
     public static final String REDIS_THRID_SUMBALANCE = "thridBalance::";
     //redis批量邀请码
-    public static final String REDIS_INVITECODELIST= "inviteCodeList";
+    public static final String REDIS_INVITECODELIST = "inviteCodeList";
     //redis推广贷补充数据标识
-    public static final String REDIS_SUPPLEMENTARYDATA= "supplementaryData";
+    public static final String REDIS_SUPPLEMENTARYDATA = "supplementaryData";
     //会员类型：公司会员
-    public static final Integer USER_TYPE0= 0;
+    public static final Integer USER_TYPE0 = 0;
     //会员类型：渠道会员
-    public static final Integer USER_TYPE1= 1;
+    public static final Integer USER_TYPE1 = 1;
     //会员类型：官方推广会员
-    public static final Integer USER_TYPE2= 2;
+    public static final Integer USER_TYPE2 = 2;
     //ip被封返回前端提示语
-    public static final String IP_BLOCK= "IP被封，请联系客服";
+    public static final String IP_BLOCK = "IP被封，请联系客服";
     //redis casino-web模块token前缀
     public static final String TOKEN_CASINO_WEB = "token::casino-web::";
-    public static final String REDIS_TOKEN_ADMIN= "token::casino-admin::";
-    public static final String REDIS_TOKEN_PROXY= "token::casino-proxy::";
+    public static final String REDIS_TOKEN_ADMIN = "token::casino-admin::";
+    public static final String REDIS_TOKEN_PROXY = "token::casino-proxy::";
     //redis token前缀
-    public static final String AUTHORIZATION= "authorization";
+    public static final String AUTHORIZATION = "authorization";
     //header 中多语言key
-    public static final String LANGUAGE= "language";
+    public static final String LANGUAGE = "language";
     //web端JWT过期后，24H内可颁发新的token
     public static final Long WEB_REFRESH_TTL = 60 * 60L * 24;//秒
     public static final Long ADMIN_REFRESH_TTL = 60 * 60L * 24;//秒
     public static final Long PROXY_REFRESH_TTL = 60 * 60L * 24;//秒
     public static final Long THIRD_BALANCE_TTL = 15 * 60L;//15分钟
 
-    public static final String LANGUAGE_CN= "zh-cn"; //中文
-    public static final String LANGUAGE_EH= "eh"; //泰语
-    public static final String LANGUAGE_EN= "en"; //英语
+    public static final String LANGUAGE_CN = "zh-cn"; //中文
+    public static final String LANGUAGE_EH = "eh"; //泰语
+    public static final String LANGUAGE_EN = "en"; //英语
 
     public final static Integer OVERALL_TYPE = 0;//全局
     public final static Integer USER_TYPE = 1;//会员
     public final static Integer PROXY_TYPE = 2;//代理
+
+
+    //redis 点名设置前缀
+    public static final String SYS_TELEGRAM = "common::sys_telegram";
+
+
 }

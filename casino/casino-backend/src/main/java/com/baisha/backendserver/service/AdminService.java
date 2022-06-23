@@ -1,12 +1,8 @@
 package com.baisha.backendserver.service;
 
-import com.baisha.backendserver.constants.BackendServerConstants;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.repository.AdminRepository;
-import com.baisha.backendserver.util.BackendServerUtil;
-import com.baisha.backendserver.vo.admin.AdminPageVO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -19,7 +15,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.criteria.Predicate;
 import java.util.*;
 
 /**
