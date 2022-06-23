@@ -17,42 +17,25 @@ import java.math.BigDecimal;
 @Data
 @Entity
 @Table(name = "BalanceChange", indexes = {@Index(columnList = "userId")})
+@org.hibernate.annotations.Table(appliesTo = "balance_change", comment = "会员余额变动记录")
 public class BalanceChange extends BaseEntity {
 
-    /**
-     * 用户id
-     */
-    @Column(precision = 20)
+    @Column(columnDefinition = "bigint(20) comment '会员ID'")
     private Long userId;
 
-    /**
-     * 收支类型 1收入 2支出
-     */
-    @Column(precision = 1)
+    @Column(columnDefinition = "tinyint(2) comment '收支类型 1收入 2支出'")
     private Integer balanceType;
 
-    /**
-     * 交易前金额
-     */
-    @Column(precision = 16, scale = 2)
+    @Column(columnDefinition = "decimal(16,2) comment '交易前金额'")
     private BigDecimal beforeAmount;
 
-    /**
-     * 金额 变化金额
-     */
-    @Column(precision = 16, scale = 2)
+    @Column(columnDefinition = "decimal(16,2) comment '金额 变化金额'")
     private BigDecimal amount;
 
-    /**
-     * 交易后金额
-     */
-    @Column(precision = 16, scale = 2)
+    @Column(columnDefinition = "decimal(16,2) comment '交易后金额'")
     private BigDecimal afterAmount;
 
-    /**
-     * 备注信息
-     */
-    @Column(length = 100)
+    @Column(columnDefinition = "varchar(100) comment '备注信息'")
     private String remark;
 
 

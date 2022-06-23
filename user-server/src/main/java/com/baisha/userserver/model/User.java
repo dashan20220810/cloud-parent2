@@ -15,50 +15,32 @@ import javax.persistence.Entity;
 @Slf4j
 @Data
 @Entity
+@org.hibernate.annotations.Table(appliesTo = "user", comment = "会员")
 //@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userName"}))
 public class User extends BaseEntity {
 
-    /**
-     * 会员名
-     */
-    @Column(unique = true, length = 30)
+    @Column(unique = true, columnDefinition = "varchar(30) comment '会员账号'")
     private String userName;
-    /**
-     * 昵称
-     */
-    @Column(length = 20)
+
+    @Column(columnDefinition = "varchar(20) comment '昵称'")
     private String nickName;
-    /**
-     * 密码
-     */
-    @Column(length = 64)
+
+    @Column(columnDefinition = "varchar(64) comment '密码'")
     private String password;
 
-    /**
-     * TG用户ID
-     */
-    @Column(length = 64)
+    @Column(columnDefinition = "varchar(64) comment 'TG用户ID'")
     private String tgUserId;
 
-    /**
-     * TG群ID
-     */
-    @Column(length = 64)
+    @Column(columnDefinition = "varchar(64) comment 'TG群ID'")
     private String tgGroupId;
 
-
-    /**
-     * IP
-     */
-    @Column(length = 130)
+    @Column(columnDefinition = "varchar(130) comment 'IP'")
     private String ip;
-    /**
-     * 状态 1 正常 ，2禁用
-     */
-    @Column(precision = 1)
+
+    @Column(columnDefinition = "tinyint(2) comment '状态 1 正常 ，0禁用'")
     private Integer status = 1;
 
-    @Column(length = 20)
+    @Column(columnDefinition = "varchar(20) comment '来源'")
     private String origin;
 
 

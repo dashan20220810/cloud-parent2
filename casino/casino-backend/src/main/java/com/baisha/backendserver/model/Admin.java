@@ -11,36 +11,22 @@ import javax.persistence.Entity;
 @Slf4j
 @Data
 @Entity
+@org.hibernate.annotations.Table(appliesTo = "admin", comment = "管理员")
 public class Admin extends BaseEntity {
 
-    /**
-     * 用户名
-     */
-    @Column(unique = true, length = 30)
+    @Column(unique = true, columnDefinition = "varchar(30) comment '用户名'")
     private String userName;
 
-    /**
-     * 昵称
-     */
-    @Column(length = 20)
+    @Column(columnDefinition = "varchar(30) comment '昵称'")
     private String nickName;
 
-    /**
-     * 密码
-     */
-    @Column(length = 64)
+    @Column(columnDefinition = "varchar(64) comment '密码'")
     private String password;
 
-    /**
-     * 手机号
-     */
-    @Column(length = 20)
+    @Column(columnDefinition = "varchar(20) comment '手机号'")
     private String phone;
 
-    /**
-     * 状态 1 正常 ，2禁用
-     */
-    @Column(precision = 1)
+    @Column(columnDefinition = "tinyint(2) comment '状态 1 正常 ，0禁用'")
     private Integer status = 1;
 
 

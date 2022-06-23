@@ -12,22 +12,16 @@ import java.math.BigDecimal;
 @Slf4j
 @Data
 @Entity
+@org.hibernate.annotations.Table(appliesTo = "assets", comment = "会员资产")
 public class Assets extends BaseEntity {
 
-    /**
-     * 会员ID
-     */
-    @Column(unique = true, precision = 20)
+    @Column(unique = true, columnDefinition = "bigint(20) comment '会员ID'")
     private Long userId;
-    /**
-     * 余额
-     */
-    @Column(precision = 16, scale = 2)
+
+    @Column(columnDefinition = "decimal(16,2) comment '余额'")
     private BigDecimal balance = BigDecimal.ZERO;
-    /**
-     * 冻结余额
-     */
-    @Column(precision = 16, scale = 2)
+
+    @Column(columnDefinition = "decimal(16,2) comment '冻结余额'")
     private BigDecimal freezeAmount = BigDecimal.ZERO;
 
 
