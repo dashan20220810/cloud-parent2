@@ -11,7 +11,6 @@ import com.baisha.casinoweb.business.UserBusiness;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.vo.BetVO;
 import com.baisha.casinoweb.vo.UserVO;
-import com.baisha.modulecommon.annotation.NoAuthentication;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.IpUtil;
@@ -40,7 +39,6 @@ public class OrderController {
 
     @PostMapping("bet")
     @ApiOperation("下注")
-    @NoAuthentication
     public ResponseEntity<String> bet(BetVO betVO) {
 
 		log.info("[下注]");
@@ -54,7 +52,7 @@ public class OrderController {
     	
     	//  user id查user
     	String userIdOrName = CasinoWebUtil.getCurrentUserId();
-    	UserVO userVO = userBusiness.getUserVO(isTgRequest, userIdOrName, Math.abs(betVO.getTgChatId()) );
+    	UserVO userVO = userBusiness.getUserVO(isTgRequest, userIdOrName, betVO.getTgChatId() );
     	
     	if ( userVO==null ) {
             return ResponseUtil.fail();
@@ -69,7 +67,8 @@ public class OrderController {
 		// 记录IP
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
 		//	TODO 輪/局號 應來自荷官端，不得從請求中代入
-    	boolean betResult = orderBusiness.bet(ip, userVO.getId(), betVO.getBetOption(), betVO.getAmount(), "00001", "00001");
+    	boolean betResult = orderBusiness.bet(isTgRequest, betVO.getTgChatId()
+    			, ip, userVO.getId(), betVO.getBetOption(), betVO.getAmount(), "00001", "00001");
     	if ( betResult==false ) {
             return ResponseUtil.fail();
     	}

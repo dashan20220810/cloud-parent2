@@ -24,6 +24,13 @@ public enum RequestPathEnum {
 	 */
     /** 下注 */
     ORDER_BET("/order/bet"),
+    
+    /*
+     * 後台
+     */
+    /** 限紅 */
+    LIMIT_STAKES(""),
+    
     ;
 
     /**

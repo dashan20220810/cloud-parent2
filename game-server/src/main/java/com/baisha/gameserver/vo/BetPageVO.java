@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
-@ApiModel(value = "下注分页对象")
+@ApiModel(value = "web-下注分页对象")
 public class BetPageVO extends PageVO {
 
 	@ApiModelProperty("user_name")

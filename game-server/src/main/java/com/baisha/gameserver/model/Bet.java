@@ -31,6 +31,10 @@ public class Bet extends BaseEntity{
     @Column(name="user_id")
 	private Long userId;
 
+	@ApiModelProperty("tg_chat_id")
+    @Column(name="tg_chat_id")
+	private Long tgChatId;
+
     @ApiModelProperty("下注类型")
     @Column(name="bet_option")
 	private BetOption betOption;
@@ -92,7 +96,7 @@ public class Bet extends BaseEntity{
      * @param bet
      * @return
      */
-    public static boolean checkRequestForGs ( Bet bet ) {
+    public static boolean checkRequestForGs ( Bet bet, boolean isTgRequest ) {
     	
     	if ( checkRequest(bet)==false ) {
     		return false;
@@ -106,6 +110,11 @@ public class Bet extends BaseEntity{
     		return false;
     	}
     	
+    	if ( isTgRequest && bet.getTgChatId()==null ) {
+    		return false;
+    	}
+    	
     	return true;
     }
+    
 }
