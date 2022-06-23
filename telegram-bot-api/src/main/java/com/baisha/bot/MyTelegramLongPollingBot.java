@@ -22,14 +22,22 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     // 机器人对应的TG群id
     private String chatId;
 
+    // 机器人对应的TG群名称
+    private String chatName;
+
     public String getChatId() {
         return chatId;
     }
 
-    public MyTelegramLongPollingBot(String username, String token, String chatId) {
+    public String getChatName() {
+        return chatName;
+    }
+
+    public MyTelegramLongPollingBot(String username, String token, String chatId, String chatName) {
         this.username = username;
         this.token = token;
         this.chatId = chatId;
+        this.chatName = chatName;
     }
 
     @Override

@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.constants.TgBotServerConstants;
 import com.baisha.backendserver.model.Admin;
-import com.baisha.backendserver.service.AdminService;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.vo.StatusVO;
 import com.baisha.backendserver.vo.tgBot.TgBotPageVO;
@@ -39,15 +38,17 @@ public class TgBotController {
     @Autowired
     private CommonService commonService;
 
-
     @ApiOperation("新开机器人")
-    @ApiImplicitParams({@ApiImplicitParam(name = "username", value = "机器人名称", required = true),
-            @ApiImplicitParam(name = "token", value = "机器人token", required = true), @ApiImplicitParam(name = "chatId"
-            , value = "TG群id", required = true)})
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", value = "机器人名称", required = true),
+            @ApiImplicitParam(name = "token", value = "机器人token", required = true),
+            @ApiImplicitParam(name = "chatId", value = "TG群id", required = true),
+            @ApiImplicitParam(name = "chatName", value = "TG群名称", required = true)
+    })
     @PostMapping("open")
-    public ResponseEntity open(String username, String token, String chatId) {
+    public ResponseEntity open(String username, String token, String chatId, String chatName) {
         // 参数校验
-        if (CommonUtil.checkNull(username, token, chatId)) {
+        if (CommonUtil.checkNull(username, token, chatId, chatName)) {
             return ResponseUtil.parameterNotNull();
         }
         // 后台登陆用户
@@ -57,6 +58,7 @@ public class TgBotController {
         paramMap.put("username", username);
         paramMap.put("token", token);
         paramMap.put("chatId", chatId);
+        paramMap.put("chatName", chatName);
         paramMap.put("createBy", current.getUserName());
         paramMap.put("updateBy", current.getUserName());
         String result = HttpClient4Util.doPost(url, paramMap);

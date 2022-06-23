@@ -37,16 +37,17 @@ public class TgbotController {
 
     @ApiOperation("新开机器人")
     @ApiImplicitParams({
-        @ApiImplicitParam(name="username", value="机器人名称", required = true),
-        @ApiImplicitParam(name="token", value="机器人token", required = true),
-        @ApiImplicitParam(name="chatId", value="TG群id", required = true),
-        @ApiImplicitParam(name="createBy", value="创建人"),
-        @ApiImplicitParam(name="updateBy", value="最后更新人")
+        @ApiImplicitParam(name = "username", value="机器人名称", required = true),
+        @ApiImplicitParam(name = "token", value="机器人token", required = true),
+        @ApiImplicitParam(name = "chatId", value="TG群id", required = true),
+        @ApiImplicitParam(name = "chatName", value = "TG群名称", required = true),
+        @ApiImplicitParam(name = "createBy", value="创建人"),
+        @ApiImplicitParam(name = "updateBy", value="最后更新人")
     })
     @PostMapping("open")
-    public ResponseEntity open(String username, String token, String chatId, String createBy, String updateBy) {
+    public ResponseEntity open(String username, String token, String chatId, String chatName, String createBy, String updateBy) {
         // 参数校验
-        if (CommonUtil.checkNull(username, token, chatId)) {
+        if (CommonUtil.checkNull(username, token, chatId, chatName)) {
             return ResponseUtil.parameterNotNull();
         }
         try {
@@ -55,7 +56,7 @@ public class TgbotController {
             }
             // 实例化机器人
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-            botsApi.registerBot(new MyTelegramLongPollingBot(username, token, chatId));
+            botsApi.registerBot(new MyTelegramLongPollingBot(username, token, chatId, chatName));
             // 保存到DB
             TgBot tgBot = (TgBot) new TgBot()
                     .setBotName(username)
@@ -67,8 +68,8 @@ public class TgbotController {
             tgBotService.save(tgBot);
             return ResponseUtil.success();
         } catch (Throwable e) {
-            log.error("新开机器人失败", e);
-            return ResponseUtil.custom("新开机器人失败");
+            log.error("Token错误，请填写正确的机器人Token", e);
+            return ResponseUtil.custom("Token错误，请填写正确的机器人Token");
         }
     }
 

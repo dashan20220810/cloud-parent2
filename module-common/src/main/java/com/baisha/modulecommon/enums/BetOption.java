@@ -5,14 +5,14 @@ import java.util.stream.Collectors;
 
 public enum BetOption {
 
-	ZD(1, "庄对", new String[] {"ZD", "庄对", "莊對"}),
-	XD(2, "闲对", new String[] {"XD", "闲对", "閒對"}),
-	Z(3, "庄", new String[] {"Z", "庄", "莊"}),
-	X(4, "闲", new String[] {"X", "闲", "閒"}),
-	H(5, "和", new String[] {"H", "和", "和"}),
-	D(6, "对", new String[] {"D", "对", "對"}),
-	SS(7, "超六", new String[] {"SS", "超六", "幸运六", "幸運六", "超6", "幸运6", "幸運6"});
-//	SB(8, "三宝", new String[] {"SB", "三宝", "三寶", "3宝", "3寶"}),
+	ZD(1, "庄对", new String[] {"ZD", "庄对"}),
+	XD(2, "闲对", new String[] {"XD", "闲对"}),
+	Z(3, "庄", new String[] {"Z", "庄"}),
+	X(4, "闲", new String[] {"X", "闲"}),
+	H(5, "和", new String[] {"H", "和", "和局"}),
+	D(6, "对", new String[] {"D", "对", "对子"}),
+	SS(7, "幸运六", new String[] {"SS", "超六", "幸运六", "幸運六", "超6", "幸运6"}),
+	SB(8, "三宝", new String[] {"SB", "三宝", "3宝"});
 
 	private final int order;
 	private final String display;
@@ -49,9 +49,10 @@ public enum BetOption {
 //	}
 
 	public static void main(String[] args) {
-		String ss = "X1000";
+		String command = "Z1000";
+		getList().forEach(betOption -> {
 
-		System.out.println(ss.contains("XD"));
+		});
 
 	}
 	
