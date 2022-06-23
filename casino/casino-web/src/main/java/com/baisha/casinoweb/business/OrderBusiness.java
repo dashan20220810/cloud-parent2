@@ -21,13 +21,15 @@ public class OrderBusiness {
 	@Value("${project.server-url.game-server-domain}")
 	private String gameServerDomain;
 	
-	public boolean bet ( String clientIP, Long userId, BetOption betOption, 
+	public boolean bet ( boolean isTgRequest, Long tgChatId, String clientIP, Long userId, BetOption betOption, 
 			Long amount, String noRun, String noActive ) {
 
 		// 记录IP
     	Map<String, Object> params = new HashMap<>();
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
-		
+
+		params.put("isTgRequest", isTgRequest);
+		params.put("tgChatId", tgChatId);
 		params.put("clientIP", ip);
 		params.put("userId", userId);  
 		params.put("betOption", betOption);

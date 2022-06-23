@@ -1,5 +1,7 @@
 package com.baisha.casinoweb.vo;
 
+import java.io.Serializable;
+
 import com.baisha.modulecommon.enums.BetOption;
 
 import io.swagger.annotations.ApiModel;
@@ -10,17 +12,17 @@ import lombok.Data;
  * @author: alvin
  */
 @Data
-@ApiModel(value = "下注请求对象")
-public class BetVO {
+@ApiModel(value = "web-下注请求对象")
+public class BetVO implements Serializable {
 
 
-    @ApiModelProperty(required=true, name="下注类型", notes="ZD庄对,XD闲对,Z庄,X闲,H和,D对,SS超六")
+    @ApiModelProperty(required=true, value="下注类型", notes="ZD庄对,XD闲对,Z庄,X闲,H和,D对,SS超六")
 	private BetOption betOption;
 
-    @ApiModelProperty(required=true, name="下注金额")
+    @ApiModelProperty(required=true, value="下注金额")
 	private Long amount;
 
-    @ApiModelProperty(name="telegram chat id")
+    @ApiModelProperty(value="telegram chat id")
     private Long tgChatId;
 	
     /**

@@ -20,9 +20,15 @@ public class BetVO implements Serializable {
 
 
 	private static final long serialVersionUID = -6560709467907229574L;
+	
+	@ApiModelProperty(name="來自tg請求")
+    private boolean isTgRequest;
 
     @ApiModelProperty(required=true, name="订单编号")
     private String orderNo;
+
+	@ApiModelProperty(required=true, name="tg_chat_id")
+	private Long tgChatId;
 
 	@ApiModelProperty(required=true, name="user_id")
 	private Long userId;

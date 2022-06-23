@@ -36,7 +36,7 @@ public class OrderController {
 		log.info("[下注] ");
     	Bet bet = betVO.generateBet();
     	
-    	if ( Bet.checkRequestForGs(bet)==false ) {
+    	if ( Bet.checkRequestForGs(bet, betVO.isTgRequest())==false ) {
     		log.info("[下注] 检核失败");
     		return ResponseUtil.fail();
     	}
