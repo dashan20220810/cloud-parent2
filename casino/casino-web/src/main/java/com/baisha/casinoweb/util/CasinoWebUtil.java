@@ -48,7 +48,8 @@ public class CasinoWebUtil {
             return true;
         }
 
-        return false;
+//        return false;
+        return true; // TODO for test
     }
     public static String getCurrentUserId() {
         String token = getToken();
@@ -97,6 +98,14 @@ public class CasinoWebUtil {
     public static UserVO getUserVO( String userServerDomain, String tgUserId, Long tgGroupId ) {
 
     	String params = "?tgUserId=" + tgUserId +"&tgGroupId=" +tgGroupId;
+
+		return getUserVO(userServerDomain, RequestPathEnum.USER_QUERY_BY_USER_NAME.getApiName(), 
+				params);
+    }
+
+    public static UserVO getUserVO( String userServerDomain, String userName ) {
+
+    	String params = "?userName=" + userName;
 
 		return getUserVO(userServerDomain, RequestPathEnum.USER_QUERY_BY_USER_NAME.getApiName(), 
 				params);

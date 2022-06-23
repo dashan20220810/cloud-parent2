@@ -11,12 +11,34 @@ project:
     backend-server-domain: http://192.168.26.26:9402
   telegram:
     register-password: 123456
+    image-domain-and-bucket: http://192.168.26.24:9000/user
 
 spring:
 #  security:
 #    user:
 #      name: baisha
 #      password: baisha
+  jpa:
+    database: mysql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+  datasource:
+    url: jdbc:mysql://192.168.26.24:3306/cloud_web?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
+    username: cloud
+    password: 12qw!@QW
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      auto-commit: true
+      minimum-idle: 4
+      idle-timeout: 60000
+      connection-timeout: 30000
+      max-lifetime: 1800000
+      pool-name: DatebookHikariCP
+      maximum-pool-size: 16
+      connection-test-query: select 1
   redis:
     host: 192.168.26.24
     port: 6379

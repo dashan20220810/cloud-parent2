@@ -18,6 +18,8 @@ public enum RequestPathEnum {
     USER_LOGIN("/user/login"), // TODO apiName
 	/** 上下分 */
     ASSETS_BALANCE("/assets/balance"),
+    /** 余額 */
+    ASSETS_QUERY("/assets/query"),
 
 	/*
 	 * 游戏中心  

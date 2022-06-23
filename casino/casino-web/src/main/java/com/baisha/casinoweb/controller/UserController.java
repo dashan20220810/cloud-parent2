@@ -1,10 +1,12 @@
 package com.baisha.casinoweb.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.baisha.casinoweb.business.AssetsBusiness;
 import com.baisha.casinoweb.business.UserBusiness;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.modulecommon.annotation.NoAuthentication;
@@ -27,6 +29,9 @@ public class UserController {
 	
 	@Autowired
 	private UserBusiness userBusiness;
+	
+	@Autowired
+	private AssetsBusiness assetsBusiness;
 
 	/**
 	 * TG注册
@@ -55,6 +60,27 @@ public class UserController {
 
 		log.info("注册成功");
         return ResponseUtil.success();
+	}
+	
+
+	/**
+	 * 查詢余額
+	 * 
+	 * @return
+	 */
+	@PostMapping("balance")
+	@ApiOperation("查詢余額")
+	public ResponseEntity<String> balance () {
+
+		log.info("查詢余額");
+		String balance = assetsBusiness.balance();
+		if ( StringUtils.isBlank(balance) ) {
+			log.info("查詢余額失敗");
+            return ResponseUtil.fail();
+		}
+
+		log.info("查詢余額成功");
+        return ResponseUtil.success(balance);
 	}
 
 	/**
