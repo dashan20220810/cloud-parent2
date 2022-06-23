@@ -1,17 +1,19 @@
 package com.baisha.bot;
 
 import com.baisha.handle.TelegramMessageHandler;
+import com.baisha.handle.TelegramMyChatMemberHandler;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Slf4j
+@Data
 public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     // 机器人username
     private String username;
@@ -25,19 +27,10 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     // 机器人对应的TG群名称
     private String chatName;
 
-    public String getChatId() {
-        return chatId;
-    }
-
-    public String getChatName() {
-        return chatName;
-    }
-
     public MyTelegramLongPollingBot(String username, String token) {
         this.username = username;
         this.token = token;
     }
-
 
     @Override
     public String getBotUsername() {
@@ -51,6 +44,12 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        // 进群监听1(绑定)机器人绑定群
+        if (update.hasMyChatMember()) {
+            new TelegramMyChatMemberHandler().myChatMemberHandler(this, update);
+            return;
+        }
+        // 进群监听2(注册) + 消息监听
         if (update.hasMessage()) {
             // 消息处理
             new TelegramMessageHandler().messageHandler(this, update);

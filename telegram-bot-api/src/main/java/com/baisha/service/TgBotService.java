@@ -6,9 +6,11 @@ import com.baisha.repository.TgBotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.Optional;
 
 @CacheConfig(cacheNames = "tgBot::botId")
 @Service
+@Transactional
 public class TgBotService {
 
     @Autowired
@@ -28,6 +31,15 @@ public class TgBotService {
     @CachePut(key = "#tgBot.id")
     public TgBot save(TgBot tgBot) {
         return tgBotRepository.save(tgBot);
+    }
+
+    @Caching(put = {@CachePut(key = "#id")})
+    public TgBot updateTgBotById(Integer status, Long id) {
+        int i = tgBotRepository.updateTgBotById(status, id);
+        if (i > 0) {
+            return tgBotRepository.findById(id).get();
+        }
+        return null;
     }
 
     public Page<TgBot> getTgBotPage(Specification<TgBot> spec, Pageable pageable) {

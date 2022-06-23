@@ -29,7 +29,10 @@ public class TelegramMessageHandler {
         // 新用户注册
         if (CollUtil.isNotEmpty(users)) {
             for (User user : users) {
-                registerEvery(bot, user);
+                if (!user.getIsBot()) {
+                    // 只注册用户
+                    registerEvery(bot, user);
+                }
             }
             return;
         }
@@ -57,7 +60,6 @@ public class TelegramMessageHandler {
         Map<String, Object> param = Maps.newHashMap();
         param.put("name", id);
         param.put("nickname", userName);
-        param.put("groupId", bot.getChatId());
         // 远程调用
         String forObject = TgHttpClient4Util.doPost(requestUrl, param, id);
         if (StrUtil.isNotEmpty(forObject)) {

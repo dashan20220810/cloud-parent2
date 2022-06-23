@@ -52,7 +52,7 @@ public class TgBotBusiness {
             try {
                 // 实例化机器人
                 TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-//                botsApi.registerBot(new MyTelegramLongPollingBot(tgBot.getBotName(), tgBot.getBotToken(), tgBot.getChatId()));
+                botsApi.registerBot(new MyTelegramLongPollingBot(tgBot.getBotName(), tgBot.getBotToken()));
             } catch (Throwable e) {
                 log.error("初始化-注册机器人失败", e);
             }
