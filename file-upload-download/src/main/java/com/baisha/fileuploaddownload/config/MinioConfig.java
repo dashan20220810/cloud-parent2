@@ -30,11 +30,9 @@ public class MinioConfig {
         if (Objects.nonNull(minioClient)) {
             log.info("Minio 初始化成功 ");
             return minioClient;
-        } else {
-            log.info("Minio 初始化失败 ");
         }
+        log.info("Minio 初始化失败 ");
         return null;
     }
-
 
 }
