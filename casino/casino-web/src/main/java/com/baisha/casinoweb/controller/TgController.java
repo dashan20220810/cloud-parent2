@@ -9,11 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.baisha.casinoweb.util.enums.TgImageEnum;
-import com.baisha.modulecommon.Constants;
+import com.baisha.core.service.TelegramService;
 import com.baisha.modulecommon.annotation.NoAuthentication;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
-import com.baisha.modulespringcacheredis.util.RedisUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,15 +26,9 @@ import lombok.extern.slf4j.Slf4j;
 @Api(tags = { "telegram" })
 @Slf4j
 public class TgController {
-	
-//	@Value("${project.telegram.image-domain-and-bucket}")
-//	private String imageDomainAndBucket;
 
     @Autowired
-    private RedisUtil redisUtil;
-
-//	@Autowired
-//	private TgService tgService;
+    private TelegramService telegramService;
 
     @PostMapping("image")
     @ApiOperation("telegram image")
@@ -47,13 +40,8 @@ public class TgController {
 			log.info("telegram image检核失败");
 			return ResponseUtil.parameterNotNull();
     	}
-    	
-//    	TgImage tgImage = tgService.findByTgImage(tgImageEnum.toString());
-//    	if ( tgImage==null ) {
-//            return ResponseUtil.fail();
-//    	}
 
-    	Map<Object, Object> sysTgMap = redisUtil.hmget(Constants.SYS_TELEGRAM);
+    	Map<Object, Object> sysTgMap = telegramService.getTelegramSet();
     	String result = (String) sysTgMap.get(tgImageEnum.getKey());
     	
     	if ( StringUtils.isBlank(result) ) {
