@@ -2,14 +2,14 @@ package com.baisha.userserver.business;
 
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
-import com.baisha.userserver.constants.RedisConstants;
-import com.baisha.userserver.constants.UserServerConstants;
+import com.baisha.userserver.util.constants.RedisConstants;
+import com.baisha.userserver.util.constants.UserServerConstants;
 import com.baisha.userserver.model.Assets;
 import com.baisha.userserver.model.BalanceChange;
 import com.baisha.userserver.model.User;
 import com.baisha.userserver.service.AssetsService;
 import com.baisha.userserver.service.BalanceChangeService;
-import com.baisha.userserver.vo.balance.BalanceVO;
+import com.baisha.userserver.model.vo.balance.BalanceVO;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;

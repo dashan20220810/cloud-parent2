@@ -1,4 +1,4 @@
-package com.baisha.userserver.bo;
+package com.baisha.userserver.model.bo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

@@ -1,7 +1,7 @@
 package com.baisha.userserver.util;
 
 import com.baisha.modulecommon.Constants;
-import com.baisha.userserver.constants.UserServerConstants;
+import com.baisha.userserver.util.constants.UserServerConstants;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import java.math.BigDecimal;

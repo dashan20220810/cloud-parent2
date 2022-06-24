@@ -1,6 +1,6 @@
 package com.baisha.userserver.model;
 
-import com.baisha.userserver.constants.UserServerConstants;
+import com.baisha.userserver.util.constants.UserServerConstants;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
