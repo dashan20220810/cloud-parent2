@@ -2,10 +2,12 @@ package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonService;
+import com.baisha.backendserver.constants.BackendConstants;
 import com.baisha.backendserver.constants.TgBotServerConstants;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.vo.StatusVO;
+import com.baisha.backendserver.vo.log.OperateLogVO;
 import com.baisha.backendserver.vo.tgBot.TgBotPageVO;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -55,12 +57,12 @@ public class TgBotController {
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("username", username);
         paramMap.put("token", token);
-        paramMap.put("createBy", current.getUserName());
-        paramMap.put("updateBy", current.getUserName());
         String result = HttpClient4Util.doPost(url, paramMap);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
+        commonService.saveOperateLog(current, OperateLogVO.builder().activeType(BackendConstants.INSERT)
+                .content(JSON.toJSONString(paramMap)).moduleName(BackendConstants.TOBOT_MODULE).build());
         return JSON.parseObject(result, ResponseEntity.class);
     }
 
@@ -91,6 +93,8 @@ public class TgBotController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
+        commonService.saveOperateLog(commonService.getCurrentUser(), OperateLogVO.builder().activeType(BackendConstants.UPDATE)
+                .content(JSON.toJSONString(statusVO)).moduleName(BackendConstants.TOBOT_MODULE).build());
         return JSON.parseObject(result, ResponseEntity.class);
     }
 }

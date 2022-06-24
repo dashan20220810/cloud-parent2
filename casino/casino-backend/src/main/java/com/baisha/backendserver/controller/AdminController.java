@@ -1,6 +1,8 @@
 package com.baisha.backendserver.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonService;
+import com.baisha.backendserver.constants.BackendConstants;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.service.AdminService;
 import com.baisha.backendserver.util.BackendServerUtil;
@@ -8,6 +10,7 @@ import com.baisha.backendserver.vo.IdVO;
 import com.baisha.backendserver.vo.admin.AdminAddVO;
 import com.baisha.backendserver.vo.admin.AdminPageVO;
 import com.baisha.backendserver.vo.admin.AdminUpdatePasswordVO;
+import com.baisha.backendserver.vo.log.OperateLogVO;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -71,6 +74,8 @@ public class AdminController {
         if (Objects.isNull(admin)) {
             return ResponseUtil.fail();
         }
+        commonService.saveOperateLog(currentUser, OperateLogVO.builder().activeType(BackendConstants.INSERT)
+                .content(JSON.toJSONString(admin)).moduleName(BackendConstants.ADMIN_MODULE).build());
         return ResponseUtil.success();
     }
 
@@ -93,6 +98,9 @@ public class AdminController {
         Admin currentUser = commonService.getCurrentUser();
         adminService.deleteById(vo.getId());
         log.info("{}删除管理员id={}", currentUser.getUserName(), vo.getId());
+        commonService.saveOperateLog(currentUser, OperateLogVO.builder().activeType(BackendConstants.DELETE)
+                .content(currentUser.getUserName() + "删除管理员id={" + vo.getId() + "}")
+                .moduleName(BackendConstants.ADMIN_MODULE).build());
         return ResponseUtil.success();
     }
 
@@ -114,6 +122,9 @@ public class AdminController {
         Admin currentUser = commonService.getCurrentUser();
         adminService.statusById(status, vo.getId());
         log.info("{}修改管理员状态id={}，status={}", currentUser.getUserName(), vo.getId(), status);
+        commonService.saveOperateLog(admin, OperateLogVO.builder().activeType(BackendConstants.UPDATE)
+                .content(admin.getUserName() + "修改管理员状态id={" + vo.getId() + "}，status={" + status + "}")
+                .moduleName(BackendConstants.ADMIN_MODULE).build());
         return ResponseUtil.success();
     }
 

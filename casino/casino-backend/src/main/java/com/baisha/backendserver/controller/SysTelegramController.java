@@ -1,10 +1,14 @@
 package com.baisha.backendserver.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.backendserver.bo.sys.SysTelegramParameterBO;
 import com.baisha.backendserver.business.CommonService;
+import com.baisha.backendserver.constants.BackendConstants;
+import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.SysTelegramParameter;
 import com.baisha.backendserver.service.SysTelegramService;
+import com.baisha.backendserver.vo.log.OperateLogVO;
 import com.baisha.backendserver.vo.sys.SysTelegramParameterVO;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
@@ -63,6 +67,7 @@ public class SysTelegramController {
                 && StringUtils.isEmpty(vo.getOnlyCustomerService())) {
             return new ResponseEntity("至少传一个参数");
         }
+        Admin admin = commonService.getCurrentUser();
         SysTelegramParameter stp;
         if (null == vo.getId()) {
             //新增
@@ -72,6 +77,7 @@ public class SysTelegramController {
             }
             stp = new SysTelegramParameter();
             BeanUtils.copyProperties(vo, stp);
+            stp.setCreateBy(admin.getUserName());
         } else {
             //编辑
             //有ID则查询是否存在
@@ -89,8 +95,11 @@ public class SysTelegramController {
                 stp.setStartBetPicUrl(vo.getStartBetPicUrl());
             }
         }
+        stp.setUpdateBy(admin.getUpdateBy());
         sysTelegramService.save(stp);
         doSetRedis(stp);
+        commonService.saveOperateLog(admin, OperateLogVO.builder().activeType(BackendConstants.UPDATE)
+                .content(JSON.toJSONString(stp)).moduleName(BackendConstants.SYS_TELEGRAM_MODULE).build());
         return ResponseUtil.success(stp.getId());
     }
 
