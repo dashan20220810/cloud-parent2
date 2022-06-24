@@ -1,24 +1,20 @@
 package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.backendserver.business.CommonService;
-import com.baisha.backendserver.constants.BackendConstants;
-import com.baisha.backendserver.constants.UserServerConstants;
 import com.baisha.backendserver.model.Admin;
-import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.user.UserPageVO;
-import com.baisha.backendserver.vo.IdVO;
-import com.baisha.backendserver.vo.StatusVO;
-import com.baisha.backendserver.vo.log.OperateLogVO;
-import com.baisha.backendserver.vo.user.UserPageVO;
+import com.baisha.backendserver.util.BackendServerUtil;
+import com.baisha.backendserver.util.constants.BackendConstants;
+import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +29,7 @@ import java.util.Objects;
 /**
  * @author yihui
  */
+@Slf4j
 @RestController
 @RequestMapping("user")
 @Api(tags = "用户管理")
@@ -75,9 +72,8 @@ public class UserController {
             return ResponseUtil.fail();
         }
         Admin currentUser = commonService.getCurrentUser();
-        commonService.saveOperateLog(currentUser, OperateLogVO.builder().activeType(BackendConstants.DELETE)
-                .content(currentUser.getUserName() + "删除用户id={" + vo.getId() + "}")
-                .moduleName(BackendConstants.USER_MODULE).build());
+        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.DELETE,
+                currentUser.getUserName() + "删除用户id={" + vo.getId() + "}", BackendConstants.USER_MODULE);
         return JSON.parseObject(result, ResponseEntity.class);
     }
 
@@ -94,9 +90,8 @@ public class UserController {
             return ResponseUtil.fail();
         }
         Admin currentUser = commonService.getCurrentUser();
-        commonService.saveOperateLog(currentUser, OperateLogVO.builder().activeType(BackendConstants.UPDATE)
-                .content(currentUser.getUserName() + "修改管理员状态id={" + vo.getId() + "}")
-                .moduleName(BackendConstants.USER_MODULE).build());
+        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                currentUser.getUserName() + "修改管理员状态id={" + vo.getId() + "}", BackendConstants.USER_MODULE);
         return JSON.parseObject(result, ResponseEntity.class);
     }
 

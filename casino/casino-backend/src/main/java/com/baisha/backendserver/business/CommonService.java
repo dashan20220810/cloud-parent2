@@ -1,13 +1,13 @@
 package com.baisha.backendserver.business;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.backendserver.util.constants.FileServerConstants;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.OperateLog;
+import com.baisha.backendserver.model.vo.log.OperateLogVO;
 import com.baisha.backendserver.service.AdminService;
 import com.baisha.backendserver.service.OperateLogService;
 import com.baisha.backendserver.util.BackendServerUtil;
-import com.baisha.backendserver.vo.log.OperateLogVO;
+import com.baisha.backendserver.util.constants.FileServerConstants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import lombok.extern.slf4j.Slf4j;
@@ -56,15 +56,6 @@ public class CommonService {
     }
 
 
-    public void saveOperateLog(OperateLog operateLog) {
-        try {
-            operateLogService.save(operateLog);
-        } catch (Exception e) {
-            log.error("插入操作日志失败");
-            e.printStackTrace();
-        }
-
-    }
 
     public void saveOperateLog(Admin admin, OperateLogVO vo) {
         try {

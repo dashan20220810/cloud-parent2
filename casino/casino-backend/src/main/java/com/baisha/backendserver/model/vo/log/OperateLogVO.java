@@ -1,9 +1,7 @@
-package com.baisha.backendserver.vo.log;
+package com.baisha.backendserver.model.vo.log;
 
 import lombok.Builder;
 import lombok.Data;
-
-import javax.persistence.Column;
 
 @Data
 @Builder

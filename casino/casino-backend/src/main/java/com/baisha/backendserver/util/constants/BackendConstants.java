@@ -1,4 +1,4 @@
-package com.baisha.backendserver.constants;
+package com.baisha.backendserver.util.constants;
 
 public class BackendConstants {
 

@@ -2,15 +2,13 @@ package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.backendserver.model.bo.sys.SysTelegramParameterBO;
 import com.baisha.backendserver.business.CommonService;
-import com.baisha.backendserver.constants.BackendConstants;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.SysTelegramParameter;
-import com.baisha.backendserver.service.SysTelegramService;
+import com.baisha.backendserver.model.bo.sys.SysTelegramParameterBO;
 import com.baisha.backendserver.model.vo.sys.SysTelegramParameterVO;
-import com.baisha.backendserver.vo.log.OperateLogVO;
-import com.baisha.backendserver.vo.sys.SysTelegramParameterVO;
+import com.baisha.backendserver.service.SysTelegramService;
+import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -99,8 +97,7 @@ public class SysTelegramController {
         stp.setUpdateBy(admin.getUpdateBy());
         sysTelegramService.save(stp);
         doSetRedis(stp);
-        commonService.saveOperateLog(admin, OperateLogVO.builder().activeType(BackendConstants.UPDATE)
-                .content(JSON.toJSONString(stp)).moduleName(BackendConstants.SYS_TELEGRAM_MODULE).build());
+        log.info("{} {} {} {}", admin.getUserName(), BackendConstants.UPDATE, JSON.toJSONString(admin), BackendConstants.SYS_TELEGRAM_MODULE);
         return ResponseUtil.success(stp.getId());
     }
 

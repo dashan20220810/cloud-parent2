@@ -2,16 +2,12 @@ package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonService;
-import com.baisha.backendserver.util.constants.TgBotServerConstants;
-import com.baisha.backendserver.constants.BackendConstants;
-import com.baisha.backendserver.constants.TgBotServerConstants;
 import com.baisha.backendserver.model.Admin;
-import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.model.vo.StatusVO;
 import com.baisha.backendserver.model.vo.tgBot.TgBotPageVO;
-import com.baisha.backendserver.vo.StatusVO;
-import com.baisha.backendserver.vo.log.OperateLogVO;
-import com.baisha.backendserver.vo.tgBot.TgBotPageVO;
+import com.baisha.backendserver.util.BackendServerUtil;
+import com.baisha.backendserver.util.constants.BackendConstants;
+import com.baisha.backendserver.util.constants.TgBotServerConstants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -20,6 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +29,7 @@ import java.util.Map;
 /**
  * @author kimi
  */
+@Slf4j
 @Api(tags = "机器人管理")
 @RestController
 @RequestMapping("tgBot")
@@ -64,8 +62,7 @@ public class TgBotController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        commonService.saveOperateLog(current, OperateLogVO.builder().activeType(BackendConstants.INSERT)
-                .content(JSON.toJSONString(paramMap)).moduleName(BackendConstants.TOBOT_MODULE).build());
+        log.info("{} {} {} {}", current.getUserName(), BackendConstants.INSERT, JSON.toJSONString(paramMap), BackendConstants.TOBOT_MODULE);
         return JSON.parseObject(result, ResponseEntity.class);
     }
 
@@ -96,8 +93,8 @@ public class TgBotController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        commonService.saveOperateLog(commonService.getCurrentUser(), OperateLogVO.builder().activeType(BackendConstants.UPDATE)
-                .content(JSON.toJSONString(statusVO)).moduleName(BackendConstants.TOBOT_MODULE).build());
+        Admin current = commonService.getCurrentUser();
+        log.info("{} {} {} {}", current.getUserName(), BackendConstants.UPDATE, JSON.toJSONString(statusVO), BackendConstants.TOBOT_MODULE);
         return JSON.parseObject(result, ResponseEntity.class);
     }
 }
