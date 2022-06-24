@@ -2,14 +2,17 @@ package com.baisha.backendserver.vo.login;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author yihui
  */
 @Data
 @Builder
+@AllArgsConstructor
 @ApiModel(value = "后台-登陆请求对象")
 public class LoginVO {
 
