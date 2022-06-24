@@ -25,6 +25,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     private String chatId;
 
     // 机器人对应的TG群名称
+
     private String chatName;
 
     public MyTelegramLongPollingBot(String username, String token) {

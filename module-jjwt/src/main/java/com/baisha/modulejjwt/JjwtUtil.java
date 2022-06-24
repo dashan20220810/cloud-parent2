@@ -133,7 +133,7 @@ public class JjwtUtil {
      * @return
      */
     public static String refreshToken(String token, String bcryptPassword, Long refresh_ttl,String iss) {
-        if (ObjectUtils.isEmpty(token) || ObjectUtils.isEmpty(bcryptPassword)||ObjectUtils.isEmpty(iss)) {
+        if (ObjectUtils.isEmpty(token) ||ObjectUtils.isEmpty(iss)) {
             return null;
         }
         try {
@@ -152,9 +152,13 @@ public class JjwtUtil {
             }
 
             String bcrypt = subject.getBcryptPassword();
-            if (!(bcryptPassword.equals(bcrypt))) {
-                return null;
+            //原有TOKEN有密码才比对密码
+            if (!bcrypt.isEmpty()) {
+                if (!(bcryptPassword.equals(bcrypt))) {
+                    return null;
+                }
             }
+
 
             Long now = System.currentTimeMillis();
             Long diff = now / 1000 - exp;

@@ -3,8 +3,10 @@ package com.baisha.casinoweb.inteceptor;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.inteceptor.AbstractAuthenticationInteceptor;
+import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulejjwt.JjwtUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,18 +44,19 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
      * @return
      */
     public JjwtUtil.Token refreshJwtToken(String token) {
-//        if(CommonUtil.checkNull(token)){
-//            return null;
-//        }
-//        JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
-//        if (subject == null || ObjectUtils.isEmpty(subject.getUserId())) {
-//            return null;
-//        }
+        if(CommonUtil.checkNull(token)){
+            return null;
+        }
+        JjwtUtil.Subject subject = JjwtUtil.getSubject(token);
+        if (subject == null || ObjectUtils.isEmpty(subject.getUserId())) {
+            return null;
+        }
 //        //获取登陆用户
 //        Long authId = Long.parseLong(subject.getUserId());
-//        User user = userService.findById(authId);
-//        synchronized (token.intern()) {
-//            //多个请求只有一个去刷新token
+
+        //多个请求只有一个去刷新token
+        synchronized (token.intern()) {
+
 //            Object redisToken = redisUtil.get(Constants.TOKEN_CASINO_WEB + authId);
 //            JjwtUtil.Token redisJwtToken = null;
 //            if (redisToken != null) {
@@ -63,24 +66,23 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
 //            if (redisJwtToken != null && token.equals(redisJwtToken.getOldToken()) && !ObjectUtils.isEmpty(redisJwtToken.getNewToken())) {
 //                return redisJwtToken;
 //            }
-//            //获取新token
-//            String refreshToken = JjwtUtil.refreshToken(token, user.getPassword(), Constants.WEB_REFRESH_TTL, Constants.CASINO_WEB);
-//            if (ObjectUtils.isEmpty(refreshToken)) {
-//                return null;
-//            }
-//            //获取到新token后会把之前的token设置成旧的，用于判断后面其他带旧token的请求，有一个旧token获取到新token，其他直接从redis取新的
-//            JjwtUtil.Token jwtTiken = new JjwtUtil.Token();
-//            jwtTiken.setOldToken(token);
-//            jwtTiken.setNewToken(refreshToken);
+            //获取新token
+            String refreshToken = JjwtUtil.refreshToken(token, "",  Constants.CASINO_WEB);
+            if (ObjectUtils.isEmpty(refreshToken)) {
+                return null;
+            }
+            //获取到新token后会把之前的token设置成旧的，用于判断后面其他带旧token的请求，有一个旧token获取到新token，其他直接从redis取新的
+            JjwtUtil.Token jwtToken = new JjwtUtil.Token();
+//            jwtToken.setOldToken(token);
+            jwtToken.setNewToken(refreshToken);
 //            //不是最新的token也可以获取到新token，但是多设备校验的时候会拦截
 //            if (redisJwtToken != null && (token.equals(redisJwtToken.getOldToken()) || token.equals(redisJwtToken.getNewToken()))) {
-//                redisUtil.set(Constants.TOKEN_CASINO_WEB + authId, jwtTiken, Constants.WEB_REFRESH_TTL);
+//                redisUtil.set(Constants.TOKEN_CASINO_WEB + authId, jwtToken, Constants.WEB_REFRESH_TTL);
 //            } else {
 //                log.error("当前token={}，iss={} 已失效刷新token无效，redis中token信息为={}", token, Constants.CASINO_WEB, redisJwtToken);
 //            }
-//            return jwtTiken;
-//        }
-        return null;
+            return jwtToken;
+        }
     }
 
 
