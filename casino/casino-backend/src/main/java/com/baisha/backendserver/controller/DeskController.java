@@ -53,6 +53,13 @@ public class DeskController {
                 || Objects.isNull(vo.getMaxShoeAmount())) {
             return ResponseUtil.parameterNotNull();
         }
+        Integer ZERO = 0;
+        if (vo.getMinAmount().compareTo(ZERO) <= 0
+                || vo.getMaxAmount().compareTo(ZERO) <= 0
+                || vo.getMaxShoeAmount().compareTo(ZERO) <= 0) {
+            return new ResponseEntity("必须大于0的整数");
+        }
+
         Admin admin = commonService.getCurrentUser();
         TgGroupBound tgg;
         synchronized (vo.getTgGroupId()) {
