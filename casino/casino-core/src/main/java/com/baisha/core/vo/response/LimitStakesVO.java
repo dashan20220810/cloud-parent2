@@ -15,5 +15,5 @@ public class LimitStakesVO {
     private Integer maxAmount = 15000;
 
     @ApiModelProperty(value="当局最高")
-    private Integer maxShoeAmount = 15000;
+    private Integer maxShoeAmount = 50000;
 }
