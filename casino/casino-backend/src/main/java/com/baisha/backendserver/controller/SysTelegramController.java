@@ -101,7 +101,7 @@ public class SysTelegramController {
         stp.setUpdateBy(admin.getUpdateBy());
         sysTelegramService.save(stp);
         doSetRedis(stp);
-        log.info("{} {} {} {}", admin.getUserName(), BackendConstants.UPDATE, JSON.toJSONString(admin), BackendConstants.SYS_TELEGRAM_MODULE);
+        log.info("{} {} {} {}", admin.getUserName(), BackendConstants.UPDATE, JSON.toJSONString(stp), BackendConstants.SYS_TELEGRAM_MODULE);
         return ResponseUtil.success(stp.getId());
     }
 
