@@ -2,19 +2,20 @@ package com.baisha.userserver.contrloller;
 
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.enums.UserOriginEnum;
-import com.baisha.modulecommon.util.CommonUtil;
-import com.baisha.userserver.model.Assets;
-import com.baisha.userserver.model.User;
-import com.baisha.userserver.bo.UserBO;
-import com.baisha.userserver.service.AssetsService;
-import com.baisha.userserver.service.UserService;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
+import com.baisha.modulecommon.util.CommonUtil;
+import com.baisha.userserver.bo.UserBO;
+import com.baisha.userserver.model.User;
+import com.baisha.userserver.model.UserTelegramRelation;
+import com.baisha.userserver.service.UserService;
+import com.baisha.userserver.service.UserTelegramRelationService;
 import com.baisha.userserver.util.UserServerUtil;
 import com.baisha.userserver.vo.IdVO;
 import com.baisha.userserver.vo.user.UserAddVO;
 import com.baisha.userserver.vo.user.UserPageVO;
 import com.baisha.userserver.vo.user.UserSearchVO;
+import com.baisha.userserver.vo.user.UserTgSearchPageVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -23,10 +24,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.criteria.Predicate;
-import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +44,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserTelegramRelationService relationService;
 
     @ApiOperation(("新增用户"))
     @PostMapping("save")
@@ -69,11 +74,25 @@ public class UserController {
         // 查询用户名是否存在
         User isExist = userService.findByUserName(vo.getUserName());
         if (Objects.nonNull(isExist)) {
+            doUserTelegramRelation(isExist, vo);
             return ResponseUtil.success();
         }
         User user = createTelegramUser(vo);
         userService.saveUser(user);
+        doUserTelegramRelation(user, vo);
         return ResponseUtil.success();
+    }
+
+    private void doUserTelegramRelation(User user, UserAddVO vo) {
+        UserTelegramRelation relation = relationService.findByUserIdAndTgGroupId(user.getId(), vo.getTgGroupId());
+        if (Objects.isNull(relation)) {
+            relation = new UserTelegramRelation();
+            relation.setUserId(user.getId());
+            relation.setUserName(user.getUserName());
+            relation.setTgUserId(vo.getTgUserId());
+            relation.setTgGroupId(vo.getTgGroupId());
+            relationService.save(relation);
+        }
     }
 
     private User createTelegramUser(UserAddVO vo) {
@@ -190,6 +209,26 @@ public class UserController {
             return new ResponseEntity("会员不存在");
         }
         return ResponseUtil.success(UserBO.builder().id(user.getId()).userName(user.getUserName()).nickName(user.getNickName()).build());
+    }
+
+
+    @ApiOperation(("根据Tg群ID获取用户"))
+    @GetMapping("findUserByTgGroupId")
+    public ResponseEntity findUserByTgGroupId(UserTgSearchPageVO vo) {
+        if (StringUtils.isEmpty(vo.getTgGroupId())) {
+            return new ResponseEntity("群ID必填");
+        }
+        Pageable pageable = PageRequest.of(vo.getPageNumber() - 1, vo.getPageSize());
+        Specification<UserTelegramRelation> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new LinkedList<>();
+            predicates.add(cb.equal(root.get("tgGroupId"), vo.getTgGroupId()));
+            if (StringUtils.isNotBlank(vo.getUserName())) {
+                predicates.add(cb.equal(root.get("userName"), vo.getUserName()));
+            }
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+        };
+        Page<UserTelegramRelation> pageList = relationService.getUserTelegramPage(spec, pageable);
+        return ResponseUtil.success(pageList);
     }
 
 }
