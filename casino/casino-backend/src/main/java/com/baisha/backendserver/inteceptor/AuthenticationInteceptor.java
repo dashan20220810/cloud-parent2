@@ -88,7 +88,7 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
                 return redisJwtToken;
             }
             //获取新token
-            String refreshToken = JjwtUtil.refreshToken(token, user.getPassword(), Constants.WEB_REFRESH_TTL,
+            String refreshToken = JjwtUtil.refreshToken(token, user.getPassword(), Constants.ADMIN_REFRESH_TTL,
                     Constants.CASINO_ADMIN);
             if (ObjectUtils.isEmpty(refreshToken)) {
                 return null;
@@ -98,12 +98,13 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
             jwtTiken.setOldToken(token);
             jwtTiken.setNewToken(refreshToken);
             //不是最新的token也可以获取到新token，但是多设备校验的时候会拦截
-            if (redisJwtToken != null && (token.equals(redisJwtToken.getOldToken()) || token.equals(redisJwtToken.getNewToken()))) {
+            /*if (redisJwtToken != null && (token.equals(redisJwtToken.getOldToken()) || token.equals(redisJwtToken.getNewToken()))) {
                 redisUtil.set(Constants.REDIS_TOKEN_ADMIN + authId, jwtTiken, Constants.WEB_REFRESH_TTL);
             } else {
                 log.error("当前token={}，iss={} 已失效刷新token无效，redis中token信息为={}", token, Constants.CASINO_ADMIN,
                         redisJwtToken);
-            }
+            }*/
+            redisUtil.set(Constants.REDIS_TOKEN_ADMIN + authId, jwtTiken, Constants.ADMIN_REFRESH_TTL);
             return jwtTiken;
         }
     }
