@@ -16,4 +16,11 @@ public class TgBotServerConstants {
      * 更新状态
      */
     public static final String UPDATE_STATUS_TG_BOT = "/tgBot/updateStatusById";
+
+
+    /**
+     * 根据机器人名称查询 电报群
+     */
+    public static final String GET_GROUP = "/tgBot/getGroupByBotName";
+
 }

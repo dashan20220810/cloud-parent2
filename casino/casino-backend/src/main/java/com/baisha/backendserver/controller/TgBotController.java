@@ -5,9 +5,12 @@ import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.vo.StatusVO;
 import com.baisha.backendserver.model.vo.tgBot.TgBotPageVO;
+import com.baisha.backendserver.model.vo.tgBot.TgGroupPageVO;
+import com.baisha.backendserver.model.vo.user.UserPageVO;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.TgBotServerConstants;
+import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -17,8 +20,10 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -66,7 +71,7 @@ public class TgBotController {
         return JSON.parseObject(result, ResponseEntity.class);
     }
 
-    @ApiOperation("分页查询")
+    @ApiOperation("机器人分页查询")
     @PostMapping("page")
     public ResponseEntity page(TgBotPageVO vo) {
         String url = tgBotServerUrl + TgBotServerConstants.PAGE_TG_BOT;
@@ -97,4 +102,25 @@ public class TgBotController {
         log.info("{} {} {} {}", current.getUserName(), BackendConstants.UPDATE, JSON.toJSONString(statusVO), BackendConstants.TOBOT_MODULE);
         return JSON.parseObject(result, ResponseEntity.class);
     }
+
+
+    /*@GetMapping("group/page")
+    @ApiOperation(("获取机器人下的电报群分页"))
+    public ResponseEntity groupPage(TgGroupPageVO vo) {
+        if (CommonUtil.checkNull(vo.getBotName())) {
+            return ResponseUtil.parameterNotNull();
+        }
+        StringBuffer sb = new StringBuffer();
+        sb.append(tgBotServerUrl + TgBotServerConstants.GET_GROUP + "?pageNumber=" + vo.getPageNumber() +
+                "&pageSize=" + vo.getPageSize());
+        sb.append("&botName=" + vo.getBotName());
+        String url = sb.toString();
+        String result = HttpClient4Util.doGet(url);
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
+        return JSON.parseObject(result, ResponseEntity.class);
+    }*/
+
+
 }
