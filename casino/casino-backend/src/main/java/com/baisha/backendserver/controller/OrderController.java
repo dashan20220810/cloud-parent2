@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.constants.GameServerConstants;
+import com.baisha.backendserver.response.BetResponse;
 import com.baisha.backendserver.vo.bet.BetPageVO;
 import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.reponse.ResponseEntity;
@@ -39,7 +40,7 @@ public class OrderController {
 
     @PostMapping("page")
     @ApiOperation(("订单查询"))
-    public ResponseEntity<Page<?>> page(BetPageVO betRequest) {
+    public ResponseEntity<Page<BetResponse>> page(BetPageVO betRequest) {
     	
     	log.info("订单查询");
     	

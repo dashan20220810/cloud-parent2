@@ -21,37 +21,37 @@ public class BetVO implements Serializable {
 
 	private static final long serialVersionUID = -6560709467907229574L;
 	
-	@ApiModelProperty(name="來自tg請求")
+	@ApiModelProperty(value="來自tg請求")
     private boolean isTgRequest;
 
-    @ApiModelProperty(required=true, name="订单编号")
+    @ApiModelProperty(required=true, value="订单编号")
     private String orderNo;
 
-	@ApiModelProperty(required=true, name="tg_chat_id")
+	@ApiModelProperty(required=true, value="tg_chat_id")
 	private Long tgChatId;
 
-	@ApiModelProperty(required=true, name="user_id")
+	@ApiModelProperty(required=true, value="user_id")
 	private Long userId;
 
-	@ApiModelProperty(required=true, name="user_name")
+	@ApiModelProperty(required=true, value="user_name")
 	private String userName;
 
-    @ApiModelProperty(required=true, name="下注类型", notes="ZD庄对,XD闲对,Z庄,X闲,H和,D对,SS超六")
+    @ApiModelProperty(required=true, value="下注类型", notes="ZD庄对,XD闲对,Z庄,X闲,H和,D对,SS超六")
 	private BetOption betOption;
 
-    @ApiModelProperty(required=true, name="下注金额")
+    @ApiModelProperty(required=true, value="下注金额")
 	private Long amount;
 
-    @ApiModelProperty(required=true, name="游戏轮号")
+    @ApiModelProperty(required=true, value="游戏轮号")
     private String noRun;
 
-    @ApiModelProperty(required=true, name="游戏局号")
+    @ApiModelProperty(required=true, value="游戏局号")
     private String noActive;
 
-    @ApiModelProperty(required=true, name="订单状态")
+    @ApiModelProperty(required=true, value="订单状态")
     private Integer status;
 
-    @ApiModelProperty(required=true, name="IP")
+    @ApiModelProperty(required=true, value="IP")
     private String clientIP;
 
     public Bet generateBet() {
