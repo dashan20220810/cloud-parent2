@@ -11,6 +11,9 @@ import lombok.Data;
 @ApiModel(value = "后台-电报配置返回对象")
 public class SysTelegramParameterBO {
 
+    @ApiModelProperty(value = "ID")
+    private Long id;
+
     @ApiModelProperty(value = "唯一财务")
     private String onlyFinance;
 
