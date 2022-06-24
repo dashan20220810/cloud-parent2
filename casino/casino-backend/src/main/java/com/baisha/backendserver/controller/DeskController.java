@@ -3,16 +3,13 @@ package com.baisha.backendserver.controller;
 import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.model.Admin;
-import com.baisha.backendserver.model.SysTelegramParameter;
 import com.baisha.backendserver.model.TgGroupBound;
-import com.baisha.backendserver.model.vo.sys.SysTelegramParameterVO;
 import com.baisha.backendserver.model.vo.tgBot.TgGroupBoundVO;
 import com.baisha.backendserver.service.TgGroupBoundService;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.core.constants.RedisKeyConstants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
-import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulespringcacheredis.util.RedisUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,7 +42,7 @@ public class DeskController {
     private TgGroupBoundService tgGroupBoundService;
 
     @ApiOperation("设置限红")
-    @GetMapping(value = "setInfo")
+    @PostMapping(value = "setInfo")
     public ResponseEntity<Long> setTgGroupBoundInfo(TgGroupBoundVO vo) {
         if (StringUtils.isEmpty(vo.getTgGroupId())
                 || Objects.isNull(vo.getMaxAmount())
