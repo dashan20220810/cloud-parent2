@@ -17,6 +17,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.*;
 
 import javax.persistence.Column;
@@ -24,9 +26,13 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@Component
 public class TelegramMyChatMemberHandler {
 
-    private final TgChatService tgChatService = new TgChatService();
+//    private final TgChatService tgChatService = new TgChatService();
+    public TgChatService getTgChatService() {
+        return TelegramBotUtil.getTgChatService();
+    }
 
     public void myChatMemberHandler(MyTelegramLongPollingBot bot, Update update) {
         ChatMemberUpdated myChatMember = update.getMyChatMember();
@@ -35,44 +41,20 @@ public class TelegramMyChatMemberHandler {
 
         String chatId = chat.getId().toString();
         String chatName = chat.getTitle();
-        bot.setChatId(chatId);
-        bot.setChatName(chatName);
 
-        // 保存TG群
-        TgChat tgChat = tgChatService.findByChatId(chatId);
+        // 一个TG群只绑定一个机器人
+        TgChat tgChat = getTgChatService().findByChatId(chatId);
         if(ObjectUtils.isEmpty(tgChat) || StringUtils.isEmpty(tgChat.getChatId())){
-            //新增
+            // 新增
             tgChat = new TgChat();
             tgChat.setChatId(chatId)
                     .setChatName(chatName)
-                    .setBotName(bot.getUsername());
+                    .setBotName(bot.getUsername())
+                    .setStatus(Constants.close);
+            getTgChatService().save(tgChat);
+            // 绑定
+            bot.setChatId(chatId);
+            bot.setChatName(chatName);
         }
-        tgChat.setStatus(Constants.close);
-        tgChatService.save(tgChat);
     }
-
-
-
-//    public void registerUser(String id, MyTelegramLongPollingBot bot, String userName) {
-//        String requestUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_REGISTER_USER.getApiName();
-//        // 设置请求参数
-//        Map<String, Object> param = Maps.newHashMap();
-//        param.put("name", id);
-//        param.put("nickname", userName);
-//        param.put("groupId", bot.getChatId());
-//        param.put("groupName", bot.getChatId());
-//        // 远程调用
-//        String forObject = TgHttpClient4Util.doPost(requestUrl, param, id);
-//        if (StrUtil.isNotEmpty(forObject)) {
-//            ResponseEntity result = JSONObject.parseObject(forObject, ResponseEntity.class);
-//            // 在telegram中提示文字
-//            if (result.getCode() == 0) {
-//                bot.sendMessage(userName + " 注册会员成功！");
-//            } else {
-//                bot.sendMessage(userName + " 注册会员失败！" + unicodeToString(result.getMsg()));
-//            }
-//            return;
-//        }
-//        bot.sendMessage(userName + " 注册会员失败！服务异常！");
-//    }
 }

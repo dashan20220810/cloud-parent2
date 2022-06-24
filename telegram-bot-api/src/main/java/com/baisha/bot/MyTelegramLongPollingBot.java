@@ -2,8 +2,11 @@ package com.baisha.bot;
 
 import com.baisha.handle.TelegramMessageHandler;
 import com.baisha.handle.TelegramMyChatMemberHandler;
+import com.baisha.modulecommon.util.SpringContextUtil;
+import com.baisha.util.TelegramBotUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
@@ -33,6 +36,17 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
         this.token = token;
     }
 
+    public MyTelegramLongPollingBot(String username, String token, String chatId, String chatName) {
+        this.username = username;
+        this.token = token;
+        this.chatId = chatId;
+        this.chatName = chatName;
+    }
+
+    public TelegramMyChatMemberHandler getTelegramMyChatMemberHandler() {
+        return TelegramBotUtil.getTelegramMyChatMemberHandler();
+    }
+
     @Override
     public String getBotUsername() {
         return username;
@@ -45,12 +59,12 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        // 进群监听1(绑定)机器人绑定群
+        // 机器人绑定群
         if (update.hasMyChatMember()) {
-            new TelegramMyChatMemberHandler().myChatMemberHandler(this, update);
+            getTelegramMyChatMemberHandler().myChatMemberHandler(this, update);
             return;
         }
-        // 进群监听2(注册) + 消息监听
+        // 会员注册 + 下注
         if (update.hasMessage()) {
             // 消息处理
             new TelegramMessageHandler().messageHandler(this, update);

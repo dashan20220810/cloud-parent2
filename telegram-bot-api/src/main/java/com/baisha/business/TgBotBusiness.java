@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.model.TgBot;
 import com.baisha.model.vo.TgBotPageVO;
+import com.baisha.model.vo.TgBotVO;
 import com.baisha.service.TgBotService;
 import com.baisha.util.TelegramServerUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -47,12 +48,11 @@ public class TgBotBusiness {
 
     public void registerAllBot() {
         // 根据状态status来过滤
-        List<TgBot> tgBots = tgBotService.getTgBots();
+        List<TgBotVO> tgBots = tgBotService.getTgBots();
         tgBots.forEach(tgBot -> {
             try {
                 // 实例化机器人
-                TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-                botsApi.registerBot(new MyTelegramLongPollingBot(tgBot.getBotName(), tgBot.getBotToken()));
+                startTg(tgBot.getBotName(), tgBot.getBotToken(), tgBot.getChatId(), tgBot.getChatName());
             } catch (Throwable e) {
                 log.error("初始化-注册机器人失败", e);
             }
@@ -69,6 +69,30 @@ public class TgBotBusiness {
         // 实例化机器人
         try {
             BotSession botSession = getBotsApiInstance().registerBot(new MyTelegramLongPollingBot(username, token));
+            boolean running = botSession.isRunning();
+            if (!running) {
+                return false;
+            }
+            botSerssionMap.put(username, botSession);
+        } catch (TelegramApiException e) {
+            log.error("机器人启动失败");
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 启动机器人(项目初始化)
+     * @param username
+     * @param token
+     * @return
+     */
+    public boolean startTg(String username, String token, String chatId, String chatName) {
+        // 实例化机器人
+        try {
+            BotSession botSession = getBotsApiInstance().registerBot(new MyTelegramLongPollingBot(username, token, chatId, chatName));
             boolean running = botSession.isRunning();
             if (!running) {
                 return false;

@@ -5,6 +5,7 @@ import com.baisha.model.TgChat;
 import com.baisha.modulecommon.Constants;
 import com.baisha.repository.TgBotRepository;
 import com.baisha.repository.TgChatRepository;
+import com.baisha.util.TelegramBotUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
@@ -26,7 +27,7 @@ public class TgChatService {
     @Autowired
     private TgChatRepository tgChatRepository;
 
-    @Cacheable
+    @Cacheable(unless="#result == null")
     public TgChat findByChatId(String chatId) {
         return tgChatRepository.findByChatId(chatId);
     }
