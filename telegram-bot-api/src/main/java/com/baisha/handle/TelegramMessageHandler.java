@@ -38,6 +38,7 @@ public class TelegramMessageHandler {
         }
         // 下注
 //        tgUserBet(message);
+        bot.sendMessage(" 下注成功！");
     }
 
     public void registerEvery(MyTelegramLongPollingBot bot, User user) {

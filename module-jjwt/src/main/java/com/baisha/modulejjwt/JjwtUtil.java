@@ -24,7 +24,7 @@ public class JjwtUtil {
     private void setSecrect(String secrect) {
         this.secrect = secrect;
     }
-    public final static long ttl = 5 * 60 * 1000;
+    public final static long ttl = 60* 5 * 60 * 1000;
 //    private final static long ttl = 24 * 60 * 60 * 1000;
     private final static Long refresh_ttl = 30 * 60L;//秒
 

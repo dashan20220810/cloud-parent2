@@ -15,7 +15,7 @@ import javax.persistence.Entity;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@Entity(name = "bot_chat_relation")
+@Entity
 @ApiModel(value = "BotChatRelation对象", description = "机器人-TG群-关系表")
 public class BotChatRelation extends BaseEntity {
 
