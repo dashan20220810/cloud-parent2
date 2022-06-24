@@ -18,43 +18,45 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper=false)
 @Entity
-@ApiModel(value = "Bet对象", description = "注单")
+@ApiModel(value = "GS-Bet对象", description = "注单")
 public class Bet extends BaseEntity{
 
     private static final long serialVersionUID = -843697330512478843L;
 
     @ApiModelProperty("订单编号")
-    @Column(name="order_no")
+    @Column(name="order_no", nullable=false, columnDefinition="VARCHAR(50) COMMENT '订单编号'")
 	private String orderNo;
 
 	@ApiModelProperty("user_id")
-    @Column(name="user_id")
+    @Column(name="user_id", nullable=false)
 	private Long userId;
 
 	@ApiModelProperty("tg_chat_id")
-    @Column(name="tg_chat_id")
+    @Column(name="tg_chat_id", columnDefinition="BIGINT COMMENT 'telegram群id'")
 	private Long tgChatId;
 
-    @ApiModelProperty("下注类型")
-    @Column(name="bet_option")
+    @ApiModelProperty("下注类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,D对,SS幸运六,SB三宝")
+    @Column(name="bet_option", columnDefinition="INT COMMENT '下注类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,D对,SS幸运六,SB三宝'")
 	private BetOption betOption;
 
     @ApiModelProperty("下注金额")
+    @Column(name="amount", columnDefinition="BIGINT COMMENT '下注金额'", nullable=false)
 	private Long amount;
 
     @ApiModelProperty("客户端IP")
-    @Column(name="client_ip")
+    @Column(name="client_ip", columnDefinition="VARCHAR(20) COMMENT '客户端IP'")
     private String clientIP;
 
     @ApiModelProperty("游戏轮号")
-    @Column(name="no_run")
+    @Column(name="no_run", columnDefinition="VARCHAR(50) COMMENT '游戏轮号'")
     private String noRun;
 
     @ApiModelProperty("游戏局号")
-    @Column(name="no_active")
+    @Column(name="no_active", columnDefinition="VARCHAR(50) COMMENT '游戏局号'")
     private String noActive;
 
     @ApiModelProperty("注單狀態(1.下注成功)")
+    @Column(name="status", nullable=false, columnDefinition="INT COMMENT '注單狀態(1.下注成功)'")
     private Integer status;
     
     /**
