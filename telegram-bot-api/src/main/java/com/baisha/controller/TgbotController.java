@@ -66,18 +66,15 @@ public class TgbotController {
         }
 
         //业务
-        TgBot tgBotDb = tgBotService.findByBotName("kimi_111_bot");
-        if(ObjectUtils.isEmpty(tgBotDb) || StringUtils.isEmpty(tgBotDb.getBotName())){
+        TgBot tgBot = tgBotService.findByBotName(username);
+        if(ObjectUtils.isEmpty(tgBot) || StringUtils.isEmpty(tgBot.getBotName())){
             //新增
-            TgBot tgBot = new TgBot();
+            tgBot = new TgBot();
             tgBot.setBotName(username)
-                 .setBotToken(token)
-                 .setStatus(Constants.open);
-            tgBotService.save(tgBot);
-        } else {
-            //修改状态
-            tgBotService.updateTgBotById(Constants.open, tgBotDb.getId());
+                 .setBotToken(token);
         }
+        tgBot.setStatus(Constants.open);
+        tgBotService.save(tgBot);
 
         return ResponseUtil.success();
     }

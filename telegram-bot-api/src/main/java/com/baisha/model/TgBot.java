@@ -17,7 +17,7 @@ import javax.persistence.UniqueConstraint;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@Entity(name = "tg_bot")
+@Entity
 @Table(uniqueConstraints = {
     @UniqueConstraint(name = "unique_bot_name", columnNames = "bot_name")
 })
@@ -33,6 +33,6 @@ public class TgBot extends BaseEntity {
     private String botToken;
 
     @Column(name = "status", nullable = false)
-    @ApiModelProperty("状态 1正常 2禁用")
+    @ApiModelProperty("状态 0禁用 1启用")
     private Integer status;
 }

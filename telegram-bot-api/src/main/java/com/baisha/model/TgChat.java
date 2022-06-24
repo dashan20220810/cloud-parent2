@@ -17,7 +17,7 @@ import javax.persistence.UniqueConstraint;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@Entity(name = "tg_chat")
+@Entity
 @Table(uniqueConstraints = {
     @UniqueConstraint(name = "unique_chat_id", columnNames = "chat_id")
 })
@@ -31,4 +31,12 @@ public class TgChat extends BaseEntity {
     @ApiModelProperty("群名称")
     @Column(name = "chat_name", nullable = false, length = 100)
     private String chatName;
+
+    @ApiModelProperty("机器人名称")
+    @Column(name = "bot_name", nullable = false, length = 30)
+    private String botName;
+
+    @Column(name = "status", nullable = false)
+    @ApiModelProperty("状态 0禁用 1启用")
+    private Integer status;
 }

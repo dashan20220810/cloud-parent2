@@ -8,6 +8,7 @@ import com.baisha.repository.TgChatRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -25,9 +26,10 @@ public class TgChatService {
     @Autowired
     private TgChatRepository tgChatRepository;
 
-//    public TgBot findByBotName(String botName) {
-//        return tgBotRepository.findByBotName(botName);
-//    }
+    @Cacheable
+    public TgChat findByChatId(String chatId) {
+        return tgChatRepository.findByChatId(chatId);
+    }
 
     @CachePut(key = "#tgChat.chatId")
     public TgChat save(TgChat tgChat) {

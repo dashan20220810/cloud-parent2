@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.bot.MyTelegramLongPollingBot;
+import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
@@ -14,6 +15,8 @@ import com.baisha.util.enums.RequestPathEnum;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.telegram.telegrambots.meta.api.objects.*;
 
 import javax.persistence.Column;
@@ -22,6 +25,8 @@ import java.util.Map;
 
 @Slf4j
 public class TelegramMyChatMemberHandler {
+
+    private final TgChatService tgChatService = new TgChatService();
 
     public void myChatMemberHandler(MyTelegramLongPollingBot bot, Update update) {
         ChatMemberUpdated myChatMember = update.getMyChatMember();
@@ -32,16 +37,18 @@ public class TelegramMyChatMemberHandler {
         String chatName = chat.getTitle();
         bot.setChatId(chatId);
         bot.setChatName(chatName);
+
         // 保存TG群
-        TgChat tgChat = new TgChat()
-                .setChatId(chatId)
-                .setChatName(chatName);
-        new TgChatService().save(tgChat);
-
-//        @Column(name = "status", nullable = false)Constants.open
-//        @ApiModelProperty("状态 1正常 2禁用")
-//        private Integer status;
-
+        TgChat tgChat = tgChatService.findByChatId(chatId);
+        if(ObjectUtils.isEmpty(tgChat) || StringUtils.isEmpty(tgChat.getChatId())){
+            //新增
+            tgChat = new TgChat();
+            tgChat.setChatId(chatId)
+                    .setChatName(chatName)
+                    .setBotName(bot.getUsername());
+        }
+        tgChat.setStatus(Constants.close);
+        tgChatService.save(tgChat);
     }
 
 
