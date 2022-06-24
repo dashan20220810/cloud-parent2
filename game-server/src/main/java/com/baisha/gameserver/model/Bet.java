@@ -5,8 +5,6 @@ import javax.persistence.Entity;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.baisha.modulecommon.enums.BetOption;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -36,8 +34,9 @@ public class Bet extends BaseEntity{
 	private Long tgChatId;
 
     @ApiModelProperty("下注类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,D对,SS幸运六,SB三宝")
-    @Column(name="bet_option", columnDefinition="INT COMMENT '下注类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,D对,SS幸运六,SB三宝'")
-	private BetOption betOption;
+    @Column(name="bet_option", nullable=false
+    	, columnDefinition="VARCHAR(10) COMMENT '下注类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,D对,SS幸运六,SB三宝'")
+	private String betOption;
 
     @ApiModelProperty("下注金额")
     @Column(name="amount", columnDefinition="BIGINT COMMENT '下注金额'", nullable=false)
@@ -70,7 +69,7 @@ public class Bet extends BaseEntity{
     		return false;
     	}
 
-    	if ( bet.getBetOption() == null ) {
+    	if ( StringUtils.isBlank(bet.getBetOption()) ) {
     		return false;
     	}
 

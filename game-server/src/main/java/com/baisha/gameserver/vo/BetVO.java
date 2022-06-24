@@ -57,6 +57,7 @@ public class BetVO implements Serializable {
     public Bet generateBet() {
     	Bet result = new Bet();
     	BeanUtils.copyProperties(this, result);
+    	result.setBetOption(this.getBetOption().toString());
     	return result;
     }
 }
