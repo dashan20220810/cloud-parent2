@@ -12,13 +12,11 @@ import com.baisha.userserver.service.UserService;
 import com.baisha.userserver.service.UserTelegramRelationService;
 import com.baisha.userserver.util.UserServerUtil;
 import com.baisha.userserver.vo.IdVO;
-import com.baisha.userserver.vo.user.UserAddVO;
-import com.baisha.userserver.vo.user.UserPageVO;
-import com.baisha.userserver.vo.user.UserSearchVO;
-import com.baisha.userserver.vo.user.UserTgSearchPageVO;
+import com.baisha.userserver.vo.user.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,15 +45,17 @@ public class UserController {
     @Autowired
     private UserTelegramRelationService relationService;
 
-    @ApiOperation(("新增用户"))
+    @ApiOperation(("新增用户(Telegram注册)"))
     @PostMapping("save")
-    public ResponseEntity saveUser(UserAddVO vo) {
-        String origin = vo.getOrigin();
-        //默认tg用户注册
-        if (StringUtils.isEmpty(origin) || origin.equals(UserOriginEnum.TG_ORIGIN.getOrigin())) {
-            return saveTelegramUser(vo);
+    public ResponseEntity saveUser(UserAddTelegramVO vo) {
+        try {
+            UserAddVO userAddVO = new UserAddVO();
+            BeanUtils.copyProperties(vo, userAddVO);
+            userAddVO.setOrigin(UserOriginEnum.TG_ORIGIN.getOrigin());
+            return saveTelegramUser(userAddVO);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        //其他
 
         return ResponseUtil.fail();
     }
