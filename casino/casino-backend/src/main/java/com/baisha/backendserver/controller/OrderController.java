@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSON;
-import com.baisha.backendserver.util.constants.GameServerConstants;
-import com.baisha.backendserver.response.BetResponse;
 import com.baisha.backendserver.model.vo.bet.BetPageVO;
+import com.baisha.backendserver.model.vo.response.BetResponse;
+import com.baisha.backendserver.util.constants.GameServerConstants;
 import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;

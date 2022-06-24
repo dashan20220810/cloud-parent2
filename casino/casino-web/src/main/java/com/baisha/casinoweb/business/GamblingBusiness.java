@@ -3,14 +3,13 @@ package com.baisha.casinoweb.business;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.alibaba.fastjson.JSONObject;
-import com.baisha.casinoweb.util.enums.RequestPathEnum;
-import com.baisha.modulecommon.util.CommonUtil;
+import com.baisha.core.service.TelegramService;
+import com.baisha.core.vo.response.LimitStakesVO;
 import com.baisha.modulecommon.util.DateUtil;
-import com.baisha.modulecommon.util.HttpClient4Util;
 
 @Component
 public class GamblingBusiness {
@@ -21,6 +20,8 @@ public class GamblingBusiness {
 	@Value("${project.server-url.backend-server-domain}")
 	private String backendServerDomain;
 
+    @Autowired
+    private TelegramService telegramService;
 	
 	/**
 	 * 当前局号
@@ -41,19 +42,8 @@ public class GamblingBusiness {
 	 * @param tgChatId
 	 * @return
 	 */
-	public String limitStakes ( Long tgChatId ) {
+	public LimitStakesVO limitStakes ( Long tgChatId ) {
 
-    	String result = HttpClient4Util.doGet(backendServerDomain + RequestPathEnum.LIMIT_STAKES.getApiName());
-        if (CommonUtil.checkNull(result)) {
-            return null;
-        }
-
-		JSONObject json = JSONObject.parseObject(result);
-		Integer code = json.getInteger("code");
-		if ( code==null || code!=0 ) {
-			return null;
-		}
-
-		return json.getString("data");
+		return telegramService.getLimitStakes( tgChatId.toString() );
 	}
 }

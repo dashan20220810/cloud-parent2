@@ -1,4 +1,4 @@
-package com.baisha.backendserver.response;
+package com.baisha.backendserver.model.vo.response;
 
 import javax.persistence.Column;
 
