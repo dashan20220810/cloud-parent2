@@ -44,7 +44,7 @@ public class DeskController {
     @Autowired
     private TgGroupBoundService tgGroupBoundService;
 
-    @ApiOperation("设置鲜红")
+    @ApiOperation("设置限红")
     @GetMapping(value = "setInfo")
     public ResponseEntity<Long> setTgGroupBoundInfo(TgGroupBoundVO vo) {
         if (StringUtils.isEmpty(vo.getTgGroupId())
