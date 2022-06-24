@@ -20,7 +20,7 @@ public class TgGroupBoundVO {
     @ApiModelProperty(value = "单注最低", required = true)
     private Integer minAmount;
 
-    @ApiModelProperty(value = "单注最低", required = true)
+    @ApiModelProperty(value = "单注最高", required = true)
     private Integer maxAmount;
 
     @ApiModelProperty(value = "当局最高", required = true)
