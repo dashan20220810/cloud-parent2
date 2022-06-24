@@ -9,6 +9,8 @@ import com.baisha.backendserver.model.bo.sys.SysTelegramParameterBO;
 import com.baisha.backendserver.model.vo.sys.SysTelegramParameterVO;
 import com.baisha.backendserver.service.SysTelegramService;
 import com.baisha.backendserver.util.constants.BackendConstants;
+import com.baisha.core.constants.RedisKeyConstants;
+import com.baisha.core.service.TelegramService;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -42,6 +44,8 @@ public class SysTelegramController {
     private CommonService commonService;
     @Autowired
     private SysTelegramService sysTelegramService;
+    @Autowired
+    private TelegramService telegramService;
 
     @ApiOperation("获取信息")
     @GetMapping(value = "getInfo")
@@ -52,7 +56,7 @@ public class SysTelegramController {
         if (StringUtils.isNotEmpty(bo.getStartBetPicUrl())) {
             bo.setStartBetPicUrlShow(commonService.getFileServerUrl(bo.getStartBetPicUrl()));
         }
-        System.out.println(JSONObject.toJSONString(redisUtil.hmget(Constants.SYS_TELEGRAM)));
+        System.out.println(JSONObject.toJSONString(telegramService.getTelegramSet()));
         return ResponseUtil.success(bo);
     }
 
@@ -108,7 +112,7 @@ public class SysTelegramController {
                 stp.getOnlyCustomerService());
         map.put("startBetPicUrl", StringUtils.isEmpty(stp.getStartBetPicUrl()) ? "" :
                 commonService.getFileServerUrl(stp.getStartBetPicUrl()));
-        redisUtil.hmset(Constants.SYS_TELEGRAM, map);
+        redisUtil.hmset(RedisKeyConstants.SYS_TELEGRAM, map);
     }
 
 
