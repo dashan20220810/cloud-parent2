@@ -153,8 +153,6 @@ public class Constants {
     public final static Integer PROXY_TYPE = 2;//代理
 
 
-    //redis 点名设置前缀
-    public static final String SYS_TELEGRAM = "common::sys_telegram";
 
 
 }
