@@ -4,14 +4,11 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.baisha.casinoweb.enums.TgImageEnum;
-import com.baisha.casinoweb.model.TgImage;
-import com.baisha.casinoweb.service.TgService;
+import com.baisha.casinoweb.util.enums.TgImageEnum;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.annotation.NoAuthentication;
 import com.baisha.modulecommon.reponse.ResponseEntity;

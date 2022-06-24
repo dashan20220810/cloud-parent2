@@ -2,11 +2,11 @@ package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonService;
-import com.baisha.backendserver.constants.TgBotServerConstants;
+import com.baisha.backendserver.util.constants.TgBotServerConstants;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.util.BackendServerUtil;
-import com.baisha.backendserver.vo.StatusVO;
-import com.baisha.backendserver.vo.tgBot.TgBotPageVO;
+import com.baisha.backendserver.model.vo.StatusVO;
+import com.baisha.backendserver.model.vo.tgBot.TgBotPageVO;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;

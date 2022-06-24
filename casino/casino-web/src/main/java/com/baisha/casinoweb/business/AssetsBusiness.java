@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.casinoweb.constant.Constants;
-import com.baisha.casinoweb.enums.RequestPathEnum;
+import com.baisha.casinoweb.util.constant.Constants;
+import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.casinoweb.util.CasinoWebUtil;
-import com.baisha.casinoweb.vo.UserVO;
+import com.baisha.casinoweb.model.vo.UserVO;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 

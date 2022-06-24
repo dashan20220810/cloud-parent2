@@ -3,7 +3,6 @@ package com.baisha.casinoweb.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import com.baisha.casinoweb.enums.TgImageEnum;
 import com.baisha.casinoweb.model.TgImage;
 
 

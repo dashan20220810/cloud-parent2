@@ -1,7 +1,7 @@
 package com.baisha.backendserver.business;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.backendserver.constants.FileServerConstants;
+import com.baisha.backendserver.util.constants.FileServerConstants;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.service.AdminService;
 import com.baisha.backendserver.util.BackendServerUtil;

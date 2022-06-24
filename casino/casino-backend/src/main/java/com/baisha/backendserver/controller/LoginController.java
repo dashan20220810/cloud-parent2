@@ -1,12 +1,11 @@
 package com.baisha.backendserver.controller;
 
 
-import com.baisha.backendserver.bo.admin.LoginBO;
-import com.baisha.backendserver.business.CommonService;
+import com.baisha.backendserver.model.bo.admin.LoginBO;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.service.AdminService;
 import com.baisha.backendserver.util.BackendServerUtil;
-import com.baisha.backendserver.vo.login.LoginVO;
+import com.baisha.backendserver.model.vo.login.LoginVO;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.annotation.NoAuthentication;
 import com.baisha.modulecommon.reponse.ResponseEntity;

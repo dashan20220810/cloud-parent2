@@ -1,11 +1,10 @@
 package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.baisha.backendserver.constants.UserServerConstants;
+import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.backendserver.util.BackendServerUtil;
-import com.baisha.backendserver.vo.IdVO;
-import com.baisha.backendserver.vo.StatusVO;
-import com.baisha.backendserver.vo.user.UserPageVO;
+import com.baisha.backendserver.model.vo.IdVO;
+import com.baisha.backendserver.model.vo.user.UserPageVO;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;

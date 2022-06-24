@@ -1,6 +1,5 @@
 package com.baisha.backendserver.service;
 
-import com.baisha.backendserver.bo.sys.SysTelegramParameterBO;
 import com.baisha.backendserver.model.SysTelegramParameter;
 import com.baisha.backendserver.repository.SysTelegramParameterRepository;
 import lombok.extern.slf4j.Slf4j;

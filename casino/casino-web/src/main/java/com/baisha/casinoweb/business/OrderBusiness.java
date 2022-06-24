@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.casinoweb.enums.RequestPathEnum;
+import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.util.CommonUtil;

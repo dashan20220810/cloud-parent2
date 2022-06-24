@@ -1,11 +1,11 @@
 package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.backendserver.bo.sys.SysTelegramParameterBO;
+import com.baisha.backendserver.model.bo.sys.SysTelegramParameterBO;
 import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.model.SysTelegramParameter;
 import com.baisha.backendserver.service.SysTelegramService;
-import com.baisha.backendserver.vo.sys.SysTelegramParameterVO;
+import com.baisha.backendserver.model.vo.sys.SysTelegramParameterVO;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
