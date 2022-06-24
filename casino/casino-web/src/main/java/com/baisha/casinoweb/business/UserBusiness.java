@@ -48,12 +48,11 @@ public class UserBusiness {
     	return userVO;
 	}
 
-	public boolean registerTG( String clientIP, String id, String nickName, Long groupId ) {
+	public boolean registerTG( String clientIP, String id, String nickName ) {
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("ip", clientIP);
 		params.put("tgUserId", id);
-		params.put("tgGroupId", groupId);
 		params.put("nickName", nickName);
 		params.put("password", tgRegisterPassword);
 		params.put("origin", UserOriginEnum.TG_ORIGIN.getOrigin());
