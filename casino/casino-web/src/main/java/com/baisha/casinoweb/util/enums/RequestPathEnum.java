@@ -30,8 +30,6 @@ public enum RequestPathEnum {
     /*
      * 後台
      */
-    /** 限紅 */
-    LIMIT_STAKES(""),
     
     ;
 
