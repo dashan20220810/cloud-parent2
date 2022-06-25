@@ -18,6 +18,11 @@ public class TgBotServerConstants {
     public static final String UPDATE_STATUS_TG_BOT = "/tgBot/updateStatusById";
 
     /**
+     * 删除
+     */
+    public static final String DELETE_TG_BOT = "/tgBot/deleteById";
+
+    /**
      * 根据机器人名称查询 电报群
      */
     public static final String GET_GROUP = "/tgBot/getGroupByBotName";

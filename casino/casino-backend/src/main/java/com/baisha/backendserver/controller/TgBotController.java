@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.bo.tgBot.TgBotPageBO;
+import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.StatusVO;
 import com.baisha.backendserver.model.vo.tgBot.TgBotGroupAuditVO;
 import com.baisha.backendserver.model.vo.tgBot.TgBotPageVO;
@@ -100,6 +101,24 @@ public class TgBotController {
         }
         Admin current = commonService.getCurrentUser();
         log.info("{} {} {} {}", current.getUserName(), BackendConstants.UPDATE, JSON.toJSONString(statusVO), BackendConstants.TOBOT_MODULE);
+        return JSON.parseObject(result, ResponseEntity.class);
+    }
+
+    @ApiOperation("机器人删除")
+    @PostMapping("delete")
+    public ResponseEntity delete(IdVO vo) {
+        if (null == vo.getId() || vo.getId().intValue() < 0) {
+            return ResponseUtil.parameterNotNull();
+        }
+        String url = tgBotServerUrl + TgBotServerConstants.DELETE_TG_BOT;
+        Map<String, Object> param = BackendServerUtil.objectToMap(vo);
+        String result = HttpClient4Util.doPost(url, param);
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
+        Admin current = commonService.getCurrentUser();
+        log.info("{} {} {} {}", current.getUserName(), BackendConstants.DELETE, "删除机器人" + JSON.toJSONString(vo)
+                , BackendConstants.TOBOT_MODULE);
         return JSON.parseObject(result, ResponseEntity.class);
     }
 
