@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -146,22 +147,24 @@ public class TgBotController {
         }
 
         ResponseEntity<Page<TgGroupPageBO>> responseEntity = JSON.parseObject(result, ResponseEntity.class);
-       // Page<TgGroupPageBO> page = responseEntity.getData();
+        // Page<TgGroupPageBO> page = responseEntity.getData();
         JSONObject page = (JSONObject) responseEntity.getData();
-        if (Objects.nonNull(page) ) {
-            List<TgGroupPageBO> list = JSONArray.parseArray(page.getString("content"),TgGroupPageBO.class);
-            //获取设置过的限红
-            for (TgGroupPageBO bo : list) {
-                String tgGroupId = bo.getChatId();
-                TgGroupBound groupBound = tgGroupBoundService.findByTgGroupId(tgGroupId);
-                if (Objects.nonNull(groupBound)) {
-                    bo.setMinAmount(groupBound.getMinAmount());
-                    bo.setMaxAmount(groupBound.getMaxAmount());
-                    bo.setMaxShoeAmount(groupBound.getMaxShoeAmount());
+        if (Objects.nonNull(page)) {
+            List<TgGroupPageBO> list = JSONArray.parseArray(page.getString("content"), TgGroupPageBO.class);
+            if (!CollectionUtils.isEmpty(list)) {
+                //获取设置过的限红
+                for (TgGroupPageBO bo : list) {
+                    String tgGroupId = bo.getChatId();
+                    TgGroupBound groupBound = tgGroupBoundService.findByTgGroupId(tgGroupId);
+                    if (Objects.nonNull(groupBound)) {
+                        bo.setMinAmount(groupBound.getMinAmount());
+                        bo.setMaxAmount(groupBound.getMaxAmount());
+                        bo.setMaxShoeAmount(groupBound.getMaxShoeAmount());
+                    }
                 }
+                Page<TgGroupPageBO> resultPage = new PageImpl<>(list);
+                responseEntity.setData(resultPage);
             }
-            Page<TgGroupPageBO> resultPage = new PageImpl<>(list);
-            responseEntity.setData(resultPage);
         }
         return responseEntity;
     }
