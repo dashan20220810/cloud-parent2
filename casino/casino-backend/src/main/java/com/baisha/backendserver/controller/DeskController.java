@@ -31,7 +31,7 @@ import java.util.Objects;
 @Slf4j
 @RestController
 @RequestMapping(value = "desk")
-@Api(tags = "限红")
+@Api(tags = "TG群")
 public class DeskController {
 
     @Autowired

@@ -129,12 +129,9 @@ public class TgBotController {
         if (CommonUtil.checkNull(vo.getBotName())) {
             return ResponseUtil.parameterNotNull();
         }
-        StringBuffer sb = new StringBuffer();
-        sb.append(tgBotServerUrl + TgBotServerConstants.GET_GROUP + "?pageNumber=" + vo.getPageNumber() +
-                "&pageSize=" + vo.getPageSize());
-        sb.append("&botName=" + vo.getBotName());
-        String url = sb.toString();
-        String result = HttpClient4Util.doGet(url);
+        String url = tgBotServerUrl + TgBotServerConstants.GET_GROUP;
+        Map<String, Object> param = BackendServerUtil.objectToMap(vo);
+        String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
