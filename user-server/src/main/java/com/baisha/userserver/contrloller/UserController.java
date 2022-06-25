@@ -214,7 +214,7 @@ public class UserController {
 
     @ApiOperation(("根据Tg群ID获取用户分页列表"))
     @GetMapping("findPageByTgGroupId")
-    public ResponseEntity findUserPageByTgGroupId(UserTgSearchPageVO vo) {
+    public ResponseEntity<Page<UserTelegramRelation>> findUserPageByTgGroupId(UserTgSearchPageVO vo) {
         if (StringUtils.isEmpty(vo.getTgGroupId())) {
             return new ResponseEntity("群ID必填");
         }

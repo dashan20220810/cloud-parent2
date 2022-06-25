@@ -94,6 +94,9 @@ public class AdminController {
         }
         //获取当前登陆用户
         Admin currentUser = commonService.getCurrentUser();
+        if (currentUser.getId().equals(vo.getId())){
+            return new ResponseEntity("不能删除自己");
+        }
         adminService.deleteById(vo.getId());
         log.info("{}删除管理员id={}", currentUser.getUserName(), vo.getId());
         return ResponseUtil.success();
@@ -105,6 +108,11 @@ public class AdminController {
         if (Objects.isNull(vo) || null == vo.getId()) {
             return ResponseUtil.parameterNotNull();
         }
+        //获取当前登陆用户
+        Admin currentUser = commonService.getCurrentUser();
+        if (currentUser.getId().equals(vo.getId())){
+            return new ResponseEntity("不能启用/禁用自己");
+        }
         Admin admin = adminService.findAdminById(vo.getId());
         int status = admin.getStatus();
         //后端自动判断
@@ -113,8 +121,6 @@ public class AdminController {
         } else {
             status = Constants.open;
         }
-        //获取当前登陆用户
-        Admin currentUser = commonService.getCurrentUser();
         adminService.statusById(status, vo.getId());
         log.info("{}修改管理员状态id={}，status={}", currentUser.getUserName(), vo.getId(), status);
         return ResponseUtil.success();
