@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Slf4j
 @Service
 public class CommonService {
@@ -31,7 +33,18 @@ public class CommonService {
 
     public Admin getCurrentUser() {
         Long authId = BackendServerUtil.getCurrentUserId();
-        return adminService.findAdminById(authId);
+        try {
+            Admin admin = adminService.findAdminById(authId);
+            if (Objects.nonNull(admin)) {
+                return admin;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("获取当前登陆用户空id={}", authId);
+            //停止执行
+            throw new RuntimeException("获取当前登陆用户空");
+        }
+        return null;
     }
 
     /**
@@ -54,7 +67,6 @@ public class CommonService {
         }
         return null;
     }
-
 
 
     public void saveOperateLog(Admin admin, OperateLogVO vo) {
