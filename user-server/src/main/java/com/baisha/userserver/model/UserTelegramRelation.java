@@ -17,7 +17,7 @@ import javax.persistence.UniqueConstraint;
 @Data
 @Entity
 @org.hibernate.annotations.Table(appliesTo = "user_telegram_relation", comment = "会员电报群关系")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "tgGroupId"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"tgUserId", "tgGroupId"}))
 @ApiModel(value = "会员中心-会员电报群关系")
 public class UserTelegramRelation extends BaseEntity {
 

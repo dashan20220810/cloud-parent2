@@ -36,4 +36,8 @@ public class UserTelegramRelationService {
         Page<UserTelegramRelation> page = relationRepository.findAll(spec, pageable);
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }
+
+    public UserTelegramRelation findByTgUserIdAndTgGroupId(String tgUserId, String tgGroupId) {
+        return relationRepository.findByTgUserIdAndTgGroupId(tgUserId, tgGroupId);
+    }
 }

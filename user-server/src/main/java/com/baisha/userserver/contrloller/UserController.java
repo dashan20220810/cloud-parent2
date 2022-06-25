@@ -84,14 +84,16 @@ public class UserController {
     }
 
     private void doUserTelegramRelation(User user, UserAddVO vo) {
-        UserTelegramRelation relation = relationService.findByUserIdAndTgGroupId(user.getId(), vo.getTgGroupId());
-        if (Objects.isNull(relation)) {
-            relation = new UserTelegramRelation();
-            relation.setUserId(user.getId());
-            relation.setUserName(user.getUserName());
-            relation.setTgUserId(vo.getTgUserId());
-            relation.setTgGroupId(vo.getTgGroupId());
-            relationService.save(relation);
+        synchronized (user.getTgUserId()) {
+            UserTelegramRelation relation = relationService.findByTgUserIdAndTgGroupId(user.getTgUserId(), vo.getTgGroupId());
+            if (Objects.isNull(relation)) {
+                relation = new UserTelegramRelation();
+                relation.setUserId(user.getId());
+                relation.setUserName(user.getUserName());
+                relation.setTgUserId(vo.getTgUserId());
+                relation.setTgGroupId(vo.getTgGroupId());
+                relationService.save(relation);
+            }
         }
     }
 
