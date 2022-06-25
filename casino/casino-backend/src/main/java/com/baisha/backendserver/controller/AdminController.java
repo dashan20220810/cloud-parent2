@@ -6,6 +6,7 @@ import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.admin.AdminAddVO;
 import com.baisha.backendserver.model.vo.admin.AdminPageVO;
+import com.baisha.backendserver.model.vo.admin.AdminResetPasswordVO;
 import com.baisha.backendserver.model.vo.admin.AdminUpdatePasswordVO;
 import com.baisha.backendserver.service.AdminService;
 import com.baisha.backendserver.util.BackendServerUtil;
@@ -94,7 +95,7 @@ public class AdminController {
         }
         //获取当前登陆用户
         Admin currentUser = commonService.getCurrentUser();
-        if (currentUser.getId().equals(vo.getId())){
+        if (currentUser.getId().equals(vo.getId())) {
             return new ResponseEntity("不能删除自己");
         }
         adminService.deleteById(vo.getId());
@@ -110,7 +111,7 @@ public class AdminController {
         }
         //获取当前登陆用户
         Admin currentUser = commonService.getCurrentUser();
-        if (currentUser.getId().equals(vo.getId())){
+        if (currentUser.getId().equals(vo.getId())) {
             return new ResponseEntity("不能启用/禁用自己");
         }
         Admin admin = adminService.findAdminById(vo.getId());
@@ -145,9 +146,8 @@ public class AdminController {
         return ResponseUtil.success(pageList);
     }
 
-
-    @ApiOperation(("更新密码"))
-    @GetMapping("updatePassword")
+    @ApiOperation(("更新密码(登陆用户)"))
+    @PostMapping("updatePassword")
     public ResponseEntity updatePassword(AdminUpdatePasswordVO vo) {
         if (Admin.checkPassword(vo.getOldPassword())) {
             return new ResponseEntity("旧密码不规范");
@@ -171,6 +171,26 @@ public class AdminController {
         //更新新密码
         adminService.updatePasswordById(BackendServerUtil.bcrypt(vo.getNewPassword()), currentUser.getId());
         log.info("{}修改管理员密码id={}", currentUser.getUserName(), currentUser.getId());
+        return ResponseUtil.success();
+    }
+
+    @ApiOperation(("重置密码"))
+    @PostMapping("updatePasswordById")
+    public ResponseEntity updatePasswordById(AdminResetPasswordVO vo) {
+        if (null == vo.getId()) {
+            return new ResponseEntity("ID为空");
+        }
+        if (Admin.checkPassword(vo.getNewPassword())) {
+            return new ResponseEntity("新密码不规范");
+        }
+        //获取当前登陆用户
+        Admin currentUser = commonService.getCurrentUser();
+        if (Objects.isNull(currentUser)) {
+            return new ResponseEntity("管理员不存在");
+        }
+        //更新新密码
+        adminService.updatePasswordById(BackendServerUtil.bcrypt(vo.getNewPassword()), vo.getId());
+        log.info("{}修改管理员密码id={}", currentUser.getUserName(), vo.getId());
         return ResponseUtil.success();
     }
 
