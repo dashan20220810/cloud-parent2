@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.bo.tgBot.TgBotPageBO;
+import com.baisha.backendserver.model.bo.tgBot.TgGroupPageBO;
 import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.StatusVO;
 import com.baisha.backendserver.model.vo.tgBot.TgBotGroupAuditVO;
@@ -125,7 +126,7 @@ public class TgBotController {
 
     @GetMapping("group/page")
     @ApiOperation(("获取机器人下的电报群分页"))
-    public ResponseEntity groupPage(TgGroupPageVO vo) {
+    public ResponseEntity<Page<TgGroupPageBO>> groupPage(TgGroupPageVO vo) {
         if (CommonUtil.checkNull(vo.getBotName())) {
             return ResponseUtil.parameterNotNull();
         }
