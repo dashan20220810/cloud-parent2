@@ -4,8 +4,9 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.bot.MyTelegramLongPollingBot;
+import com.baisha.model.TgChat;
+import com.baisha.modulecommon.Constants;
 import com.baisha.util.Base64Utils;
-import com.baisha.util.constants.BotConstant;
 import com.baisha.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.util.TelegramBotUtil;
@@ -13,10 +14,7 @@ import com.baisha.util.TgHttpClient4Util;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.*;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -28,26 +26,40 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.baisha.handle.TelegramMyChatMemberHandler.getTgChatService;
 import static com.baisha.util.constants.BotConstant.*;
 
 @Slf4j
+@Component
 public class TelegramMessageHandler {
 
     public void messageHandler(MyTelegramLongPollingBot bot, Update update) {
         Message message = update.getMessage();
-        List<User> users = message.getNewChatMembers();
-        // 新用户注册
-        if (CollUtil.isNotEmpty(users)) {
-            for (User user : users) {
-                if (!user.getIsBot()) {
-                    // 只注册用户
-                    registerEvery(bot, user);
+        String chatId = message.getChat().getId().toString();
+        String title = message.getChat().getTitle();
+
+        // 根据审核状态进行判断
+        TgChat isAudit =
+                getTgChatService().findByChatIdAndBotNameAndStatus(chatId, bot.getBotUsername(), Constants.open);
+        if (null != isAudit) {
+            // 多群动态绑定
+            bot.setChatId(chatId);
+            bot.setChatName(title);
+
+            List<User> users = message.getNewChatMembers();
+            // 新用户注册
+            if (CollUtil.isNotEmpty(users)) {
+                for (User user : users) {
+                    if (!user.getIsBot()) {
+                        // 只注册用户
+                        registerEvery(bot, user);
+                    }
                 }
+                return;
             }
-            return;
-        }
-        // 下注
+            // 下注
 //        tgUserBet(message);
+        }
     }
 
     public void registerEvery(MyTelegramLongPollingBot bot, User user) {
@@ -76,7 +88,6 @@ public class TelegramMessageHandler {
             ResponseEntity result = JSONObject.parseObject(forObject, ResponseEntity.class);
             // 在telegram中提示文字
             if (result.getCode() == 0) {
-                bot.sendMessage(userName + " 注册会员成功！");
                 // 注册成功欢迎语
                 showWords(id, bot, userName);
             } else {

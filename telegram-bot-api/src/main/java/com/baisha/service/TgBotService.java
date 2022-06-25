@@ -1,16 +1,10 @@
 package com.baisha.service;
 
 import com.baisha.model.TgBot;
-import com.baisha.model.TgChat;
-import com.baisha.model.vo.TgBotVO;
 import com.baisha.modulecommon.Constants;
 import com.baisha.repository.TgBotRepository;
-import com.baisha.repository.TgChatRepository;
-import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Caching;
+import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -27,9 +21,6 @@ public class TgBotService {
 
     @Autowired
     private TgBotRepository tgBotRepository;
-
-    @Autowired
-    private TgChatRepository tgChatRepository;
 
     public TgBot findByBotName(String botName) {
         return tgBotRepository.findByBotName(botName);
@@ -64,24 +55,17 @@ public class TgBotService {
         return tgBotRepository.findById(id).get();
     }
 
-    public List<TgBotVO> getTgBots() {
-        List<TgBotVO> result = Lists.newArrayList();
+    @CacheEvict(key = "#id")
+    public void delBot (Long id) {
+        tgBotRepository.deleteById(id);
+    }
 
-        List<TgChat> tgChats = tgChatRepository.findAll();
+    @Cacheable
+    public TgBot getById (Long id) {
+        return tgBotRepository.getById(id);
+    }
 
-        List<TgBot> tgBots = tgBotRepository.findByStatus(Constants.open);
-        for (TgBot tgBot : tgBots) {
-            for (TgChat tgChat : tgChats) {
-                if (tgBot.getBotName().equals(tgChat.getBotName())) {
-                    TgBotVO vo = new TgBotVO()
-                            .setBotName(tgBot.getBotName())
-                            .setBotToken(tgBot.getBotToken())
-                            .setChatId(tgChat.getChatId())
-                            .setChatName(tgChat.getChatName());
-                    result.add(vo);
-                }
-            }
-        }
-        return result;
+    public List<TgBot> getTgBots() {
+        return tgBotRepository.findByStatus(Constants.open);
     }
 }

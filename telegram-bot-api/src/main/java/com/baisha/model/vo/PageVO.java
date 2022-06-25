@@ -11,10 +11,10 @@ import lombok.Data;
 @ApiModel(value = "机器人-分页公共对象")
 public class PageVO {
 
-    @ApiModelProperty(value = "当前页(默认第1页)", example = "1", required = true)
+    @ApiModelProperty(value = "当前页(默认第1页)", example = "1")
     private Integer pageNumber;
 
-    @ApiModelProperty(value = "每页条数(默认10条)", example = "10", required = true)
+    @ApiModelProperty(value = "每页条数(默认10条)", example = "10")
     private Integer pageSize;
 
     public Integer getPageNumber() {

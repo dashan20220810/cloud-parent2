@@ -2,11 +2,9 @@ package com.baisha.bot;
 
 import com.baisha.handle.TelegramMessageHandler;
 import com.baisha.handle.TelegramMyChatMemberHandler;
-import com.baisha.modulecommon.util.SpringContextUtil;
 import com.baisha.util.TelegramBotUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
@@ -31,6 +29,9 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
 
     private String chatName;
 
+    public MyTelegramLongPollingBot() {
+    }
+
     public MyTelegramLongPollingBot(String username, String token) {
         this.username = username;
         this.token = token;
@@ -45,6 +46,10 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
 
     public TelegramMyChatMemberHandler getTelegramMyChatMemberHandler() {
         return TelegramBotUtil.getTelegramMyChatMemberHandler();
+    }
+
+    public TelegramMessageHandler getTelegramMessageHandler() {
+        return TelegramBotUtil.getTelegramMessageHandler();
     }
 
     @Override
@@ -67,7 +72,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
         // 会员注册 + 下注
         if (update.hasMessage()) {
             // 消息处理
-            new TelegramMessageHandler().messageHandler(this, update);
+            getTelegramMessageHandler().messageHandler(this, update);
             return;
         }
 

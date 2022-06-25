@@ -1,6 +1,7 @@
 package com.baisha.init;
 
 import com.baisha.business.TgBotBusiness;
+import com.baisha.handle.TelegramMessageHandler;
 import com.baisha.handle.TelegramMyChatMemberHandler;
 import com.baisha.modulecommon.util.SpringContextUtil;
 import com.baisha.service.TgChatService;
@@ -33,6 +34,8 @@ public class ApplicationRunnerInit implements ApplicationRunner {
         // 从上下文获取Bean
         TelegramBotUtil.telegramMyChatMemberHandler =
                 SpringContextUtil.getBean(TelegramMyChatMemberHandler.class);
+        TelegramBotUtil.telegramMessageHandler =
+                SpringContextUtil.getBean(TelegramMessageHandler.class);
         TelegramBotUtil.tgChatService =
                 SpringContextUtil.getBean(TgChatService.class);
 

@@ -4,7 +4,6 @@ import cn.hutool.core.util.StrUtil;
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.model.TgBot;
 import com.baisha.model.vo.TgBotPageVO;
-import com.baisha.model.vo.TgBotVO;
 import com.baisha.service.TgBotService;
 import com.baisha.util.TelegramServerUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,7 @@ import java.util.concurrent.ConcurrentMap;
 public class TgBotBusiness {
 
     private TelegramBotsApi botsApi;
-    ConcurrentMap<String, BotSession> botSerssionMap = new ConcurrentHashMap<>();
+    public ConcurrentMap<String, BotSession> botSerssionMap = new ConcurrentHashMap<>();
 
     @Autowired
     private TgBotService tgBotService;
@@ -48,11 +47,11 @@ public class TgBotBusiness {
 
     public void registerAllBot() {
         // 根据状态status来过滤
-        List<TgBotVO> tgBots = tgBotService.getTgBots();
+        List<TgBot> tgBots = tgBotService.getTgBots();
         tgBots.forEach(tgBot -> {
             try {
                 // 实例化机器人
-                startTg(tgBot.getBotName(), tgBot.getBotToken(), tgBot.getChatId(), tgBot.getChatName());
+                startTg(tgBot.getBotName(), tgBot.getBotToken());
             } catch (Throwable e) {
                 log.error("初始化-注册机器人失败", e);
             }
@@ -116,5 +115,21 @@ public class TgBotBusiness {
 
     public BotSession getBotSession(String username) {
         return this.botSerssionMap.get(username);
+    }
+
+    public void updateBotSession(Long id, Integer status) {
+        TgBot tgBot = tgBotService.getById(id);
+        BotSession botSession = this.getBotSession(tgBot.getBotName());
+        if (status == 0) {
+            // 禁用机器人
+            if (botSession != null && botSession.isRunning()) {
+                botSession.stop();
+            }
+        } else {
+            // 开启机器人
+            if (botSession != null && !botSession.isRunning()) {
+                botSession.start();
+            }
+        }
     }
 }
