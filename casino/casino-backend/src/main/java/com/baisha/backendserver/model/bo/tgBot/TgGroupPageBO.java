@@ -23,5 +23,14 @@ public class TgGroupPageBO extends BaseBO {
     @ApiModelProperty("状态 0禁用 1启用")
     private Integer status;
 
+    @ApiModelProperty(value = "单注最低")
+    private Integer minAmount;
+
+    @ApiModelProperty(value = "单注最高")
+    private Integer maxAmount;
+
+    @ApiModelProperty(value = "当局最高")
+    private Integer maxShoeAmount;
+
 
 }
