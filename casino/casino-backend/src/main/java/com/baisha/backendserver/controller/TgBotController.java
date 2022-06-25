@@ -73,7 +73,7 @@ public class TgBotController {
     }
 
     @ApiOperation("机器人分页查询")
-    @PostMapping("page")
+    @GetMapping("page")
     public ResponseEntity<Page<TgBotPageBO>> page(TgBotPageVO vo) {
         String url = tgBotServerUrl + TgBotServerConstants.PAGE_TG_BOT;
         Map<String, Object> param = BackendServerUtil.objectToMap(vo);
@@ -84,7 +84,7 @@ public class TgBotController {
         return JSON.parseObject(result, ResponseEntity.class);
     }
 
-    @ApiOperation("更新状态 0禁用 1启用")
+    @ApiOperation("更新状态")
     @PostMapping("updateStatus")
     public ResponseEntity updateStatus(StatusVO statusVO) {
         Long id = statusVO.getId();
