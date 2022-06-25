@@ -170,7 +170,7 @@ public class AdminController {
 
     @ApiOperation(("获取单个管理员"))
     @GetMapping("query")
-    public ResponseEntity query(IdVO vo) {
+    public ResponseEntity<Admin> query(IdVO vo) {
         return ResponseUtil.success(adminService.findAdminById(vo.getId()));
     }
 

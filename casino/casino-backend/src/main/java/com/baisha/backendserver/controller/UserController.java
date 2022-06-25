@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,7 +44,7 @@ public class UserController {
 
     @GetMapping("page")
     @ApiOperation(("用户分页"))
-    public ResponseEntity page(UserPageVO vo) {
+    public ResponseEntity<Page<UserPageVO>> page(UserPageVO vo) {
         StringBuffer sb = new StringBuffer();
         sb.append(userServerUrl + UserServerConstants.USERSERVER_USERPAGE + "?pageNumber=" + vo.getPageNumber() +
                 "&pageSize=" + vo.getPageSize());
@@ -62,7 +63,7 @@ public class UserController {
     @ApiOperation(("删除用户"))
     @PostMapping("delete")
     public ResponseEntity delete(IdVO vo) {
-        if (Objects.isNull(vo)) {
+        if (Objects.isNull(vo.getId())) {
             return ResponseUtil.parameterNotNull();
         }
         String url = userServerUrl + UserServerConstants.USERSERVER_USERDELETE;

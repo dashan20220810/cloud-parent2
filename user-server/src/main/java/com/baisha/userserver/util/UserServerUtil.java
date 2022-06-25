@@ -2,9 +2,13 @@ package com.baisha.userserver.util;
 
 import com.baisha.modulecommon.Constants;
 import com.baisha.userserver.util.constants.UserServerConstants;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static com.baisha.modulecommon.util.CommonUtil.checkNull;
 
@@ -117,6 +121,34 @@ public class UserServerUtil {
         }
         return tgUserId + "_" + tgGroupId;
     }
+
+    public static Pageable setPageable(Integer pageCode, Integer pageSize, Sort sort) {
+        if (Objects.isNull(sort)) {
+            sort = Sort.unsorted();
+        }
+
+        if (pageSize == null || pageCode == null) {
+            pageCode = 1;
+            pageSize = 10;
+        }
+
+        if (pageCode < 1 || pageSize < 1) {
+            pageCode = 1;
+            pageSize = 10;
+        }
+
+        if (pageSize > 100) {
+            pageSize = 100;
+        }
+
+        Pageable pageable = PageRequest.of(pageCode - 1, pageSize, sort);
+        return pageable;
+    }
+
+    public static Pageable setPageable(Integer pageCode, Integer pageSize) {
+        return setPageable(pageCode, pageSize, null);
+    }
+
 
 
    /* public static void main(String[] args) {

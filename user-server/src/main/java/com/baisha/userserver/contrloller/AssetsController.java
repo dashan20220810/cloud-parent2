@@ -41,7 +41,7 @@ public class AssetsController {
 
     @ApiOperation(("查询用户余额"))
     @GetMapping("query")
-    public ResponseEntity query(UserIdVO vo) {
+    public ResponseEntity<BalanceBO> query(UserIdVO vo) {
         if (Objects.isNull(vo.getUserId()) || vo.getUserId() < 0) {
             return new ResponseEntity("用户名ID不规范");
         }

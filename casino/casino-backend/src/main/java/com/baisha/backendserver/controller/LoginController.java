@@ -39,7 +39,7 @@ public class LoginController {
     @ApiOperation(("管理员登陆"))
     @PostMapping("login")
     @NoAuthentication
-    public ResponseEntity addAdmin(LoginVO vo) {
+    public ResponseEntity<LoginBO> addAdmin(LoginVO vo) {
         if (Objects.isNull(vo)) {
             return ResponseUtil.parameterNotNull();
         }
@@ -81,7 +81,7 @@ public class LoginController {
     @ApiOperation(("管理直接登陆(测试)"))
     @PostMapping("login/test")
     @NoAuthentication
-    public ResponseEntity addAdminTest() {
+    public ResponseEntity<LoginBO> addAdminTest() {
         LoginVO vo = LoginVO.builder().userName("buyaodong").password("abcd1234").build();
         return addAdmin(vo);
     }

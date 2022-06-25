@@ -116,7 +116,7 @@ public class UserController {
         if (StringUtils.isNotEmpty(vo.getUserName()) && User.checkUserName(vo.getUserName())) {
             return new ResponseEntity("用户名不规范");
         }
-        Pageable pageable = PageRequest.of(vo.getPageNumber() - 1, vo.getPageSize());
+        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
         Specification<User> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             if (StringUtils.isNotBlank(vo.getUserName())) {
@@ -161,7 +161,7 @@ public class UserController {
 
     @ApiOperation(("用户查询"))
     @GetMapping("query")
-    public ResponseEntity query(UserSearchVO vo) {
+    public ResponseEntity<UserBO> query(UserSearchVO vo) {
         if (StringUtils.isNotEmpty(vo.getUserName())) {
             //普通用户查询
             return findCommonUser(vo);
@@ -212,13 +212,13 @@ public class UserController {
     }
 
 
-    @ApiOperation(("根据Tg群ID获取用户"))
-    @GetMapping("findUserByTgGroupId")
-    public ResponseEntity findUserByTgGroupId(UserTgSearchPageVO vo) {
+    @ApiOperation(("根据Tg群ID获取用户分页列表"))
+    @GetMapping("findPageByTgGroupId")
+    public ResponseEntity findUserPageByTgGroupId(UserTgSearchPageVO vo) {
         if (StringUtils.isEmpty(vo.getTgGroupId())) {
             return new ResponseEntity("群ID必填");
         }
-        Pageable pageable = PageRequest.of(vo.getPageNumber() - 1, vo.getPageSize());
+        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
         Specification<UserTelegramRelation> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             predicates.add(cb.equal(root.get("tgGroupId"), vo.getTgGroupId()));

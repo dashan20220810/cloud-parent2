@@ -13,7 +13,7 @@ import javax.persistence.Column;
 @ApiModel(value = "会员中心-查询请求对象")
 public class UserSearchVO {
 
-    @ApiModelProperty(value = "用户名 (長度3-20,只能輸入字母,數字,_)(非TG用户必传)")
+    @ApiModelProperty(value = "用户名(非TG用户必传,优先匹配)")
     String userName;
 
     @ApiModelProperty(value = "TG用户ID(TG用户查询必传)")

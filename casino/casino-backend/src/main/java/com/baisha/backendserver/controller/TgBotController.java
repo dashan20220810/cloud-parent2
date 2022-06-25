@@ -3,14 +3,14 @@ package com.baisha.backendserver.controller;
 import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.model.Admin;
+import com.baisha.backendserver.model.bo.tgBot.TgBotPageBO;
 import com.baisha.backendserver.model.vo.StatusVO;
+import com.baisha.backendserver.model.vo.tgBot.TgBotGroupAuditVO;
 import com.baisha.backendserver.model.vo.tgBot.TgBotPageVO;
 import com.baisha.backendserver.model.vo.tgBot.TgGroupPageVO;
-import com.baisha.backendserver.model.vo.user.UserPageVO;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.TgBotServerConstants;
-import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -20,9 +20,9 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -73,7 +73,7 @@ public class TgBotController {
 
     @ApiOperation("机器人分页查询")
     @PostMapping("page")
-    public ResponseEntity page(TgBotPageVO vo) {
+    public ResponseEntity<Page<TgBotPageBO>> page(TgBotPageVO vo) {
         String url = tgBotServerUrl + TgBotServerConstants.PAGE_TG_BOT;
         Map<String, Object> param = BackendServerUtil.objectToMap(vo);
         String result = HttpClient4Util.doPost(url, param);
@@ -104,7 +104,7 @@ public class TgBotController {
     }
 
 
-    /*@GetMapping("group/page")
+    @GetMapping("group/page")
     @ApiOperation(("获取机器人下的电报群分页"))
     public ResponseEntity groupPage(TgGroupPageVO vo) {
         if (CommonUtil.checkNull(vo.getBotName())) {
@@ -120,7 +120,25 @@ public class TgBotController {
             return ResponseUtil.fail();
         }
         return JSON.parseObject(result, ResponseEntity.class);
-    }*/
+    }
+
+    @ApiOperation(("机器人与TG群关系审核"))
+    @PostMapping("group/audit")
+    public ResponseEntity groupAudit(TgBotGroupAuditVO vo) {
+        if (null == vo.getId() || null == vo.getStatus()) {
+            return ResponseUtil.parameterNotNull();
+        }
+        String url = tgBotServerUrl + TgBotServerConstants.GROUP_AUDIT;
+        Map<String, Object> param = BackendServerUtil.objectToMap(vo);
+        String result = HttpClient4Util.doPost(url, param);
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
+        Admin currentUser = commonService.getCurrentUser();
+        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                JSON.toJSONString(vo), BackendConstants.TOBOT_MODULE);
+        return JSON.parseObject(result, ResponseEntity.class);
+    }
 
 
 }
