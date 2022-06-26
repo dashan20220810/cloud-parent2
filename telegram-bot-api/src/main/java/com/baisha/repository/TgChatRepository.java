@@ -9,5 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  */
 public interface TgChatRepository extends JpaRepository<TgChat, Long>, JpaSpecificationExecutor<TgChat> {
 
-    TgChat findByChatId(String chatId);
+    TgChat findByChatIdAndBotName(String chatId, String botName);
+
+    TgChat findByChatIdAndBotNameAndStatus(String chatId, String botName, Integer status);
 }

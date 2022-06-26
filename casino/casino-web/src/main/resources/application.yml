@@ -9,6 +9,7 @@ project:
     user-server-domain: http://192.168.26.25:9300
     game-server-domain: http://192.168.26.25:9500
     backend-server-domain: http://192.168.26.26:9402
+    telegram-server-domain: http://192.168.26.25:9000
   telegram:
     register-password: 123456
     image-domain-and-bucket: http://192.168.26.24:9000/user

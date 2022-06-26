@@ -3,16 +3,13 @@ package com.baisha.backendserver.controller;
 import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.model.Admin;
-import com.baisha.backendserver.model.SysTelegramParameter;
 import com.baisha.backendserver.model.TgGroupBound;
-import com.baisha.backendserver.model.vo.sys.SysTelegramParameterVO;
 import com.baisha.backendserver.model.vo.tgBot.TgGroupBoundVO;
 import com.baisha.backendserver.service.TgGroupBoundService;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.core.constants.RedisKeyConstants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
-import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulespringcacheredis.util.RedisUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,7 +31,7 @@ import java.util.Objects;
 @Slf4j
 @RestController
 @RequestMapping(value = "desk")
-@Api(tags = "限红")
+@Api(tags = "TG群")
 public class DeskController {
 
     @Autowired
@@ -44,8 +41,8 @@ public class DeskController {
     @Autowired
     private TgGroupBoundService tgGroupBoundService;
 
-    @ApiOperation("设置鲜红")
-    @GetMapping(value = "setInfo")
+    @ApiOperation("设置限红")
+    @PostMapping(value = "setInfo")
     public ResponseEntity<Long> setTgGroupBoundInfo(TgGroupBoundVO vo) {
         if (StringUtils.isEmpty(vo.getTgGroupId())
                 || Objects.isNull(vo.getMaxAmount())
@@ -53,6 +50,13 @@ public class DeskController {
                 || Objects.isNull(vo.getMaxShoeAmount())) {
             return ResponseUtil.parameterNotNull();
         }
+        Integer ZERO = 0;
+        if (vo.getMinAmount().compareTo(ZERO) <= 0
+                || vo.getMaxAmount().compareTo(ZERO) <= 0
+                || vo.getMaxShoeAmount().compareTo(ZERO) <= 0) {
+            return new ResponseEntity("必须大于0的整数");
+        }
+
         Admin admin = commonService.getCurrentUser();
         TgGroupBound tgg;
         synchronized (vo.getTgGroupId()) {

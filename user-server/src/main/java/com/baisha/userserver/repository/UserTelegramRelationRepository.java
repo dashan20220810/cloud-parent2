@@ -9,4 +9,5 @@ public interface UserTelegramRelationRepository extends JpaRepository<UserTelegr
 
     UserTelegramRelation findByUserIdAndTgGroupId(Long userId, String tgGroupId);
 
+    UserTelegramRelation findByTgUserIdAndTgGroupId(String tgUserId, String tgGroupId);
 }

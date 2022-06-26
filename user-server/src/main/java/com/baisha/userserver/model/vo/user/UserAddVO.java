@@ -1,4 +1,4 @@
-package com.baisha.userserver.vo.user;
+package com.baisha.userserver.model.vo.user;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;

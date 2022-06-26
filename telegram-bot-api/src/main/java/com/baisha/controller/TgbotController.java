@@ -1,6 +1,5 @@
 package com.baisha.controller;
 
-import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.business.TgBotBusiness;
 import com.baisha.model.TgBot;
 import com.baisha.model.vo.StatusVO;
@@ -22,13 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.BotSession;
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 @Api(tags = "机器人管理")
 @Slf4j
@@ -95,8 +88,30 @@ public class TgbotController {
         if (CommonUtil.checkNull(id.toString(), status.toString())) {
             return ResponseUtil.parameterNotNull();
         }
+        // 更新BotSession
+        tgBotBusiness.updateBotSession(id, status);
         // 更新状态
         tgBotService.updateStatusById(id, status);
+        return ResponseUtil.success();
+    }
+
+    @ApiOperation("删除机器人")
+    @PostMapping("delBot")
+    public ResponseEntity delBot(Long id) {
+        // 参数校验
+        if (CommonUtil.checkNull(id.toString())) {
+            return ResponseUtil.parameterNotNull();
+        }
+        TgBot tgBot = tgBotService.getById(id);
+        // 停止机器人
+        BotSession botSession = tgBotBusiness.getBotSession(tgBot.getBotName());
+        if (botSession != null && botSession.isRunning()) {
+            botSession.stop();
+        }
+        // 删除MAP
+        tgBotBusiness.botSerssionMap.remove(tgBot.getBotName());
+        // 删除机器人
+        tgBotService.delBot(id);
         return ResponseUtil.success();
     }
 }

@@ -41,10 +41,6 @@ public class OrderController {
     @PostMapping("page")
     @ApiOperation(("订单查询"))
     public ResponseEntity<Page<BetResponse>> page(BetPageVO betRequest) {
-    	
-    	log.info("订单查询");
-    	
-
     	Map<String, Object> params = new HashMap<>();
     	params.put("userName", betRequest.getUserName());
     	params.put("betOption", betRequest.getBetOption());

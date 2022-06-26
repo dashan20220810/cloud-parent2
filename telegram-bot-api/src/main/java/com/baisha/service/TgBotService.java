@@ -4,9 +4,7 @@ import com.baisha.model.TgBot;
 import com.baisha.modulecommon.Constants;
 import com.baisha.repository.TgBotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Caching;
+import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -55,6 +53,16 @@ public class TgBotService {
             tgBotRepository.save(tgBot);
         });
         return tgBotRepository.findById(id).get();
+    }
+
+    @CacheEvict(key = "#id")
+    public void delBot (Long id) {
+        tgBotRepository.deleteById(id);
+    }
+
+    @Cacheable
+    public TgBot getById (Long id) {
+        return tgBotRepository.getById(id);
     }
 
     public List<TgBot> getTgBots() {

@@ -1,4 +1,4 @@
-package com.baisha.userserver.vo.balance;
+package com.baisha.userserver.model.vo.balance;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

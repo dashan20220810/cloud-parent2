@@ -1,6 +1,6 @@
-package com.baisha.userserver.vo.user;
+package com.baisha.userserver.model.vo.user;
 
-import com.baisha.userserver.vo.PageVO;
+import com.baisha.userserver.model.vo.PageVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

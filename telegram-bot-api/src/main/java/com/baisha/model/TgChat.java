@@ -19,7 +19,7 @@ import javax.persistence.UniqueConstraint;
 @Accessors(chain = true)
 @Entity
 @Table(uniqueConstraints = {
-    @UniqueConstraint(name = "unique_chat_id", columnNames = "chat_id")
+    @UniqueConstraint(name = "unique_chat_bot", columnNames = {"chat_id", "bot_name"})
 })
 @ApiModel(value = "TgChat对象", description = "TG群")
 public class TgChat extends BaseEntity {

@@ -1,4 +1,4 @@
-package com.baisha.userserver.constants;
+package com.baisha.userserver.util.constants;
 
 /**
  * @author yihui

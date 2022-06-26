@@ -2,6 +2,8 @@ package com.baisha.backendserver.model;
 
 import com.baisha.modulecommon.RegexEnum;
 import com.baisha.modulecommon.util.CommonUtil;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,20 +14,26 @@ import javax.persistence.Entity;
 @Data
 @Entity
 @org.hibernate.annotations.Table(appliesTo = "admin", comment = "管理员")
+@ApiModel(value = "后台-管理员对象")
 public class Admin extends BaseEntity {
 
+    @ApiModelProperty(value = "用户名")
     @Column(unique = true, columnDefinition = "varchar(30) comment '用户名'")
     private String userName;
 
+    @ApiModelProperty(value = "昵称")
     @Column(columnDefinition = "varchar(30) comment '昵称'")
     private String nickName;
 
+    @ApiModelProperty(value = "密码")
     @Column(columnDefinition = "varchar(64) comment '密码'")
     private String password;
 
+    @ApiModelProperty(value = "手机号")
     @Column(columnDefinition = "varchar(20) comment '手机号'")
     private String phone;
 
+    @ApiModelProperty(value = "状态 1 正常 ，0禁用")
     @Column(columnDefinition = "tinyint(2) comment '状态 1 正常 ，0禁用'")
     private Integer status = 1;
 

@@ -31,6 +31,11 @@ public enum RequestPathEnum {
      * 後台
      */
     
+    /*
+     * telegram
+     */
+    TG_OPEN_NEW_GAME("/command/startNewBureau"),
+    
     ;
 
     /**

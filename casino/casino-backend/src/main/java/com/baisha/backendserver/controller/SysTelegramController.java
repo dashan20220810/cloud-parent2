@@ -14,6 +14,7 @@ import com.baisha.core.service.TelegramService;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
+import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulespringcacheredis.util.RedisUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -56,19 +58,15 @@ public class SysTelegramController {
         if (StringUtils.isNotEmpty(bo.getStartBetPicUrl())) {
             bo.setStartBetPicUrlShow(commonService.getFileServerUrl(bo.getStartBetPicUrl()));
         }
-        System.out.println(JSONObject.toJSONString(telegramService.getTelegramSet()));
+        log.info(JSONObject.toJSONString(telegramService.getTelegramSet()));
         return ResponseUtil.success(bo);
     }
 
     @ApiOperation("设置信息")
-    @GetMapping(value = "setInfo")
+    @PostMapping(value = "setInfo")
     public ResponseEntity<Long> setSysTelegramInfo(SysTelegramParameterVO vo) {
-        //不能全部传空
-        if (null == vo.getId()
-                && StringUtils.isEmpty(vo.getStartBetPicUrl())
-                && StringUtils.isEmpty(vo.getOnlyFinance())
-                && StringUtils.isEmpty(vo.getOnlyCustomerService())) {
-            return new ResponseEntity("至少传一个参数");
+        if (CommonUtil.checkNull(vo.getOnlyFinance(), vo.getOnlyCustomerService(), vo.getStartBetPicUrl())) {
+            return ResponseUtil.parameterNotNull();
         }
         Admin admin = commonService.getCurrentUser();
         SysTelegramParameter stp;

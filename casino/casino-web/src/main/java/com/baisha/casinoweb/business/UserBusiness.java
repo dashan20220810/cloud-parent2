@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.casinoweb.util.CasinoWebUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baisha.casinoweb.model.vo.UserVO;
 import com.baisha.modulecommon.enums.UserOriginEnum;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -48,11 +49,12 @@ public class UserBusiness {
     	return userVO;
 	}
 
-	public boolean registerTG( String clientIP, String id, String nickName ) {
+	public boolean registerTG( String clientIP, String id, String nickName, Long groupId ) {
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("ip", clientIP);
 		params.put("tgUserId", id);
+		params.put("tgGroupId", groupId);
 		params.put("nickName", nickName);
 		params.put("password", tgRegisterPassword);
 		params.put("origin", UserOriginEnum.TG_ORIGIN.getOrigin());
@@ -64,6 +66,13 @@ public class UserBusiness {
         if (CommonUtil.checkNull(result)) {
             return false;
         }
+        
+		JSONObject json = JSONObject.parseObject(result);
+		Integer code = json.getInteger("code");
+
+		if ( code==null || code!=0 ) {
+            return false;
+		}
         
         return true;
 	}

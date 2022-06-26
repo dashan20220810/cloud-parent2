@@ -53,7 +53,7 @@ public class AdminService {
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }
 
-    @Cacheable
+    @Cacheable(key = "#id", unless = "#result == null")
     public Admin findAdminById(Long id) {
         Optional<Admin> optional = adminRepository.findById(id);
         return optional.orElse(null);

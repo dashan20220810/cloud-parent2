@@ -1,8 +1,9 @@
 package com.baisha.userserver.model;
 
 import com.baisha.modulecommon.util.CommonUtil;
-import com.baisha.userserver.constants.UserServerConstants;
 import com.baisha.userserver.util.UserServerUtil;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,29 +18,38 @@ import javax.persistence.Entity;
 @Entity
 @org.hibernate.annotations.Table(appliesTo = "user", comment = "会员")
 //@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userName"}))
+@ApiModel(value = "用户中心-用户对象")
 public class User extends BaseEntity {
 
+    @ApiModelProperty(value = "会员账号")
     @Column(unique = true, columnDefinition = "varchar(30) comment '会员账号'")
     private String userName;
 
+    @ApiModelProperty(value = "昵称")
     @Column(columnDefinition = "varchar(20) comment '昵称'")
     private String nickName;
 
+    @ApiModelProperty(value = "密码")
     @Column(columnDefinition = "varchar(64) comment '密码'")
     private String password;
 
+    @ApiModelProperty(value = "TG用户ID")
     @Column(columnDefinition = "varchar(64) comment 'TG用户ID'")
     private String tgUserId;
 
+    @ApiModelProperty(value = "TG群ID")
     @Column(columnDefinition = "varchar(64) comment 'TG群ID'")
     private String tgGroupId;
 
+    @ApiModelProperty(value = "IP")
     @Column(columnDefinition = "varchar(130) comment 'IP'")
     private String ip;
 
+    @ApiModelProperty(value = "状态 1 正常 ，0禁用")
     @Column(columnDefinition = "tinyint(2) comment '状态 1 正常 ，0禁用'")
     private Integer status = 1;
 
+    @ApiModelProperty(value = "来源")
     @Column(columnDefinition = "varchar(20) comment '来源'")
     private String origin;
 

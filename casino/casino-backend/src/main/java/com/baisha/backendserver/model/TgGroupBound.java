@@ -22,11 +22,11 @@ public class TgGroupBound extends BaseEntity {
     @Column(columnDefinition = "int(11) comment '单注最低'")
     private Integer minAmount = 20;
 
-    @Column(columnDefinition = "int(11) comment '单注最低'")
+    @Column(columnDefinition = "int(11) comment '单注最高'")
     private Integer maxAmount = 15000;
 
     @Column(columnDefinition = "int(11) comment '当局最高'")
-    private Integer maxShoeAmount = 15000;
+    private Integer maxShoeAmount = 50000;
 
 
 }

@@ -16,4 +16,20 @@ public class TgBotServerConstants {
      * 更新状态
      */
     public static final String UPDATE_STATUS_TG_BOT = "/tgBot/updateStatusById";
+
+    /**
+     * 删除
+     */
+    public static final String DELETE_TG_BOT = "/tgBot/delBot";
+
+    /**
+     * 根据机器人名称查询 电报群
+     */
+    public static final String GET_GROUP = "/audit/page";
+
+    /**
+     * 机器人与TG群关系审核
+     */
+    public static final String GROUP_AUDIT = "/audit/auditStatus";
+
 }

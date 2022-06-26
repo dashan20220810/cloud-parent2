@@ -5,20 +5,18 @@ import com.baisha.modulecommon.enums.UserOriginEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
-import com.baisha.userserver.bo.UserBO;
+import com.baisha.userserver.model.bo.UserBO;
 import com.baisha.userserver.model.User;
 import com.baisha.userserver.model.UserTelegramRelation;
+import com.baisha.userserver.model.vo.user.*;
 import com.baisha.userserver.service.UserService;
 import com.baisha.userserver.service.UserTelegramRelationService;
 import com.baisha.userserver.util.UserServerUtil;
-import com.baisha.userserver.vo.IdVO;
-import com.baisha.userserver.vo.user.UserAddVO;
-import com.baisha.userserver.vo.user.UserPageVO;
-import com.baisha.userserver.vo.user.UserSearchVO;
-import com.baisha.userserver.vo.user.UserTgSearchPageVO;
+import com.baisha.userserver.model.vo.IdVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,15 +45,17 @@ public class UserController {
     @Autowired
     private UserTelegramRelationService relationService;
 
-    @ApiOperation(("新增用户"))
+    @ApiOperation(("新增用户(Telegram注册)"))
     @PostMapping("save")
-    public ResponseEntity saveUser(UserAddVO vo) {
-        String origin = vo.getOrigin();
-        //默认tg用户注册
-        if (StringUtils.isEmpty(origin) || origin.equals(UserOriginEnum.TG_ORIGIN.getOrigin())) {
-            return saveTelegramUser(vo);
+    public ResponseEntity saveUser(UserAddTelegramVO vo) {
+        try {
+            UserAddVO userAddVO = new UserAddVO();
+            BeanUtils.copyProperties(vo, userAddVO);
+            userAddVO.setOrigin(UserOriginEnum.TG_ORIGIN.getOrigin());
+            return saveTelegramUser(userAddVO);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        //其他
 
         return ResponseUtil.fail();
     }
@@ -84,14 +84,16 @@ public class UserController {
     }
 
     private void doUserTelegramRelation(User user, UserAddVO vo) {
-        UserTelegramRelation relation = relationService.findByUserIdAndTgGroupId(user.getId(), vo.getTgGroupId());
-        if (Objects.isNull(relation)) {
-            relation = new UserTelegramRelation();
-            relation.setUserId(user.getId());
-            relation.setUserName(user.getUserName());
-            relation.setTgUserId(vo.getTgUserId());
-            relation.setTgGroupId(vo.getTgGroupId());
-            relationService.save(relation);
+        synchronized (user.getTgUserId()) {
+            UserTelegramRelation relation = relationService.findByTgUserIdAndTgGroupId(user.getTgUserId(), vo.getTgGroupId());
+            if (Objects.isNull(relation)) {
+                relation = new UserTelegramRelation();
+                relation.setUserId(user.getId());
+                relation.setUserName(user.getUserName());
+                relation.setTgUserId(vo.getTgUserId());
+                relation.setTgGroupId(vo.getTgGroupId());
+                relationService.save(relation);
+            }
         }
     }
 
@@ -116,7 +118,7 @@ public class UserController {
         if (StringUtils.isNotEmpty(vo.getUserName()) && User.checkUserName(vo.getUserName())) {
             return new ResponseEntity("用户名不规范");
         }
-        Pageable pageable = PageRequest.of(vo.getPageNumber() - 1, vo.getPageSize());
+        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
         Specification<User> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             if (StringUtils.isNotBlank(vo.getUserName())) {
@@ -161,7 +163,7 @@ public class UserController {
 
     @ApiOperation(("用户查询"))
     @GetMapping("query")
-    public ResponseEntity query(UserSearchVO vo) {
+    public ResponseEntity<UserBO> query(UserSearchVO vo) {
         if (StringUtils.isNotEmpty(vo.getUserName())) {
             //普通用户查询
             return findCommonUser(vo);
@@ -212,13 +214,13 @@ public class UserController {
     }
 
 
-    @ApiOperation(("根据Tg群ID获取用户"))
-    @GetMapping("findUserByTgGroupId")
-    public ResponseEntity findUserByTgGroupId(UserTgSearchPageVO vo) {
+    @ApiOperation(("根据Tg群ID获取用户分页列表"))
+    @GetMapping("findPageByTgGroupId")
+    public ResponseEntity<Page<UserTelegramRelation>> findUserPageByTgGroupId(UserTgSearchPageVO vo) {
         if (StringUtils.isEmpty(vo.getTgGroupId())) {
             return new ResponseEntity("群ID必填");
         }
-        Pageable pageable = PageRequest.of(vo.getPageNumber() - 1, vo.getPageSize());
+        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
         Specification<UserTelegramRelation> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             predicates.add(cb.equal(root.get("tgGroupId"), vo.getTgGroupId()));
