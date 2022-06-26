@@ -48,14 +48,11 @@ public class TgbotController {
         }
 
         BotSession botSession = tgBotBusiness.getBotSession(username);
-        if (botSession != null && botSession.isRunning()) {
-            return ResponseUtil.custom("机器人已启动");
-        }
-
-        boolean b=tgBotBusiness.startTg(username, token);
-
-        if (!b) {
-            return ResponseUtil.custom("机器人启动失败，请联系技术处理");
+        if (botSession == null || !botSession.isRunning()) {
+            boolean b=tgBotBusiness.startTg(username, token);
+            if (!b) {
+                return ResponseUtil.custom("机器人启动失败，请联系技术处理");
+            }
         }
 
         //业务
