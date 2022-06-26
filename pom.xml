@@ -13,12 +13,12 @@
 
         <module>game-server</module>
         <module>casino</module>
+        <module>user-server</module>
+        <module>telegram-bot-api</module>
 
         <module>file-upload-download</module>
         <module>sms</module>
-        <module>telegram-bot-api</module>
         <module>authentication-server</module>
-        <module>user-server</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
