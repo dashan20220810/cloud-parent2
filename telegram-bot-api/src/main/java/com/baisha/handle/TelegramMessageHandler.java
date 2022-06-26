@@ -119,52 +119,6 @@ public class TelegramMessageHandler {
         welcome.append("\n");
         welcome.append(WELCOME7);
         bot.sendMessage(welcome.toString());
-        // 获取"开始新局"图片
-        URL url = getTgImage(OPEN_NEW_GAME, id);
-        bot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(url))));
-        // 游戏规则
-        String currentActive = getCurrentActive(bot.getChatId(), id);
-        // 限红
-        Map<String, Object> limitStakes = getLimitStakes(bot.getChatId(), id);
-        Integer minAmount = (Integer) limitStakes.get("minAmount");
-        Integer maxAmount = (Integer) limitStakes.get("maxAmount");
-        Integer maxShoeAmount = (Integer) limitStakes.get("maxShoeAmount");
-        StringBuilder gameRule = new StringBuilder();
-        gameRule.append(currentActive);
-        gameRule.append(GAME_RULE1);
-        gameRule.append(GAME_RULE2);
-        gameRule.append(GAME_RULE3);
-        gameRule.append(GAME_RULE4);
-        gameRule.append(GAME_RULE5);
-        gameRule.append(GAME_RULE6);
-        gameRule.append(minAmount);
-        gameRule.append(GAME_RULE7);
-        gameRule.append(maxAmount);
-        gameRule.append(GAME_RULE8);
-        gameRule.append(maxShoeAmount);
-        gameRule.append(GAME_RULE9);
-        gameRule.append(GAME_RULE10);
-        gameRule.append(GAME_RULE11);
-        bot.sendMessage(gameRule.toString());
-    }
-
-    private URL getTgImage (String tgImage, String id) {
-        String imageUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_TG_IMAGE.getApiName();
-        Map<String, Object> imageParam = Maps.newHashMap();
-        imageParam.put("tgImageEnum", tgImage);
-        String image = TgHttpClient4Util.doPost(imageUrl, imageParam, id);
-        String imageResult = "";
-        if (StrUtil.isNotEmpty(image)) {
-            ResponseEntity response = JSONObject.parseObject(image, ResponseEntity.class);
-            imageResult = (String) response.getData();
-        }
-        URL url;
-        try {
-            url = new URL(imageResult);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-        return url;
     }
 
     private String getFinance(String id) {
@@ -189,32 +143,6 @@ public class TelegramMessageHandler {
             customerResult = (String) response.getData();
         }
         return customerResult;
-    }
-
-    private String getCurrentActive(String chatId, String id) {
-        String currentActiveUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_TG_CURRENT_ACTIVE.getApiName();
-        Map<String, Object> currentActiveParam = Maps.newHashMap();
-        currentActiveParam.put("tgChatId", chatId);
-        String currentActive = TgHttpClient4Util.doPost(currentActiveUrl, currentActiveParam, id);
-        String currentActiveResult = "";
-        if (StrUtil.isNotEmpty(currentActive)) {
-            ResponseEntity response = JSONObject.parseObject(currentActive, ResponseEntity.class);
-            currentActiveResult = (String) response.getData();
-        }
-        return currentActiveResult;
-    }
-    
-    private Map<String, Object> getLimitStakes(String chatId, String id) {
-        String limitStakesUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_TG_LIMIT_STAKES.getApiName();
-        Map<String, Object> limitStakesParam = Maps.newHashMap();
-        limitStakesParam.put("tgChatId", chatId);
-        String limitStakes = TgHttpClient4Util.doPost(limitStakesUrl, limitStakesParam, id);
-        Map<String, Object> limitStakesResult = Maps.newHashMap();
-        if (StrUtil.isNotEmpty(limitStakes)) {
-            ResponseEntity response = JSONObject.parseObject(limitStakes, ResponseEntity.class);
-            limitStakesResult = (Map<String, Object>) response.getData();
-        }
-        return limitStakesResult;
     }
     
     
@@ -262,9 +190,6 @@ public class TelegramMessageHandler {
         String replace = ss.replace(" ", "");
         String[] split = replace.split("1");
         System.out.println(Arrays.toString(split));
-
-        File file = new File( "192.168.26.24:9000/user/open_new_game.jpg");
-        System.out.println(file);
     }
 
     /**

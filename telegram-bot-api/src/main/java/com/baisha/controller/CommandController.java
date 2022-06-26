@@ -2,7 +2,8 @@ package com.baisha.controller;
 
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.business.TgBotBusiness;
-import com.baisha.model.vo.ReceiveCommandVO;
+import com.baisha.model.TgBot;
+import com.baisha.model.vo.StartNewBureauVO;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.service.TgBotService;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 
@@ -39,24 +39,23 @@ public class CommandController {
 
     @ApiOperation("开始新局")
     @PostMapping("startNewBureau")
-    public ResponseEntity receiveCommand(ReceiveCommandVO receiveCommandVO) {
-        // 参数校验
-//        if (CommonUtil.checkNull(username, token)) {
-//            return ResponseUtil.parameterNotNull();
-//        }
+    public ResponseEntity receiveCommand(StartNewBureauVO startNewBureauVO) {
         // 获取参数
-        String chatId = receiveCommandVO.getChatId();
-//        String imageAddress = receiveCommandVO.getImageAddress();
-        String bureauNum = receiveCommandVO.getBureauNum();
-        Integer minAmount = receiveCommandVO.getMinAmount();
-        Integer maxAmount = receiveCommandVO.getMaxAmount();
-        Integer maxShoeAmount = receiveCommandVO.getMaxShoeAmount();
-
-        // 获取"开始新局"图片
-//        URL url = getTgURL(imageAddress);
+        String chatId = startNewBureauVO.getChatId();
+        String username = startNewBureauVO.getUsername();
+        String imageAddress = startNewBureauVO.getImageAddress();
+        String bureauNum = startNewBureauVO.getBureauNum();
+        Integer minAmount = startNewBureauVO.getMinAmount();
+        Integer maxAmount = startNewBureauVO.getMaxAmount();
+        Integer maxShoeAmount = startNewBureauVO.getMaxShoeAmount();
+        // 初始化Telegram长链接
+        TgBot tgBot = tgBotService.findByBotName(username);
         myTelegramLongPollingBot.setChatId(chatId);
-//        myTelegramLongPollingBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(url))));
-        // 限红
+        myTelegramLongPollingBot.setToken(tgBot.getBotToken());
+        // "开始新局"图片
+        URL url = tgBotBusiness.getTgURL(imageAddress);
+        myTelegramLongPollingBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(url))));
+        // 局号+限红
         StringBuilder gameRule = new StringBuilder();
         gameRule.append(bureauNum);
         gameRule.append(GAME_RULE1);
@@ -75,15 +74,5 @@ public class CommandController {
         gameRule.append(GAME_RULE11);
         myTelegramLongPollingBot.sendMessage(gameRule.toString());
         return ResponseUtil.success();
-    }
-
-    private URL getTgURL (String imageAddress) {
-        URL url;
-        try {
-            url = new URL(imageAddress);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-        return url;
     }
 }

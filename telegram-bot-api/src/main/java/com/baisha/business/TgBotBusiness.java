@@ -6,6 +6,7 @@ import com.baisha.model.TgBot;
 import com.baisha.model.vo.TgBotPageVO;
 import com.baisha.service.TgBotService;
 import com.baisha.util.TelegramServerUtil;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,7 @@ import org.telegram.telegrambots.meta.generics.BotSession;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import javax.persistence.criteria.Predicate;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +30,7 @@ import java.util.concurrent.ConcurrentMap;
 public class TgBotBusiness {
 
     private TelegramBotsApi botsApi;
+
     public ConcurrentMap<String, BotSession> botSerssionMap = new ConcurrentHashMap<>();
 
     @Autowired
@@ -82,30 +85,6 @@ public class TgBotBusiness {
         return true;
     }
 
-    /**
-     * 启动机器人(项目初始化)
-     * @param username
-     * @param token
-     * @return
-     */
-    public boolean startTg(String username, String token, String chatId, String chatName) {
-        // 实例化机器人
-        try {
-            BotSession botSession = getBotsApiInstance().registerBot(new MyTelegramLongPollingBot(username, token, chatId, chatName));
-            boolean running = botSession.isRunning();
-            if (!running) {
-                return false;
-            }
-            botSerssionMap.put(username, botSession);
-        } catch (TelegramApiException e) {
-            log.error("机器人启动失败");
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
-    }
-
     private TelegramBotsApi getBotsApiInstance() throws TelegramApiException {
         if (this.botsApi == null) {
             botsApi=new TelegramBotsApi(DefaultBotSession.class);
@@ -131,5 +110,10 @@ public class TgBotBusiness {
                 botSession.start();
             }
         }
+    }
+
+    @SneakyThrows
+    public URL getTgURL (String imageAddress) {
+        return new URL(imageAddress);
     }
 }
