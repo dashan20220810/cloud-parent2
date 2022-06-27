@@ -22,20 +22,20 @@ public class StartNewBureauVO {
     @ApiModelProperty(name = "图片地址", required = true)
     private String imageAddress;
 
-    @ApiModelProperty(name = "桌台号", required = true)
-    private String tableNo;
+    @ApiModelProperty(name = "桌台ID", required = true)
+    private String tableId;
 
     @ApiModelProperty(name = "局号", required = true)
     private String bureauNum;
 
-    @ApiModelProperty(name = "单注限红最低", required = true)
-    private Integer minAmount;
-
-    @ApiModelProperty(name = "单注限红最高", required = true)
-    private Integer maxAmount;
-
-    @ApiModelProperty(name = "当局最高", required = true)
-    private Integer maxShoeAmount;
+//    @ApiModelProperty(name = "单注限红最低", required = true)
+//    private Integer minAmount;
+//
+//    @ApiModelProperty(name = "单注限红最高", required = true)
+//    private Integer maxAmount;
+//
+//    @ApiModelProperty(name = "当局最高", required = true)
+//    private Integer maxShoeAmount;
 
     //校验参数合法性
     public static boolean check(StartNewBureauVO vo) throws IllegalAccessException {

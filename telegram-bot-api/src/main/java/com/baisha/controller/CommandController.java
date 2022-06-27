@@ -10,11 +10,13 @@ import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.SnowFlakeUtils;
 import com.baisha.service.TgBotService;
+import com.baisha.service.TgChatService;
 import com.baisha.util.Base64Utils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +33,7 @@ import java.util.Objects;
 import static com.baisha.util.constants.BotConstant.*;
 import static com.baisha.util.constants.BotConstant.GAME_RULE11;
 
-@Api(tags = "游戏指令")
+@Api(tags = "游戏指令推送")
 @Slf4j
 @RestController
 @RequestMapping("command")
@@ -41,34 +43,26 @@ public class CommandController {
     private TgBotService tgBotService;
 
     @Autowired
+    TgChatService tgChatService;
+
+    @Autowired
     private TgBotBusiness tgBotBusiness;
 
     @ApiOperation("开始新局")
     @PostMapping("startNewBureau")
-    public ResponseEntity receiveCommand(StartNewBureauVO vo) throws MalformedURLException {
+    public ResponseEntity receiveCommand(StartNewBureauVO vo) throws MalformedURLException, IllegalAccessException {
 
         //第一步，验证参数有效性
-        try {
             if(!StartNewBureauVO.check(vo)){
                 return ResponseUtil.parameterNotNull();
             }
-        } catch (IllegalAccessException e) {
-            return ResponseUtil.custom("参数校验异常，请联技术处理");
-        }
-//        // 获取参数
-        //代码审核评：  占用内存重新分配消耗。
-//        String imageAddress = startNewBureauVO.getImageAddress();
-//        String bureauNum = startNewBureauVO.getBureauNum();
-//        Integer minAmount = startNewBureauVO.getMinAmount();
-//        Integer maxAmount = startNewBureauVO.getMaxAmount();
-//        Integer maxShoeAmount = startNewBureauVO.getMaxShoeAmount();
-        // 初始化Telegram长链接
-//        TgBot tgBot = tgBotService.findByBotName(username);
 
         //第二步:根据参数中的桌台ID,找到绑定该桌台的有效的群
         //TODO
-        List<TgChat> chatList = new ArrayList();
-
+        List<TgChat> chatList = tgChatService.findByTableId(vo.getTableId());
+        if (CollectionUtils.isEmpty(chatList)) {
+            return ResponseUtil.success();
+        }
 
         //第三步: 循环不同的桌群配置，组装不同的推送消息并发送
         //TODO,找出所有需要发送的群ID。遍历执行发送（要求多线程）
@@ -80,8 +74,8 @@ public class CommandController {
                 continue;
             }
             MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgBot.getBotName());
-            String message = buildStartMessage(vo.getBureauNum(),vo.getMinAmount()+"",
-                    vo.getMaxAmount()+"",vo.getMaxShoeAmount()+"");
+            String message = buildStartMessage(vo.getBureauNum(),tgChat.getMinAmount()+"",
+                    tgChat.getMaxAmount()+"",tgChat.getMaxShoeAmount()+"");
 
             //3.3： 每个桌台推送开局消息
            myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(file))),tgChat.getChatId());

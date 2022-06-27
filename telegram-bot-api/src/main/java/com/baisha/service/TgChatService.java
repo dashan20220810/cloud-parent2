@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @CacheConfig(cacheNames = "tgBot")
@@ -21,11 +23,6 @@ public class TgChatService {
 
     @Autowired
     private TgChatRepository tgChatRepository;
-
-    @Cacheable(key = "#botName+':'+#chatId+':'+#status", unless="#result == null")
-    public TgChat findByChatIdAndBotNameAndStatus(String chatId, String botName, Integer status) {
-        return tgChatRepository.findByChatIdAndBotNameAndStatus(chatId, botName, status);
-    }
 
     @CachePut(key = "#tgChat.id")
     public TgChat save(TgChat tgChat) {
@@ -37,18 +34,28 @@ public class TgChatService {
         return Optional.of(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }
 
-    @CachePut(key = "#id")
-    public TgChat auditStatus(Long id, Integer status) {
-        Optional<TgChat> optionalTgBot = tgChatRepository.findById(id);
-        optionalTgBot.ifPresent(tgBot -> {
-            tgBot.setStatus(status);
-            tgChatRepository.save(tgBot);
-        });
-        return tgChatRepository.findById(id).get();
-    }
 
     public TgChat findByChatIdAndBotId(Long chatId, Long botId) {
         return tgChatRepository.findByChatIdAndBotId(chatId,botId);
     }
 
+    @Cacheable(key="#p0")
+    public TgChat findbyId(Long chatId) {
+        Optional<TgChat> byId = tgChatRepository.findById(chatId);
+        if (byId.isPresent()) {
+            return byId.get();
+        }
+        return null;
+    }
+
+    public Page<TgChat> pageByCondition(Pageable pageable,TgChat tgChat) {
+
+        //可扩展简单的动态条件
+//        ExampleMatcher matcher=null;
+       return tgChatRepository.findAll(pageable);
+    }
+
+    public List<TgChat> findByTableId(String tableId) {
+        return tgChatRepository.findByTableId(tableId);
+    }
 }

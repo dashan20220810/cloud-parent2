@@ -30,12 +30,25 @@ public class TgChat extends BaseEntity {
     @ApiModelProperty(value="机器人id",required = true)
     private Long botId;
 
+    @ApiModelProperty(value="游戏桌台id",required = true)
+    private Long tableId;
+
     @ApiModelProperty(value="群名称",required = true)
     private String chatName;
 
     @ApiModelProperty(value="机器人名称",required = true)
     private String botName;
 
+    //业务属性
     @ApiModelProperty(value="状态 0禁用 1启用",required = true)
     private Integer status=0;
+
+    @ApiModelProperty(name = "单注限红最低", required = true)
+    private Integer minAmount;
+
+    @ApiModelProperty(name = "单注限红最高", required = true)
+    private Integer maxAmount;
+
+    @ApiModelProperty(name = "当局最高", required = true)
+    private Integer maxShoeAmount;
 }
