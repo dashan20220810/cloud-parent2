@@ -50,7 +50,7 @@ public class TgChatController {
             @ApiImplicitParam(name = "state", value = "群状态：1.通过。 0或其他. 不通过", required = true),
             @ApiImplicitParam(name = "tableId", value = "绑定游戏桌台的id", required = true),
             @ApiImplicitParam(name = "minAmount", value = "单注最小限红", required = true),
-            @ApiImplicitParam(name = "minAmount", value = "单注最大限红", required = true),
+            @ApiImplicitParam(name = "maxAmount", value = "单注最大限红", required = true),
             @ApiImplicitParam(name = "maxShoeAmount", value = "局最大限红", required = true),
     })
     @PostMapping("audit")
