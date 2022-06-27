@@ -58,7 +58,9 @@ public class SysTelegramController {
         if (StringUtils.isNotEmpty(bo.getStartBetPicUrl())) {
             bo.setStartBetPicUrlShow(commonService.getFileServerUrl(bo.getStartBetPicUrl()));
         }
-        log.info(JSONObject.toJSONString(telegramService.getTelegramSet()));
+        if (StringUtils.isNotEmpty(bo.getSeventySecondsUrl())) {
+            bo.setSeventySecondsUrlShow(commonService.getFileServerUrl(bo.getSeventySecondsUrl()));
+        }
         return ResponseUtil.success(bo);
     }
 
@@ -106,6 +108,15 @@ public class SysTelegramController {
         if (StringUtils.isNotEmpty(vo.getStartBetPicUrl())) {
             stp.setStartBetPicUrl(vo.getStartBetPicUrl());
         }
+        if (null != vo.getStartBetSeventySeconds()) {
+            stp.setStartBetSeventySeconds(vo.getStartBetSeventySeconds());
+        }
+        if (StringUtils.isNotEmpty(vo.getSeventySecondsUrl())) {
+            stp.setSeventySecondsUrl(vo.getSeventySecondsUrl());
+        }
+        if (StringUtils.isNotEmpty(vo.getOfficialGamingChannel())) {
+            stp.setOfficialGamingChannel(vo.getOfficialGamingChannel());
+        }
     }
 
     private void doSetRedis(SysTelegramParameter stp) {
@@ -113,8 +124,10 @@ public class SysTelegramController {
         map.put("onlyFinance", StringUtils.isEmpty(stp.getOnlyFinance()) ? "" : stp.getOnlyFinance());
         map.put("onlyCustomerService", StringUtils.isEmpty(stp.getOnlyCustomerService()) ? "" :
                 stp.getOnlyCustomerService());
-        map.put("startBetPicUrl", StringUtils.isEmpty(stp.getStartBetPicUrl()) ? "" :
-                commonService.getFileServerUrl(stp.getStartBetPicUrl()));
+        map.put("startBetPicUrl", StringUtils.isEmpty(stp.getStartBetPicUrl()) ? "" : commonService.getFileServerUrl(stp.getStartBetPicUrl()));
+        map.put("officialGamingChannel", StringUtils.isEmpty(stp.getOfficialGamingChannel()) ? "" : stp.getOfficialGamingChannel());
+        map.put("startBetSeventySeconds", Objects.isNull(stp.getStartBetSeventySeconds()) ? 70 : stp.getStartBetSeventySeconds());
+        map.put("seventySecondsUrl", StringUtils.isEmpty(stp.getSeventySecondsUrl()) ? "" : commonService.getFileServerUrl(stp.getSeventySecondsUrl()));
         redisUtil.hmset(RedisKeyConstants.SYS_TELEGRAM, map);
     }
 
