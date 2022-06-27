@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.baisha.casinoweb.business.GamblingBusiness;
-import com.baisha.core.vo.response.LimitStakesVO;
 import com.baisha.modulecommon.annotation.NoAuthentication;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -30,19 +29,25 @@ public class GamblingController {
     @PostMapping("currentActive")
     @ApiOperation("当前局号")
 	@NoAuthentication
-    public ResponseEntity<String> currentActive(Long tgChatId) {
+    public ResponseEntity<String> currentActive(String deskCode) {
 
 		log.info("[当前局号]");
-        return ResponseUtil.success(gamblingBusiness.currentActive(tgChatId));
+		String result = gamblingBusiness.currentActive(deskCode);
+    	if ( result==null ) {
+			log.warn("当前局号 失敗");
+            return ResponseUtil.fail();
+    	}
+        return ResponseUtil.success(result);
     }
 	
-    @PostMapping("limitStakes")
-    @ApiOperation("限红")
-	@NoAuthentication
-    public ResponseEntity<LimitStakesVO> limitStakes(Long tgChatId) {
-
-		log.info("[限红]");
-        return ResponseUtil.success(gamblingBusiness.limitStakes(tgChatId));
-    }
+//    @PostMapping("limitStakes")
+//    @ApiOperation("限红")
+//	@NoAuthentication
+//	@Deprecated  // 改为tg管理
+//    public ResponseEntity<LimitStakesVO> limitStakes(Long tgChatId) {
+//
+//		log.info("[限红]");
+//        return ResponseUtil.success(gamblingBusiness.limitStakes(tgChatId));
+//    }
 	
 }

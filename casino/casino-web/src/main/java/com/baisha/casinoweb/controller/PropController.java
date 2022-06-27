@@ -47,4 +47,14 @@ public class PropController {
 		log.info("[客服]");
         return ResponseUtil.success(sysTgMap.get("onlyCustomerService"));
     }
+
+    @PostMapping("officialChannel")
+    @ApiOperation("官方频道")
+	@NoAuthentication
+    public ResponseEntity<String> officialChannel() {
+    	Map<Object, Object> sysTgMap = telegramService.getTelegramSet();
+
+		log.info("[官方频道]");
+        return ResponseUtil.success(sysTgMap.get("officialGamingChannel"));
+    }
 }

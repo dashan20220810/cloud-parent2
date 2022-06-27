@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.baisha.casinoweb.business.DealerBusiness;
+import com.baisha.modulecommon.annotation.NoAuthentication;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 
@@ -28,10 +29,11 @@ public class DealerEventController {
 	 */
 	@PostMapping("openNewGame")
 	@ApiOperation("游戏开局")
-	public ResponseEntity<String> openNewGame ( Long tgChatId ) {
+	@NoAuthentication
+	public ResponseEntity<String> openNewGame () {
 
 		log.info("游戏开局");
-		boolean result = dealerBusiness.openNewGame(tgChatId);
+		boolean result = dealerBusiness.openNewGame();
 //		boolean result = false;
 		if ( result==false ) {
 			log.info("[游戏开局] 失敗");
