@@ -1,7 +1,9 @@
 package com.baisha.modulecommon.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Random;
@@ -79,5 +81,16 @@ public class CommonUtil {
         } else {
             return (new StringBuilder()).append(Character.toUpperCase(s.charAt(0))).append(s.substring(1)).toString();
         }
+    }
+
+    //检测对象字段值是否为null
+    public static boolean checkObjectFieldNotNull(Object object) throws IllegalAccessException {
+        for (Field field : object.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+            if (field.get(object) != null && StringUtils.isNotEmpty(field.get(object).toString())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@CacheConfig(cacheNames = "tgBot::botId")
+@CacheConfig(cacheNames = "tgBot")
 @Service
 @Transactional
 public class TgBotService {
@@ -22,6 +22,7 @@ public class TgBotService {
     @Autowired
     private TgBotRepository tgBotRepository;
 
+    @Cacheable(key="#p0")
     public TgBot findByBotName(String botName) {
         return tgBotRepository.findByBotName(botName);
     }
@@ -65,7 +66,16 @@ public class TgBotService {
         return tgBotRepository.getById(id);
     }
 
-    public List<TgBot> getTgBots() {
-        return tgBotRepository.findByStatus(Constants.open);
+    @Cacheable
+    public TgBot findById(Long botId) {
+        Optional<TgBot> byId = tgBotRepository.findById(botId);
+        if (byId.isPresent()) {
+            return byId.get();
+        }
+        return null;
+    }
+
+    public List<TgBot> findByStatus(Integer open) {
+        return tgBotRepository.findByStatus(open);
     }
 }

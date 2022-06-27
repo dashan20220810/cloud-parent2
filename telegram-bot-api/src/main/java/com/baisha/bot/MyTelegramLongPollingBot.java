@@ -5,6 +5,7 @@ import com.baisha.handle.TelegramMyChatMemberHandler;
 import com.baisha.util.TelegramBotUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
@@ -14,7 +15,6 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Slf4j
-@Data
 public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     // 机器人username
     private String username;
@@ -22,29 +22,14 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     // 机器人token
     private String token;
 
-    // 机器人对应的TG群id
-    private String chatId;
-
-    // 机器人对应的TG群名称
-
-    private String chatName;
-
-    public MyTelegramLongPollingBot() {
-    }
-
+    @Autowired
+    TelegramMessageHandler messageHandler;
     public MyTelegramLongPollingBot(String username, String token) {
         this.username = username;
         this.token = token;
     }
 
-    public MyTelegramLongPollingBot(String username, String token, String chatId, String chatName) {
-        this.username = username;
-        this.token = token;
-        this.chatId = chatId;
-        this.chatName = chatName;
-    }
-
-    public TelegramMyChatMemberHandler getTelegramMyChatMemberHandler() {
+    private TelegramMyChatMemberHandler getTelegramMyChatMemberHandler() {
         return TelegramBotUtil.getTelegramMyChatMemberHandler();
     }
 
@@ -69,7 +54,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
             getTelegramMyChatMemberHandler().myChatMemberHandler(this, update);
             return;
         }
-        // 会员注册 + 下注
+        //TG群会员的监听事件
         if (update.hasMessage()) {
             // 消息处理
             getTelegramMessageHandler().messageHandler(this, update);
@@ -108,7 +93,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
      *
      * @param msg
      */
-    public void sendMessage(String msg) {
+    public void sendMessage(String msg,String chatId) {
         SendMessage sm = new SendMessage();
         sm.setChatId(chatId);
         sm.setAllowSendingWithoutReply(true);
@@ -137,7 +122,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
      *
      * @param msg
      */
-    public void SendMessageHtml(String msg) {
+    public void SendMessageHtml(String msg,String chatId) {
         SendMessage sm = new SendMessage();
         sm.setChatId(chatId);
         sm.setParseMode(ParseMode.HTML);
@@ -166,7 +151,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
      *
      * @param file
      */
-    public void SendPhoto(InputFile file) {
+    public void SendPhoto(InputFile file,String chatId) {
         SendPhoto sp = new SendPhoto();
         sp.setChatId(chatId);
         sp.setPhoto(file);
@@ -193,7 +178,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
      *
      * @param file
      */
-    public void SendAnimation(InputFile file) {
+    public void SendAnimation(InputFile file,String chatId) {
         SendAnimation sa = new SendAnimation();
         sa.setChatId(chatId);
         sa.setAnimation(file);

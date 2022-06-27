@@ -19,24 +19,23 @@ import javax.persistence.UniqueConstraint;
 @Accessors(chain = true)
 @Entity
 @Table(uniqueConstraints = {
-    @UniqueConstraint(name = "unique_chat_bot", columnNames = {"chat_id", "bot_name"})
+    @UniqueConstraint(name = "unique_chat_bot", columnNames = {"chatId", "botId"})
 })
 @ApiModel(value = "TgChat对象", description = "TG群")
 public class TgChat extends BaseEntity {
 
-    @ApiModelProperty("群id")
-    @Column(name = "chat_id", nullable = false, length = 20)
+    @ApiModelProperty(value = "群id",required = true)
     private String chatId;
 
-    @ApiModelProperty("群名称")
-    @Column(name = "chat_name", nullable = false, length = 100)
+    @ApiModelProperty(value="机器人id",required = true)
+    private Long botId;
+
+    @ApiModelProperty(value="群名称",required = true)
     private String chatName;
 
-    @ApiModelProperty("机器人名称")
-    @Column(name = "bot_name", nullable = false, length = 30)
+    @ApiModelProperty(value="机器人名称",required = true)
     private String botName;
 
-    @Column(name = "status", nullable = false)
-    @ApiModelProperty("状态 0禁用 1启用")
-    private Integer status;
+    @ApiModelProperty(value="状态 0禁用 1启用",required = true)
+    private Integer status=0;
 }

@@ -12,4 +12,6 @@ public interface TgChatRepository extends JpaRepository<TgChat, Long>, JpaSpecif
     TgChat findByChatIdAndBotName(String chatId, String botName);
 
     TgChat findByChatIdAndBotNameAndStatus(String chatId, String botName, Integer status);
+
+    TgChat findByChatIdAndBotId(Long chatId, Long botId);
 }

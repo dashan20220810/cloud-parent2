@@ -23,8 +23,4 @@ public class TelegramBotUtil {
 		return telegramMessageHandler;
 	}
 
-	public static TgChatService tgChatService;
-	public static TgChatService getTgChatService() {
-		return tgChatService;
-	}
 }

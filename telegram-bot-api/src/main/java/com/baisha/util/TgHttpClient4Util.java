@@ -157,7 +157,7 @@ public class TgHttpClient4Util {
         return doPost(url, paramMap, null);
     }
 
-    public static String doPost(String url, Map<String, Object> paramMap, String tgId) {
+    public static String doPost(String url, Map<String, Object> paramMap, Long tgId) {
         log.info("doPost请求路径,url:{},paramMap",url, JSONObject.toJSONString(paramMap));
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse httpResponse = null;
@@ -176,9 +176,9 @@ public class TgHttpClient4Util {
         // 设置请求头
         httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded");
         httpPost.addHeader(UserOriginEnum.TG_ORIGIN.getOrigin(), "true");
-        if (StringUtils.isNotEmpty(tgId)) {
+        if (null!=tgId) {
             JjwtUtil.Subject subject=new JjwtUtil.Subject();
-            subject.setUserId(tgId);
+            subject.setUserId(tgId+"");
             subject.setBcryptPassword("123456");
             String jwtToken = JjwtUtil.generic(subject, Constants.CASINO_WEB);
             httpPost.addHeader(Constants.AUTHORIZATION,"Bearer "+ jwtToken);

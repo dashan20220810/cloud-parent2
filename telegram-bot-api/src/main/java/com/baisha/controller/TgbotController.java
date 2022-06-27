@@ -47,15 +47,13 @@ public class TgbotController {
             return ResponseUtil.parameterNotNull();
         }
 
-        BotSession botSession = tgBotBusiness.getBotSession(username);
-        if (botSession == null || !botSession.isRunning()) {
-            boolean b=tgBotBusiness.startTg(username, token);
-            if (!b) {
-                return ResponseUtil.custom("机器人启动失败，请联系技术处理");
-            }
+        //啟動機器人
+        boolean isSuccess = tgBotBusiness.startupBot(username,token);
+        if (!isSuccess) {
+            return ResponseUtil.custom("机器人启动失败，请联系技术处理");
         }
 
-        //业务
+        //启动机器人成功更新机器人资料
         TgBot tgBot = tgBotService.findByBotName(username);
         if(ObjectUtils.isEmpty(tgBot) || StringUtils.isEmpty(tgBot.getBotName())){
             //新增

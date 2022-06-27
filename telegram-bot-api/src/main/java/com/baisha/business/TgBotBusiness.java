@@ -4,10 +4,12 @@ import cn.hutool.core.util.StrUtil;
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.model.TgBot;
 import com.baisha.model.vo.TgBotPageVO;
+import com.baisha.modulecommon.Constants;
 import com.baisha.service.TgBotService;
 import com.baisha.util.TelegramServerUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +33,8 @@ public class TgBotBusiness {
 
     private TelegramBotsApi botsApi;
 
-    public ConcurrentMap<String, BotSession> botSerssionMap = new ConcurrentHashMap<>();
+    public static ConcurrentMap<String, BotSession> botSerssionMap = new ConcurrentHashMap<>();
+    public static ConcurrentMap<String, MyTelegramLongPollingBot> myBotMap = new ConcurrentHashMap<>();
 
     @Autowired
     private TgBotService tgBotService;
@@ -46,43 +49,6 @@ public class TgBotBusiness {
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };
         return tgBotService.getTgBotPage(spec, pageable);
-    }
-
-    public void registerAllBot() {
-        // 根据状态status来过滤
-        List<TgBot> tgBots = tgBotService.getTgBots();
-        tgBots.forEach(tgBot -> {
-            try {
-                // 实例化机器人
-                startTg(tgBot.getBotName(), tgBot.getBotToken());
-            } catch (Throwable e) {
-                log.error("初始化-注册机器人失败", e);
-            }
-        });
-    }
-
-    /**
-     * 启动机器人
-     * @param username
-     * @param token
-     * @return
-     */
-    public boolean startTg(String username, String token) {
-        // 实例化机器人
-        try {
-            BotSession botSession = getBotsApiInstance().registerBot(new MyTelegramLongPollingBot(username, token));
-            boolean running = botSession.isRunning();
-            if (!running) {
-                return false;
-            }
-            botSerssionMap.put(username, botSession);
-        } catch (TelegramApiException e) {
-            log.error("机器人启动失败");
-            e.printStackTrace();
-            return false;
-        }
-
-        return true;
     }
 
     private TelegramBotsApi getBotsApiInstance() throws TelegramApiException {
@@ -112,8 +78,43 @@ public class TgBotBusiness {
         }
     }
 
-    @SneakyThrows
-    public URL getTgURL (String imageAddress) {
-        return new URL(imageAddress);
+    /**
+     * 啟動機器人
+     * @param username
+     * @param token
+     * @return
+     */
+    public boolean startupBot(String username, String token) {
+        //1.检测人池中是否有该机器人实例,有直接启动
+        BotSession botSession = botSerssionMap.get(username);
+        if(botSession!=null){
+            if (botSession.isRunning()) {
+                return true;
+            }
+            //有实例被停止启动机器人
+            botSession.start();
+            //启动后再次判断
+            if (botSession.isRunning()) {
+                return false;
+            }
+        }
+
+        //2. 没有实例创建一个机器人
+        MyTelegramLongPollingBot myBot=null;
+        try {
+            myBot = new MyTelegramLongPollingBot(username, token);
+            botSession = getBotsApiInstance().registerBot(myBot);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+            log.error("启动机器人失败,username:{},token:{}",username,token);
+            return false;
+        }
+        if (botSession.isRunning()) {
+            //新加機器人放入实例池中
+            botSerssionMap.put(username, botSession);
+            myBotMap.put(username, myBot);
+            return true;
+        }
+        return false;
     }
 }

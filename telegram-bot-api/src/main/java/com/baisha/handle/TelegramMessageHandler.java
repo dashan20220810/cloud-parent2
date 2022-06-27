@@ -1,68 +1,45 @@
 package com.baisha.handle;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.bot.MyTelegramLongPollingBot;
+import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
 import com.baisha.modulecommon.Constants;
-import com.baisha.util.Base64Utils;
-import com.baisha.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
+import com.baisha.service.TgBotService;
+import com.baisha.service.TgChatService;
 import com.baisha.util.TelegramBotUtil;
 import com.baisha.util.TgHttpClient4Util;
+import com.baisha.util.enums.RequestPathEnum;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.*;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.baisha.handle.TelegramMyChatMemberHandler.getTgChatService;
 import static com.baisha.util.constants.BotConstant.*;
 
 @Slf4j
 @Component
 public class TelegramMessageHandler {
+    @Autowired
+    TgChatService tgChatService;
+    @Autowired
+    TgBotService tgBotService;
 
-    public void messageHandler(MyTelegramLongPollingBot bot, Update update) {
-        Message message = update.getMessage();
-        String chatId = message.getChat().getId().toString();
-        String title = message.getChat().getTitle();
-
-        // 根据审核状态进行判断
-        TgChat isAudit =
-                getTgChatService().findByChatIdAndBotNameAndStatus(chatId, bot.getBotUsername(), Constants.open);
-        if (null != isAudit) {
-            // 多群动态绑定
-            bot.setChatId(chatId);
-            bot.setChatName(title);
-
-            List<User> users = message.getNewChatMembers();
-            // 新用户注册
-            if (CollUtil.isNotEmpty(users)) {
-                for (User user : users) {
-                    if (!user.getIsBot()) {
-                        // 只注册用户
-                        registerEvery(bot, user);
-                    }
-                }
-                return;
-            }
-            // 下注
-//        tgUserBet(message);
-        }
-    }
-
-    public void registerEvery(MyTelegramLongPollingBot bot, User user) {
+    public boolean registerEvery(MyTelegramLongPollingBot bot, User user,Chat chat) {
         String userName = "";
         String id = user.getId().toString();
         if (StrUtil.isNotEmpty(user.getFirstName())) {
@@ -71,44 +48,72 @@ public class TelegramMessageHandler {
         if (StrUtil.isNotEmpty(user.getLastName())) {
             userName += user.getLastName();
         }
-        // 注册账号
-        registerUser(id, bot, userName);
-    }
-
-    public void registerUser(String id, MyTelegramLongPollingBot bot, String userName) {
-        String requestUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_REGISTER_USER.getApiName();
         // 设置请求参数
         Map<String, Object> param = Maps.newHashMap();
-        param.put("id", id);
+        param.put("id", user.getId());
         param.put("nickname", userName);
-        param.put("groupId", bot.getChatId());
+        param.put("groupId", chat.getId());
         // 远程调用
-        String forObject = TgHttpClient4Util.doPost(requestUrl, param, id);
-        if (StrUtil.isNotEmpty(forObject)) {
+        String requestUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_REGISTER_USER.getApiName();
+        String forObject = TgHttpClient4Util.doPost(requestUrl, param, user.getId());
+
+        if (ObjectUtils.isEmpty(forObject)) {
+            log.error("{}群{}用户绑定失败，原因HTTP请求 NULL",chat.getId(),user.getId());
+            return false;
+        }
             ResponseEntity result = JSONObject.parseObject(forObject, ResponseEntity.class);
             // 在telegram中提示文字
             if (result.getCode() == 0) {
                 // 注册成功欢迎语
-                showWords(id, bot, userName);
-            } else {
-                bot.sendMessage(userName + " 注册会员失败！" + unicodeToString(result.getMsg()));
+                return true;
+            }
+            log.error("{}群{}用户绑定失败，原因:{}",chat.getId(),user.getId(),result.getMsg());
+return false;
+
+    }
+
+    public void messageHandler(MyTelegramLongPollingBot bot, Update update) {
+        Message message = update.getMessage();
+        Chat chat = message.getChat();
+
+        // 判断此群消息，是否审核通过。未通过不处理
+        TgBot tgBot = tgBotService.findByBotName(bot.getBotUsername());
+        TgChat tgChat =tgChatService.findByChatIdAndBotId(chat.getId(),tgBot.getId());
+
+        if (tgChat == null || Constants.close == tgChat.getStatus() ) {
+            return ;
+        }
+
+        //新会员绑定事件
+        List<User> users = message.getNewChatMembers();
+        if(!CollectionUtils.isEmpty(users)) {
+            for (User user : users) {
+                boolean isSuccess = registerEvery(bot, user, chat);
+                //注册成功推送消息
+                if (isSuccess) {
+                    String username=   user.getFirstName()==null?"":user.getFirstName()+user.getLastName()==null?null:user.getLastName();
+                    showWords(user.getId(), bot, username,chat.getTitle());
+                }
             }
             return;
         }
-        bot.sendMessage(userName + " 注册会员失败！服务异常！");
+
+            // 下注
+//        tgUserBet(message);
+
     }
 
-    private void showWords(String id, MyTelegramLongPollingBot bot, String userName) {
+    private void showWords(Long userId, MyTelegramLongPollingBot bot, String userName,String chatName) {
         // 获取唯一财务
-        String customerResult = getCustomer(id);
+        String customerResult = getCustomer(userId);
         // 获取唯一客服
-        String financeResult = getFinance(id);
+        String financeResult = getFinance(userId);
         // 注册成功之后的欢迎词
         StringBuilder welcome = new StringBuilder();
         welcome.append(WELCOME1);
         welcome.append(userName);
         welcome.append(WELCOME2);
-        welcome.append(bot.getChatName());
+        welcome.append(chatName);
         welcome.append(WELCOME3);
         welcome.append(WELCOME4);
         welcome.append(WELCOME5);
@@ -118,10 +123,10 @@ public class TelegramMessageHandler {
         welcome.append(financeResult);
         welcome.append("\n");
         welcome.append(WELCOME7);
-        bot.sendMessage(welcome.toString());
+        bot.sendMessage(welcome.toString(),"");
     }
 
-    private String getFinance(String id) {
+    private String getFinance(Long id) {
         String financeUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_PROP_FINANCE.getApiName();
         Map<String, Object> financeParam = Maps.newHashMap();
         String finance = TgHttpClient4Util.doPost(financeUrl, financeParam, id);
@@ -133,10 +138,10 @@ public class TelegramMessageHandler {
         return financeResult;
     }
 
-    private String getCustomer(String id) {
+    private String getCustomer(Long userId) {
         String customerUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_PROP_CUSTOMER.getApiName();
         Map<String, Object> customerParam = Maps.newHashMap();
-        String customer = TgHttpClient4Util.doPost(customerUrl, customerParam, id);
+        String customer = TgHttpClient4Util.doPost(customerUrl, customerParam, userId);
         String customerResult = "";
         if (StrUtil.isNotEmpty(customer)) {
             ResponseEntity response = JSONObject.parseObject(customer, ResponseEntity.class);

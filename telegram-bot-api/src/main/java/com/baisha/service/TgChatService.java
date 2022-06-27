@@ -15,24 +15,19 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Optional;
 
-@CacheConfig(cacheNames = "tgBot::chatId")
+@CacheConfig(cacheNames = "tgBot")
 @Service
 public class TgChatService {
 
     @Autowired
     private TgChatRepository tgChatRepository;
 
-    @Cacheable(key = "#botName+':'+#chatId", unless="#result == null")
-    public TgChat findByChatIdAndBotName(String chatId, String botName) {
-        return tgChatRepository.findByChatIdAndBotName(chatId, botName);
-    }
-
     @Cacheable(key = "#botName+':'+#chatId+':'+#status", unless="#result == null")
     public TgChat findByChatIdAndBotNameAndStatus(String chatId, String botName, Integer status) {
         return tgChatRepository.findByChatIdAndBotNameAndStatus(chatId, botName, status);
     }
 
-    @CachePut(key = "#tgChat.chatId")
+    @CachePut(key = "#tgChat.id")
     public TgChat save(TgChat tgChat) {
         return tgChatRepository.save(tgChat);
     }
@@ -51,8 +46,9 @@ public class TgChatService {
         });
         return tgChatRepository.findById(id).get();
     }
-//
-//    public List<TgBot> getTgBots() {
-//        return tgBotRepository.findByStatus(Constants.open);
-//    }
+
+    public TgChat findByChatIdAndBotId(Long chatId, Long botId) {
+        return tgChatRepository.findByChatIdAndBotId(chatId,botId);
+    }
+
 }

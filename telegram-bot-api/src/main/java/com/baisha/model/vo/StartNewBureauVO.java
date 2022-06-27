@@ -1,10 +1,14 @@
 package com.baisha.model.vo;
 
+import com.baisha.modulecommon.util.CommonUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import javax.xml.stream.FactoryConfigurationError;
+import java.lang.reflect.Field;
 
 /**
  * @author kimi
@@ -15,14 +19,11 @@ import lombok.experimental.Accessors;
 @ApiModel(value = "StartNewBureauVO对象", description = "开始新局-接收指令")
 public class StartNewBureauVO {
 
-    @ApiModelProperty(name = "TG群id", required = true)
-    private String chatId;
-
-    @ApiModelProperty(name = "机器人名称", required = true)
-    private String username;
-
     @ApiModelProperty(name = "图片地址", required = true)
     private String imageAddress;
+
+    @ApiModelProperty(name = "桌台号", required = true)
+    private String tableNo;
 
     @ApiModelProperty(name = "局号", required = true)
     private String bureauNum;
@@ -35,4 +36,10 @@ public class StartNewBureauVO {
 
     @ApiModelProperty(name = "当局最高", required = true)
     private Integer maxShoeAmount;
+
+    //校验参数合法性
+    public static boolean check(StartNewBureauVO vo) throws IllegalAccessException {
+
+       return CommonUtil.checkObjectFieldNotNull(vo);
+    }
 }

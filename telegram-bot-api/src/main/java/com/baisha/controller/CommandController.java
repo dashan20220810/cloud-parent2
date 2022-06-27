@@ -3,21 +3,29 @@ package com.baisha.controller;
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.business.TgBotBusiness;
 import com.baisha.model.TgBot;
+import com.baisha.model.TgChat;
 import com.baisha.model.vo.StartNewBureauVO;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
+import com.baisha.modulecommon.util.CommonUtil;
+import com.baisha.modulecommon.util.SnowFlakeUtils;
 import com.baisha.service.TgBotService;
 import com.baisha.util.Base64Utils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static com.baisha.util.constants.BotConstant.*;
@@ -35,27 +43,55 @@ public class CommandController {
     @Autowired
     private TgBotBusiness tgBotBusiness;
 
-    private static final MyTelegramLongPollingBot myTelegramLongPollingBot = new MyTelegramLongPollingBot();
-
     @ApiOperation("开始新局")
     @PostMapping("startNewBureau")
-    public ResponseEntity receiveCommand(StartNewBureauVO startNewBureauVO) {
-        // 获取参数
-        String chatId = startNewBureauVO.getChatId();
-        String username = startNewBureauVO.getUsername();
-        String imageAddress = startNewBureauVO.getImageAddress();
-        String bureauNum = startNewBureauVO.getBureauNum();
-        Integer minAmount = startNewBureauVO.getMinAmount();
-        Integer maxAmount = startNewBureauVO.getMaxAmount();
-        Integer maxShoeAmount = startNewBureauVO.getMaxShoeAmount();
+    public ResponseEntity receiveCommand(StartNewBureauVO vo) throws MalformedURLException {
+
+        //第一步，验证参数有效性
+        try {
+            if(!StartNewBureauVO.check(vo)){
+                return ResponseUtil.parameterNotNull();
+            }
+        } catch (IllegalAccessException e) {
+            return ResponseUtil.custom("参数校验异常，请联技术处理");
+        }
+//        // 获取参数
+        //代码审核评：  占用内存重新分配消耗。
+//        String imageAddress = startNewBureauVO.getImageAddress();
+//        String bureauNum = startNewBureauVO.getBureauNum();
+//        Integer minAmount = startNewBureauVO.getMinAmount();
+//        Integer maxAmount = startNewBureauVO.getMaxAmount();
+//        Integer maxShoeAmount = startNewBureauVO.getMaxShoeAmount();
         // 初始化Telegram长链接
-        TgBot tgBot = tgBotService.findByBotName(username);
-        myTelegramLongPollingBot.setChatId(chatId);
-        myTelegramLongPollingBot.setToken(tgBot.getBotToken());
-        // "开始新局"图片
-        URL url = tgBotBusiness.getTgURL(imageAddress);
-        myTelegramLongPollingBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(url))));
-        // 局号+限红
+//        TgBot tgBot = tgBotService.findByBotName(username);
+
+        //第二步:根据参数中的桌台ID,找到绑定该桌台的有效的群
+        //TODO
+        List<TgChat> chatList = new ArrayList();
+
+
+        //第三步: 循环不同的桌群配置，组装不同的推送消息并发送
+        //TODO,找出所有需要发送的群ID。遍历执行发送（要求多线程）
+        URL file = new URL(vo.getImageAddress());
+        for (TgChat tgChat : chatList) {
+            //3.1。  找出机器人实例。
+            TgBot tgBot = tgBotService.findById(tgChat.getBotId());
+            if (tgBot == null) {
+                continue;
+            }
+            MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgBot.getBotName());
+            String message = buildStartMessage(vo.getBureauNum(),vo.getMinAmount()+"",
+                    vo.getMaxAmount()+"",vo.getMaxShoeAmount()+"");
+
+            //3.3： 每个桌台推送开局消息
+           myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(file))),tgChat.getChatId());
+            myBot.sendMessage(message, tgChat.getChatId());
+        }
+        return ResponseUtil.success();
+    }
+
+    private String buildStartMessage(String bureauNum,String minAmount,String maxAmount,String maxShoeAmount) {
+        //3.2 组装 局号+限红
         StringBuilder gameRule = new StringBuilder();
         gameRule.append(bureauNum);
         gameRule.append(GAME_RULE1);
@@ -72,7 +108,6 @@ public class CommandController {
         gameRule.append(GAME_RULE9);
         gameRule.append(GAME_RULE10);
         gameRule.append(GAME_RULE11);
-        myTelegramLongPollingBot.sendMessage(gameRule.toString());
-        return ResponseUtil.success();
+        return gameRule.toString();
     }
 }
