@@ -134,7 +134,7 @@ public class AdminController {
         if (StringUtils.isNotEmpty(vo.getUserName()) && Admin.checkUserName(vo.getUserName())) {
             return new ResponseEntity("用户名不规范");
         }
-        Pageable pageable = BackendServerUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
+        Pageable pageable = BackendServerUtil.setPageable(vo.getPageNumber() , vo.getPageSize());
         Specification<Admin> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             if (StringUtils.isNotBlank(vo.getUserName())) {
