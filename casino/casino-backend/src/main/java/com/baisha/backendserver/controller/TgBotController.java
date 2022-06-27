@@ -129,14 +129,14 @@ public class TgBotController {
     @GetMapping("group/page")
     @ApiOperation(("获取机器人下的电报群分页"))
     public ResponseEntity<Page<TgGroupPageBO>> groupPage(TgGroupPageVO vo) {
-        if (CommonUtil.checkNull(vo.getBotName())) {
+        if (null == vo.getId()) {
             return ResponseUtil.parameterNotNull();
         }
         String url = tgBotServerUrl + TgBotServerConstants.GET_GROUP;
 
         StringBuffer sb = new StringBuffer();
         sb.append(url + "?pageNumber=" + vo.getPageNumber() +
-                "&pageSize=" + vo.getPageSize());
+                "&pageSize=" + vo.getPageSize() + "&botId=" + vo.getId());
 
         String result = HttpClient4Util.doGet(sb.toString());
         if (CommonUtil.checkNull(result)) {

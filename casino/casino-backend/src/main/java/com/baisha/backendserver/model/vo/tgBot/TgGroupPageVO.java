@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 @ApiModel(value = "后台-获取机器人的电报群请求对象")
 public class TgGroupPageVO extends PageVO {
 
-    @ApiModelProperty(value = "机器人名称", required = true)
-    private String botName;
+    @ApiModelProperty(value = "机器人Id", required = true)
+    private String id;
 
 }
