@@ -29,10 +29,10 @@ public class TelegramMyChatMemberHandler {
         String chatName = chat.getTitle();
         // 新增TG群
         TgBot tgBot = tgBotService.findByBotName(bot.getBotUsername());
-        TgChat tgChat = tgChatService.findByChatIdAndBotId(chat.getId(),tgBot.getId());
+        TgChat tgChat = tgChatService.findByChatIdAndBotId(chat.getId(), tgBot.getId());
         if (null == tgChat) {
             tgChat = new TgChat();
-            tgChat.setChatId(chat.getId()+"")
+            tgChat.setChatId(chat.getId() + "")
                     .setChatName(chatName)
                     .setBotName(bot.getBotUsername())
                     .setBotId(tgBot.getId())

@@ -53,7 +53,7 @@ public class TgBotBusiness {
 
     private TelegramBotsApi getBotsApiInstance() throws TelegramApiException {
         if (this.botsApi == null) {
-            botsApi=new TelegramBotsApi(DefaultBotSession.class);
+            botsApi = new TelegramBotsApi(DefaultBotSession.class);
         }
         return botsApi;
     }
@@ -63,7 +63,7 @@ public class TgBotBusiness {
     }
 
     public void updateBotSession(Long id, Integer status) {
-        TgBot tgBot = tgBotService.getById(id);
+        TgBot tgBot = tgBotService.findById(id);
         BotSession botSession = this.getBotSession(tgBot.getBotName());
         if (status == 0) {
             // 禁用机器人
@@ -80,6 +80,7 @@ public class TgBotBusiness {
 
     /**
      * 啟動機器人
+     *
      * @param username
      * @param token
      * @return
@@ -87,7 +88,7 @@ public class TgBotBusiness {
     public boolean startupBot(String username, String token) {
         //1.检测人池中是否有该机器人实例,有直接启动
         BotSession botSession = botSerssionMap.get(username);
-        if(botSession!=null){
+        if (botSession != null) {
             if (botSession.isRunning()) {
                 return true;
             }
@@ -100,13 +101,13 @@ public class TgBotBusiness {
         }
 
         //2. 没有实例创建一个机器人
-        MyTelegramLongPollingBot myBot=null;
+        MyTelegramLongPollingBot myBot = null;
         try {
             myBot = new MyTelegramLongPollingBot(username, token);
             botSession = getBotsApiInstance().registerBot(myBot);
         } catch (TelegramApiException e) {
             e.printStackTrace();
-            log.error("启动机器人失败,username:{},token:{}",username,token);
+            log.error("启动机器人失败,username:{},token:{}", username, token);
             return false;
         }
         if (botSession.isRunning()) {

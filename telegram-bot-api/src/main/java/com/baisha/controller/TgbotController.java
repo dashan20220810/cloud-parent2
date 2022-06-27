@@ -37,8 +37,8 @@ public class TgbotController {
 
     @ApiOperation("新开机器人")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "username", value="机器人名称", required = true),
-        @ApiImplicitParam(name = "token", value="机器人token", required = true),
+            @ApiImplicitParam(name = "username", value = "机器人名称", required = true),
+            @ApiImplicitParam(name = "token", value = "机器人token", required = true),
     })
     @PostMapping("open")
     public ResponseEntity open(String username, String token) {
@@ -48,18 +48,18 @@ public class TgbotController {
         }
 
         //啟動機器人
-        boolean isSuccess = tgBotBusiness.startupBot(username,token);
+        boolean isSuccess = tgBotBusiness.startupBot(username, token);
         if (!isSuccess) {
             return ResponseUtil.custom("机器人启动失败，请联系技术处理");
         }
 
         //启动机器人成功更新机器人资料
         TgBot tgBot = tgBotService.findByBotName(username);
-        if(ObjectUtils.isEmpty(tgBot) || StringUtils.isEmpty(tgBot.getBotName())){
+        if (ObjectUtils.isEmpty(tgBot) || StringUtils.isEmpty(tgBot.getBotName())) {
             //新增
             tgBot = new TgBot();
             tgBot.setBotName(username)
-                 .setBotToken(token);
+                    .setBotToken(token);
         }
         tgBot.setStatus(Constants.open);
         tgBotService.save(tgBot);
@@ -97,7 +97,7 @@ public class TgbotController {
         if (CommonUtil.checkNull(id.toString())) {
             return ResponseUtil.parameterNotNull();
         }
-        TgBot tgBot = tgBotService.getById(id);
+        TgBot tgBot = tgBotService.findById(id);
         // 停止机器人
         BotSession botSession = tgBotBusiness.getBotSession(tgBot.getBotName());
         if (botSession != null && botSession.isRunning()) {

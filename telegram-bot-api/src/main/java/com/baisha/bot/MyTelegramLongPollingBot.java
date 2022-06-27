@@ -24,6 +24,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
 
     @Autowired
     TelegramMessageHandler messageHandler;
+
     public MyTelegramLongPollingBot(String username, String token) {
         this.username = username;
         this.token = token;
@@ -93,7 +94,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
      *
      * @param msg
      */
-    public void sendMessage(String msg,String chatId) {
+    public void sendMessage(String msg, String chatId) {
         SendMessage sm = new SendMessage();
         sm.setChatId(chatId);
         sm.setAllowSendingWithoutReply(true);
@@ -106,7 +107,6 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     }
 
     /**
-     *
      * @param sm
      */
     public void SendMessage(SendMessage sm) {
@@ -122,7 +122,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
      *
      * @param msg
      */
-    public void SendMessageHtml(String msg,String chatId) {
+    public void SendMessageHtml(String msg, String chatId) {
         SendMessage sm = new SendMessage();
         sm.setChatId(chatId);
         sm.setParseMode(ParseMode.HTML);
@@ -151,7 +151,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
      *
      * @param file
      */
-    public void SendPhoto(InputFile file,String chatId) {
+    public void SendPhoto(InputFile file, String chatId) {
         SendPhoto sp = new SendPhoto();
         sp.setChatId(chatId);
         sp.setPhoto(file);
@@ -178,7 +178,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
      *
      * @param file
      */
-    public void SendAnimation(InputFile file,String chatId) {
+    public void SendAnimation(InputFile file, String chatId) {
         SendAnimation sa = new SendAnimation();
         sa.setChatId(chatId);
         sa.setAnimation(file);

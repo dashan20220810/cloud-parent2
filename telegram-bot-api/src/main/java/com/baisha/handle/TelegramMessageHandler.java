@@ -39,7 +39,7 @@ public class TelegramMessageHandler {
     @Autowired
     TgBotService tgBotService;
 
-    public boolean registerEvery(MyTelegramLongPollingBot bot, User user,Chat chat) {
+    public boolean registerEvery(MyTelegramLongPollingBot bot, User user, Chat chat) {
         String userName = "";
         String id = user.getId().toString();
         if (StrUtil.isNotEmpty(user.getFirstName())) {
@@ -58,17 +58,17 @@ public class TelegramMessageHandler {
         String forObject = TgHttpClient4Util.doPost(requestUrl, param, user.getId());
 
         if (ObjectUtils.isEmpty(forObject)) {
-            log.error("{}群{}用户绑定失败，原因HTTP请求 NULL",chat.getId(),user.getId());
+            log.error("{}群{}用户绑定失败，原因HTTP请求 NULL", chat.getId(), user.getId());
             return false;
         }
-            ResponseEntity result = JSONObject.parseObject(forObject, ResponseEntity.class);
-            // 在telegram中提示文字
-            if (result.getCode() == 0) {
-                // 注册成功欢迎语
-                return true;
-            }
-            log.error("{}群{}用户绑定失败，原因:{}",chat.getId(),user.getId(),result.getMsg());
-return false;
+        ResponseEntity result = JSONObject.parseObject(forObject, ResponseEntity.class);
+        // 在telegram中提示文字
+        if (result.getCode() == 0) {
+            // 注册成功欢迎语
+            return true;
+        }
+        log.error("{}群{}用户绑定失败，原因:{}", chat.getId(), user.getId(), result.getMsg());
+        return false;
 
     }
 
@@ -78,32 +78,32 @@ return false;
 
         // 判断此群消息，是否审核通过。未通过不处理
         TgBot tgBot = tgBotService.findByBotName(bot.getBotUsername());
-        TgChat tgChat =tgChatService.findByChatIdAndBotId(chat.getId(),tgBot.getId());
+        TgChat tgChat = tgChatService.findByChatIdAndBotId(chat.getId(), tgBot.getId());
 
-        if (tgChat == null || Constants.close == tgChat.getStatus() ) {
-            return ;
+        if (tgChat == null || Constants.close == tgChat.getStatus()) {
+            return;
         }
 
         //新会员绑定事件
         List<User> users = message.getNewChatMembers();
-        if(!CollectionUtils.isEmpty(users)) {
+        if (!CollectionUtils.isEmpty(users)) {
             for (User user : users) {
                 boolean isSuccess = registerEvery(bot, user, chat);
                 //注册成功推送消息
                 if (isSuccess) {
-                    String username=   user.getFirstName()==null?"":user.getFirstName()+user.getLastName()==null?null:user.getLastName();
-                    showWords(user.getId(), bot, username,chat.getTitle());
+                    String username = user.getFirstName() == null ? "" : user.getFirstName() + user.getLastName() == null ? null : user.getLastName();
+                    showWords(user.getId(), bot, username, chat.getTitle());
                 }
             }
             return;
         }
 
-            // 下注
+        // 下注
 //        tgUserBet(message);
 
     }
 
-    private void showWords(Long userId, MyTelegramLongPollingBot bot, String userName,String chatName) {
+    private void showWords(Long userId, MyTelegramLongPollingBot bot, String userName, String chatName) {
         // 获取唯一财务
         String customerResult = getCustomer(userId);
         // 获取唯一客服
@@ -123,7 +123,7 @@ return false;
         welcome.append(financeResult);
         welcome.append("\n");
         welcome.append(WELCOME7);
-        bot.sendMessage(welcome.toString(),"");
+        bot.sendMessage(welcome.toString(), "");
     }
 
     private String getFinance(Long id) {
@@ -149,8 +149,6 @@ return false;
         }
         return customerResult;
     }
-    
-    
 
 
 //    public void tgUserBet(Message message) {

@@ -53,9 +53,9 @@ public class CommandController {
     public ResponseEntity receiveCommand(StartNewBureauVO vo) throws MalformedURLException, IllegalAccessException {
 
         //第一步，验证参数有效性
-            if(!StartNewBureauVO.check(vo)){
-                return ResponseUtil.parameterNotNull();
-            }
+        if (!StartNewBureauVO.check(vo)) {
+            return ResponseUtil.parameterNotNull();
+        }
 
         //第二步:根据参数中的桌台ID,找到绑定该桌台的有效的群
         //TODO
@@ -74,17 +74,17 @@ public class CommandController {
                 continue;
             }
             MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgBot.getBotName());
-            String message = buildStartMessage(vo.getBureauNum(),tgChat.getMinAmount()+"",
-                    tgChat.getMaxAmount()+"",tgChat.getMaxShoeAmount()+"");
+            String message = buildStartMessage(vo.getBureauNum(), tgChat.getMinAmount() + "",
+                    tgChat.getMaxAmount() + "", tgChat.getMaxShoeAmount() + "");
 
             //3.3： 每个桌台推送开局消息
-           myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(file))),tgChat.getChatId());
+            myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(file))), tgChat.getChatId());
             myBot.sendMessage(message, tgChat.getChatId());
         }
         return ResponseUtil.success();
     }
 
-    private String buildStartMessage(String bureauNum,String minAmount,String maxAmount,String maxShoeAmount) {
+    private String buildStartMessage(String bureauNum, String minAmount, String maxAmount, String maxShoeAmount) {
         //3.2 组装 局号+限红
         StringBuilder gameRule = new StringBuilder();
         gameRule.append(bureauNum);

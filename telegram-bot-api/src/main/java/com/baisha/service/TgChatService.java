@@ -36,10 +36,10 @@ public class TgChatService {
 
 
     public TgChat findByChatIdAndBotId(Long chatId, Long botId) {
-        return tgChatRepository.findByChatIdAndBotId(chatId,botId);
+        return tgChatRepository.findByChatIdAndBotId(chatId, botId);
     }
 
-    @Cacheable(key="#p0")
+    @Cacheable(key = "#p0")
     public TgChat findbyId(Long chatId) {
         Optional<TgChat> byId = tgChatRepository.findById(chatId);
         if (byId.isPresent()) {
@@ -48,11 +48,11 @@ public class TgChatService {
         return null;
     }
 
-    public Page<TgChat> pageByCondition(Pageable pageable,TgChat tgChat) {
+    public Page<TgChat> pageByCondition(Pageable pageable, TgChat tgChat) {
 
         //可扩展简单的动态条件
 //        ExampleMatcher matcher=null;
-       return tgChatRepository.findAll(pageable);
+        return tgChatRepository.findAll(pageable);
     }
 
     public List<TgChat> findByTableId(String tableId) {

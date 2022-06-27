@@ -7,7 +7,6 @@ import com.baisha.model.TgBot;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.util.SpringContextUtil;
 import com.baisha.service.TgBotService;
-import com.baisha.service.TgChatService;
 import com.baisha.util.TelegramBotUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +51,7 @@ public class ApplicationRunnerInit implements ApplicationRunner {
             try {
                 // 实例化机器人
                 boolean isSuccess = tgBotBusiness.startupBot(tgBot.getBotName(), tgBot.getBotToken());
-                if(!isSuccess){
+                if (!isSuccess) {
                     tgBot.setStatus(Constants.close);
                     tgBotService.save(tgBot);
                 }

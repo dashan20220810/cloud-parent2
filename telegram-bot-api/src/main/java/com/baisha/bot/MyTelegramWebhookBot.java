@@ -9,10 +9,11 @@ public class MyTelegramWebhookBot extends TelegramWebhookBot {
     private String username;
     private String token;
 
-    public MyTelegramWebhookBot(String username,String token) {
-        this.username=username;
-        this.token=token;
+    public MyTelegramWebhookBot(String username, String token) {
+        this.username = username;
+        this.token = token;
     }
+
     @Override
     public String getBotUsername() {
         return username;

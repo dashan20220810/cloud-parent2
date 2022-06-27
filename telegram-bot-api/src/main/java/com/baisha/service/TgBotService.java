@@ -22,7 +22,6 @@ public class TgBotService {
     @Autowired
     private TgBotRepository tgBotRepository;
 
-    @Cacheable(key="#p0")
     public TgBot findByBotName(String botName) {
         return tgBotRepository.findByBotName(botName);
     }
@@ -30,15 +29,6 @@ public class TgBotService {
     @CachePut(key = "#tgBot.id")
     public TgBot save(TgBot tgBot) {
         return tgBotRepository.save(tgBot);
-    }
-
-    @Caching(put = {@CachePut(key = "#id")})
-    public TgBot updateTgBotById(Integer status, Long id) {
-        int i = tgBotRepository.updateTgBotById(status, id);
-        if (i > 0) {
-            return tgBotRepository.findById(id).get();
-        }
-        return null;
     }
 
     public Page<TgBot> getTgBotPage(Specification<TgBot> spec, Pageable pageable) {
@@ -57,16 +47,11 @@ public class TgBotService {
     }
 
     @CacheEvict(key = "#id")
-    public void delBot (Long id) {
+    public void delBot(Long id) {
         tgBotRepository.deleteById(id);
     }
 
-    @Cacheable
-    public TgBot getById (Long id) {
-        return tgBotRepository.getById(id);
-    }
-
-    @Cacheable
+    @Cacheable(key="#p0")
     public TgBot findById(Long botId) {
         Optional<TgBot> byId = tgBotRepository.findById(botId);
         if (byId.isPresent()) {
