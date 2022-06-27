@@ -118,7 +118,7 @@ public class UserController {
         if (StringUtils.isNotEmpty(vo.getUserName()) && User.checkUserName(vo.getUserName())) {
             return new ResponseEntity("用户名不规范");
         }
-        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
+        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize());
         Specification<User> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             if (StringUtils.isNotBlank(vo.getUserName())) {
@@ -220,7 +220,7 @@ public class UserController {
         if (StringUtils.isEmpty(vo.getTgGroupId())) {
             return new ResponseEntity("群ID必填");
         }
-        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
+        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize());
         Specification<UserTelegramRelation> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             predicates.add(cb.equal(root.get("tgGroupId"), vo.getTgGroupId()));
