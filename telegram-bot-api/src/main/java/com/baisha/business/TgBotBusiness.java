@@ -40,7 +40,7 @@ public class TgBotBusiness {
     private TgBotService tgBotService;
 
     public Page<TgBot> getTgBotPage(TgBotPageVO vo) {
-        Pageable pageable = TelegramServerUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
+        Pageable pageable = TelegramServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize());
         Specification<TgBot> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             if (StrUtil.isNotEmpty(vo.getBotName())) {
