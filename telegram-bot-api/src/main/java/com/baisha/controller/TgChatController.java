@@ -5,14 +5,12 @@ import com.baisha.model.vo.AuditVo;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
-import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.service.TgChatService;
 import com.baisha.util.TelegramBotUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.glassfish.jersey.server.wadl.internal.generators.resourcedoc.model.ResponseDocType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,8 +18,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("tgChat")
@@ -55,7 +51,7 @@ public class TgChatController {
     })
     @PostMapping("audit")
     public ResponseEntity audit(AuditVo vo) throws IllegalAccessException {
-        if (AuditVo.check(vo)) {
+        if (!AuditVo.check(vo)) {
             return ResponseUtil.parameterNotNull();
         }
 

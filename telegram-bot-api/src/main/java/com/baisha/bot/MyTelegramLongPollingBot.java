@@ -55,6 +55,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
             getTelegramMyChatMemberHandler().myChatMemberHandler(this, update);
             return;
         }
+
         //TG群会员的监听事件
         if (update.hasMessage()) {
             // 消息处理

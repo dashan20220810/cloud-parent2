@@ -39,7 +39,7 @@ public class TgChatService {
         return tgChatRepository.findByChatIdAndBotId(chatId, botId);
     }
 
-    @Cacheable(key = "#p0")
+    @Cacheable(key = "#p0",unless = "#result==null")
     public TgChat findbyId(Long chatId) {
         Optional<TgChat> byId = tgChatRepository.findById(chatId);
         if (byId.isPresent()) {
