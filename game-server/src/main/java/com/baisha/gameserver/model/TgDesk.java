@@ -1,4 +1,4 @@
-package com.baisha.backendserver.model;
+package com.baisha.gameserver.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -9,13 +9,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 
 /**
- * @author yihui
+ * @author sys
  */
 @Slf4j
 @Data
 @Entity
 @org.hibernate.annotations.Table(appliesTo = "tg_desk", comment = "电报桌台")
-@ApiModel(value = "后台-电报桌台")
+@ApiModel(value = "电报桌台")
 public class TgDesk extends BaseEntity {
 
     @ApiModelProperty(value = "桌台编码(1-10位 例如G26)")

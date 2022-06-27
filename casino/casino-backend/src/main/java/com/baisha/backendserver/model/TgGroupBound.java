@@ -9,10 +9,10 @@ import javax.persistence.Entity;
 /**
  * @author yihui
  */
-@Slf4j
+//@Slf4j
 @Data
-@Entity
-@org.hibernate.annotations.Table(appliesTo = "tg_group_bound", comment = "电报群限红")
+//@Entity
+//@org.hibernate.annotations.Table(appliesTo = "tg_group_bound", comment = "电报群限红")
 public class TgGroupBound extends BaseEntity {
 
     @Column(unique = true, columnDefinition = "varchar(64) comment 'TG群ID'")
