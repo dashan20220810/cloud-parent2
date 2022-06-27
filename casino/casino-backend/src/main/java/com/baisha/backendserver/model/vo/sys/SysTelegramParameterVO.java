@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
+
 /**
  * @author yihui
  */
@@ -22,5 +24,15 @@ public class SysTelegramParameterVO {
 
     @ApiModelProperty(value = "开始下注图片路径", required = true)
     private String startBetPicUrl;
+
+    @ApiModelProperty(value = "开始下注倒计时(秒) ", required = true)
+    private Integer startBetSeventySeconds;
+
+    @ApiModelProperty(value = "开始下注倒计时路径 ", required = true)
+    private String seventySecondsUrl;
+
+    @ApiModelProperty(value = "博彩官方频道", required = true)
+    private String officialGamingChannel;
+
 
 }

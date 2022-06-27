@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.baisha.backendserver.util.BackendServerUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,19 +42,8 @@ public class OrderController {
     @PostMapping("page")
     @ApiOperation(("订单查询"))
     public ResponseEntity<Page<BetResponse>> page(BetPageVO betRequest) {
-    	Map<String, Object> params = new HashMap<>();
-    	params.put("userName", betRequest.getUserName());
-    	params.put("betOption", betRequest.getBetOption());
-    	params.put("noRun", betRequest.getNoRun());
-    	params.put("noActive", betRequest.getNoActive());
-    	params.put("status", betRequest.getStatus());
-    	params.put("pageNumber", betRequest.getPageNumber());
-    	params.put("pageSize", betRequest.getPageSize());
-
-    	String result = HttpClient4Util.doPost(
-    			gameServerUrl + GameServerConstants.ORDER_PAGE,
-				params);
-    	
+        Map<String, Object> params = BackendServerUtil.objectToMap(betRequest);
+        String result = HttpClient4Util.doPost(gameServerUrl + GameServerConstants.ORDER_PAGE, params);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
@@ -63,14 +53,13 @@ public class OrderController {
     @GetMapping("betOption")
     @ApiOperation("下注类型")
     public ResponseEntity<List<Map<String, String>>> betOption() {
-    	log.info("下注类型");
         return ResponseUtil.success(BetOption.getList()
-        		.stream()
-        		.map(option -> { 
-        			Map<String, String> map = new HashMap<>();
-        			map.put("name", option.getDisplay());
-        			map.put("value", option.toString());
-        			return map;
-        		}).collect(Collectors.toList()));
+                .stream()
+                .map(option -> {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("name", option.getDisplay());
+                    map.put("value", option.toString());
+                    return map;
+                }).collect(Collectors.toList()));
     }
 }

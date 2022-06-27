@@ -62,7 +62,7 @@ public class SysTelegramController {
         return ResponseUtil.success(bo);
     }
 
-    @ApiOperation("设置信息")
+    @ApiOperation("设置信息 上传文件bucket是telegram")
     @PostMapping(value = "setInfo")
     public ResponseEntity<Long> setSysTelegramInfo(SysTelegramParameterVO vo) {
         if (CommonUtil.checkNull(vo.getOnlyFinance(), vo.getOnlyCustomerService(), vo.getStartBetPicUrl())) {
@@ -86,21 +86,26 @@ public class SysTelegramController {
             if (Objects.isNull(stp)) {
                 return new ResponseEntity("对应ID无数据");
             }
-            if (StringUtils.isNotEmpty(vo.getOnlyFinance())) {
-                stp.setOnlyFinance(vo.getOnlyFinance());
-            }
-            if (StringUtils.isNotEmpty(vo.getOnlyCustomerService())) {
-                stp.setOnlyCustomerService(vo.getOnlyCustomerService());
-            }
-            if (StringUtils.isNotEmpty(vo.getStartBetPicUrl())) {
-                stp.setStartBetPicUrl(vo.getStartBetPicUrl());
-            }
+            //设置各字段属性
+            setStp(stp, vo);
         }
         stp.setUpdateBy(admin.getUpdateBy());
         sysTelegramService.save(stp);
         doSetRedis(stp);
         log.info("{} {} {} {}", admin.getUserName(), BackendConstants.UPDATE, JSON.toJSONString(stp), BackendConstants.SYS_TELEGRAM_MODULE);
         return ResponseUtil.success(stp.getId());
+    }
+
+    private void setStp(SysTelegramParameter stp, SysTelegramParameterVO vo) {
+        if (StringUtils.isNotEmpty(vo.getOnlyFinance())) {
+            stp.setOnlyFinance(vo.getOnlyFinance());
+        }
+        if (StringUtils.isNotEmpty(vo.getOnlyCustomerService())) {
+            stp.setOnlyCustomerService(vo.getOnlyCustomerService());
+        }
+        if (StringUtils.isNotEmpty(vo.getStartBetPicUrl())) {
+            stp.setStartBetPicUrl(vo.getStartBetPicUrl());
+        }
     }
 
     private void doSetRedis(SysTelegramParameter stp) {

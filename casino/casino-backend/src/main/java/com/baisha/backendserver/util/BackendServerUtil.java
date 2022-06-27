@@ -12,9 +12,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.baisha.modulecommon.util.CommonUtil.checkNull;
 
@@ -141,45 +139,60 @@ public class BackendServerUtil {
     /**
      * 实体对象转成Map
      *
-     * @param obj 实体对象
+     * @param obj
      * @return
      */
     public static Map<String, Object> objectToMap(Object obj) {
-        Map<String, Object> map = new HashMap<>(16);
+        Map<String, Object> reMap = new HashMap<>(16);
         if (obj == null) {
-            return map;
+            return null;
         }
-        Class clazz = obj.getClass();
-        Field[] fields = clazz.getDeclaredFields();
+        List<Field> fields = new ArrayList<>();
+        List<Field> childFields;
+        List<String> fieldsName = new ArrayList<>();
+        Class tempClass = obj.getClass();
+        while (tempClass != null) {//当父类为null的时候说明到达了最上层的父类(Object类).
+            fields.addAll(Arrays.asList(tempClass.getDeclaredFields()));
+            tempClass = tempClass.getSuperclass(); //得到父类,然后赋给自己
+        }
+        childFields = Arrays.asList(obj.getClass().getDeclaredFields());
+        for (Field field : childFields) {
+            fieldsName.add(field.getName());
+        }
         try {
             for (Field field : fields) {
-                field.setAccessible(true);
-                map.put(field.getName(), field.get(obj));
-            }
-
-            //父类
-            clazz = obj.getClass().getSuperclass();
-            if (Objects.nonNull(clazz)) {
-                fields = clazz.getDeclaredFields();
-                for (Field field : fields) {
-                    field.setAccessible(true);
-                    map.put(field.getName(), field.get(obj));
+                try {
+                    if (fieldsName.contains(field.getName())) {
+                        Field f = obj.getClass().getDeclaredField(field.getName());
+                        f.setAccessible(true);
+                        Object o = f.get(obj);
+                        reMap.put(field.getName(), o);
+                    } else {
+                        Field f = obj.getClass().getSuperclass().getDeclaredField(field.getName());
+                        f.setAccessible(true);
+                        Object o = f.get(obj);
+                        reMap.put(field.getName(), o);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (Exception e) {
+        } catch (SecurityException e) {
             e.printStackTrace();
         }
-        return map;
+        return reMap;
     }
 
 
    /* public static void main(String[] args) {
         TgGroupPageVO vo = new TgGroupPageVO();
         vo.setBotName("1");
+        System.out.println(JSON.toJSONString(vo));
         System.out.println(objectToMap(vo));
 
-        TgGroupBoundVO v = new TgGroupBoundVO();
-        System.out.println(objectToMap(v));
+        //TgGroupBoundVO v = new TgGroupBoundVO();
+        //v.setTgGroupId("1111");
+        //System.out.println(objectToMap(v));
     }*/
 
 

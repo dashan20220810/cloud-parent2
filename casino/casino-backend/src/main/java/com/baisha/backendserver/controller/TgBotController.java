@@ -141,8 +141,8 @@ public class TgBotController {
         }
         String url = tgBotServerUrl + TgBotServerConstants.GET_GROUP;
         Map<String, Object> param = BackendServerUtil.objectToMap(vo);
-        String result = HttpClient4Util.doPost(url, param);
         System.out.println(JSON.toJSONString(param));
+        String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
