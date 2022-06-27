@@ -14,10 +14,16 @@ public class TgGroupPageBO extends BaseBO {
     @ApiModelProperty("群id")
     private String chatId;
 
-    @ApiModelProperty("群名称")
+    @ApiModelProperty(value = "机器人id")
+    private Long botId;
+
+    @ApiModelProperty(value = "游戏桌台id")
+    private Long tableId;
+
+    @ApiModelProperty(value = "群名称")
     private String chatName;
 
-    @ApiModelProperty("机器人名称")
+    @ApiModelProperty(value = "机器人名称")
     private String botName;
 
     @ApiModelProperty("状态 0禁用 1启用")

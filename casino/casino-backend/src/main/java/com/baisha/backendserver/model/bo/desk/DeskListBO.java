@@ -11,8 +11,8 @@ import lombok.Data;
 @ApiModel(value = "后台-桌台列表")
 public class DeskListBO {
 
-    @ApiModelProperty(value = "ID")
-    private Long id;
+    @ApiModelProperty(value = "tableId")
+    private Long tableId;
 
     @ApiModelProperty(value = "桌台编码")
     private String deskCode;
