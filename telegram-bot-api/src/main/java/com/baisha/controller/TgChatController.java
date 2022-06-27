@@ -65,7 +65,9 @@ public class TgChatController {
         }
         tgChat.setTableId(vo.getTableId());
 
-        if (!(Constants.open.equals(vo.getState()))) {
+        if (Constants.open.equals(vo.getState())) {
+            tgChat.setStatus(Constants.open);
+        }else {
             tgChat.setStatus(Constants.close);
         }
 
