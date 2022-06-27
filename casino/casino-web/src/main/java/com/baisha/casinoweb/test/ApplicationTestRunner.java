@@ -24,7 +24,7 @@ public class ApplicationTestRunner implements ApplicationRunner {
     	
     	while (true) {
     		log.info("游戏开局测试");
-    		dealerBusiness.openNewGame((long) -795009160);
+//    		dealerBusiness.openNewGame();
     		try {
 				Thread.sleep(60*1000);
 			} catch (InterruptedException e) {
