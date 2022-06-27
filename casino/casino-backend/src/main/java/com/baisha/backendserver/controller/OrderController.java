@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.model.vo.bet.BetPageVO;
-import com.baisha.backendserver.model.vo.response.BetResponse;
+import com.baisha.backendserver.model.bo.order.BetPageBO;
 import com.baisha.backendserver.util.constants.GameServerConstants;
 import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.reponse.ResponseEntity;
@@ -41,7 +41,7 @@ public class OrderController {
 
     @PostMapping("page")
     @ApiOperation(("订单查询"))
-    public ResponseEntity<Page<BetResponse>> page(BetPageVO betRequest) {
+    public ResponseEntity<Page<BetPageBO>> page(BetPageVO betRequest) {
         Map<String, Object> params = BackendServerUtil.objectToMap(betRequest);
         String result = HttpClient4Util.doPost(gameServerUrl + GameServerConstants.ORDER_PAGE, params);
         if (CommonUtil.checkNull(result)) {
