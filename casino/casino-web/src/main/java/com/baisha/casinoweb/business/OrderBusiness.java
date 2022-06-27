@@ -3,26 +3,54 @@ package com.baisha.casinoweb.business;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.casinoweb.util.CasinoWebUtil;
+import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.enums.BetOption;
+import com.baisha.modulecommon.enums.GameStatusEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.util.IpUtil;
 import com.baisha.modulecommon.util.SnowFlakeUtils;
+import com.baisha.modulecommon.vo.GameInfo;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class OrderBusiness {
 
 	@Value("${project.server-url.game-server-domain}")
 	private String gameServerDomain;
 	
+	@Autowired
+	private GameInfoBusiness gameInfoBusiness;
+	
 	public boolean bet ( boolean isTgRequest, Long tgChatId, String clientIP, Long userId, BetOption betOption, 
 			Long amount, String noRun, String noActive ) {
+		
+		log.info("下注");
+		GameInfo gameInfo = gameInfoBusiness.getGameInfo(tgChatId);
+		
+		if ( gameInfo==null ) {
+    		log.warn("下注 失败 无游戏资讯");
+			return false;
+		}
+		
+		if ( StringUtils.equals(noActive, gameInfo.getCurrentActive())==false ) {
+    		log.warn("下注 失败 局号不符, {}", noActive);
+			return false;
+		}
+		
+		if ( gameInfo.getStatus()!=GameStatusEnum.Betting) {
+    		log.warn("下注 失败 非下注状态, {}", gameInfo.getStatus().toString());
+			return false;
+		}
 
 		// 记录IP
     	Map<String, Object> params = new HashMap<>();
@@ -44,6 +72,7 @@ public class OrderBusiness {
 				params);
 
         if (CommonUtil.checkNull(result)) {
+    		log.warn("下注 失败");
             return false;
         }
         
@@ -51,9 +80,11 @@ public class OrderBusiness {
 		Integer code = betJson.getInteger("code");
 
 		if ( code!=0 ) {
+    		log.warn("下注 失败, {}", betJson.toString());
             return false;
 		}
-		
+
+		log.info("下注 成功");
 		return true;
 	}
 	

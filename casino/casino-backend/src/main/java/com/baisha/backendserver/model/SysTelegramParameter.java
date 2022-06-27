@@ -21,8 +21,17 @@ public class SysTelegramParameter extends BaseEntity {
     @Column(columnDefinition = "varchar(30) comment '唯一客服'")
     private String onlyCustomerService;
 
-    @Column(columnDefinition = "varchar(150) comment '开始下注图片路径'")
+    @Column(columnDefinition = "varchar(150) comment '开始下注图片路径' ")
     private String startBetPicUrl;
+
+    @Column(columnDefinition = "tinyint(4) comment '开始下注倒计时(秒)' ")
+    private Integer startBetSeventySeconds = 70;
+
+    @Column(columnDefinition = "varchar(150) comment '开始下注倒计时路径' ")
+    private String seventySecondsUrl;
+
+    @Column(columnDefinition = "varchar(150) comment '博彩官方频道' ")
+    private String officialGamingChannel;
 
 
 }

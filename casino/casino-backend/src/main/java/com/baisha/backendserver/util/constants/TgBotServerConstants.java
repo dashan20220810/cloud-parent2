@@ -25,11 +25,11 @@ public class TgBotServerConstants {
     /**
      * 根据机器人名称查询 电报群
      */
-    public static final String GET_GROUP = "/audit/page";
+    public static final String GET_GROUP = "/tgChat/page";
 
     /**
      * 机器人与TG群关系审核
      */
-    public static final String GROUP_AUDIT = "/audit/auditStatus";
+    public static final String GROUP_AUDIT = "/tgChat/auditStatus";
 
 }

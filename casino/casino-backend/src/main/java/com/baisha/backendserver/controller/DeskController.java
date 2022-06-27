@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.TgGroupBound;
+import com.baisha.backendserver.model.bo.desk.DeskListBO;
 import com.baisha.backendserver.model.vo.tgBot.TgGroupBoundVO;
 import com.baisha.backendserver.service.TgGroupBoundService;
 import com.baisha.backendserver.util.constants.BackendConstants;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -41,8 +43,9 @@ public class DeskController {
     @Autowired
     private TgGroupBoundService tgGroupBoundService;
 
-    @ApiOperation("设置限红")
-    @PostMapping(value = "setInfo")
+    //暂时去掉 做到telegram-server
+    //@ApiOperation("设置限红")
+    //@PostMapping(value = "setInfo")
     public ResponseEntity<Long> setTgGroupBoundInfo(TgGroupBoundVO vo) {
         if (StringUtils.isEmpty(vo.getTgGroupId())
                 || Objects.isNull(vo.getMaxAmount())
@@ -87,6 +90,12 @@ public class DeskController {
         map.put("maxAmount", tgg.getMaxAmount());
         map.put("maxShoeAmount", tgg.getMaxShoeAmount());
         redisUtil.hset(RedisKeyConstants.GROUP_TELEGRAM_BOUND, tgg.getTgGroupId(), map);
+    }
+
+
+
+    public List<DeskListBO> findAllDeskList(){
+        return null;
     }
 
 

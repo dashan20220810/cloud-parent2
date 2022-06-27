@@ -12,10 +12,10 @@ import lombok.Data;
 public class PageVO {
 
     @ApiModelProperty(value = "当前页（默认第1页）", example = "1")
-    private Integer pageNumber;
+    private Integer pageNumber = 1;
 
     @ApiModelProperty(value = "每页条数(默认10条)", example = "10")
-    private Integer pageSize;
+    private Integer pageSize = 10;
 
     public Integer getPageNumber() {
         if (null == pageNumber) {
@@ -30,4 +30,5 @@ public class PageVO {
         }
         return pageSize;
     }
+    
 }

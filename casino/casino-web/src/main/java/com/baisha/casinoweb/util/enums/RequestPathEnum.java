@@ -34,7 +34,12 @@ public enum RequestPathEnum {
     /*
      * telegram
      */
+    /** 开新局 */
     TG_OPEN_NEW_GAME("/command/startNewBureau"),
+    /** 发送影片 */
+    TG_SEND_ANIMATION(""),  //TODO
+    /** 发送图片 */
+    TG_SEND_PHOTO(""),  //TODO
     
     ;
 

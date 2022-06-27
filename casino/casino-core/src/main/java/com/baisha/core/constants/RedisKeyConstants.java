@@ -8,5 +8,7 @@ public class RedisKeyConstants {
     //redis 群限红设置前缀
     public static final String GROUP_TELEGRAM_BOUND = "common::group_telegram_bound";
 
+    //redis 游戏资讯前缀
+    public static final String SYS_GAME_INFO = "common::sys_game_info";
 
 }

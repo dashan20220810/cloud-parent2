@@ -28,12 +28,11 @@ public class DealerEventController {
 	 */
 	@PostMapping("openNewGame")
 	@ApiOperation("游戏开局")
-	public ResponseEntity<String> openNewGame ( Long gameId ) {
+	public ResponseEntity<String> openNewGame ( Long tgChatId ) {
 
 		log.info("游戏开局");
-		// TODO
-//		boolean result = dealerBusiness.openNewGame();
-		boolean result = false;
+		boolean result = dealerBusiness.openNewGame(tgChatId);
+//		boolean result = false;
 		if ( result==false ) {
 			log.info("[游戏开局] 失敗");
             return ResponseUtil.fail();

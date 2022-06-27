@@ -58,11 +58,13 @@ public class SysTelegramController {
         if (StringUtils.isNotEmpty(bo.getStartBetPicUrl())) {
             bo.setStartBetPicUrlShow(commonService.getFileServerUrl(bo.getStartBetPicUrl()));
         }
-        log.info(JSONObject.toJSONString(telegramService.getTelegramSet()));
+        if (StringUtils.isNotEmpty(bo.getSeventySecondsUrl())) {
+            bo.setSeventySecondsUrlShow(commonService.getFileServerUrl(bo.getSeventySecondsUrl()));
+        }
         return ResponseUtil.success(bo);
     }
 
-    @ApiOperation("设置信息")
+    @ApiOperation("设置信息 上传文件bucket是telegram")
     @PostMapping(value = "setInfo")
     public ResponseEntity<Long> setSysTelegramInfo(SysTelegramParameterVO vo) {
         if (CommonUtil.checkNull(vo.getOnlyFinance(), vo.getOnlyCustomerService(), vo.getStartBetPicUrl())) {
@@ -86,15 +88,8 @@ public class SysTelegramController {
             if (Objects.isNull(stp)) {
                 return new ResponseEntity("对应ID无数据");
             }
-            if (StringUtils.isNotEmpty(vo.getOnlyFinance())) {
-                stp.setOnlyFinance(vo.getOnlyFinance());
-            }
-            if (StringUtils.isNotEmpty(vo.getOnlyCustomerService())) {
-                stp.setOnlyCustomerService(vo.getOnlyCustomerService());
-            }
-            if (StringUtils.isNotEmpty(vo.getStartBetPicUrl())) {
-                stp.setStartBetPicUrl(vo.getStartBetPicUrl());
-            }
+            //设置各字段属性
+            setStp(stp, vo);
         }
         stp.setUpdateBy(admin.getUpdateBy());
         sysTelegramService.save(stp);
@@ -103,13 +98,36 @@ public class SysTelegramController {
         return ResponseUtil.success(stp.getId());
     }
 
+    private void setStp(SysTelegramParameter stp, SysTelegramParameterVO vo) {
+        if (StringUtils.isNotEmpty(vo.getOnlyFinance())) {
+            stp.setOnlyFinance(vo.getOnlyFinance());
+        }
+        if (StringUtils.isNotEmpty(vo.getOnlyCustomerService())) {
+            stp.setOnlyCustomerService(vo.getOnlyCustomerService());
+        }
+        if (StringUtils.isNotEmpty(vo.getStartBetPicUrl())) {
+            stp.setStartBetPicUrl(vo.getStartBetPicUrl());
+        }
+        if (null != vo.getStartBetSeventySeconds()) {
+            stp.setStartBetSeventySeconds(vo.getStartBetSeventySeconds());
+        }
+        if (StringUtils.isNotEmpty(vo.getSeventySecondsUrl())) {
+            stp.setSeventySecondsUrl(vo.getSeventySecondsUrl());
+        }
+        if (StringUtils.isNotEmpty(vo.getOfficialGamingChannel())) {
+            stp.setOfficialGamingChannel(vo.getOfficialGamingChannel());
+        }
+    }
+
     private void doSetRedis(SysTelegramParameter stp) {
         Map<String, Object> map = new HashMap<>(16);
         map.put("onlyFinance", StringUtils.isEmpty(stp.getOnlyFinance()) ? "" : stp.getOnlyFinance());
         map.put("onlyCustomerService", StringUtils.isEmpty(stp.getOnlyCustomerService()) ? "" :
                 stp.getOnlyCustomerService());
-        map.put("startBetPicUrl", StringUtils.isEmpty(stp.getStartBetPicUrl()) ? "" :
-                commonService.getFileServerUrl(stp.getStartBetPicUrl()));
+        map.put("startBetPicUrl", StringUtils.isEmpty(stp.getStartBetPicUrl()) ? "" : commonService.getFileServerUrl(stp.getStartBetPicUrl()));
+        map.put("officialGamingChannel", StringUtils.isEmpty(stp.getOfficialGamingChannel()) ? "" : stp.getOfficialGamingChannel());
+        map.put("startBetSeventySeconds", Objects.isNull(stp.getStartBetSeventySeconds()) ? 70 : stp.getStartBetSeventySeconds());
+        map.put("seventySecondsUrl", StringUtils.isEmpty(stp.getSeventySecondsUrl()) ? "" : commonService.getFileServerUrl(stp.getSeventySecondsUrl()));
         redisUtil.hmset(RedisKeyConstants.SYS_TELEGRAM, map);
     }
 
