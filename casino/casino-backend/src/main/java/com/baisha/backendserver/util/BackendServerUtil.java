@@ -156,11 +156,31 @@ public class BackendServerUtil {
                 field.setAccessible(true);
                 map.put(field.getName(), field.get(obj));
             }
+
+            //父类
+            clazz = obj.getClass().getSuperclass();
+            if (Objects.nonNull(clazz)) {
+                fields = clazz.getDeclaredFields();
+                for (Field field : fields) {
+                    field.setAccessible(true);
+                    map.put(field.getName(), field.get(obj));
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return map;
     }
+
+
+   /* public static void main(String[] args) {
+        TgGroupPageVO vo = new TgGroupPageVO();
+        vo.setBotName("1");
+        System.out.println(objectToMap(vo));
+
+        TgGroupBoundVO v = new TgGroupBoundVO();
+        System.out.println(objectToMap(v));
+    }*/
 
 
 }

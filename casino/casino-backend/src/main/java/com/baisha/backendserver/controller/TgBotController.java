@@ -142,11 +142,12 @@ public class TgBotController {
         String url = tgBotServerUrl + TgBotServerConstants.GET_GROUP;
         Map<String, Object> param = BackendServerUtil.objectToMap(vo);
         String result = HttpClient4Util.doPost(url, param);
+        System.out.println(JSON.toJSONString(param));
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
 
-        ResponseEntity<Page<TgGroupPageBO>> responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
         // Page<TgGroupPageBO> page = responseEntity.getData();
         JSONObject page = (JSONObject) responseEntity.getData();
         if (Objects.nonNull(page)) {
