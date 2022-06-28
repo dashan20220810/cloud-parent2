@@ -5,6 +5,7 @@ import com.baisha.business.TgBotBusiness;
 import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
 import com.baisha.model.vo.StartNewBureauVO;
+import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -75,6 +76,10 @@ public class CommandController {
         //TODO,找出所有需要发送的群ID。遍历执行发送（要求多线程）
         URL file = new URL(vo.getImageAddress());
         for (TgChat tgChat : chatList) {
+            //验证群审核通过，才发消息
+            if(!Constants.open.equals(tgChat.getStatus())){
+                continue;
+            }
             //3.1。  找出机器人实例。
             TgBot tgBot = tgBotService.findById(tgChat.getBotId());
             if (tgBot == null) {
