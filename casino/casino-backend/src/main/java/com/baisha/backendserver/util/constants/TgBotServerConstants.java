@@ -30,6 +30,6 @@ public class TgBotServerConstants {
     /**
      * 机器人与TG群关系审核
      */
-    public static final String GROUP_AUDIT = "/tgChat/auditStatus";
+    public static final String GROUP_AUDIT = "/tgChat/audit";
 
 }

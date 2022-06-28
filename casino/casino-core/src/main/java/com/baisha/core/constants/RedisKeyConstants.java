@@ -10,5 +10,8 @@ public class RedisKeyConstants {
 
     //redis 游戏资讯前缀
     public static final String SYS_GAME_INFO = "common::sys_game_info";
+    
+    /** 游戏局号 */
+    public static final String GAMBLING_ACTIVE_INFO = "gambling::active_info";
 
 }

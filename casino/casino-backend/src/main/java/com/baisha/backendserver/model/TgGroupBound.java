@@ -1,3 +1,4 @@
+/*
 package com.baisha.backendserver.model;
 
 import lombok.Data;
@@ -6,9 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
+*/
 /**
  * @author yihui
- */
+ *//*
+
 //@Slf4j
 @Data
 //@Entity
@@ -30,3 +33,4 @@ public class TgGroupBound extends BaseEntity {
 
 
 }
+*/

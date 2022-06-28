@@ -1,3 +1,4 @@
+/*
 package com.baisha.backendserver.repository;
 
 import com.baisha.backendserver.model.TgGroupBound;
@@ -11,3 +12,4 @@ public interface TgGroupBoundRepository extends JpaRepository<TgGroupBound, Long
 
 
 }
+*/

@@ -26,6 +26,10 @@ public enum RequestPathEnum {
 	 */
     /** 下注 */
     ORDER_BET("/order/bet"),
+    /** 查询桌台 by ip */
+    DESK_QUERY_BY_LOCAL_IP("/desk/queryByLocalIp"),
+    /** 查询桌台 by DeskCode */
+    DESK_QUERY_BY_DESK_CODE("/desk/queryByDeskCode"),
     
     /*
      * 後台

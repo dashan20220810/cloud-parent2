@@ -1,11 +1,8 @@
 package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.model.Admin;
-import com.baisha.backendserver.model.TgGroupBound;
 import com.baisha.backendserver.model.bo.tgBot.TgBotPageBO;
 import com.baisha.backendserver.model.bo.tgBot.TgGroupPageBO;
 import com.baisha.backendserver.model.vo.IdVO;
@@ -13,10 +10,11 @@ import com.baisha.backendserver.model.vo.StatusVO;
 import com.baisha.backendserver.model.vo.tgBot.TgBotGroupAuditVO;
 import com.baisha.backendserver.model.vo.tgBot.TgBotPageVO;
 import com.baisha.backendserver.model.vo.tgBot.TgGroupPageVO;
-import com.baisha.backendserver.service.TgGroupBoundService;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.TgBotServerConstants;
+import com.baisha.backendserver.util.constants.UserServerConstants;
+import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -29,15 +27,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -54,8 +49,6 @@ public class TgBotController {
     private String tgBotServerUrl;
     @Autowired
     private CommonService commonService;
-    @Autowired
-    private TgGroupBoundService tgGroupBoundService;
 
     @ApiOperation("新开机器人")
     @ApiImplicitParams({
@@ -136,20 +129,23 @@ public class TgBotController {
     @GetMapping("group/page")
     @ApiOperation(("获取机器人下的电报群分页"))
     public ResponseEntity<Page<TgGroupPageBO>> groupPage(TgGroupPageVO vo) {
-        if (CommonUtil.checkNull(vo.getBotName())) {
+        if (null == vo.getId()) {
             return ResponseUtil.parameterNotNull();
         }
         String url = tgBotServerUrl + TgBotServerConstants.GET_GROUP;
-        Map<String, Object> param = BackendServerUtil.objectToMap(vo);
-        System.out.println(JSON.toJSONString(param));
-        String result = HttpClient4Util.doPost(url, param);
+
+        StringBuffer sb = new StringBuffer();
+        sb.append(url + "?pageNumber=" + vo.getPageNumber() +
+                "&pageSize=" + vo.getPageSize() + "&botId=" + vo.getId());
+
+        String result = HttpClient4Util.doGet(sb.toString());
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
 
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        // Page<TgGroupPageBO> page = responseEntity.getData();
-        JSONObject page = (JSONObject) responseEntity.getData();
+        return responseEntity;
+        /*JSONObject page = (JSONObject) responseEntity.getData();
         if (Objects.nonNull(page)) {
             List<TgGroupPageBO> list = JSONArray.parseArray(page.getString("content"), TgGroupPageBO.class);
             if (!CollectionUtils.isEmpty(list)) {
@@ -166,8 +162,8 @@ public class TgBotController {
                 page.put("content", list);
                 responseEntity.setData(page);
             }
-        }
-        return responseEntity;
+        }*/
+
     }
 
     @ApiOperation(("机器人与TG群关系审核"))
@@ -176,16 +172,60 @@ public class TgBotController {
         if (null == vo.getId() || null == vo.getStatus()) {
             return ResponseUtil.parameterNotNull();
         }
+        //数据处理
+        vo = setTgBotGroupAuditVO(vo);
+        if (Objects.isNull(vo)) {
+            return ResponseUtil.parameterNotNull();
+        }
+        if ((vo.getMinAmount().compareTo(vo.getMaxAmount()) > 0)
+                || (vo.getMinAmount().compareTo(vo.getMaxShoeAmount()) > 0)
+                || (vo.getMaxAmount().compareTo(vo.getMaxShoeAmount()) > 0)) {
+            return new ResponseEntity<>("限红值不规范");
+        }
+
         String url = tgBotServerUrl + TgBotServerConstants.GROUP_AUDIT;
         Map<String, Object> param = BackendServerUtil.objectToMap(vo);
+        param.put("state", vo.getStatus());
+        param.put("chatId", vo.getId());
+        param.remove("status");
+        param.remove("id");
+        System.out.println(JSON.toJSONString(param));
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
         Admin currentUser = commonService.getCurrentUser();
         log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
-                JSON.toJSONString(vo), BackendConstants.TOBOT_MODULE);
+                JSON.toJSONString(param), BackendConstants.TOBOT_MODULE);
         return JSON.parseObject(result, ResponseEntity.class);
+    }
+
+    private TgBotGroupAuditVO setTgBotGroupAuditVO(TgBotGroupAuditVO vo) {
+        if (Constants.open.equals(vo.getStatus())) {
+            //审核通过必传
+            if (null == vo.getTableId() || vo.getTableId() < 0
+                    || null == vo.getMinAmount() || vo.getMinAmount() < 0
+                    || null == vo.getMaxAmount() || vo.getMaxAmount() < 0
+                    || null == vo.getMaxShoeAmount() || vo.getMaxShoeAmount() < 0
+            ) {
+                return null;
+            }
+        } else {
+            //默认值
+            if (null == vo.getTableId()) {
+                vo.setTableId(null);
+            }
+            if (null == vo.getMinAmount()) {
+                vo.setMinAmount(20);
+            }
+            if (null == vo.getMaxAmount()) {
+                vo.setMaxAmount(15000);
+            }
+            if (null == vo.getMaxShoeAmount()) {
+                vo.setMaxShoeAmount(50000);
+            }
+        }
+        return vo;
     }
 
 

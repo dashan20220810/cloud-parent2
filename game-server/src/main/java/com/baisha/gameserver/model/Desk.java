@@ -14,9 +14,9 @@ import javax.persistence.Entity;
 @Slf4j
 @Data
 @Entity
-@org.hibernate.annotations.Table(appliesTo = "tg_desk", comment = "电报桌台")
+@org.hibernate.annotations.Table(appliesTo = "desk", comment = "电报桌台")
 @ApiModel(value = "电报桌台")
-public class TgDesk extends BaseEntity {
+public class Desk extends BaseEntity {
 
     @ApiModelProperty(value = "桌台编码(1-10位 例如G26)")
     @Column(unique = true, columnDefinition = "varchar(10) comment '桌台编码(例如G26)'")
