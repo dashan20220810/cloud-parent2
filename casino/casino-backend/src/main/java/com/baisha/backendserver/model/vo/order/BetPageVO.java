@@ -1,4 +1,4 @@
-package com.baisha.backendserver.model.vo.bet;
+package com.baisha.backendserver.model.vo.order;
 
 
 import com.baisha.backendserver.model.vo.PageVO;
@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author yihui

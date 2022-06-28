@@ -158,7 +158,7 @@ public class TgBotController {
             if (!CollectionUtils.isEmpty(list)) {
                 List<DeskListBO> deskList = deskService.findAllDeskList();
                 for (TgGroupPageBO bo : list) {
-                    setTableCode(bo,deskList);
+                    setTableCode(bo, deskList);
                 }
                 page.put("content", list);
                 responseEntity.setData(page);
@@ -168,9 +168,9 @@ public class TgBotController {
     }
 
     private void setTableCode(TgGroupPageBO bo, List<DeskListBO> deskList) {
-        if(!CollectionUtils.isEmpty(deskList) && null !=bo.getTableId()){
-            for (DeskListBO deskListBO :deskList) {
-                if (bo.getTableId().equals(deskListBO.getTableId())){
+        if (!CollectionUtils.isEmpty(deskList) && null != bo.getTableId()) {
+            for (DeskListBO deskListBO : deskList) {
+                if (bo.getTableId().equals(deskListBO.getTableId())) {
                     bo.setDeskCode(deskListBO.getDeskCode());
                 }
             }
@@ -206,8 +206,8 @@ public class TgBotController {
             return ResponseUtil.fail();
         }
         Admin currentUser = commonService.getCurrentUser();
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
-                JSON.toJSONString(param), BackendConstants.TOBOT_MODULE);
+        log.info("{} {} 审核群(限红){} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                JSON.toJSONString(param), BackendConstants.TOBOT_GROUP_MODULE);
         return JSON.parseObject(result, ResponseEntity.class);
     }
 
