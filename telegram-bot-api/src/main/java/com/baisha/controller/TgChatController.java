@@ -31,11 +31,17 @@ public class TgChatController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageSize", value = "分页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "分页页码(默认1页)", required = false),
+            @ApiImplicitParam(name = "botId", value = "机器人ID", required = false),
+
     })
     @GetMapping("page")
-    public ResponseEntity<Page<TgChat>> page(Integer pageSize, Integer pageCode) {
+    public ResponseEntity<Page<TgChat>> page(Integer pageSize, Integer pageCode,Long botId) {
         Pageable pageable = TelegramBotUtil.setPageable(pageCode, pageSize);
-        Page<TgChat> page = tgChatService.pageByCondition(pageable, null);
+
+        TgChat tgChat = new TgChat();
+        tgChat.setBotId(botId);
+
+        Page<TgChat> page = tgChatService.pageByCondition(pageable, tgChat);
         return ResponseUtil.success(page);
 
     }

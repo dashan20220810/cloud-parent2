@@ -25,7 +25,7 @@ import javax.persistence.UniqueConstraint;
 public class TgChat extends BaseEntity {
 
     @ApiModelProperty(value = "群id",required = true)
-    private String chatId;
+    private Long chatId;
 
     @ApiModelProperty(value="机器人id",required = true)
     private Long botId;
@@ -41,7 +41,7 @@ public class TgChat extends BaseEntity {
 
     //业务属性
     @ApiModelProperty(value="状态 0禁用 1启用",required = true)
-    private Integer status=0;
+    private Integer status;
 
     @ApiModelProperty(name = "单注限红最低", required = true)
     private Integer minAmount;

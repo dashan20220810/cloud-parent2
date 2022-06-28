@@ -92,7 +92,7 @@ public class TelegramMessageHandler {
                 //注册成功推送消息
                 if (isSuccess) {
                     String username = user.getFirstName() == null ? "" : user.getFirstName() + user.getLastName() == null ? null : user.getLastName();
-                    showWords(user.getId(), bot, username, chat.getTitle());
+                    showWords(user.getId(), bot, username, chat);
                 }
             }
             return;
@@ -103,7 +103,7 @@ public class TelegramMessageHandler {
 
     }
 
-    private void showWords(Long userId, MyTelegramLongPollingBot bot, String userName, String chatName) {
+    private void showWords(Long userId, MyTelegramLongPollingBot bot, String userName, Chat chat) {
         // 获取唯一财务
         String customerResult = getCustomer(userId);
         // 获取唯一客服
@@ -113,7 +113,7 @@ public class TelegramMessageHandler {
         welcome.append(WELCOME1);
         welcome.append(userName);
         welcome.append(WELCOME2);
-        welcome.append(chatName);
+        welcome.append(chat.getTitle());
         welcome.append(WELCOME3);
         welcome.append(WELCOME4);
         welcome.append(WELCOME5);
@@ -123,7 +123,7 @@ public class TelegramMessageHandler {
         welcome.append(financeResult);
         welcome.append("\n");
         welcome.append(WELCOME7);
-        bot.sendMessage(welcome.toString(), "");
+        bot.sendMessage(welcome.toString(), chat.getId()+"");
     }
 
     private String getFinance(Long id) {

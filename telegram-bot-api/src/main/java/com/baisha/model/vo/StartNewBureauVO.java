@@ -19,13 +19,13 @@ import java.lang.reflect.Field;
 @ApiModel(value = "StartNewBureauVO对象", description = "开始新局-接收指令")
 public class StartNewBureauVO {
 
-    @ApiModelProperty(name = "图片地址", required = true)
+    @ApiModelProperty(value = "图片地址", required = true)
     private String imageAddress;
 
-    @ApiModelProperty(name = "桌台ID", required = true)
-    private String tableId;
+    @ApiModelProperty(value = "桌台ID", required = true)
+    private Long tableId;
 
-    @ApiModelProperty(name = "局号", required = true)
+    @ApiModelProperty(value = "局号", required = true)
     private String bureauNum;
 
 //    @ApiModelProperty(name = "单注限红最低", required = true)

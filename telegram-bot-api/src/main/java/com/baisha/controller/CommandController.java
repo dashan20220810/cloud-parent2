@@ -13,6 +13,8 @@ import com.baisha.service.TgBotService;
 import com.baisha.service.TgChatService;
 import com.baisha.util.Base64Utils;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +51,11 @@ public class CommandController {
     private TgBotBusiness tgBotBusiness;
 
     @ApiOperation("开始新局")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "imageAddress", value = "文件地址", required = true),
+//            @ApiImplicitParam(name = "tableId", value = "桌台ID", required = true),
+//            @ApiImplicitParam(name = "bureauNum", value = "局号", required = true),
+//    })
     @PostMapping("startNewBureau")
     public ResponseEntity receiveCommand(StartNewBureauVO vo) throws MalformedURLException, IllegalAccessException {
 
@@ -78,8 +85,8 @@ public class CommandController {
                     tgChat.getMaxAmount() + "", tgChat.getMaxShoeAmount() + "");
 
             //3.3： 每个桌台推送开局消息
-            myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(file))), tgChat.getChatId());
-            myBot.sendMessage(message, tgChat.getChatId());
+            myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(file))), tgChat.getChatId()+"");
+            myBot.sendMessage(message, tgChat.getChatId()+"");
         }
         return ResponseUtil.success();
     }

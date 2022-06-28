@@ -51,7 +51,7 @@ public class TgBotService {
         tgBotRepository.deleteById(id);
     }
 
-    @Cacheable(key="#p0")
+    @Cacheable(key="#p0",unless = "#result==null")
     public TgBot findById(Long botId) {
         Optional<TgBot> byId = tgBotRepository.findById(botId);
         if (byId.isPresent()) {

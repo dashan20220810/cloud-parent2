@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -51,11 +48,14 @@ public class TgChatService {
     public Page<TgChat> pageByCondition(Pageable pageable, TgChat tgChat) {
 
         //可扩展简单的动态条件
-//        ExampleMatcher matcher=null;
-        return tgChatRepository.findAll(pageable);
+        ExampleMatcher matcher=ExampleMatcher.matching()
+                .withMatcher("botId", ExampleMatcher.GenericPropertyMatchers.exact());
+
+        Example<TgChat> example = Example.of(tgChat, matcher);
+        return tgChatRepository.findAll(example,pageable);
     }
 
-    public List<TgChat> findByTableId(String tableId) {
+    public List<TgChat> findByTableId(Long tableId) {
         return tgChatRepository.findByTableId(tableId);
     }
 }
