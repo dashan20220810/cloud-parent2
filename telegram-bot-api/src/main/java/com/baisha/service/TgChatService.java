@@ -4,6 +4,7 @@ import com.baisha.model.TgChat;
 import com.baisha.repository.TgChatRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
@@ -57,5 +58,10 @@ public class TgChatService {
 
     public List<TgChat> findByTableId(Long tableId) {
         return tgChatRepository.findByTableId(tableId);
+    }
+
+    @CacheEvict(key="#p0")
+    public void deleteById(Long id) {
+        tgChatRepository.deleteById(id);
     }
 }

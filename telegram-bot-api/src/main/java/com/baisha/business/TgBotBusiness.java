@@ -62,32 +62,40 @@ public class TgBotBusiness {
         return this.botSerssionMap.get(username);
     }
 
-    public void updateBotSession(Long id, Integer status) {
+    public boolean updateBotSession(Long id, Integer status) {
         TgBot tgBot = tgBotService.findById(id);
-        BotSession botSession = this.getBotSession(tgBot.getBotName());
-        if (status == 0) {
-            // 禁用机器人
-            if (botSession != null && botSession.isRunning()) {
+        if (tgBot == null) {
+            return false;
+        }
+        if (Constants.open.equals(status)) {
+            return startupBot(tgBot.getBotName(), tgBot.getBotToken());
+        }
+        return shutdownBot(tgBot.getBotName(),tgBot.getBotToken());
+
+    }
+
+    private boolean shutdownBot(String botName,String token) {
+        //1.检测人池中是否有该机器人实例,有则停止
+        BotSession botSession = botSerssionMap.get(botName);
+        if (botSession != null) {
+            if (botSession.isRunning()) {
                 botSession.stop();
             }
-        } else {
-            // 开启机器人
-            if (botSession != null && !botSession.isRunning()) {
-                botSession.start();
-            }
         }
+
+        return true;
     }
 
     /**
      * 啟動機器人
      *
-     * @param username
+     * @param botName
      * @param token
      * @return
      */
-    public boolean startupBot(String username, String token) {
+    public boolean startupBot(String botName, String token) {
         //1.检测人池中是否有该机器人实例,有直接启动
-        BotSession botSession = botSerssionMap.get(username);
+        BotSession botSession = botSerssionMap.get(botName);
         if (botSession != null) {
             if (botSession.isRunning()) {
                 return true;
@@ -103,17 +111,17 @@ public class TgBotBusiness {
         //2. 没有实例创建一个机器人
         MyTelegramLongPollingBot myBot = null;
         try {
-            myBot = new MyTelegramLongPollingBot(username, token);
+            myBot = new MyTelegramLongPollingBot(botName, token);
             botSession = getBotsApiInstance().registerBot(myBot);
         } catch (TelegramApiException e) {
             e.printStackTrace();
-            log.error("启动机器人失败,username:{},token:{}", username, token);
+            log.error("启动机器人失败,username:{},token:{}", botName, token);
             return false;
         }
         if (botSession.isRunning()) {
             //新加機器人放入实例池中
-            botSerssionMap.put(username, botSession);
-            myBotMap.put(username, myBot);
+            botSerssionMap.put(botName, botSession);
+            myBotMap.put(botName, myBot);
             return true;
         }
         return false;

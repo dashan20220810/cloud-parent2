@@ -79,4 +79,14 @@ public class TgChatController {
         tgChatService.save(tgChat);
         return ResponseUtil.success();
     }
+
+    @ApiOperation("删除群组")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "chatId", value = "群组id", required = true),
+    })
+    @PostMapping("deleteById")
+    public ResponseEntity deleteById(Long chatId) {
+        tgChatService.deleteById(chatId);
+        return ResponseUtil.success();
+    }
 }

@@ -48,9 +48,6 @@ public class CommandController {
     @Autowired
     TgChatService tgChatService;
 
-    @Autowired
-    private TgBotBusiness tgBotBusiness;
-
     @ApiOperation("开始新局")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(name = "imageAddress", value = "文件地址", required = true),
@@ -86,6 +83,9 @@ public class CommandController {
                 continue;
             }
             MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgBot.getBotName());
+            if (myBot == null) {
+                continue;
+            }
             String message = buildStartMessage(vo.getBureauNum(), tgChat.getMinAmount() + "",
                     tgChat.getMaxAmount() + "", tgChat.getMaxShoeAmount() + "");
 

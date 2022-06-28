@@ -38,11 +38,7 @@ public class TgBotService {
 
     @CachePut(key = "#id")
     public TgBot updateStatusById(Long id, Integer status) {
-        Optional<TgBot> optionalTgBot = tgBotRepository.findById(id);
-        optionalTgBot.ifPresent(tgBot -> {
-            tgBot.setStatus(status);
-            tgBotRepository.save(tgBot);
-        });
+        tgBotRepository.updateStatusById(status,id);
         return tgBotRepository.findById(id).get();
     }
 
@@ -60,7 +56,7 @@ public class TgBotService {
         return null;
     }
 
-    public List<TgBot> findByStatus(Integer open) {
-        return tgBotRepository.findByStatus(open);
+    public List<TgBot> findByStatus(Integer status) {
+        return tgBotRepository.findByStatus(status);
     }
 }
