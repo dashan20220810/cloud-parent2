@@ -9,10 +9,13 @@ import lombok.Data;
  * @author yihui
  */
 @Data
-@ApiModel(value="后台-桌台分页请求对象")
+@ApiModel(value = "后台-桌台分页请求对象")
 public class DeskPageVO extends PageVO {
     @ApiModelProperty(value = "桌台编码(1-10位 例如G26)")
     private String deskCode;
+
+    @ApiModelProperty(value = "桌台名称(1-30位 例如 百家乐一台)")
+    private String deskName;
 
     @ApiModelProperty(value = "内网IP(1-20位)")
     private String localIp;

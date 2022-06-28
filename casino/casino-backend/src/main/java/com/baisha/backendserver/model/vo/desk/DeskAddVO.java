@@ -14,6 +14,9 @@ public class DeskAddVO {
     @ApiModelProperty(value = "桌台编码(1-10位 例如G26)", required = true)
     private String deskCode;
 
+    @ApiModelProperty(value = "桌台名称(1-30位 例如 百家乐一台)", required = true)
+    private String deskName;
+
     @ApiModelProperty(value = "内网IP(1-20位)", required = true)
     private String localIp;
 
