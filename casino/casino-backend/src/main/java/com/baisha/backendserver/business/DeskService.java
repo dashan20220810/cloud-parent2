@@ -45,11 +45,8 @@ public class DeskService {
                     JSONObject o = data.getJSONObject(i);
                     DeskListBO bo = new DeskListBO();
                     bo.setTableId(Long.parseLong(String.valueOf(o.get("id"))));
-                    if (null == o.get("deskName")) {
-                        bo.setDeskCode(o.getString("deskCode"));
-                    } else {
-                        bo.setDeskCode(o.getString("deskName") + "-" + o.getString("deskCode"));
-                    }
+                    bo.setDeskCode(o.getString("deskCode"));
+                    bo.setName(o.getString("name"));
                     deskList.add(bo);
                 }
             }

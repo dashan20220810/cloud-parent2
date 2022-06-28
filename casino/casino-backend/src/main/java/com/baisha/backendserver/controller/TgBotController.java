@@ -142,7 +142,6 @@ public class TgBotController {
             return ResponseUtil.parameterNotNull();
         }
         String url = tgBotServerUrl + TgBotServerConstants.GET_GROUP;
-
         StringBuffer sb = new StringBuffer();
         sb.append(url + "?pageNumber=" + vo.getPageNumber() +
                 "&pageSize=" + vo.getPageSize() + "&botId=" + vo.getId());
@@ -173,6 +172,7 @@ public class TgBotController {
             for (DeskListBO deskListBO : deskList) {
                 if (bo.getTableId().equals(deskListBO.getTableId())) {
                     bo.setDeskCode(deskListBO.getDeskCode());
+                    bo.setName(deskListBO.getName());
                 }
             }
         }

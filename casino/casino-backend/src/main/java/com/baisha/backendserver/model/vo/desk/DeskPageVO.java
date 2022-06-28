@@ -15,7 +15,7 @@ public class DeskPageVO extends PageVO {
     private String deskCode;
 
     @ApiModelProperty(value = "桌台名称(1-30位 例如 百家乐一台)")
-    private String deskName;
+    private String name;
 
     @ApiModelProperty(value = "内网IP(1-20位)")
     private String localIp;

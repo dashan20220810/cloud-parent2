@@ -23,6 +23,9 @@ public class TgGroupPageBO extends BaseBO {
     @ApiModelProperty(value = "桌台编码")
     private String deskCode;
 
+    @ApiModelProperty(value = "桌台名称")
+    private String name;
+
     @ApiModelProperty(value = "群名称")
     private String chatName;
 
