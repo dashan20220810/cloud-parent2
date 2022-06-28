@@ -4,6 +4,7 @@ import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.business.TgBotBusiness;
 import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
+import com.baisha.model.vo.BetCountdownVO;
 import com.baisha.model.vo.StartNewBureauVO;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
@@ -55,7 +56,7 @@ public class CommandController {
 //            @ApiImplicitParam(name = "bureauNum", value = "局号", required = true),
 //    })
     @PostMapping("startNewBureau")
-    public ResponseEntity receiveCommand(StartNewBureauVO vo) throws MalformedURLException, IllegalAccessException {
+    public ResponseEntity startNewBureau(StartNewBureauVO vo) throws MalformedURLException, IllegalAccessException {
 
         //第一步，验证参数有效性
         if (!StartNewBureauVO.check(vo)) {
@@ -92,6 +93,39 @@ public class CommandController {
             //3.3： 每个桌台推送开局消息
             myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(file))), tgChat.getChatId()+"");
             myBot.sendMessage(message, tgChat.getChatId()+"");
+        }
+        return ResponseUtil.success();
+    }
+
+    @ApiOperation("投注倒计时")
+    @PostMapping("betCountdown")
+    public ResponseEntity betCountdown(BetCountdownVO vo) throws MalformedURLException, IllegalAccessException {
+
+        //第一步，验证参数有效性
+        if (!BetCountdownVO.check(vo)) {
+            return ResponseUtil.parameterNotNull();
+        }
+
+        //第二步:根据参数中的桌台ID,找到绑定该桌台的有效的群
+        //TODO
+        List<TgChat> chatList = tgChatService.findByTableId(vo.getTableId());
+        if (CollectionUtils.isEmpty(chatList)) {
+            return ResponseUtil.success();
+        }
+
+        //第三步: 循环不同的桌群配置，组装不同的推送消息并发送
+        //TODO,找出所有需要发送的群ID。遍历执行发送（要求多线程）
+        URL file = new URL(vo.getImageAddress());
+        for (TgChat tgChat : chatList) {
+            //3.1。  找出机器人实例。
+            TgBot tgBot = tgBotService.findById(tgChat.getBotId());
+            if (tgBot == null) {
+                continue;
+            }
+            MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgBot.getBotName());
+
+            //3.3： 每个桌台推送消息
+            myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(file))), tgChat.getChatId()+"");
         }
         return ResponseUtil.success();
     }

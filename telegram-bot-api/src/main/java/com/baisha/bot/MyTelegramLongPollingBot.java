@@ -1,12 +1,13 @@
 package com.baisha.bot;
 
+import com.baisha.handle.TelegramCallbackQueryHandler;
 import com.baisha.handle.TelegramMessageHandler;
 import com.baisha.handle.TelegramMyChatMemberHandler;
 import com.baisha.util.TelegramBotUtil;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -38,6 +39,10 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
         return TelegramBotUtil.getTelegramMessageHandler();
     }
 
+    public TelegramCallbackQueryHandler getTelegramCallbackQueryHandler() {
+        return TelegramBotUtil.getTelegramCallbackQueryHandler();
+    }
+
     @Override
     public String getBotUsername() {
         return username;
@@ -63,7 +68,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
         }
 
         if (update.hasCallbackQuery()) {
-
+            getTelegramCallbackQueryHandler().callbackQueryHandler(this, update);
             return;
         }
 
@@ -90,6 +95,44 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     }
 
     /**
+     * TG弹框
+     *
+     * @param callbackQuery
+     * @param text
+     */
+    public void showAlert(CallbackQuery callbackQuery, String text) {
+        AnswerCallbackQuery callback = new AnswerCallbackQuery();
+        callback.setCallbackQueryId(callbackQuery.getId());
+        callback.setShowAlert(true);
+        callback.setCacheTime(5);
+        callback.setText(text);
+        // answerCallbackQuery.setUrl("https://telegram.me/pengrad_test_bot?game=pengrad_test_game");
+        try {
+            execute(callback);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 发送文字(回复)
+     *
+     * @param msg
+     */
+    public void sendMessage(String msg, String chatId, Integer messageId) {
+        SendMessage sm = new SendMessage();
+        sm.setChatId(chatId);
+        sm.setText(msg);
+        sm.setAllowSendingWithoutReply(false);
+        sm.setReplyToMessageId(messageId);
+        try {
+            execute(sm);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 发送文字
      *
      * @param msg
@@ -97,8 +140,8 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     public void sendMessage(String msg, String chatId) {
         SendMessage sm = new SendMessage();
         sm.setChatId(chatId);
-        sm.setAllowSendingWithoutReply(true);
         sm.setText(msg);
+        sm.setAllowSendingWithoutReply(true);
         try {
             execute(sm);
         } catch (TelegramApiException e) {

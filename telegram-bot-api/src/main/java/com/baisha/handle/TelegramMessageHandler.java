@@ -5,25 +5,28 @@ import com.alibaba.fastjson.JSONObject;
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
+import com.baisha.model.vo.TgBetVO;
 import com.baisha.modulecommon.Constants;
+import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.service.TgBotService;
 import com.baisha.service.TgChatService;
 import com.baisha.util.TelegramBotUtil;
 import com.baisha.util.TgHttpClient4Util;
 import com.baisha.util.enums.RequestPathEnum;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-import javax.persistence.criteria.From;
+import java.util.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +42,10 @@ public class TelegramMessageHandler {
     TgChatService tgChatService;
     @Autowired
     TgBotService tgBotService;
+    @Autowired
+    CommonHandler commonHandler;
 
-    public boolean registerEvery(User from,User user, Chat chat) {
+    public boolean registerEvery(MyTelegramLongPollingBot bot, User user, Chat chat, User from) {
         String userName = "";
         if (StrUtil.isNotEmpty(user.getFirstName())) {
             userName += user.getFirstName();
@@ -56,6 +61,7 @@ public class TelegramMessageHandler {
         if(!ObjectUtils.isEmpty(from)&&from.getId()!=null){
             param.put("inviteTgUserId",from.getId());
         }
+        param.put("tgGroupName", chat.getTitle());
         // 远程调用
         String requestUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_REGISTER_USER.getApiName();
         String forObject = TgHttpClient4Util.doPost(requestUrl, param, user.getId());
@@ -78,6 +84,7 @@ public class TelegramMessageHandler {
     public void messageHandler(MyTelegramLongPollingBot bot, Update update) {
         Message message = update.getMessage();
         Chat chat = message.getChat();
+        User from = message.getFrom();
 
         // 判断此群消息，是否审核通过。未通过不处理
         TgBot tgBot = tgBotService.findByBotName(bot.getBotUsername());
@@ -90,9 +97,8 @@ public class TelegramMessageHandler {
         //新会员绑定事件
         List<User> users = message.getNewChatMembers();
         if (!CollectionUtils.isEmpty(users)) {
-            User from=message.getFrom();
             for (User user : users) {
-                boolean isSuccess = registerEvery( from,user, chat);
+                boolean isSuccess = registerEvery(bot, user, chat, from);
                 //注册成功推送消息
                 if (isSuccess) {
                     showWords(user, bot, chat);
@@ -100,15 +106,70 @@ public class TelegramMessageHandler {
             }
             return;
         }
-
         // 下注
-//        tgUserBet(message);
+        boolean isSuccess = tgUserBet(message);
+        if (isSuccess) {
+            // 下注成功，回复会员
+            String textParam = getTextParam(from);
+            // 展示按钮
+            showButton(chat, bot, textParam, message.getMessageId());
+        }
+    }
 
+    private void showButton(Chat chat, MyTelegramLongPollingBot bot, String textParam, Integer messageId) {
+        SendMessage sp = new SendMessage();
+        sp.setChatId(chat.getId()+"");
+
+        sp.setText(textParam);
+        sp.setAllowSendingWithoutReply(false);
+        sp.setReplyToMessageId(messageId);
+
+        List<InlineKeyboardButton> firstRow = Lists.newArrayList();
+        // 查看余额
+        InlineKeyboardButton checkUserBalance = new InlineKeyboardButton();
+        checkUserBalance.setText("查看余额");
+        checkUserBalance.setCallbackData("查看余额");
+        // 唯一财务
+        InlineKeyboardButton onlyFinance = new InlineKeyboardButton();
+        onlyFinance.setText("唯一财务");
+        onlyFinance.setCallbackData("唯一财务");
+
+        firstRow.add(checkUserBalance);
+        firstRow.add(onlyFinance);
+
+        List<InlineKeyboardButton> secondRow = Lists.newArrayList();
+        // 白沙集团-博彩官方频道
+        InlineKeyboardButton officialChannel = new InlineKeyboardButton();
+        officialChannel.setText("白沙集团-博彩官方频道");
+        officialChannel.setCallbackData("白沙集团-博彩官方频道");
+        officialChannel.setUrl("http://wstgst-bc.live-gameclub.com/#/?G26");
+        secondRow.add(officialChannel);
+
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(firstRow);
+        rowList.add(secondRow);
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(rowList);
+        sp.setReplyMarkup(inlineKeyboardMarkup);
+        // 展示
+        bot.SendMessage(sp);
+    }
+
+    private String getTextParam(User user) {
+        StringBuilder reply = new StringBuilder();
+        reply.append(BET_SUCCESS);
+        reply.append("----------------------------\n");
+        reply.append("用户余额：");
+        // 查询用户余额
+        String userBalance = commonHandler.checkUserBalance(user.getId());
+        reply.append(userBalance);
+        return reply.toString();
     }
 
     private void showWords(User user, MyTelegramLongPollingBot bot, Chat chat) {
         // 获取唯一财务
-        String customerResult = getCustomer(user.getId());
+        String customerResult = commonHandler.getCustomer(user.getId());
         // 获取唯一客服
         String financeResult = getFinance(user.getId());
         // 注册成功之后的欢迎词
@@ -142,55 +203,74 @@ public class TelegramMessageHandler {
         return financeResult;
     }
 
-    private String getCustomer(Long userId) {
-        String customerUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_PROP_CUSTOMER.getApiName();
-        Map<String, Object> customerParam = Maps.newHashMap();
-        String customer = TgHttpClient4Util.doPost(customerUrl, customerParam, userId);
-        String customerResult = "";
-        if (StrUtil.isNotEmpty(customer)) {
-            ResponseEntity response = JSONObject.parseObject(customer, ResponseEntity.class);
-            customerResult = (String) response.getData();
+    public boolean tgUserBet(Message message) {
+        String originText = message.getText();
+        if (StrUtil.isEmpty(originText)) {
+            return false;
         }
-        return customerResult;
+        User user = message.getFrom();
+        Long id = user.getId();
+        Long chatId = message.getChatId();
+        // 开始调用
+        String requestUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_ORDER_BET.getApiName();
+        // 设置参数
+        Map<String, Object> param = Maps.newHashMap();
+        TgBetVO tgBetVO = parseBet(originText);
+        if (StrUtil.isEmpty(tgBetVO.getCommand()) || null == tgBetVO.getAmount()) {
+            return false;
+        }
+        param.put("betOption", tgBetVO.getCommand());
+        param.put("amount", tgBetVO.getAmount());
+        param.put("tgChatId", chatId);
+        TgChat tgChat = tgChatService.findByChatId(chatId);
+        if (null == tgChat || null == tgChat.getTableId()) {
+            return false;
+        }
+        param.put("tableId", tgChat.getTableId());
+
+        // 远程调用
+        String forObject = TgHttpClient4Util.doPost(requestUrl, param, id);
+        if (ObjectUtils.isEmpty(forObject)) {
+            log.error("{}桌{}群{}用户,下注:{},下注失败,原因HTTP请求 NULL",
+                    tgChat.getTableId(),
+                    chatId,
+                    id,
+                    originText);
+            return false;
+        }
+        ResponseEntity result = JSONObject.parseObject(forObject, ResponseEntity.class);
+        if (result.getCode() == 0) {
+            return true;
+        }
+        log.error("{}桌{}群{}用户,下注:{},下注失败,原因:{}",
+                tgChat.getTableId(),
+                chatId,
+                id,
+                originText,
+                result.getMsg());
+        return false;
     }
 
-
-//    public void tgUserBet(Message message) {
-//        // 输入的text
-//        String command = message.getText();
-//        if (StrUtil.isNotEmpty(command)) {
-//            User from = message.getFrom();
-//            String userName = "";
-//            String id = from.getId().toString();
-//            if (StrUtil.isNotEmpty(from.getFirstName())) {
-//                userName += from.getFirstName();
-//            }
-//            if (StrUtil.isNotEmpty(from.getLastName())) {
-//                userName += from.getLastName();
-//            }
-//            // 开始调用
-//            String requestUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_ORDER_BET.getApiName();
-//            // 设置请求参数
-//            Map<String, Object> param = Maps.newHashMap();
-//            param.put("name", id);
-//            param.put("nickname", userName);
-//            param.put("groupId", bot.getChatId());
-//            // 远程调用
-//            String forObject = TgHttpClient4Util.doPost(requestUrl, param, id);
-//            if (StrUtil.isNotEmpty(forObject)) {
-//                ResponseEntity result = JSONObject.parseObject(forObject, ResponseEntity.class);
-//                // 在telegram中提示文字
-//                if (result.getCode() == 0) {
-//                    bot.sendMessage(userName + " 注册会员成功！");
-//                } else {
-//                    bot.sendMessage(userName + " 注册会员失败！" + unicodeToString(result.getMsg()));
-//                }
-//                return;
-//            }
-//            bot.sendMessage(userName + " 注册会员失败！服务异常！");
-//
-//        }
-//    }
+    private TgBetVO parseBet(String originText) {
+        TgBetVO result = new TgBetVO();
+        try {
+            String text = originText.toUpperCase().replace(" ", "");
+            for (BetOption betOption : BetOption.getList()) {
+                Set<String> commands = betOption.getCommands();
+                for (String command : commands) {
+                    if (text.contains(command)) {
+                        Long amount = Long.parseLong(text.replace(command, ""));
+                        result.setCommand(betOption.name());
+                        result.setAmount(amount);
+                        return result;
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            return result;
+        }
+        return result;
+    }
 
     public static void main(String[] args) {
         String ss = "Z1000";
@@ -221,36 +301,6 @@ public class TelegramMessageHandler {
         }
         return str;
     }
-
-    /**
-     * 查询余额
-     * @param bucketName
-     * @param id
-     * @param chatId
-     * @return String
-     */
-//    public String checkMemberBalance(String bucketName, Long id, String chatId) {
-//        String text;
-//        try {
-//            // 组装参数
-//            String member = bucketName + "@TG" + id + "_" + chatId.substring(1);
-//            // 调用接口
-//            JSONObject result = APIHandler.checkBalance(member);
-//            String code = result.getString("ErrorCode");
-//            if (!code.equals("0")) {
-//                text = result.getString("ErrorMessage");
-//            } else {
-//                // 调用成功
-//                String memberName = result.getString("MemberName");
-//                String currency = result.getString("Currency");
-//                String balance = result.getString("Balance");
-//                text = "用户: " + memberName + ",\n" + "币种: " + currency + ",\n" + "余额: " + balance;
-//            }
-//        } catch (Throwable e) {
-//            text = e.getMessage();
-//        }
-//        return text;
-//    }
 
 //    int ready_counter = 0;
 //

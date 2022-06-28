@@ -50,10 +50,7 @@ public class TgBotService {
     @Cacheable(key="#p0",unless = "#result==null")
     public TgBot findById(Long botId) {
         Optional<TgBot> byId = tgBotRepository.findById(botId);
-        if (byId.isPresent()) {
-            return byId.get();
-        }
-        return null;
+        return byId.orElse(null);
     }
 
     public List<TgBot> findByStatus(Integer status) {

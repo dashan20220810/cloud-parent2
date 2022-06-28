@@ -1,12 +1,13 @@
 package com.baisha.util.constants;
 
 /**
- * 机器人常量
+ * 机器人、下注常量
  *
  * @author kimi
  */
 public class BotConstant {
 
+    public static final String BET_SUCCESS = "下注成功\n";
     public static final String OPEN_NEW_GAME = "OpenNewGame";
 
     public static final String WELCOME1 = "欢迎 ";

@@ -11,6 +11,7 @@ public enum RequestPathEnum {
     TELEGRAM_TG_CURRENT_ACTIVE("/g/currentActive"),
     TELEGRAM_TG_LIMIT_STAKES("/g/limitStakes"),
     TELEGRAM_ORDER_BET("/order/bet"),
+    TELEGRAM_USER_BALANCE("/user/balance"),
     ;
 
     /**

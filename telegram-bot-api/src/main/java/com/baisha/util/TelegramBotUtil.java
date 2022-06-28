@@ -1,5 +1,6 @@
 package com.baisha.util;
 
+import com.baisha.handle.TelegramCallbackQueryHandler;
 import com.baisha.handle.TelegramMessageHandler;
 import com.baisha.handle.TelegramMyChatMemberHandler;
 import com.baisha.service.TgChatService;
@@ -56,4 +57,8 @@ public class TelegramBotUtil {
 		return telegramMessageHandler;
 	}
 
+	public static TelegramCallbackQueryHandler telegramCallbackQueryHandler;
+	public static TelegramCallbackQueryHandler getTelegramCallbackQueryHandler() {
+		return telegramCallbackQueryHandler;
+	}
 }

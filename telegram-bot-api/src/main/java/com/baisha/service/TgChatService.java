@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@CacheConfig(cacheNames = "tgBot")
+@CacheConfig(cacheNames = "tgChat")
 @Service
 public class TgChatService {
 
@@ -63,5 +63,9 @@ public class TgChatService {
     @CacheEvict(key="#p0")
     public void deleteById(Long id) {
         tgChatRepository.deleteById(id);
+    }
+
+    public TgChat findByChatId(Long chatId) {
+        return tgChatRepository.findByChatId(chatId);
     }
 }

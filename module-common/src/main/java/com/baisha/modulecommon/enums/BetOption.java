@@ -11,12 +11,12 @@ public enum BetOption {
 	X(4, "闲", new String[] {"X", "闲"}),
 	H(5, "和", new String[] {"H", "和", "和局"}),
 	D(6, "对", new String[] {"D", "对", "对子"}),
-	SS(7, "幸运六", new String[] {"SS", "超六", "幸运六", "幸運六", "超6", "幸运6"}),
+	SS(7, "幸运六", new String[] {"SS", "超六", "幸运六", "超6", "幸运6"}),
 	SB(8, "三宝", new String[] {"SB", "三宝", "3宝"});
 
 	private final int order;
 	private final String display;
-	private final Set<String> alias;
+	private final Set<String> commands;
 
 	private static final List<BetOption> list;
 	static {
@@ -28,38 +28,17 @@ public enum BetOption {
 		return list;
 	}
 	
-	public static BetOption retrieveFromAlias (String alias) throws Exception {
-		
-		Optional<BetOption> bet = Arrays.stream(values())
-				.filter(betOption -> betOption.getAlias().contains(alias)).findAny();
-		
-		if ( bet.isPresent() ) {
-			return bet.get();
-		} else {
-			throw new Exception("alias不存在: " +alias);
-		}
-	}
-//	public static String getCommand(String command) {
-//		for (BetOption item : getList()) {
-//			if (item.alias.equals(command)) {
-//				return item.value;
-//			}
-//		}
-//		return null;
-//	}
-
-	public static void main(String[] args) {
-		String command = "Z1000";
-		getList().forEach(betOption -> {
-
-		});
-
+	public static BetOption getBetOption(String command) {
+		Optional<BetOption> bet = getList()
+									.stream()
+									.filter(betOption -> betOption.getCommands().contains(command)).findFirst();
+		return bet.orElse(null);
 	}
 	
-	BetOption(int order, String display, String[] aliasArray) {
+	BetOption(int order, String display, String[] commandsArray) {
 		this.order = order;
 		this.display = display;
-		this.alias = new HashSet<>(Arrays.asList(aliasArray));
+		this.commands = new HashSet<>(Arrays.asList(commandsArray));
 	}
 	
 	public int getOrder() {
@@ -70,7 +49,7 @@ public enum BetOption {
 		return display;
 	}
 	
-	public Set<String> getAlias() {
-		return alias;
+	public Set<String> getCommands() {
+		return commands;
 	}
 }

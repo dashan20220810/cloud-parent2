@@ -1,6 +1,7 @@
 package com.baisha.init;
 
 import com.baisha.business.TgBotBusiness;
+import com.baisha.handle.TelegramCallbackQueryHandler;
 import com.baisha.handle.TelegramMessageHandler;
 import com.baisha.handle.TelegramMyChatMemberHandler;
 import com.baisha.model.TgBot;
@@ -43,6 +44,8 @@ public class ApplicationRunnerInit implements ApplicationRunner {
                 SpringContextUtil.getBean(TelegramMyChatMemberHandler.class);
         TelegramBotUtil.telegramMessageHandler =
                 SpringContextUtil.getBean(TelegramMessageHandler.class);
+        TelegramBotUtil.telegramCallbackQueryHandler =
+                SpringContextUtil.getBean(TelegramCallbackQueryHandler.class);
 
         // 初始化-注册机器人到TelegramBotsApi
         // 根据状态status来过滤
