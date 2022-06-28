@@ -26,5 +26,11 @@ public class UserAddTelegramVO {
     @ApiModelProperty(value = "ip(长度3-128位)")
     private String ip;
 
+    @ApiModelProperty(value = "邀请人 TG用户ID")
+    private String inviteTgUserId;
+
+    @ApiModelProperty(value = "TG群名称")
+    private String tgGroupName;
+
 
 }

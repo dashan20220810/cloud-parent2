@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.Random;
 
 import static com.baisha.modulecommon.util.CommonUtil.checkNull;
 
@@ -149,7 +150,29 @@ public class UserServerUtil {
         return setPageable(pageCode, pageSize, null);
     }
 
-
+    /**
+     * 邀请码 大写加数字
+     * 默认8位数
+     *
+     * @return
+     */
+    public static String randomCode() {
+        int i = 23456789;
+        String s = "qwertyupasdfghjkzxcvbnm";
+        String S = s.toUpperCase();
+        String word = S + i;
+        // 获取包含26个字母大写和数字的字符数组
+        char[] c = word.toCharArray();
+        Random rd = new Random();
+        String code = "";
+        for (int k = 0; k < 8; k++) {
+            // 随机获取数组长度作为索引
+            int index = rd.nextInt(c.length);
+            // 循环添加到字符串后面
+            code += c[index];
+        }
+        return code;
+    }
 
    /* public static void main(String[] args) {
         String us = "111q11_Q```";

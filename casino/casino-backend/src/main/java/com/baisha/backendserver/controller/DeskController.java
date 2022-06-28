@@ -66,9 +66,28 @@ public class DeskController {
     @ApiOperation("获取桌台分页列表")
     @GetMapping(value = "page")
     public ResponseEntity<Page<DeskPageBO>> page(DeskPageVO vo) {
+        String url = gameServerUrl + GameServerConstants.DESK_PAGE;
+        StringBuffer sb = new StringBuffer();
+        sb.append(url);
+        sb.append("?pageNumber=" + vo.getPageNumber() + "&pageSize=" + vo.getPageSize());
+        if (StringUtils.isNotEmpty(vo.getDeskCode())) {
+            sb.append("&deskCode=" + vo.getDeskCode());
+        }
+        if (StringUtils.isNotEmpty(vo.getGameCode())) {
+            sb.append("&gameCode=" + vo.getGameCode());
+        }
+        if (StringUtils.isNotEmpty(vo.getLocalIp())) {
+            sb.append("&localIp=" + vo.getLocalIp());
+        }
+        if (null != vo.getStatus()) {
+            sb.append("&status=" + vo.getStatus());
+        }
 
-
-        return ResponseUtil.success();
+        String result = HttpClient4Util.doGet(sb.toString());
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
+        return JSON.parseObject(result, ResponseEntity.class);
     }
 
     @ApiOperation("获取桌台游戏编码列表")

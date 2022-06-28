@@ -92,6 +92,7 @@ public class UserController {
                 relation.setUserName(user.getUserName());
                 relation.setTgUserId(vo.getTgUserId());
                 relation.setTgGroupId(vo.getTgGroupId());
+                relation.setTgGroupName(vo.getTgGroupName());
                 relationService.save(relation);
             }
         }
@@ -107,8 +108,17 @@ public class UserController {
         user.setOrigin(UserOriginEnum.TG_ORIGIN.getOrigin());
         user.setTgUserId(vo.getTgUserId());
         user.setTgGroupId(vo.getTgGroupId());
+        user.setTgGroupName(vo.getTgGroupName());
+        user.setInviteCode(UserServerUtil.randomCode());
         user.setCreateBy(vo.getUserName());
         user.setUpdateBy(vo.getUserName());
+        //是否有tg的邀请人 先用邀请人的tgUserId查询是否存在
+        if (StringUtils.isNotEmpty(vo.getInviteTgUserId())) {
+            User inviteUser = userService.findByUserName(vo.getInviteTgUserId());
+            if (Objects.nonNull(inviteUser)) {
+                user.setInviteUserId(inviteUser.getId());
+            }
+        }
         return user;
     }
 
@@ -189,9 +199,9 @@ public class UserController {
         if (StringUtils.isEmpty(vo.getTgUserId())) {
             return new ResponseEntity("TG用户ID为空");
         }
-        if (StringUtils.isEmpty(vo.getTgGroupId())) {
+        /*if (StringUtils.isEmpty(vo.getTgGroupId())) {
             return new ResponseEntity("TG群ID为空");
-        }
+        }*/
         vo.setUserName(vo.getTgUserId());
         User user = userService.findByUserName(vo.getUserName());
         if (Objects.isNull(user)) {

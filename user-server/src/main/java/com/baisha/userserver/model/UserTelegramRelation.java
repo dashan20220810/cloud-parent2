@@ -37,6 +37,10 @@ public class UserTelegramRelation extends BaseEntity {
     @Column(columnDefinition = "varchar(64) comment 'TG群ID'")
     private String tgGroupId;
 
+    @ApiModelProperty(value = "TG群名称")
+    @Column(columnDefinition = "varchar(64) comment 'TG群名称'")
+    private String tgGroupName;
+
     @ApiModelProperty(value = "状态 1 正常 ，0离开")
     @Column(columnDefinition = "tinyint(2) comment '状态 1 正常 ，0离开'")
     private Integer status = 1;

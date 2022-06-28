@@ -14,12 +14,12 @@ import javax.persistence.Column;
 public class UserSearchVO {
 
     @ApiModelProperty(value = "用户名(非TG用户必传,优先匹配)")
-    String userName;
+    private String userName;
 
     @ApiModelProperty(value = "TG用户ID(TG用户查询必传)")
     private String tgUserId;
 
-    @ApiModelProperty(value = "TG群ID(TG用户查询必传)")
-    private String tgGroupId;
+    /*@ApiModelProperty(value = "TG群ID(TG用户查询必传)")
+    private String tgGroupId;*/
 
 }

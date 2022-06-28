@@ -32,4 +32,9 @@ public class TgBotServerConstants {
      */
     public static final String GROUP_AUDIT = "/tgChat/audit";
 
+    /**
+     * 机器人与TG群关系删除
+     */
+    public static final String GROUP_DELETEBYID = "/tgChat/deleteById";
+
 }

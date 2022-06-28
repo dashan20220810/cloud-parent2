@@ -41,6 +41,10 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "varchar(64) comment 'TG群ID'")
     private String tgGroupId;
 
+    @ApiModelProperty(value = "TG群名称")
+    @Column(columnDefinition = "varchar(64) comment 'TG群名称'")
+    private String tgGroupName;
+
     @ApiModelProperty(value = "IP")
     @Column(columnDefinition = "varchar(130) comment 'IP'")
     private String ip;
@@ -52,6 +56,14 @@ public class User extends BaseEntity {
     @ApiModelProperty(value = "来源")
     @Column(columnDefinition = "varchar(20) comment '来源'")
     private String origin;
+
+    @ApiModelProperty(value = "邀请码")
+    @Column(columnDefinition = "varchar(10) comment '邀请码'")
+    private String inviteCode;
+
+    @ApiModelProperty(value = "邀请人会员ID")
+    @Column(columnDefinition = "bigint(11) comment '邀请人会员ID'")
+    private Long inviteUserId;
 
 
     /**

@@ -13,6 +13,11 @@ public class GameServerConstants {
     public static final String DESK_LIST = "/desk/all";
 
     /**
+     * 桌台分页列表
+     */
+    public static final String DESK_PAGE = "/desk/page";
+
+    /**
      * 桌台新增
      */
     public static final String DESK_ADD = "/desk/add";

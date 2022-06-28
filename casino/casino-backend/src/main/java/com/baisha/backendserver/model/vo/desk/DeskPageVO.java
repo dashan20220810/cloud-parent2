@@ -17,9 +17,6 @@ public class DeskPageVO extends PageVO {
     @ApiModelProperty(value = "内网IP(1-20位)")
     private String localIp;
 
-    @ApiModelProperty(value = "游戏视频地址")
-    private String videoAddress;
-
     @ApiModelProperty(value = "状态 1 正常 ，0禁用")
     private Integer status;
 

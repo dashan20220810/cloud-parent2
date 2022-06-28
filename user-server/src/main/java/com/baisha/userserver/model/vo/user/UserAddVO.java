@@ -34,4 +34,10 @@ public class UserAddVO {
     @ApiModelProperty(value = "TG群ID")
     private String tgGroupId;
 
+    @ApiModelProperty(value = "邀请人 TG用户ID")
+    private String inviteTgUserId;
+
+    @ApiModelProperty(value = "TG群名称")
+    private String tgGroupName;
+
 }

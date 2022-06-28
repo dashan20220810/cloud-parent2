@@ -16,6 +16,7 @@ import com.baisha.backendserver.model.vo.tgBot.TgBotPageVO;
 import com.baisha.backendserver.model.vo.tgBot.TgGroupPageVO;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
+import com.baisha.backendserver.util.constants.GameServerConstants;
 import com.baisha.backendserver.util.constants.TgBotServerConstants;
 import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.modulecommon.Constants;
@@ -237,6 +238,25 @@ public class TgBotController {
             }
         }
         return vo;
+    }
+
+    @ApiOperation("机器人与TG群关系删除")
+    @PostMapping(value = "group/delete")
+    public ResponseEntity deleteGroup(IdVO vo) {
+        if (null == vo.getId() || vo.getId() < 0) {
+            return ResponseUtil.parameterNotNull();
+        }
+        String url = tgBotServerUrl + TgBotServerConstants.GROUP_DELETEBYID;
+        Map<String, Object> param = new HashMap<>(16);
+        param.put("deskId", vo.getId());
+        String result = HttpClient4Util.doPost(url, param);
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
+        Admin currentUser = commonService.getCurrentUser();
+        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.DELETE,
+                JSON.toJSONString(param), BackendConstants.TOBOT_GROUP_MODULE);
+        return JSON.parseObject(result, ResponseEntity.class);
     }
 
 
