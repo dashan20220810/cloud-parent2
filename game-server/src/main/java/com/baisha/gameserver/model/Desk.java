@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * @author sys
  */
@@ -26,10 +28,6 @@ public class Desk extends BaseEntity {
     @Column(columnDefinition = "varchar(20) comment '内网IP'")
     private String localIp;
 
-    @ApiModelProperty(value = "内网端口")
-    @Column(columnDefinition = "smallint(7) comment '内网端口'")
-    private Integer port;
-
     @ApiModelProperty(value = "游戏视频地址")
     @Column(columnDefinition = "varchar(100) comment '游戏视频地址'")
     private String videoAddress;
@@ -42,5 +40,34 @@ public class Desk extends BaseEntity {
     @Column(columnDefinition = "varchar(10) comment '游戏编码'")
     private String gameCode = "bacc";
 
+    /**
+     * 检核下注请求
+     * @param bet
+     * @return
+     */
+    public static boolean checkRequest ( Desk desk ) {
+    	
+    	if ( StringUtils.isBlank(desk.getDeskCode()) ) {
+    		log.warn(" deskCode required!! ");
+    		return false;
+    	}
+
+    	if ( StringUtils.isBlank(desk.getLocalIp()) ) {
+    		log.warn(" localIp required!! ");
+    		return false;
+    	}
+
+    	if ( StringUtils.isBlank(desk.getGameCode()) ) {
+    		log.warn(" gameCode required!! ");
+    		return false;
+    	}
+
+    	if ( desk.getStatus()==null ) {
+    		log.warn(" status required!! ");
+    		return false;
+    	}
+    	
+    	return true;
+    }
 
 }

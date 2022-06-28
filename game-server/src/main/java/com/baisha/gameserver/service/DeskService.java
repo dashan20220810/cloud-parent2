@@ -29,12 +29,16 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-@CacheConfig(cacheNames = "desk::id")
+@CacheConfig(cacheNames = "desk")
 @Transactional(rollbackFor = Exception.class)
 public class DeskService {
 
     @Autowired
     private DeskRepository tgDeskRepository;
+    
+    public void save ( Desk desk ) {
+    	tgDeskRepository.save(desk);
+    }
 
     public List<Desk> findAllDeskList() {
         return tgDeskRepository.findAllDeskList();
@@ -48,6 +52,12 @@ public class DeskService {
     @Cacheable(key = "#deskCode", unless = "#result == null")
     public Desk findByDeskCode ( String deskCode ) {
     	return tgDeskRepository.findByDeskCode(deskCode);
+    }
+
+    @Cacheable(key = "#id", unless = "#result == null")
+    public Desk findById ( Long id ) {
+        Optional<Desk> optional = tgDeskRepository.findById(id);
+        return optional.orElse(null);
     }
 
 
