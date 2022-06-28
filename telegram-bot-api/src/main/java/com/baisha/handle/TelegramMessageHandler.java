@@ -39,9 +39,8 @@ public class TelegramMessageHandler {
     @Autowired
     TgBotService tgBotService;
 
-    public boolean registerEvery(MyTelegramLongPollingBot bot, User user, Chat chat) {
+    public boolean registerEvery(User user, Chat chat) {
         String userName = "";
-        String id = user.getId().toString();
         if (StrUtil.isNotEmpty(user.getFirstName())) {
             userName += user.getFirstName();
         }
@@ -88,11 +87,10 @@ public class TelegramMessageHandler {
         List<User> users = message.getNewChatMembers();
         if (!CollectionUtils.isEmpty(users)) {
             for (User user : users) {
-                boolean isSuccess = registerEvery(bot, user, chat);
+                boolean isSuccess = registerEvery( user, chat);
                 //注册成功推送消息
                 if (isSuccess) {
-                    String username = user.getFirstName() == null ? "" : user.getFirstName() + user.getLastName() == null ? null : user.getLastName();
-                    showWords(user.getId(), bot, username, chat);
+                    showWords(user, bot, chat);
                 }
             }
             return;
@@ -103,15 +101,16 @@ public class TelegramMessageHandler {
 
     }
 
-    private void showWords(Long userId, MyTelegramLongPollingBot bot, String userName, Chat chat) {
+    private void showWords(User user, MyTelegramLongPollingBot bot, Chat chat) {
         // 获取唯一财务
-        String customerResult = getCustomer(userId);
+        String customerResult = getCustomer(user.getId());
         // 获取唯一客服
-        String financeResult = getFinance(userId);
+        String financeResult = getFinance(user.getId());
         // 注册成功之后的欢迎词
         StringBuilder welcome = new StringBuilder();
         welcome.append(WELCOME1);
-        welcome.append(userName);
+        String username = (user.getFirstName() == null ? "" : user.getFirstName()) + (user.getLastName() == null ? "" : user.getLastName());
+        welcome.append(username);
         welcome.append(WELCOME2);
         welcome.append(chat.getTitle());
         welcome.append(WELCOME3);
