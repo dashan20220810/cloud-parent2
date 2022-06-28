@@ -8,8 +8,9 @@ public class BackendConstants {
 
     public static final String USER_MODULE = "会员";
     public static final String TOBOT_MODULE = "机器人";
+    public static final String TOBOT_GROUP_MODULE = "机器人下的群";
     public static final String ADMIN_MODULE = "管理员";
     public static final String SYS_TELEGRAM_MODULE = "系统电报设置";
-    public static final String TELEGRAM_BOUND_MODULE = "电报限红设置";
+    public static final String DESK_MODULE = "桌台";
 
 }

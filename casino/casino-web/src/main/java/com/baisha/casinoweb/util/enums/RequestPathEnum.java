@@ -30,6 +30,8 @@ public enum RequestPathEnum {
     DESK_QUERY_BY_LOCAL_IP("/desk/queryByLocalIp"),
     /** 查询桌台 by DeskCode */
     DESK_QUERY_BY_DESK_CODE("/desk/queryByDeskCode"),
+    /** 查询桌台 by id */
+    DESK_QUERY_BY_ID("/desk/queryById"),
     
     /*
      * 後台

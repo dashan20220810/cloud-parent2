@@ -31,26 +31,27 @@ public class OrderBusiness {
 	@Autowired
 	private GameInfoBusiness gameInfoBusiness;
 	
-	public boolean bet ( boolean isTgRequest, Long tgChatId, String clientIP, Long userId, BetOption betOption, 
+	public boolean bet ( boolean isTgRequest, Long tableId, Long tgChatId, String clientIP, Long userId, BetOption betOption, 
 			Long amount, String noRun, String noActive ) {
 		
 		log.info("下注");
-//		GameInfo gameInfo = gameInfoBusiness.getGameInfo(tgChatId);
-//		
-//		if ( gameInfo==null ) {
-//    		log.warn("下注 失败 无游戏资讯");
-//			return false;
-//		}
-//		
-//		if ( StringUtils.equals(noActive, gameInfo.getCurrentActive())==false ) {
-//    		log.warn("下注 失败 局号不符, {}", noActive);
-//			return false;
-//		}
-//		
-//		if ( gameInfo.getStatus()!=GameStatusEnum.Betting) {
-//    		log.warn("下注 失败 非下注状态, {}", gameInfo.getStatus().toString());
-//			return false;
-//		}
+		JSONObject desk = queryDesk(tableId);
+		GameInfo gameInfo = gameInfoBusiness.getGameInfo(desk.getJSONObject("data").getString("deskCode"));
+		
+		if ( gameInfo==null ) {
+    		log.warn("下注 失败 无游戏资讯");
+			return false;
+		}
+		
+		if ( StringUtils.equals(noActive, gameInfo.getCurrentActive())==false ) {
+    		log.warn("下注 失败 局号不符, {}", noActive);
+			return false;
+		}
+		
+		if ( gameInfo.getStatus()!=GameStatusEnum.Betting) {
+    		log.warn("下注 失败 非下注状态, {}", gameInfo.getStatus().toString());
+			return false;
+		}
 
 		// 记录IP
     	Map<String, Object> params = new HashMap<>();
@@ -88,5 +89,37 @@ public class OrderBusiness {
 		return true;
 	}
 	
+    
+    /**
+     * game server查桌台号
+     * @return
+     */
+	private JSONObject queryDesk ( Long tableId ) {
 
+    	log.info("查桌台号");
+    	Map<String, Object> params = new HashMap<>();
+
+		log.info("tableId: {}", tableId);
+		params.put("tableId", tableId);
+
+		String result = HttpClient4Util.doPost(
+				gameServerDomain + RequestPathEnum.DESK_QUERY_BY_ID.getApiName(),
+				params);
+
+        if (CommonUtil.checkNull(result)) {
+    		log.warn("查桌台号 失败");
+            return null;
+        }
+        
+		JSONObject json = JSONObject.parseObject(result);
+		Integer code = json.getInteger("code");
+
+		if ( code!=0 ) {
+    		log.warn("查桌台号 失败, {}", json.toString());
+            return null;
+		}
+
+    	log.info("查桌台号 成功");
+		return json.getJSONObject("data");
+    }
 }

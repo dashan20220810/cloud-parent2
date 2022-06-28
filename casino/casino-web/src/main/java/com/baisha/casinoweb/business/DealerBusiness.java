@@ -154,6 +154,7 @@ public class DealerBusiness {
     	Map<String, Object> params = new HashMap<>();
 		String localIp = IpUtil.getIp(CasinoWebUtil.getRequest());
 
+		log.info("ip: {}", localIp);
 		params.put("localIp", localIp);
 
 		String result = HttpClient4Util.doPost(

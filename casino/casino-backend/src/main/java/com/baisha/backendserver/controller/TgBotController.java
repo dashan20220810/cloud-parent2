@@ -1,8 +1,12 @@
 package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baisha.backendserver.business.CommonService;
+import com.baisha.backendserver.business.DeskService;
 import com.baisha.backendserver.model.Admin;
+import com.baisha.backendserver.model.bo.desk.DeskListBO;
 import com.baisha.backendserver.model.bo.tgBot.TgBotPageBO;
 import com.baisha.backendserver.model.bo.tgBot.TgGroupPageBO;
 import com.baisha.backendserver.model.vo.IdVO;
@@ -27,12 +31,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -49,6 +55,8 @@ public class TgBotController {
     private String tgBotServerUrl;
     @Autowired
     private CommonService commonService;
+    @Autowired
+    private DeskService deskService;
 
     @ApiOperation("新开机器人")
     @ApiImplicitParams({
@@ -144,26 +152,29 @@ public class TgBotController {
         }
 
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        return responseEntity;
-        /*JSONObject page = (JSONObject) responseEntity.getData();
+        JSONObject page = (JSONObject) responseEntity.getData();
         if (Objects.nonNull(page)) {
             List<TgGroupPageBO> list = JSONArray.parseArray(page.getString("content"), TgGroupPageBO.class);
             if (!CollectionUtils.isEmpty(list)) {
-                //获取设置过的限红
+                List<DeskListBO> deskList = deskService.findAllDeskList();
                 for (TgGroupPageBO bo : list) {
-                    String tgGroupId = bo.getChatId();
-                    TgGroupBound groupBound = tgGroupBoundService.findByTgGroupId(tgGroupId);
-                    if (Objects.nonNull(groupBound)) {
-                        bo.setMinAmount(groupBound.getMinAmount());
-                        bo.setMaxAmount(groupBound.getMaxAmount());
-                        bo.setMaxShoeAmount(groupBound.getMaxShoeAmount());
-                    }
+                    setTableCode(bo, deskList);
                 }
                 page.put("content", list);
                 responseEntity.setData(page);
             }
-        }*/
+        }
+        return responseEntity;
+    }
 
+    private void setTableCode(TgGroupPageBO bo, List<DeskListBO> deskList) {
+        if (!CollectionUtils.isEmpty(deskList) && null != bo.getTableId()) {
+            for (DeskListBO deskListBO : deskList) {
+                if (bo.getTableId().equals(deskListBO.getTableId())) {
+                    bo.setDeskCode(deskListBO.getDeskCode());
+                }
+            }
+        }
     }
 
     @ApiOperation(("机器人与TG群关系审核"))
@@ -195,8 +206,8 @@ public class TgBotController {
             return ResponseUtil.fail();
         }
         Admin currentUser = commonService.getCurrentUser();
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
-                JSON.toJSONString(param), BackendConstants.TOBOT_MODULE);
+        log.info("{} {} 审核群(限红){} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                JSON.toJSONString(param), BackendConstants.TOBOT_GROUP_MODULE);
         return JSON.parseObject(result, ResponseEntity.class);
     }
 

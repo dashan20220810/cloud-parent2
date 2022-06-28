@@ -50,6 +50,9 @@ public class OrderController {
     		return ResponseUtil.fail();
     	}
     	
+    	// TODO 以table id查deskcode，deskcode查局号
+    	
+    	
     	//  user id查user
     	String userIdOrName = CasinoWebUtil.getCurrentUserId();
     	UserVO userVO = userBusiness.getUserVO(isTgRequest, userIdOrName, betVO.getTgChatId() );
@@ -67,7 +70,7 @@ public class OrderController {
 		// 记录IP
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
 		//	TODO 輪/局號 應來自荷官端，不得從請求中代入
-    	boolean betResult = orderBusiness.bet(isTgRequest, betVO.getTgChatId()
+    	boolean betResult = orderBusiness.bet(isTgRequest, betVO.getTableId(), betVO.getTgChatId()
     			, ip, userVO.getId(), betVO.getBetOption(), betVO.getAmount(), "00001", "00001");
     	if ( betResult==false ) {
             return ResponseUtil.fail();
