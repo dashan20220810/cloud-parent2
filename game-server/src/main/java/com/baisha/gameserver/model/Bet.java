@@ -51,7 +51,7 @@ public class Bet extends BaseEntity{
     private String noRun;
 
     @ApiModelProperty("游戏局号")
-    @Column(name="no_active", columnDefinition="VARCHAR(50) COMMENT '游戏局号'")
+    @Column(name="no_active", nullable=false, columnDefinition="VARCHAR(50) COMMENT '游戏局号'")
     private String noActive;
 
     @ApiModelProperty("注單狀態(1.下注成功)")

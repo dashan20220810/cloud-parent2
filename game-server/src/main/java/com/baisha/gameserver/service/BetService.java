@@ -1,6 +1,7 @@
 package com.baisha.gameserver.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +13,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -69,4 +72,17 @@ public class BetService {
         Page<Bet> page = betRepository.findAll(spec, pageable);
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }
+
+	public List<Bet> findAllByUserIdAndCreateTimeBetween ( Long userId, Date createBeginTime, Date createEndTime ) {
+		return betRepository.findAllByUserIdAndCreateTimeBetween(userId, createBeginTime, createEndTime);
+	}
+	
+	/**
+	 * 近期20笔
+	 * @param userId
+	 * @return
+	 */
+	public List<Bet> findAllByUserId ( Long userId ) {
+		return betRepository.findAllByUserId(userId, PageRequest.of(0, 20, Sort.by("createTime").descending()));
+	}
 }

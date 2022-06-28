@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import com.baisha.gameserver.enums.GameType;
 import com.baisha.gameserver.model.Desk;
 
 public interface DeskRepository extends JpaRepository<Desk, Long>, JpaSpecificationExecutor<Desk> {

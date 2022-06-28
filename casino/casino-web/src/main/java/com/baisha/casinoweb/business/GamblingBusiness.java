@@ -1,7 +1,5 @@
 package com.baisha.casinoweb.business;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,11 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.core.constants.RedisKeyConstants;
-import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.DateUtil;
-import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulespringcacheredis.util.RedisUtil;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +23,12 @@ public class GamblingBusiness {
 
 	@Value("${project.server-url.backend-server-domain}")
 	private String backendServerDomain;
-	
-    @Value("${project.server-url.game-server-domain}")
-    private String gameServerDomain;
 
     @Autowired
     private RedisUtil redisUtil;
+    
+    @Autowired
+    private DeskBusiness deskBusiness;
 
     public Map<Object, Object> getTelegramSet() {
         return redisUtil.hmget(RedisKeyConstants.SYS_TELEGRAM);
@@ -43,13 +38,13 @@ public class GamblingBusiness {
 //    private TelegramService telegramService;
 	
 	/**
-	 * 当前局号
+	 * 产生新局号
 	 * @param tgChatId
 	 * @return
 	 */
-	public String currentActive ( String deskCode ) {
+	public String generateNewActive ( String deskCode ) {
 		
-		JSONObject desk = queryDesk(deskCode);
+		JSONObject desk = deskBusiness.queryDeskByDeskCode(deskCode);
 		if ( desk==null ) {
 			return null;
 		}
@@ -90,40 +85,4 @@ public class GamblingBusiness {
 //		return telegramService.getLimitStakes( tgChatId.toString() );
 //	}
 
-    
-    /**
-     * game server查桌台号
-     * @return
-     */
-    private JSONObject queryDesk( String deskCode ) {
-
-    	log.info("查桌台号");
-//    	Map<String, Object> params = new HashMap<>();
-//		params.put("deskCode", deskCode);
-
-		String result = null;
-		try {
-			result = HttpClient4Util.doGet(
-					gameServerDomain + RequestPathEnum.DESK_QUERY_BY_DESK_CODE.getApiName() +"?deskCode=" +URLEncoder.encode(deskCode, "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-    		log.error("查桌台号 失败", e);
-            return null;
-		}
-
-        if (CommonUtil.checkNull(result)) {
-    		log.warn("查桌台号 失败");
-            return null;
-        }
-        
-		JSONObject json = JSONObject.parseObject(result);
-		Integer code = json.getInteger("code");
-
-		if ( code!=0 ) {
-    		log.warn("查桌台号 失败, {}", json.toString());
-            return null;
-		}
-
-    	log.info("查桌台号 成功");
-		return json.getJSONObject("data");
-    }
 }

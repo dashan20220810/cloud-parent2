@@ -1,7 +1,5 @@
 package com.baisha.casinoweb.business;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,16 +9,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.casinoweb.util.CasinoWebUtil;
-import com.baisha.casinoweb.util.ThreadPool;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.casinoweb.util.enums.TgImageEnum;
-import com.baisha.casinoweb.util.task.SendTg;
 import com.baisha.core.service.TelegramService;
 import com.baisha.modulecommon.enums.GameStatusEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
-import com.baisha.modulecommon.util.IpUtil;
 import com.baisha.modulecommon.vo.GameInfo;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +25,6 @@ public class DealerBusiness {
 	
     @Value("${project.server-url.telegram-server-domain}")
     private String telegramServerDomain;
-	
-    @Value("${project.server-url.game-server-domain}")
-    private String gameServerDomain;
 
     @Autowired
     private TelegramService telegramService;
@@ -43,6 +34,9 @@ public class DealerBusiness {
     
     @Autowired
     private GameInfoBusiness gameInfoBusiness;
+    
+    @Autowired
+    private DeskBusiness deskBusiness;
 
     /**
      * 开新局
@@ -55,7 +49,7 @@ public class DealerBusiness {
     	Map<Object, Object> sysTgMap = telegramService.getTelegramSet();
     	String openNewGameUrl = (String) sysTgMap.get(TgImageEnum.OpenNewGame.getKey());
 //    	LimitStakesVO limitStakesVO = telegramService.getLimitStakes(String.valueOf(gameId));
-    	JSONObject desk = queryDesk();
+    	JSONObject desk = deskBusiness.queryDeskByIp();
     	if ( desk==null ) {
     		log.warn("开新局 失败, 查无桌台");
     		return false;
@@ -63,18 +57,21 @@ public class DealerBusiness {
     	
     	Long deskId = desk.getLong("id");
     	String deskCode = desk.getString("deskCode");
-    	String currentActive = gamblingBusiness.currentActive(deskCode);
+    	String newActive = gamblingBusiness.generateNewActive(deskCode);
+    	Map<Object, Object> tgSet = telegramService.getTelegramSet();
+    	Integer counterInit = (Integer) tgSet.get("startBetSeventySeconds");
     	
 		// 记录IP
     	Map<String, Object> params = new HashMap<>();
-		params.put("bureauNum", currentActive);
+		params.put("bureauNum", newActive);
 		params.put("tableId", deskId);
 		params.put("imageAddress", openNewGameUrl);
+		params.put("", (String) tgSet.get("seventySecondsUrl"));
 //		params.put("minAmount", limitStakesVO.getMinAmount());
 //		params.put("maxAmount", limitStakesVO.getMaxAmount());
 //		params.put("maxShoeAmount", limitStakesVO.getMaxShoeAmount());
 
-		log.info("局号、桌台id、新局图片url: {}, {}, {}", currentActive, deskId, openNewGameUrl);
+		log.info("局号、桌台id、新局图片url: {}, {}, {}", newActive, deskId, openNewGameUrl);
 		String result = HttpClient4Util.doPost(
 				telegramServerDomain + RequestPathEnum.TG_OPEN_NEW_GAME.getApiName(),
 				params);
@@ -92,36 +89,36 @@ public class DealerBusiness {
             return false;
 		}
 		
-//		betting(deskCode, currentActive); // TODO
+		betting(deskCode, newActive, deskId, counterInit); 
 
     	log.info("开新局 成功");
 		return true;
     }
     
-    private boolean betting ( String deskCode, String currentActive ) {
+    private boolean betting ( String deskCode, String newActive, Long tableId, Integer counterInit ) {
     	
     	Date now = new Date();
 
     	log.info("下注中 倒数计时");
     	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
-    	gameInfo.setCurrentActive(currentActive);
+    	gameInfo.setCurrentActive(newActive);
     	gameInfo.setBeginTime(now);
     	gameInfo.setStatus(GameStatusEnum.Betting);		// 状态: 下注中
     	gameInfoBusiness.setGameInfo(deskCode, gameInfo);
-
-    	Map<Object, Object> tgSet = telegramService.getTelegramSet();
-    	Integer counterInit = (Integer) tgSet.get("startBetSeventySeconds");
     	
     	for ( int counter= counterInit; counter >= 0; counter-- ) {
     		if ( counter%10==0 ) {
     	    	log.info("下注中 倒数计时 {}秒", counter);
     		}
     		
-    		if ( counter==counterInit ) {
-    			String s70Url = (String) tgSet.get("seventySecondsUrl");
-    			ThreadPool.getInstance().putThread(new SendTg(telegramServerDomain +RequestPathEnum.TG_SEND_ANIMATION.getApiName()
-    				, s70Url));
-    		}
+//    		if ( counter==counterInit ) {
+//    			String s70Url = (String) tgSet.get("seventySecondsUrl");
+//    			Map<String, Object> requestParams = new HashMap<>();
+//    			requestParams.put("imageAddress", s70Url);
+//    			requestParams.put("tableId", tableId);
+//    			ThreadPool.getInstance().putThread(new SendTg(telegramServerDomain +RequestPathEnum.TG_SEND_ANIMATION.getApiName()
+//    				, requestParams));
+//    		}
     		
 //    		if ( counter==20 ) {
 //    			String s20Url = "http://192.168.26.24:9000/user/s20.mp4"; // TODO get s20.mp4
@@ -147,43 +144,5 @@ public class DealerBusiness {
     	return true;
     }
     
-    /**
-     * game server查桌台号
-     * @return
-     */
-    private JSONObject queryDesk() {
-
-    	log.info("查桌台号");
-//    	Map<String, Object> params = new HashMap<>();
-		String localIp = IpUtil.getIp(CasinoWebUtil.getRequest());
-
-		log.info("ip: {}", localIp);
-//		params.put("localIp", localIp);
-
-		String result = null;
-		try {
-			result = HttpClient4Util.doGet(
-					gameServerDomain + RequestPathEnum.DESK_QUERY_BY_LOCAL_IP.getApiName() +"?localIp=" +URLEncoder.encode(localIp, "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-    		log.error("查桌台号 失败", e);
-            return null;
-		}
-
-        if (CommonUtil.checkNull(result)) {
-    		log.warn("查桌台号 失败");
-            return null;
-        }
-        
-		JSONObject json = JSONObject.parseObject(result);
-		Integer code = json.getInteger("code");
-
-		if ( code!=0 ) {
-    		log.warn("查桌台号 失败, {}", json.toString());
-            return null;
-		}
-
-    	log.info("查桌台号 成功");
-		return json.getJSONObject("data");
-    }
     
 }

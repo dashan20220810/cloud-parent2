@@ -1,19 +1,26 @@
 package com.baisha.casinoweb.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baisha.casinoweb.business.AssetsBusiness;
+import com.baisha.casinoweb.business.DeskBusiness;
+import com.baisha.casinoweb.business.GameInfoBusiness;
 import com.baisha.casinoweb.business.OrderBusiness;
 import com.baisha.casinoweb.business.UserBusiness;
-import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.model.vo.BetVO;
 import com.baisha.casinoweb.model.vo.UserVO;
+import com.baisha.casinoweb.model.vo.response.BetResponseVO;
+import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.IpUtil;
+import com.baisha.modulecommon.vo.GameInfo;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,6 +43,12 @@ public class OrderController {
 	
 	@Autowired
 	private OrderBusiness orderBusiness;
+	
+	@Autowired
+	private DeskBusiness deskBusiness;
+	
+	@Autowired 
+	private GameInfoBusiness gameInfoBusiness;
 
     @PostMapping("bet")
     @ApiOperation("下注")
@@ -51,19 +64,26 @@ public class OrderController {
     	}
     	
     	// TODO 以table id查deskcode，deskcode查局号
-    	
+    	JSONObject deskJson = deskBusiness.queryDeskById(betVO.getTableId());
+    	if ( deskJson==null ) {
+    		log.warn("[下注] 桌台号查无资料, table id: {}", betVO.getTableId());
+            return ResponseUtil.fail();
+    	}
+    	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskJson.getString("deskCode"));
     	
     	//  user id查user
     	String userIdOrName = CasinoWebUtil.getCurrentUserId();
-    	UserVO userVO = userBusiness.getUserVO(isTgRequest, userIdOrName, betVO.getTgChatId() );
+    	UserVO userVO = userBusiness.getUserVO(isTgRequest, userIdOrName);
     	
     	if ( userVO==null ) {
+    		log.warn("[下注] user查无资料, id: {}", userIdOrName);
             return ResponseUtil.fail();
     	}
 
     	//  呼叫
     	//	会员管理-下分api
     	if ( assetsBusiness.withdraw(userVO.getId(), betVO.getAmount())==false ) {
+    		log.warn("[下注] 下分失败");
             return ResponseUtil.fail();
     	}
     	
@@ -71,7 +91,7 @@ public class OrderController {
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
 		//	TODO 輪/局號 應來自荷官端，不得從請求中代入
     	boolean betResult = orderBusiness.bet(isTgRequest, betVO.getTableId(), betVO.getTgChatId()
-    			, ip, userVO.getId(), betVO.getBetOption(), betVO.getAmount(), "00001", "00001");
+    			, ip, userVO.getId(), betVO.getBetOption(), betVO.getAmount(), "00001", gameInfo.getCurrentActive());
     	if ( betResult==false ) {
             return ResponseUtil.fail();
     	}
@@ -79,5 +99,16 @@ public class OrderController {
 		log.info("[下注] 成功");
         return ResponseUtil.success();
     }
-	
+
+
+    @PostMapping("currentList")
+    @ApiOperation(("近期订单"))
+    public ResponseEntity<List<BetResponseVO>> currentList() {
+		log.info("近期订单");
+		JSONObject result = orderBusiness.currentOrderList();
+        if ( result==null ) {
+            return ResponseUtil.fail();
+        }
+        return ResponseUtil.success(result);
+    }
 }

@@ -1,6 +1,5 @@
 package com.baisha.casinoweb.util.task;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
@@ -13,24 +12,21 @@ import lombok.extern.slf4j.Slf4j;
 public class SendTg implements Runnable{
 	
 	private String domain;
-	private String aniUrl;
+	private Map<String, Object> postRequest;
 	
-	public SendTg ( String domain, String aniUrl ) {
+	public SendTg ( String domain, Map<String, Object> postRequest ) {
 		this.domain = domain;
-		this.aniUrl = aniUrl;
+		this.postRequest = postRequest;
 	}
 	
 	@Override
 	public void run() {
 
-		log.info("呼叫SendTg, {}", aniUrl);
-		// 记录IP
-    	Map<String, Object> params = new HashMap<>();
-		params.put("", aniUrl);
+		log.info("呼叫SendTg, {}", domain);
 
 		String result = HttpClient4Util.doPost(
 				domain,
-				params);
+				postRequest);
 
         if (CommonUtil.checkNull(result)) {
     		log.warn("呼叫SendTg 失败");

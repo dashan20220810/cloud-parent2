@@ -24,16 +24,16 @@ public class UserBusiness {
 	private String tgRegisterPassword;
 	
 	public UserVO getUserVO( String userIdOrName ) {
-		return getUserVO( false, userIdOrName, null );
+		return getUserVO( false, userIdOrName );
 	}
 	
-	public UserVO getUserVO( boolean isTelegramRequest, String userId, Long tgChatId ) {
+	public UserVO getUserVO( boolean isTelegramRequest, String userId ) {
 
     	//  user id查user
     	UserVO userVO = null;
     	
     	if ( isTelegramRequest ) {
-        	userVO = CasinoWebUtil.getUserVO(userServerDomain, userId, tgChatId);
+        	userVO = CasinoWebUtil.getUserVO(userServerDomain, userId);
         	if ( userVO==null ) {
         		//	token中查无user资料
                 return null;
@@ -49,13 +49,15 @@ public class UserBusiness {
     	return userVO;
 	}
 
-	public boolean registerTG( String clientIP, String id, String nickName, Long groupId ) {
+	public boolean registerTG( String clientIP, String id, String nickName, Long groupId, String inviteTgUserId, String tgGroupName ) {
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("ip", clientIP);
 		params.put("tgUserId", id);
 		params.put("tgGroupId", groupId);
 		params.put("nickName", nickName);
+		params.put("inviteTgUserId", inviteTgUserId);
+		params.put("tgGroupName", tgGroupName);
 		params.put("password", tgRegisterPassword);
 		params.put("origin", UserOriginEnum.TG_ORIGIN.getOrigin());
 

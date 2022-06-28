@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import javax.persistence.criteria.Predicate;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -20,7 +19,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.baisha.gameserver.enums.GameType;
 import com.baisha.gameserver.model.Desk;
 import com.baisha.gameserver.repository.DeskRepository;
 import com.baisha.gameserver.vo.DeskPageVO;
@@ -83,6 +81,10 @@ public class DeskService {
             
             if ( vo.getDeskCode()!=null ) {
                 predicates.add(cb.equal(root.get("deskCode"), vo.getDeskCode() ));
+            }
+            
+            if ( vo.getName()!=null ) {
+                predicates.add(cb.equal(root.get("name"), vo.getName() ));
             }
 
             if ( vo.getLocalIp()!=null ) {

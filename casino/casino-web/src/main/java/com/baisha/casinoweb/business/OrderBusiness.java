@@ -1,7 +1,5 @@
 package com.baisha.casinoweb.business;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baisha.casinoweb.model.vo.UserVO;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.enums.BetOption;
@@ -26,18 +25,24 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class OrderBusiness {
-
-	@Value("${project.server-url.game-server-domain}")
-	private String gameServerDomain;
 	
+    @Value("${project.server-url.game-server-domain}")
+    private String gameServerDomain;
+
 	@Autowired
 	private GameInfoBusiness gameInfoBusiness;
+	
+	@Autowired
+	private UserBusiness userBusiness;
+	
+	@Autowired
+	private DeskBusiness deskBusiness;
 	
 	public boolean bet ( boolean isTgRequest, Long tableId, Long tgChatId, String clientIP, Long userId, BetOption betOption, 
 			Long amount, String noRun, String noActive ) {
 		
 		log.info("下注");
-		JSONObject desk = queryDesk(tableId);
+		JSONObject desk = deskBusiness.queryDeskById(tableId);
 		GameInfo gameInfo = gameInfoBusiness.getGameInfo(desk.getJSONObject("data").getString("deskCode"));
 		
 		if ( gameInfo==null ) {
@@ -91,42 +96,24 @@ public class OrderBusiness {
 		return true;
 	}
 	
-    
-    /**
-     * game server查桌台号
-     * @return
-     */
-	private JSONObject queryDesk ( Long tableId ) {
-
-    	log.info("查桌台号");
-//    	Map<String, Object> params = new HashMap<>();
-
-		log.info("tableId: {}", tableId);
-//		params.put("tableId", tableId);
-
-		String result = null;
-		try {
-			result = HttpClient4Util.doGet(
-					gameServerDomain + RequestPathEnum.DESK_QUERY_BY_ID.getApiName() +"?tableId=" +URLEncoder.encode(String.valueOf(tableId), "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-    		log.error("查桌台号 失败", e);
+	public JSONObject currentOrderList () {
+    	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
+    	//  user id查user
+    	String userIdOrName = CasinoWebUtil.getCurrentUserId();
+    	UserVO userVO = userBusiness.getUserVO(isTgRequest, userIdOrName);
+    	
+    	if ( userVO==null ) {
+    		log.info("近期订单 失败 查不到玩家资料");
             return null;
-		}
+    	}
 
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", userVO.getId());
+        String result = HttpClient4Util.doPost(gameServerDomain + RequestPathEnum.ORDER_CURRENT_LIST, params);
         if (CommonUtil.checkNull(result)) {
-    		log.warn("查桌台号 失败");
             return null;
         }
-        
-		JSONObject json = JSONObject.parseObject(result);
-		Integer code = json.getInteger("code");
-
-		if ( code!=0 ) {
-    		log.warn("查桌台号 失败, {}", json.toString());
-            return null;
-		}
-
-    	log.info("查桌台号 成功");
-		return json.getJSONObject("data");
-    }
+        return JSONObject.parseObject(result);
+	}
+    
 }

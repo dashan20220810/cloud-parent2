@@ -16,8 +16,8 @@ import lombok.Data;
 @ApiModel(value = "桌台请求对象")
 public class DeskVO {
 
-    @ApiModelProperty(required=true, value = "桌台编码(1-10位 例如G26)")
-    private String deskCode;
+    @ApiModelProperty(required=true, value = "桌台名称")
+    private String name;
 
     @ApiModelProperty(required=true, value = "内网IP(1-20位)")
     private String localIp;

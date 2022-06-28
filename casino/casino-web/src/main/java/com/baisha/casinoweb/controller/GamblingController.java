@@ -32,7 +32,7 @@ public class GamblingController {
     public ResponseEntity<String> currentActive(String deskCode) {
 
 		log.info("[当前局号]");
-		String result = gamblingBusiness.currentActive(deskCode);
+		String result = gamblingBusiness.generateNewActive(deskCode);
     	if ( result==null ) {
 			log.warn("当前局号 失敗");
             return ResponseUtil.fail();

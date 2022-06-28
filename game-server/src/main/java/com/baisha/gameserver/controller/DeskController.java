@@ -151,7 +151,7 @@ public class DeskController {
 		log.info("[桌台更新] ");
     	Desk desk = deskVO.generateDesk();
     	
-    	if ( Desk.checkRequest(desk)==false ) {
+    	if ( Desk.checkUpdateRequest(desk)==false ) {
     		log.info("[桌台更新] 检核失败");
     		return ResponseUtil.fail();
     	}

@@ -48,7 +48,7 @@ public class ApplicationTestRunner implements ApplicationRunner {
     				params);
     		log.info(result.toString());
 
-        	String currentActive = gamblingBusiness.currentActive("G02");
+        	String currentActive = gamblingBusiness.generateNewActive("G02");
         	String openNewGameUrl = "http://192.168.26.24:9000/user/open_new_game.jpg";
     		// 记录IP
         	params = new HashMap<>();

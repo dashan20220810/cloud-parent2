@@ -11,8 +11,8 @@ import org.apache.commons.lang3.StringUtils;
  * @author yihui
  */
 public enum GameType {
-    BACC("bacc", "百家乐"),
-    LONGHU("longhu", "龙虎");
+    BACC("BACC", "百家乐"),
+    LONGHU("LONGHU", "龙虎");
 
     private String code;
     private String name;
