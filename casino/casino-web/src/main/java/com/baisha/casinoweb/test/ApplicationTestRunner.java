@@ -10,6 +10,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import com.baisha.casinoweb.business.DealerBusiness;
+import com.baisha.casinoweb.business.GamblingBusiness;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.util.HttpClient4Util;
@@ -29,6 +30,9 @@ public class ApplicationTestRunner implements ApplicationRunner {
 	
 	@Autowired
 	private DealerBusiness dealerBusiness;
+    
+    @Autowired
+    private GamblingBusiness gamblingBusiness;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -43,6 +47,20 @@ public class ApplicationTestRunner implements ApplicationRunner {
     				"http://127.0.0.1:9401/dealer/openNewGame",
     				params);
     		log.info(result.toString());
+
+        	String currentActive = gamblingBusiness.currentActive("G02");
+        	String openNewGameUrl = "http://192.168.26.24:9000/user/open_new_game.jpg";
+    		// 记录IP
+        	params = new HashMap<>();
+    		params.put("bureauNum", currentActive);
+    		params.put("tableId", 2);
+    		params.put("imageAddress", openNewGameUrl);
+
+    		log.info("局号、桌台id、新局图片url: {}, {}, {}", currentActive, 2, openNewGameUrl);
+    		result = HttpClient4Util.doPost(
+    				telegramServerDomain + RequestPathEnum.TG_OPEN_NEW_GAME.getApiName(),
+    				params);
+
     		
     		try {
 				Thread.sleep(60*1000);

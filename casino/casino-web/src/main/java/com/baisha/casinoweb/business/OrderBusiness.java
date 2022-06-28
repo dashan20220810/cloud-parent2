@@ -1,5 +1,7 @@
 package com.baisha.casinoweb.business;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -97,14 +99,19 @@ public class OrderBusiness {
 	private JSONObject queryDesk ( Long tableId ) {
 
     	log.info("查桌台号");
-    	Map<String, Object> params = new HashMap<>();
+//    	Map<String, Object> params = new HashMap<>();
 
 		log.info("tableId: {}", tableId);
-		params.put("tableId", tableId);
+//		params.put("tableId", tableId);
 
-		String result = HttpClient4Util.doPost(
-				gameServerDomain + RequestPathEnum.DESK_QUERY_BY_ID.getApiName(),
-				params);
+		String result = null;
+		try {
+			result = HttpClient4Util.doGet(
+					gameServerDomain + RequestPathEnum.DESK_QUERY_BY_ID.getApiName() +"?tableId=" +URLEncoder.encode(String.valueOf(tableId), "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+    		log.error("查桌台号 失败", e);
+            return null;
+		}
 
         if (CommonUtil.checkNull(result)) {
     		log.warn("查桌台号 失败");

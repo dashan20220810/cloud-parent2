@@ -1,5 +1,7 @@
 package com.baisha.casinoweb.business;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,12 +68,13 @@ public class DealerBusiness {
 		// 记录IP
     	Map<String, Object> params = new HashMap<>();
 		params.put("bureauNum", currentActive);
-		params.put("tableNo", deskId);
+		params.put("tableId", deskId);
 		params.put("imageAddress", openNewGameUrl);
 //		params.put("minAmount", limitStakesVO.getMinAmount());
 //		params.put("maxAmount", limitStakesVO.getMaxAmount());
 //		params.put("maxShoeAmount", limitStakesVO.getMaxShoeAmount());
 
+		log.info("局号、桌台id、新局图片url: {}, {}, {}", currentActive, deskId, openNewGameUrl);
 		String result = HttpClient4Util.doPost(
 				telegramServerDomain + RequestPathEnum.TG_OPEN_NEW_GAME.getApiName(),
 				params);
@@ -151,15 +154,20 @@ public class DealerBusiness {
     private JSONObject queryDesk() {
 
     	log.info("查桌台号");
-    	Map<String, Object> params = new HashMap<>();
+//    	Map<String, Object> params = new HashMap<>();
 		String localIp = IpUtil.getIp(CasinoWebUtil.getRequest());
 
 		log.info("ip: {}", localIp);
-		params.put("localIp", localIp);
+//		params.put("localIp", localIp);
 
-		String result = HttpClient4Util.doPost(
-				gameServerDomain + RequestPathEnum.DESK_QUERY_BY_LOCAL_IP.getApiName(),
-				params);
+		String result = null;
+		try {
+			result = HttpClient4Util.doGet(
+					gameServerDomain + RequestPathEnum.DESK_QUERY_BY_LOCAL_IP.getApiName() +"?localIp=" +URLEncoder.encode(localIp, "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+    		log.error("查桌台号 失败", e);
+            return null;
+		}
 
         if (CommonUtil.checkNull(result)) {
     		log.warn("查桌台号 失败");

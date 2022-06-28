@@ -1,5 +1,8 @@
 package com.baisha.gameserver.enums;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -46,5 +49,9 @@ public enum GameType {
             }
         }
         return null;
+    }
+    
+    public static List<GameType> getList() {
+    	return Arrays.asList(values());
     }
 }

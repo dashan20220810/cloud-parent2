@@ -7,8 +7,11 @@ import java.util.Optional;
 
 import javax.persistence.criteria.Predicate;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -17,6 +20,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.baisha.gameserver.enums.GameType;
 import com.baisha.gameserver.model.Desk;
 import com.baisha.gameserver.repository.DeskRepository;
 import com.baisha.gameserver.vo.DeskPageVO;
@@ -34,32 +38,40 @@ import lombok.extern.slf4j.Slf4j;
 public class DeskService {
 
     @Autowired
-    private DeskRepository tgDeskRepository;
-    
+    private DeskRepository deskRepository;
+
+    @CachePut(value = "desk", key = "#desk.id")
     public void save ( Desk desk ) {
-    	tgDeskRepository.save(desk);
+    	deskRepository.save(desk);
     }
 
     public List<Desk> findAllDeskList() {
-        return tgDeskRepository.findAllDeskList();
+        return deskRepository.findAllDeskList();
     }
 
-    @Cacheable(key = "#localIp", unless = "#result == null")
     public Desk findByLocalIp ( String localIp ) {
-    	return tgDeskRepository.findByLocalIp(localIp);
+    	return deskRepository.findByLocalIp(localIp);
     }
 
-    @Cacheable(key = "#deskCode", unless = "#result == null")
     public Desk findByDeskCode ( String deskCode ) {
-    	return tgDeskRepository.findByDeskCode(deskCode);
+    	return deskRepository.findByDeskCode(deskCode);
     }
 
     @Cacheable(key = "#id", unless = "#result == null")
     public Desk findById ( Long id ) {
-        Optional<Desk> optional = tgDeskRepository.findById(id);
+        Optional<Desk> optional = deskRepository.findById(id);
         return optional.orElse(null);
     }
 
+    @CacheEvict(key = "#id")
+    public void delete ( Long id ) {
+    	deskRepository.deleteById(id);
+    }
+    
+    @CachePut(key = "#id")
+    public int updateStatus ( Long id, Integer status ) {
+    	return deskRepository.updateStatusById(status, id);
+    }
 
     public Page<Desk> getDeskPage(DeskPageVO vo) {
         Pageable pageable = PageUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
@@ -69,11 +81,36 @@ public class DeskService {
 //                predicates.add(cb.like(root.get("userName"), "%" +vo.getUserName() +"%"));
 //            }
             
+            if ( vo.getDeskCode()!=null ) {
+                predicates.add(cb.equal(root.get("deskCode"), vo.getDeskCode() ));
+            }
+
+            if ( vo.getLocalIp()!=null ) {
+                predicates.add(cb.equal(root.get("localIp"), vo.getLocalIp() ));
+            }
+
+            if ( vo.getVideoAddress()!=null ) {
+                predicates.add(cb.equal(root.get("videoAddress"), vo.getVideoAddress() ));
+            }
+
+            if ( vo.getStatus()!=null ) {
+                predicates.add(cb.equal(root.get("status"), vo.getStatus() ));
+            }
+
+            if ( vo.getGameCode()!=null ) {
+                predicates.add(cb.equal(root.get("gameCode"), vo.getGameCode() ));
+            }
+            
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };
         
-        Page<Desk> page = tgDeskRepository.findAll(spec, pageable);
+        Page<Desk> page = deskRepository.findAll(spec, pageable);
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
+    }
+    
+    @CachePut(key = "#id")
+    public int update ( Long id, String localIp, String videoAddress, String gameCode, Integer status ) {
+    	return deskRepository.update(id, localIp, videoAddress, gameCode, status);
     }
 
 }
