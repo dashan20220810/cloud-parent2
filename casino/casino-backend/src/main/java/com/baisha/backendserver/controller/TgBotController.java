@@ -248,7 +248,7 @@ public class TgBotController {
         }
         String url = tgBotServerUrl + TgBotServerConstants.GROUP_DELETEBYID;
         Map<String, Object> param = new HashMap<>(16);
-        param.put("deskId", vo.getId());
+        param.put("chatId", vo.getId());
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();

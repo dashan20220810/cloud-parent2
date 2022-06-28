@@ -14,8 +14,8 @@ public class DeskUpdateVO {
     @ApiModelProperty(value = "ID", required = true)
     private Long id;
 
-    @ApiModelProperty(value = "桌台编码(1-10位 例如G26)", required = true)
-    private String deskCode;
+    /*@ApiModelProperty(value = "桌台编码(1-10位 例如G26)", required = true)
+    private String deskCode;*/
 
     @ApiModelProperty(value = "内网IP(1-20位)", required = true)
     private String localIp;

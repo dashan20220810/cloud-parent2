@@ -165,7 +165,7 @@ public class DeskController {
     @ApiOperation("桌台编辑")
     @PostMapping(value = "update")
     public ResponseEntity update(DeskUpdateVO vo) {
-        if (CommonUtil.checkNull(vo.getDeskCode(), vo.getGameCode(), vo.getLocalIp())
+        if (CommonUtil.checkNull(vo.getGameCode(), vo.getLocalIp())
                 || null == vo.getStatus()
                 || null == vo.getId()) {
             return ResponseUtil.parameterNotNull();
