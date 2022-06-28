@@ -23,6 +23,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import javax.persistence.criteria.From;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class TelegramMessageHandler {
     @Autowired
     TgBotService tgBotService;
 
-    public boolean registerEvery(User user, Chat chat) {
+    public boolean registerEvery(User from,User user, Chat chat) {
         String userName = "";
         if (StrUtil.isNotEmpty(user.getFirstName())) {
             userName += user.getFirstName();
@@ -52,6 +53,9 @@ public class TelegramMessageHandler {
         param.put("id", user.getId());
         param.put("nickname", userName);
         param.put("groupId", chat.getId());
+        if(!ObjectUtils.isEmpty(from)&&from.getId()!=null){
+            param.put("inviteTgUserId",from.getId());
+        }
         // 远程调用
         String requestUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_REGISTER_USER.getApiName();
         String forObject = TgHttpClient4Util.doPost(requestUrl, param, user.getId());
@@ -86,8 +90,9 @@ public class TelegramMessageHandler {
         //新会员绑定事件
         List<User> users = message.getNewChatMembers();
         if (!CollectionUtils.isEmpty(users)) {
+            User from=message.getFrom();
             for (User user : users) {
-                boolean isSuccess = registerEvery( user, chat);
+                boolean isSuccess = registerEvery( from,user, chat);
                 //注册成功推送消息
                 if (isSuccess) {
                     showWords(user, bot, chat);
