@@ -23,12 +23,12 @@ public class BotConstant {
     public static final String GAME_RULE3 = "如 庄1000(Z1000)  闲2000(X2000)\n";
     public static final String GAME_RULE4 = "或以字母代替：Z(庄)  X(闲)  H(和)  ZD(庄对)  XD(闲对)  D(庄对 闲对)  SB(庄对 闲对 和)  SS(幸运6)进行投注\n";
     public static final String GAME_RULE5 = "-----------------------\n";
-    public static final String GAME_RULE6 = """ 
-        <p style="color:red">!!!</p> 限红：单注 
+    public static final String GAME_RULE6 = """
+            <strong>!!!</strong> 限红：单注
             """;
     public static final String GAME_RULE7 = "-";
     public static final String GAME_RULE8 = "  当局最高";
-    public static final String GAME_RULE9 = "(美金) !!!\n";
+    public static final String GAME_RULE9 = "(美金) <strong>!!!</strong>\n";
     public static final String GAME_RULE10 = "-----------------------\n";
     public static final String GAME_RULE11 = "本群百家乐使用 先发6张牌 后下注的游戏方式，请放心娱乐";
 

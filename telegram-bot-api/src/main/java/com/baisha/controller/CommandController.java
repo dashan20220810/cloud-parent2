@@ -81,7 +81,7 @@ public class CommandController {
 
             //3.3： 每个桌台推送开局消息
             myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(imageAddress))), tgChat.getChatId()+"");
-            myBot.sendMessage(message, tgChat.getChatId()+"");
+            myBot.SendMessageHtml(message, tgChat.getChatId()+"");
             // 倒计时视频
             myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(countdownAddress))), tgChat.getChatId()+"");
         }

@@ -211,7 +211,7 @@ public class TelegramMessageHandler {
         param.put("tableId", tgChat.getTableId());
         param.put("minAmount", tgChat.getMinAmount());
         param.put("maxAmount", tgChat.getMaxAmount());
-        param.put("maxShoeAmount;", tgChat.getMaxShoeAmount());
+        param.put("maxShoeAmount", tgChat.getMaxShoeAmount());
 
         // 远程调用
         String forObject = TgHttpClient4Util.doPost(requestUrl, param, userId);
