@@ -2,6 +2,7 @@ package com.baisha.handle;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baisha.model.vo.ConfigInfo;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.util.TelegramBotUtil;
 import com.baisha.util.TgHttpClient4Util;
@@ -23,20 +24,24 @@ public class CommonHandler {
         String userBalanceResult = "";
         if (StrUtil.isNotEmpty(userBalance)) {
             ResponseEntity response = JSONObject.parseObject(userBalance, ResponseEntity.class);
-            userBalanceResult = (String) response.getData();
+            if (response.getCode() == 0) {
+                userBalanceResult = (String) response.getData();
+            }
         }
         return userBalanceResult;
     }
 
-    public String getCustomer(Long userId) {
-        String customerUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_PROP_CUSTOMER.getApiName();
-        Map<String, Object> customerParam = Maps.newHashMap();
-        String customer = TgHttpClient4Util.doPost(customerUrl, customerParam, userId);
-        String customerResult = "";
-        if (StrUtil.isNotEmpty(customer)) {
-            ResponseEntity response = JSONObject.parseObject(customer, ResponseEntity.class);
-            customerResult = (String) response.getData();
+    public ConfigInfo getConfigInfo(Long userId) {
+        ConfigInfo configInfo = new ConfigInfo();
+        String configUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_PROP_MAP.getApiName();
+        Map<String, Object> configParam = Maps.newHashMap();
+        String config = TgHttpClient4Util.doPost(configUrl, configParam, userId);
+        if (StrUtil.isNotEmpty(config)) {
+            ResponseEntity response = JSONObject.parseObject(config, ResponseEntity.class);
+            if (response.getCode() == 0) {
+                configInfo = JSONObject.parseObject(response.getData().toString(), ConfigInfo.class);
+            }
         }
-        return customerResult;
+        return configInfo;
     }
 }

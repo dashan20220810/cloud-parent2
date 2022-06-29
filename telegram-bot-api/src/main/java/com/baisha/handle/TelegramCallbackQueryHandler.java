@@ -2,6 +2,7 @@ package com.baisha.handle;
 
 import cn.hutool.core.util.StrUtil;
 import com.baisha.bot.MyTelegramLongPollingBot;
+import com.baisha.model.vo.ConfigInfo;
 import com.baisha.service.TgBotService;
 import com.baisha.service.TgChatService;
 import lombok.extern.slf4j.Slf4j;
@@ -33,19 +34,13 @@ public class TelegramCallbackQueryHandler {
         switch (data) {
             case "查看余额":
                 String userBalance = commonHandler.checkUserBalance(user.getId());
-                String userName = "";
-                if (StrUtil.isNotEmpty(user.getFirstName())) {
-                    userName += user.getFirstName();
-                }
-                if (StrUtil.isNotEmpty(user.getLastName())) {
-                    userName += user.getLastName();
-                }
-                String text = "用户: " + userName + ",\n" + "余额: " + userBalance;
+                String userName = (user.getFirstName() == null ? "" : user.getFirstName()) + (user.getLastName() == null ? "" : user.getLastName());
+                String text = "用户: " + userName + "\n" + "余额: " + userBalance;
                 bot.showAlert(callbackQuery, text);
                 break;
             case "唯一财务":
-                String customer = commonHandler.getCustomer(user.getId());
-                bot.showAlert(callbackQuery, customer);
+                ConfigInfo configInfo = commonHandler.getConfigInfo(user.getId());
+                bot.showAlert(callbackQuery, configInfo.getOnlyCustomerService());
                 break;
             default:
                 break;

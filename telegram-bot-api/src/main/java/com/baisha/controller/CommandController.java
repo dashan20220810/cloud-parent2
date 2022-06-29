@@ -16,11 +16,13 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -43,7 +45,7 @@ public class CommandController {
 
     @ApiOperation("开始新局")
     @PostMapping("startNewBureau")
-    public ResponseEntity startNewBureau(StartNewBureauVO vo) throws MalformedURLException, IllegalAccessException {
+    public ResponseEntity startNewBureau(StartNewBureauVO vo) throws Exception {
 
         //第一步，验证参数有效性
         if (!StartNewBureauVO.check(vo)) {
@@ -81,7 +83,7 @@ public class CommandController {
             myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(imageAddress))), tgChat.getChatId()+"");
             myBot.sendMessage(message, tgChat.getChatId()+"");
             // 倒计时视频
-            myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(countdownAddress))), tgChat.getChatId()+"");
+            myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(countdownAddress))), tgChat.getChatId()+"");
         }
         return ResponseUtil.success();
     }
