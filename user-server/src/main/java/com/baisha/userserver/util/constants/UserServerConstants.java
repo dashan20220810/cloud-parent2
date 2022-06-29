@@ -6,12 +6,12 @@ package com.baisha.userserver.util.constants;
 public class UserServerConstants {
 
     /**
-     * 状态 1 正常
+     * 1
      */
     public static int STATUS_NORMAL = 1;
 
     /**
-     * 状态 2 禁用
+     * 2
      */
     public static int STATUS_DISABLED = 2;
 

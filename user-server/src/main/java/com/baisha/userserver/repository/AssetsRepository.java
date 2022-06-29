@@ -24,23 +24,23 @@ public interface AssetsRepository extends JpaRepository<Assets, Long>, JpaSpecif
      * 增加余额
      *
      * @param amount
-     * @param userId
+     * @param id
      * @return
      */
-    @Query(value = "update Assets a set a.balance = a.balance + ?1 where a.userId=?2 ")
+    @Query(value = "update Assets a set a.balance = a.balance + ?1 where a.id=?2 ")
     @Modifying
-    int increaseBalanceByUserId(BigDecimal amount, Long userId);
+    int increaseBalanceById(BigDecimal amount, Long id);
 
     /**
      * 减少余额
      *
      * @param amount
-     * @param userId
+     * @param id
      * @return
      */
-    @Query(value = "update Assets a set a.balance = a.balance - ?1 where a.userId=?2  and a.balance >= ?1 ")
+    @Query(value = "update Assets a set a.balance = a.balance - ?1 where a.id=?2  and a.balance >= ?1 ")
     @Modifying
-    int reduceBalanceByUserId(BigDecimal amount, Long userId);
+    int reduceBalanceById(BigDecimal amount, Long id);
 
 
 }

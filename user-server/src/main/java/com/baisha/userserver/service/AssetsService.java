@@ -30,11 +30,11 @@ public class AssetsService {
     }
 
 
-    public int doIncreaseBalanceByUserId(BigDecimal amount, Long userId) {
-        return assetsRepository.increaseBalanceByUserId(amount, userId);
+    public int doIncreaseBalanceById(BigDecimal amount, Long userId) {
+        return assetsRepository.increaseBalanceById(amount, userId);
     }
 
-    public int doReduceBalanceByUserId(BigDecimal amount, Long userId) {
-        return assetsRepository.reduceBalanceByUserId(amount, userId);
+    public int doReduceBalanceById(BigDecimal amount, Long userId) {
+        return assetsRepository.reduceBalanceById(amount, userId);
     }
 }

@@ -33,6 +33,7 @@ public class BalanceService {
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity doBalanceBusiness(User user, BalanceVO vo) throws Exception {
+        //使用用户ID 使用redisson 公平锁
         RLock fairLock = redisson.getFairLock(RedisConstants.USER_BALANCE + user.getId());
         boolean res = fairLock.tryLock(RedisConstants.WAIT_TIME, RedisConstants.UNLOCK_TIME, TimeUnit.SECONDS);
         if (res) {
@@ -59,12 +60,12 @@ public class BalanceService {
             return new ResponseEntity("余额不足");
         }
         //支出先扣钱
-        int flag = assetsService.doReduceBalanceByUserId(vo.getAmount(), user.getId());
+        int flag = assetsService.doReduceBalanceById(vo.getAmount(), assets.getId());
         if (flag < 1) {
-            log.info("(支出)更新余额失败(userId={})", user.getId());
+            log.info("(支出)更新余额失败(userId={} assets-id={})", assets.getId());
             return ResponseUtil.fail();
         }
-        log.info("(支出)更新余额成功(userId={})", user.getId());
+        log.info("(支出)更新余额成功(userId={} assets-id={})", user.getId(), assets.getId());
         BalanceChange balanceChange = new BalanceChange();
         balanceChange.setUserId(user.getId());
         balanceChange.setBalanceType(UserServerConstants.EXPENSES);
@@ -82,7 +83,6 @@ public class BalanceService {
     }
 
     private ResponseEntity doIncomeBalance(User user, BalanceVO vo) {
-        //使用用户ID 使用redisson 公平锁
         Assets assets = findAssetsByUserId(user.getId());
         //插入余额变动表
         BalanceChange balanceChange = new BalanceChange();
@@ -96,12 +96,12 @@ public class BalanceService {
         if (Objects.nonNull(bc)) {
             log.info("(收入)创建余额变化成功(userId={})", user.getId());
             //更新余额
-            int flag = assetsService.doIncreaseBalanceByUserId(vo.getAmount(), user.getId());
+            int flag = assetsService.doIncreaseBalanceById(vo.getAmount(), assets.getId());
             if (flag < 1) {
-                log.info("(收入)更新余额失败(userId={})", user.getId());
+                log.info("(收入)更新余额失败(userId={} assets-id={})", user.getId(), assets.getId());
                 return ResponseUtil.fail();
             }
-            log.info("(收入)更新余额成功(userId={})", user.getId());
+            log.info("(收入)更新余额成功(userId={} assets-id={})", user.getId(), assets.getId());
             return ResponseUtil.success();
         }
         log.info("(收入)创建余额变化失败(userId={})", user.getId());
