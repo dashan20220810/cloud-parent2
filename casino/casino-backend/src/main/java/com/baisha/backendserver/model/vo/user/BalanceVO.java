@@ -14,7 +14,7 @@ public class BalanceVO {
     @ApiModelProperty(value = "用户ID", required = true)
     private Long id;
 
-    @ApiModelProperty(value = "金额 大于0的整数", required = true)
+    @ApiModelProperty(value = "金额 大于0的整数(1-10位)", required = true)
     private Integer amount;
 
     /*@ApiModelProperty(value = "收支类型(1收入 2支出)", required = true)

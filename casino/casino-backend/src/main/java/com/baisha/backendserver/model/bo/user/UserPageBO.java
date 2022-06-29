@@ -5,6 +5,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
+import java.math.BigDecimal;
+
 /**
  * @author yihui
  */
@@ -21,6 +24,9 @@ public class UserPageBO extends BaseBO {
     @ApiModelProperty(value = "TG用户ID")
     private String tgUserId;
 
+    @ApiModelProperty(value = "TG群名称")
+    private String tgGroupName;
+
     @ApiModelProperty(value = "TG群ID")
     private String tgGroupId;
 
@@ -32,4 +38,16 @@ public class UserPageBO extends BaseBO {
 
     @ApiModelProperty(value = "来源")
     private String origin;
+
+    @ApiModelProperty(value = "邀请码")
+    private String inviteCode;
+
+    @ApiModelProperty(value = "邀请人会员ID")
+    private Long inviteUserId;
+
+    @ApiModelProperty(value = "余额")
+    private BigDecimal balance = BigDecimal.ZERO;
+
+    @ApiModelProperty(value = "冻结余额")
+    private BigDecimal freezeAmount = BigDecimal.ZERO;
 }

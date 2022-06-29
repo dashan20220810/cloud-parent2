@@ -3,6 +3,7 @@ package com.baisha.backendserver.controller;
 import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.model.Admin;
+import com.baisha.backendserver.model.bo.user.UserPageBO;
 import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.user.BalanceVO;
 import com.baisha.backendserver.model.vo.user.UserPageVO;
@@ -47,7 +48,7 @@ public class UserController {
 
     @GetMapping("page")
     @ApiOperation(("用户分页"))
-    public ResponseEntity<Page<UserPageVO>> page(UserPageVO vo) {
+    public ResponseEntity<Page<UserPageBO>> page(UserPageVO vo) {
         StringBuffer sb = new StringBuffer();
         sb.append(userServerUrl + UserServerConstants.USERSERVER_USER_PAGE + "?pageNumber=" + vo.getPageNumber() +
                 "&pageSize=" + vo.getPageSize());
@@ -106,6 +107,9 @@ public class UserController {
         if (null == vo.getId() || vo.getId() < 0 || null == vo.getAmount() || vo.getAmount() < 0) {
             return ResponseUtil.parameterNotNull();
         }
+        if (BackendServerUtil.checkIntAmount(vo.getAmount())) {
+            return new ResponseEntity("金额不规范");
+        }
         String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_BALANCE;
         Map<String, Object> param = new HashMap<>(16);
         param.put("balanceType", BackendConstants.INCOME);
@@ -128,6 +132,9 @@ public class UserController {
         if (null == vo.getId() || vo.getId() < 0 || null == vo.getAmount() || vo.getAmount() < 0) {
             return ResponseUtil.parameterNotNull();
         }
+        if (BackendServerUtil.checkIntAmount(vo.getAmount())) {
+            return new ResponseEntity("金额不规范");
+        }
         String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_BALANCE;
         Map<String, Object> param = new HashMap<>(16);
         param.put("balanceType", BackendConstants.EXPENSES);
@@ -147,14 +154,12 @@ public class UserController {
 
     @ApiOperation(value = "用户余额")
     @GetMapping("balance")
-    public ResponseEntity getBalance(IdVO vo) {
+    public ResponseEntity<String> getBalance(IdVO vo) {
         if (null == vo.getId() || vo.getId() < 0) {
             return ResponseUtil.parameterNotNull();
         }
-        String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_QUERY;
-        Map<String, Object> param = new HashMap<>(16);
-        param.put("userId", vo.getId());
-        String result = HttpClient4Util.doPost(url, param);
+        String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_QUERY + "?userId=" + vo.getId();
+        String result = HttpClient4Util.doGet(url);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }

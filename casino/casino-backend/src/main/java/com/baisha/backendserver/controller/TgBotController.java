@@ -218,13 +218,19 @@ public class TgBotController {
             if (null == vo.getTableId() || vo.getTableId() < 0
                     || null == vo.getMinAmount() || vo.getMinAmount() < 0
                     || null == vo.getMaxAmount() || vo.getMaxAmount() < 0
-                    || null == vo.getMaxShoeAmount() || vo.getMaxShoeAmount() < 0 ) {
+                    || null == vo.getMaxShoeAmount() || vo.getMaxShoeAmount() < 0) {
                 return null;
             }
         } else {
             //默认值
             if (null == vo.getTableId()) {
-                vo.setTableId(null);
+                //无值 就取一个，传给电报接口
+                List<DeskListBO> deskList = deskService.findAllDeskList();
+                if (!CollectionUtils.isEmpty(deskList)) {
+                    vo.setTableId(deskList.get(0).getTableId());
+                } else {
+                    vo.setTableId(null);
+                }
             }
             if (null == vo.getMinAmount()) {
                 vo.setMinAmount(20);

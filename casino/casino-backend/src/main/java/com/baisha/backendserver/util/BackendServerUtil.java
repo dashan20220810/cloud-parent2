@@ -184,16 +184,41 @@ public class BackendServerUtil {
     }
 
 
-   /* public static void main(String[] args) {
-        TgGroupPageVO vo = new TgGroupPageVO();
+    /**
+     * 验证金额
+     * @param amount
+     * @return
+     */
+    public static boolean checkIntAmount(Integer amount) {
+        if (null == amount) {
+            return true;
+        }
+        int min = 1;
+        int max = 10;
+        int length = String.valueOf(amount.intValue()).length();
+        if (length < min || length > max) {
+            //长度不规范
+            return true;
+        }
+        return false;
+    }
+
+
+    public static void main(String[] args) {
+     /*   TgGroupPageVO vo = new TgGroupPageVO();
         vo.setBotName("1");
         System.out.println(JSON.toJSONString(vo));
-        System.out.println(objectToMap(vo));
+        System.out.println(objectToMap(vo));*/
 
         //TgGroupBoundVO v = new TgGroupBoundVO();
         //v.setTgGroupId("1111");
         //System.out.println(objectToMap(v));
-    }*/
+
+        Integer amount = 1212121;
+        int length = String.valueOf(amount.intValue()).length();
+        System.out.println(length);
+
+    }
 
 
 }
