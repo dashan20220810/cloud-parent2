@@ -153,7 +153,7 @@ public class TgBotController {
 
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
         JSONObject page = (JSONObject) responseEntity.getData();
-        if (Objects.nonNull(page)) {
+        if (Objects.nonNull(page) && responseEntity.getCode() == 0) {
             List<TgGroupPageBO> list = JSONArray.parseArray(page.getString("content"), TgGroupPageBO.class);
             if (!CollectionUtils.isEmpty(list)) {
                 List<DeskListBO> deskList = deskService.findAllDeskList();

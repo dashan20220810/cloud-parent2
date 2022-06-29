@@ -32,6 +32,9 @@ public class BetPageBO {
     @ApiModelProperty("下注类型")
     private String betOption;
 
+    @ApiModelProperty("下注类型名称")
+    private String betOptionName;
+
     @ApiModelProperty("下注金额")
     private Long amount;
 
