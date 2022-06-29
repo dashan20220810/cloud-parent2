@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.vo.IdVO;
+import com.baisha.backendserver.model.vo.user.BalanceVO;
 import com.baisha.backendserver.model.vo.user.UserPageVO;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -46,7 +49,7 @@ public class UserController {
     @ApiOperation(("用户分页"))
     public ResponseEntity<Page<UserPageVO>> page(UserPageVO vo) {
         StringBuffer sb = new StringBuffer();
-        sb.append(userServerUrl + UserServerConstants.USERSERVER_USERPAGE + "?pageNumber=" + vo.getPageNumber() +
+        sb.append(userServerUrl + UserServerConstants.USERSERVER_USER_PAGE + "?pageNumber=" + vo.getPageNumber() +
                 "&pageSize=" + vo.getPageSize());
         if (StringUtils.isNotBlank(vo.getUserName())) {
             sb.append("&userName=" + vo.getUserName());
@@ -66,7 +69,7 @@ public class UserController {
         if (Objects.isNull(vo.getId())) {
             return ResponseUtil.parameterNotNull();
         }
-        String url = userServerUrl + UserServerConstants.USERSERVER_USERDELETE;
+        String url = userServerUrl + UserServerConstants.USERSERVER_USER_DELETE;
         Map<String, Object> param = BackendServerUtil.objectToMap(vo);
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
@@ -84,7 +87,7 @@ public class UserController {
         if (Objects.isNull(vo) || null == vo.getId()) {
             return ResponseUtil.parameterNotNull();
         }
-        String url = userServerUrl + UserServerConstants.USERSERVER_USERSTATUS;
+        String url = userServerUrl + UserServerConstants.USERSERVER_USER_STATUS;
         Map<String, Object> param = BackendServerUtil.objectToMap(vo);
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
@@ -92,7 +95,69 @@ public class UserController {
         }
         Admin currentUser = commonService.getCurrentUser();
         log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
-                currentUser.getUserName() + "修改管理员状态id={" + vo.getId() + "}", BackendConstants.USER_MODULE);
+                currentUser.getUserName() + "修改用户状态id={" + vo.getId() + "}", BackendConstants.USER_MODULE);
+        return JSON.parseObject(result, ResponseEntity.class);
+    }
+
+
+    @ApiOperation(value = "用户上分")
+    @PostMapping("increaseBalance")
+    public ResponseEntity increaseBalance(BalanceVO vo) {
+        if (null == vo.getId() || vo.getId() < 0 || null == vo.getAmount() || vo.getAmount() < 0) {
+            return ResponseUtil.parameterNotNull();
+        }
+        String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_BALANCE;
+        Map<String, Object> param = new HashMap<>(16);
+        param.put("balanceType", BackendConstants.INCOME);
+        param.put("userId", vo.getId());
+        param.put("amount", vo.getAmount());
+        param.put("remark", vo.getRemark());
+        String result = HttpClient4Util.doPost(url, param);
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
+        Admin currentUser = commonService.getCurrentUser();
+        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                currentUser.getUserName() + "为用户id={" + vo.getId() + "}上分", BackendConstants.USER_ASSETS_MODULE);
+        return JSON.parseObject(result, ResponseEntity.class);
+    }
+
+    @ApiOperation(value = "用户下分")
+    @PostMapping("reduceBalance")
+    public ResponseEntity reduceBalance(BalanceVO vo) {
+        if (null == vo.getId() || vo.getId() < 0 || null == vo.getAmount() || vo.getAmount() < 0) {
+            return ResponseUtil.parameterNotNull();
+        }
+        String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_BALANCE;
+        Map<String, Object> param = new HashMap<>(16);
+        param.put("balanceType", BackendConstants.EXPENSES);
+        param.put("userId", vo.getId());
+        param.put("amount", vo.getAmount());
+        param.put("remark", vo.getRemark());
+        String result = HttpClient4Util.doPost(url, param);
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
+        Admin currentUser = commonService.getCurrentUser();
+        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                currentUser.getUserName() + "为用户id={" + vo.getId() + "}下分", BackendConstants.USER_ASSETS_MODULE);
+        return JSON.parseObject(result, ResponseEntity.class);
+    }
+
+
+    @ApiOperation(value = "用户余额")
+    @GetMapping("balance")
+    public ResponseEntity getBalance(IdVO vo) {
+        if (null == vo.getId() || vo.getId() < 0) {
+            return ResponseUtil.parameterNotNull();
+        }
+        String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_QUERY;
+        Map<String, Object> param = new HashMap<>(16);
+        param.put("userId", vo.getId());
+        String result = HttpClient4Util.doPost(url, param);
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
         return JSON.parseObject(result, ResponseEntity.class);
     }
 

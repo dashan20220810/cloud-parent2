@@ -218,8 +218,7 @@ public class TgBotController {
             if (null == vo.getTableId() || vo.getTableId() < 0
                     || null == vo.getMinAmount() || vo.getMinAmount() < 0
                     || null == vo.getMaxAmount() || vo.getMaxAmount() < 0
-                    || null == vo.getMaxShoeAmount() || vo.getMaxShoeAmount() < 0
-            ) {
+                    || null == vo.getMaxShoeAmount() || vo.getMaxShoeAmount() < 0 ) {
                 return null;
             }
         } else {

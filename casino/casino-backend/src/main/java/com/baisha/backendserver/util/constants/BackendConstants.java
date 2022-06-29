@@ -2,15 +2,26 @@ package com.baisha.backendserver.util.constants;
 
 public class BackendConstants {
 
+    /**
+     * 收入
+     */
+    public static int INCOME = 1;
+
+    /**
+     * 支出
+     */
+    public static int EXPENSES = 2;
+
     public static final String INSERT = "insert";
     public static final String DELETE = "delete";
     public static final String UPDATE = "update";
 
     public static final String USER_MODULE = "会员";
+    public static final String USER_ASSETS_MODULE = "会员资产";
     public static final String TOBOT_MODULE = "机器人";
-    public static final String TOBOT_GROUP_MODULE = "机器人下的群";
+    public static final String TOBOT_GROUP_MODULE = "机器人-群";
     public static final String ADMIN_MODULE = "管理员";
-    public static final String SYS_TELEGRAM_MODULE = "系统电报设置";
+    public static final String SYS_TELEGRAM_MODULE = "系统设置-电报";
     public static final String DESK_MODULE = "桌台";
 
 }

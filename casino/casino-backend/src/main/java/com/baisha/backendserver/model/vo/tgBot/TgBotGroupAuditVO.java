@@ -17,17 +17,17 @@ public class TgBotGroupAuditVO {
     @ApiModelProperty(value = "状态(1是,0否)", required = true)
     private Integer status;
 
-    @ApiModelProperty(value = "绑定游戏桌台的id")
+    @ApiModelProperty(value = "绑定游戏桌台的id 通过必传")
     private Long tableId = 0L;
 
     //限红：单注20-15000  当局最高50000（美金)
-    @ApiModelProperty(value = "单注最低")
+    @ApiModelProperty(value = "单注最低 通过必传")
     private Integer minAmount = 20;
 
-    @ApiModelProperty(value = "单注最高")
+    @ApiModelProperty(value = "单注最高 通过必传")
     private Integer maxAmount = 15000;
 
-    @ApiModelProperty(value = "当局最高")
+    @ApiModelProperty(value = "当局最高 通过必传")
     private Integer maxShoeAmount = 50000;
 
 }

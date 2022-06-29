@@ -1,33 +1,41 @@
 package com.baisha.userserver.contrloller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.enums.UserOriginEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
+import com.baisha.userserver.model.Assets;
 import com.baisha.userserver.model.bo.UserBO;
 import com.baisha.userserver.model.User;
 import com.baisha.userserver.model.UserTelegramRelation;
+import com.baisha.userserver.model.bo.UserPageBO;
 import com.baisha.userserver.model.vo.user.*;
+import com.baisha.userserver.service.AssetsService;
 import com.baisha.userserver.service.UserService;
 import com.baisha.userserver.service.UserTelegramRelationService;
 import com.baisha.userserver.util.UserServerUtil;
 import com.baisha.userserver.model.vo.IdVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.criteria.Predicate;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -44,6 +52,8 @@ public class UserController {
     private UserService userService;
     @Autowired
     private UserTelegramRelationService relationService;
+    @Autowired
+    private AssetsService assetsService;
 
     @ApiOperation(("新增用户(Telegram注册)"))
     @PostMapping("save")
@@ -124,7 +134,7 @@ public class UserController {
 
     @ApiOperation(("用户分页"))
     @GetMapping("page")
-    public ResponseEntity<Page<User>> page(UserPageVO vo) {
+    public ResponseEntity<Page<UserPageBO>> page(UserPageVO vo) {
         if (StringUtils.isNotEmpty(vo.getUserName()) && User.checkUserName(vo.getUserName())) {
             return new ResponseEntity("用户名不规范");
         }
@@ -137,7 +147,32 @@ public class UserController {
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };
         Page<User> pageList = userService.getUserPage(spec, pageable);
-        return ResponseUtil.success(pageList);
+        Page<UserPageBO> page = transUserPage(pageList);
+        return ResponseUtil.success(page);
+    }
+
+    private Page<UserPageBO> transUserPage(Page<User> pageList) {
+        if (Objects.nonNull(pageList)) {
+            List<User> userList = pageList.getContent();
+            List<UserPageBO> list = new ArrayList<>(10);
+            if (!CollectionUtils.isEmpty(userList)) {
+                // 查询用户资产
+                for (User u : userList) {
+                    UserPageBO bo = new UserPageBO();
+                    BeanUtils.copyProperties(u, bo);
+                    Long userId = u.getId();
+                    Assets assets = assetsService.getAssetsByUserId(userId);
+                    if (Objects.nonNull(assets)) {
+                        bo.setBalance(assets.getBalance());
+                        bo.setFreezeAmount(assets.getFreezeAmount());
+                    }
+                    list.add(bo);
+                }
+            }
+            Page<UserPageBO> page = new PageImpl<>(list, pageList.getPageable(), pageList.getTotalElements());
+            return page;
+        }
+        return new PageImpl<UserPageBO>(new ArrayList<>());
     }
 
     @ApiOperation(("删除用户"))
