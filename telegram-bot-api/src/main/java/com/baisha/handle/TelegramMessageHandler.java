@@ -107,7 +107,7 @@ public class TelegramMessageHandler {
             return;
         }
         // 下注
-        boolean isSuccess = tgUserBet(message);
+        boolean isSuccess = tgUserBet(message, bot);
         if (isSuccess) {
             // 下注成功，回复会员
             String textParam = getTextParam(from);
@@ -119,7 +119,6 @@ public class TelegramMessageHandler {
     private void showButton(Chat chat, MyTelegramLongPollingBot bot, String textParam, Integer messageId) {
         SendMessage sp = new SendMessage();
         sp.setChatId(chat.getId()+"");
-
         sp.setText(textParam);
         sp.setAllowSendingWithoutReply(false);
         sp.setReplyToMessageId(messageId);
@@ -203,13 +202,14 @@ public class TelegramMessageHandler {
         return financeResult;
     }
 
-    public boolean tgUserBet(Message message) {
+    public boolean tgUserBet(Message message, MyTelegramLongPollingBot bot) {
         String originText = message.getText();
         if (StrUtil.isEmpty(originText)) {
             return false;
         }
         User user = message.getFrom();
-        Long id = user.getId();
+        Long userId = user.getId();
+        String username = (user.getFirstName() == null ? "" : user.getFirstName()) + (user.getLastName() == null ? "" : user.getLastName());
         Long chatId = message.getChatId();
         // 开始调用
         String requestUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_ORDER_BET.getApiName();
@@ -217,24 +217,29 @@ public class TelegramMessageHandler {
         Map<String, Object> param = Maps.newHashMap();
         TgBetVO tgBetVO = parseBet(originText);
         if (StrUtil.isEmpty(tgBetVO.getCommand()) || null == tgBetVO.getAmount()) {
+            bot.sendMessage(username + " 下注信息错误，请参照下注规则", chatId+"");
             return false;
         }
         param.put("betOption", tgBetVO.getCommand());
         param.put("amount", tgBetVO.getAmount());
         param.put("tgChatId", chatId);
         TgChat tgChat = tgChatService.findByChatId(chatId);
-        if (null == tgChat || null == tgChat.getTableId()) {
+        if (!parseChat(tgChat)) {
             return false;
         }
         param.put("tableId", tgChat.getTableId());
+        param.put("minAmount", tgChat.getMinAmount());
+        param.put("maxAmount", tgChat.getMaxAmount());
+        param.put("maxShoeAmount;", tgChat.getMaxShoeAmount());
 
         // 远程调用
-        String forObject = TgHttpClient4Util.doPost(requestUrl, param, id);
+        String forObject = TgHttpClient4Util.doPost(requestUrl, param, userId);
+        log.info("下注参数:{},下注会员:{},返回结果:{}", param, userId, forObject);
         if (ObjectUtils.isEmpty(forObject)) {
             log.error("{}桌{}群{}用户,下注:{},下注失败,原因HTTP请求 NULL",
                     tgChat.getTableId(),
                     chatId,
-                    id,
+                    userId,
                     originText);
             return false;
         }
@@ -245,10 +250,31 @@ public class TelegramMessageHandler {
         log.error("{}桌{}群{}用户,下注:{},下注失败,原因:{}",
                 tgChat.getTableId(),
                 chatId,
-                id,
+                userId,
                 originText,
                 result.getMsg());
+        // 输出错误原因
+        bot.sendMessage(username + " 下注失败，原因：" + result.getMsg(), chatId+"");
         return false;
+    }
+
+    private boolean parseChat(TgChat tgChat) {
+        if (null == tgChat || tgChat.getStatus() == Constants.close) {
+            return false;
+        }
+        if (null == tgChat.getTableId()) {
+            return false;
+        }
+        if (null == tgChat.getMinAmount()) {
+            return false;
+        }
+        if (null == tgChat.getMaxAmount()) {
+            return false;
+        }
+        if (null == tgChat.getMaxShoeAmount()) {
+            return false;
+        }
+        return true;
     }
 
     private TgBetVO parseBet(String originText) {
