@@ -61,8 +61,8 @@ public class TgBotController {
 
     @ApiOperation("新开机器人")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", value = "机器人名称", required = true),
-            @ApiImplicitParam(name = "token", value = "机器人token", required = true)
+            @ApiImplicitParam(name = "username", value = "机器人名称", required = true, dataTypeClass = String.class),
+            @ApiImplicitParam(name = "token", value = "机器人token", required = true, dataTypeClass = String.class)
     })
     @PostMapping("open")
     public ResponseEntity open(String username, String token) {
