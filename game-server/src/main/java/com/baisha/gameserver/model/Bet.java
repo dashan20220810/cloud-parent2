@@ -29,6 +29,10 @@ public class Bet extends BaseEntity{
     @Column(name="user_id", nullable=false)
 	private Long userId;
 
+	@ApiModelProperty("user_name")
+    @Column(name="user_name", nullable=false)
+	private String userName;
+
 	@ApiModelProperty("tg_chat_id")
     @Column(name="tg_chat_id", columnDefinition="BIGINT COMMENT 'telegram群id'")
 	private Long tgChatId;
@@ -66,6 +70,10 @@ public class Bet extends BaseEntity{
     public static boolean checkRequest ( Bet bet ) {
     	
     	if ( bet.getUserId()==null ) {
+    		return false;
+    	}
+
+    	if ( StringUtils.isBlank(bet.getUserName()) ) {
     		return false;
     	}
 

@@ -105,7 +105,7 @@ public class OrderController {
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
 		//	TODO 輪/局號 應來自荷官端，不得從請求中代入
     	String betResult = orderBusiness.bet(isTgRequest, betVO.getTableId(), betVO.getTgChatId()
-    			, ip, userVO.getId(), betVO.getBetOption(), betVO.getAmount(), "00001");
+    			, ip, userVO.getId(), userVO.getUserName(), betVO.getBetOption(), betVO.getAmount(), "00001");
     	if ( StringUtils.isNotBlank(betResult) ) {
             return ResponseUtil.custom(betResult);
     	}
