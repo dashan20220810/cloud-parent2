@@ -20,7 +20,7 @@ public class AssetsBusiness {
 	@Value("${project.server-url.user-server-domain}")
 	private String userServerDomain;
 	
-	public boolean withdraw ( Long userId, Long amount ) {
+	public String withdraw ( Long userId, Long amount ) {
 
     	//	会员管理-下分api
     	Map<String, Object> params = new HashMap<>();
@@ -34,17 +34,17 @@ public class AssetsBusiness {
 				params);
 		
         if (CommonUtil.checkNull(result)) {
-            return false;
+            return "failed";
         }
 
 		JSONObject balanceJson = JSONObject.parseObject(result);
 		Integer code = balanceJson.getInteger("code");
 
 		if ( code!=0 ) {
-            return false;
+            return balanceJson.getString("msg");
 		}
 
-        return true;
+        return null;
 	}
 	
 	

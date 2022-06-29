@@ -43,7 +43,7 @@ public class OrderBusiness {
 		
 		log.info("下注");
 		JSONObject desk = deskBusiness.queryDeskById(tableId);
-		GameInfo gameInfo = gameInfoBusiness.getGameInfo(desk.getJSONObject("data").getString("deskCode"));
+		GameInfo gameInfo = gameInfoBusiness.getGameInfo(desk.getString("deskCode"));
 		
 		if ( gameInfo==null ) {
     		log.warn("下注 失败 无游戏资讯");
@@ -55,7 +55,7 @@ public class OrderBusiness {
 			return false;
 		}
 		
-		if ( gameInfo.getStatus()!=GameStatusEnum.Betting) {
+		if ( gameInfo.getStatus()!=GameStatusEnum.Betting ) {
     		log.warn("下注 失败 非下注状态, {}", gameInfo.getStatus().toString());
 			return false;
 		}

@@ -9,16 +9,13 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+
 /**
  * @author: alvin
  */
 @Data
-@ApiModel(value = "桌台请求对象")
-public class DeskVO {
-
-
-    @ApiModelProperty(required=true, value = "桌台编码")
-    private String deskCode;
+@ApiModel(value = "桌台更新请求对象")
+public class DeskUpdateVO {
 
     @ApiModelProperty(required=true, value = "桌台名称")
     private String name;

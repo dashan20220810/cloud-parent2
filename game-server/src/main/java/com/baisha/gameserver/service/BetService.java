@@ -40,7 +40,7 @@ public class BetService {
     }
 
     public Page<Bet> getBetPage(BetPageVO vo) {
-        Pageable pageable = PageUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
+        Pageable pageable = PageUtil.setPageable(vo.getPageNumber(), vo.getPageSize());
         Specification<Bet> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             if (StringUtils.isNotBlank(vo.getUserName())) {

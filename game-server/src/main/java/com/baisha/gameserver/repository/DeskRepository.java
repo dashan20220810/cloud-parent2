@@ -1,5 +1,6 @@
 package com.baisha.gameserver.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,7 +28,7 @@ public interface DeskRepository extends JpaRepository<Desk, Long>, JpaSpecificat
     @Modifying
     int updateStatusById(Integer status, Long id);
 
-    @Query(value = "update Desk  d set d.localIp=?2, d.videoAddress=?3, d.gameCode=?4, d.status = ?5 where d.id=?1")
+    @Query(value = "update Desk  d set d.localIp=?2, d.videoAddress=?3, d.gameCode=?4, d.status = ?5, d.name=?6, d.updateTime=?7 where d.id=?1")
     @Modifying
-    int update(Long id, String localIp, String videoAddress, String gameCode, Integer status);
+    int update(Long id, String localIp, String videoAddress, String gameCode, Integer status, String name, Date now);
 }

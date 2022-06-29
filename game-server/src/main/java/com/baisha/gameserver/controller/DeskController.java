@@ -16,6 +16,7 @@ import com.baisha.gameserver.enums.GameType;
 import com.baisha.gameserver.model.Desk;
 import com.baisha.gameserver.service.DeskService;
 import com.baisha.gameserver.vo.DeskPageVO;
+import com.baisha.gameserver.vo.DeskUpdateVO;
 import com.baisha.gameserver.vo.DeskVO;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -146,7 +147,7 @@ public class DeskController {
 
     @PostMapping("update")
     @ApiOperation("桌台更新")
-    public ResponseEntity<String> update( Long deskId, DeskVO deskVO ) {
+    public ResponseEntity<String> update( Long deskId, DeskUpdateVO deskVO ) {
 
 		log.info("[桌台更新] ");
     	Desk desk = deskVO.generateDesk();
@@ -156,7 +157,8 @@ public class DeskController {
     		return ResponseUtil.fail();
     	}
     	
-    	deskService.update(deskId, deskVO.getLocalIp(), deskVO.getVideoAddress(), deskVO.getGameCode().getCode(), deskVO.getStatus());
+    	deskService.update(deskId, deskVO.getLocalIp(), deskVO.getVideoAddress()
+    			, deskVO.getGameCode().getCode(), deskVO.getStatus(), deskVO.getName());
 
 		log.info("[桌台更新] 成功!");
     	return ResponseUtil.success();

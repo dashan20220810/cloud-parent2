@@ -2,6 +2,7 @@ package com.baisha.casinoweb.controller;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,7 +68,7 @@ public class OrderController {
     	JSONObject deskJson = deskBusiness.queryDeskById(betVO.getTableId());
     	if ( deskJson==null ) {
     		log.warn("[下注] 桌台号查无资料, table id: {}", betVO.getTableId());
-            return ResponseUtil.fail();
+            return ResponseUtil.custom("桌台资料错误");
     	}
     	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskJson.getString("deskCode"));
     	
@@ -77,14 +78,15 @@ public class OrderController {
     	
     	if ( userVO==null ) {
     		log.warn("[下注] user查无资料, id: {}", userIdOrName);
-            return ResponseUtil.fail();
+            return ResponseUtil.custom("玩家资料错误");
     	}
 
     	//  呼叫
     	//	会员管理-下分api
-    	if ( assetsBusiness.withdraw(userVO.getId(), betVO.getAmount())==false ) {
+    	String withdrawResult = assetsBusiness.withdraw(userVO.getId(), betVO.getAmount());
+    	if ( StringUtils.isNotBlank(withdrawResult) ) {
     		log.warn("[下注] 下分失败");
-            return ResponseUtil.fail();
+            return ResponseUtil.custom(withdrawResult);
     	}
     	
 		// 记录IP

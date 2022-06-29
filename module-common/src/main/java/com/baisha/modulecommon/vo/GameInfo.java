@@ -1,5 +1,6 @@
 package com.baisha.modulecommon.vo;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import com.baisha.modulecommon.enums.GameStatusEnum;
@@ -7,7 +8,7 @@ import com.baisha.modulecommon.enums.GameStatusEnum;
 import lombok.Data;
 
 @Data
-public class GameInfo {
+public class GameInfo implements Serializable {
 
 	/** 当前局号 */
 	private String currentActive;

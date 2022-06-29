@@ -1,6 +1,7 @@
 package com.baisha.gameserver.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +73,7 @@ public class DeskService {
     }
 
     public Page<Desk> getDeskPage(DeskPageVO vo) {
-        Pageable pageable = PageUtil.setPageable(vo.getPageNumber() - 1, vo.getPageSize());
+        Pageable pageable = PageUtil.setPageable(vo.getPageNumber(), vo.getPageSize());
         Specification<Desk> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
 //            if (StringUtils.isNotBlank(vo.getUserName())) {
@@ -100,7 +101,7 @@ public class DeskService {
             }
 
             if ( vo.getGameCode()!=null ) {
-                predicates.add(cb.equal(root.get("gameCode"), vo.getGameCode() ));
+                predicates.add(cb.equal(root.get("gameCode"), vo.getGameCode().getCode() ));
             }
             
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
@@ -111,8 +112,8 @@ public class DeskService {
     }
     
     @CachePut(key = "#id")
-    public int update ( Long id, String localIp, String videoAddress, String gameCode, Integer status ) {
-    	return deskRepository.update(id, localIp, videoAddress, gameCode, status);
+    public int update ( Long id, String localIp, String videoAddress, String gameCode, Integer status, String name ) {
+    	return deskRepository.update(id, localIp, videoAddress, gameCode, status, name, new Date());
     }
 
 }
