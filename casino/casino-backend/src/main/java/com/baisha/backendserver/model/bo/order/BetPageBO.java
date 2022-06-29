@@ -6,29 +6,34 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.persistence.Column;
+
 
 /**
  * @author: alvin
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 @ApiModel(value = "Bet对象", description = "注单")
 public class BetPageBO {
 
     @ApiModelProperty("订单编号")
-	private String orderNo;
+    private String orderNo;
 
-	@ApiModelProperty("user_id")
-	private Long userId;
+    @ApiModelProperty("下注用户ID")
+    private Long userId;
 
-	@ApiModelProperty("tg_chat_id")
-	private Long tgChatId;
+    @ApiModelProperty("下注用户名")
+    private String userName;
+
+    @ApiModelProperty("tg_chat_id")
+    private Long tgChatId;
 
     @ApiModelProperty("下注类型")
-	private BetOption betOption;
+    private String betOption;
 
     @ApiModelProperty("下注金额")
-	private Long amount;
+    private Long amount;
 
     @ApiModelProperty("客户端IP")
     private String clientIP;
