@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baisha.casinoweb.model.vo.BetVO;
 import com.baisha.casinoweb.model.vo.UserVO;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
@@ -38,26 +39,27 @@ public class OrderBusiness {
 	@Autowired
 	private DeskBusiness deskBusiness;
 	
-	public boolean bet ( boolean isTgRequest, Long tableId, Long tgChatId, String clientIP, Long userId, BetOption betOption, 
-			Long amount, String noRun, String noActive ) {
+	public String bet ( boolean isTgRequest, Long tableId, Long tgChatId, String clientIP, Long userId, BetOption betOption, 
+			Long amount, String noRun ) {
 		
 		log.info("下注");
 		JSONObject desk = deskBusiness.queryDeskById(tableId);
-		GameInfo gameInfo = gameInfoBusiness.getGameInfo(desk.getString("deskCode"));
+		String deskCode = desk.getString("deskCode");
+		GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
 		
 		if ( gameInfo==null ) {
     		log.warn("下注 失败 无游戏资讯");
-			return false;
+			return "下注 失败 无游戏资讯";
 		}
 		
-		if ( StringUtils.equals(noActive, gameInfo.getCurrentActive())==false ) {
-    		log.warn("下注 失败 局号不符, {}", noActive);
-			return false;
+		if ( StringUtils.isBlank(gameInfo.getCurrentActive()) ) {
+    		log.warn("下注 失败 局号不符, {}");
+			return "下注 失败 局号不符";
 		}
 		
 		if ( gameInfo.getStatus()!=GameStatusEnum.Betting ) {
     		log.warn("下注 失败 非下注状态, {}", gameInfo.getStatus().toString());
-			return false;
+			return "下注 失败 非下注状态";
 		}
 
 		// 记录IP
@@ -71,7 +73,7 @@ public class OrderBusiness {
 		params.put("betOption", betOption);
 		params.put("amount", amount);
 		params.put("noRun", noRun);
-		params.put("noActive", noActive);
+		params.put("noActive", gameInfo.getCurrentActive());
 		params.put("status", 1);
 		params.put("orderNo", SnowFlakeUtils.getSnowId());
 
@@ -81,7 +83,7 @@ public class OrderBusiness {
 
         if (CommonUtil.checkNull(result)) {
     		log.warn("下注 失败");
-            return false;
+            return "下注 失败";
         }
         
 		JSONObject betJson = JSONObject.parseObject(result);
@@ -89,11 +91,13 @@ public class OrderBusiness {
 
 		if ( code!=0 ) {
     		log.warn("下注 失败, {}", betJson.toString());
-            return false;
+            return String.format("下注 失败, %s", betJson.toString());
 		}
 
+		gameInfo = gameInfoBusiness.calculateBetAmount(deskCode, tgChatId, userId, amount);
+		
 		log.info("下注 成功");
-		return true;
+		return null;
 	}
 	
 	public JSONObject currentOrderList () {
@@ -115,5 +119,5 @@ public class OrderBusiness {
         }
         return JSONObject.parseObject(result);
 	}
-    
+	
 }

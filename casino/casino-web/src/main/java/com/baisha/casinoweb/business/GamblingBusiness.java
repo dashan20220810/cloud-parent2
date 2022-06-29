@@ -44,8 +44,10 @@ public class GamblingBusiness {
 	 */
 	public String generateNewActive ( String deskCode ) {
 		
+		log.info("产生新局号, deskCode:{}", deskCode);
 		JSONObject desk = deskBusiness.queryDeskByDeskCode(deskCode);
 		if ( desk==null ) {
+			log.warn("产生新局号 失败 无桌台资料");
 			return null;
 		}
 		

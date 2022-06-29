@@ -66,7 +66,7 @@ public class DealerBusiness {
 		params.put("bureauNum", newActive);
 		params.put("tableId", deskId);
 		params.put("imageAddress", openNewGameUrl);
-		params.put("", (String) tgSet.get("seventySecondsUrl"));
+		params.put("countdownAddress", (String) tgSet.get("seventySecondsUrl"));
 //		params.put("minAmount", limitStakesVO.getMinAmount());
 //		params.put("maxAmount", limitStakesVO.getMaxAmount());
 //		params.put("maxShoeAmount", limitStakesVO.getMaxShoeAmount());
@@ -118,12 +118,6 @@ public class DealerBusiness {
 //    			requestParams.put("tableId", tableId);
 //    			ThreadPool.getInstance().putThread(new SendTg(telegramServerDomain +RequestPathEnum.TG_SEND_ANIMATION.getApiName()
 //    				, requestParams));
-//    		}
-    		
-//    		if ( counter==20 ) {
-//    			String s20Url = "http://192.168.26.24:9000/user/s20.mp4"; // TODO get s20.mp4
-//    			ThreadPool.getInstance().putThread(new SendTg(telegramServerDomain +RequestPathEnum.TG_SEND_ANIMATION.getApiName()
-//    				, s20Url));
 //    		}
     		
     		try {

@@ -14,7 +14,10 @@ import com.baisha.casinoweb.model.vo.UserVO;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class AssetsBusiness {
 
 	@Value("${project.server-url.user-server-domain}")
@@ -22,6 +25,7 @@ public class AssetsBusiness {
 	
 	public String withdraw ( Long userId, Long amount ) {
 
+		log.info("呼叫下分, userID:{}", userId);
     	//	会员管理-下分api
     	Map<String, Object> params = new HashMap<>();
     	params.put("userId", userId);
@@ -34,6 +38,7 @@ public class AssetsBusiness {
 				params);
 		
         if (CommonUtil.checkNull(result)) {
+    		log.warn("呼叫下分api 无返回资料");
             return "failed";
         }
 
@@ -41,6 +46,7 @@ public class AssetsBusiness {
 		Integer code = balanceJson.getInteger("code");
 
 		if ( code!=0 ) {
+    		log.warn("呼叫下分api失败: {}", balanceJson.getString("msg"));
             return balanceJson.getString("msg");
 		}
 
