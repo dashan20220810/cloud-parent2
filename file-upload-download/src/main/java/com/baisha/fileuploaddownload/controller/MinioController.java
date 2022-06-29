@@ -107,11 +107,9 @@ public class MinioController {
     }
 
     private boolean checkBigFileSecret(String bigFileSecret) {
-
-        if (bigFileSecret.equals("jsjs")) {
+        if (bigFileSecret.equals(configSecretKey)) {
             return true;
         }
-
         return false;
     }
 
