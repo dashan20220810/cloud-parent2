@@ -6,9 +6,8 @@ package com.baisha.util.constants;
  * @author kimi
  */
 public class BotConstant {
-
+    public static final Long DEFAULT_USER_ID = 12345678L;
     public static final String BET_SUCCESS = "下注成功\n";
-    public static final String OPEN_NEW_GAME = "OpenNewGame";
 
     public static final String WELCOME1 = "欢迎 ";
     public static final String WELCOME2 = " 加入";
@@ -32,7 +31,25 @@ public class BotConstant {
     public static final String GAME_RULE10 = "-----------------------\n";
     public static final String GAME_RULE11 = "本群百家乐使用 先发6张牌 后下注的游戏方式，请放心娱乐";
 
-
-
-
+    public static final String SEALING_BET_INFO1 = "局\n";
+    public static final String SEALING_BET_INFO2 = "-------------封盘线-------------";
+    public static final String SEALING_BET_INFO3 = "----------------\n";
+    public static final String SEALING_BET_INFO4 = "本局下注结束，以上下注全部有效！！！\n";
+    public static final String SEALING_BET_INFO5 = "-------------------------------\n";
+    public static final String SEALING_BET_INFO6 = "----------------\n";
+    public static final String SEALING_BET_INFO7 = "！！！主动私聊的都是骗子！！！\n";
+    public static final String SEALING_BET_INFO8 = "-------------------------------\n";
+    public static final String SEALING_BET_INFO9 = "----------------\n";
+    public static final String SEALING_BET_INFO10 = "唯一财务：";
+    public static final String SEALING_BET_INFO11 = "\n";
+    public static final String SEALING_BET_INFO12 = "唯一客服：";
+    public static final String SEALING_BET_INFO13 = "\n";
+    public static final String SEALING_BET_INFO14 = "-------------本期下注玩家-------------\n";
+    public static final String SEALING_BET_INFO15 = "----------------\n";
+    public static final String SEALING_BET_INFO16 = "总下注金额：";
+    public static final String SEALING_BET_INFO17 = "\n";
+    public static final String SEALING_BET_INFO18 = "----------------\n";
+    public static final String SEALING_BET_INFO19 = "前20位下注玩家\n";
+    public static final String SEALING_BET_INFO20 = "【";
+    public static final String SEALING_BET_INFO21 = "】";
 }

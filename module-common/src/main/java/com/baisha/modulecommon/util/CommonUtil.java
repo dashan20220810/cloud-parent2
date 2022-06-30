@@ -83,14 +83,14 @@ public class CommonUtil {
         }
     }
 
-    //检测对象字段值是否为null
+    // 检测对象字段值是否为null
     public static boolean checkObjectFieldNotNull(Object object) throws IllegalAccessException {
         for (Field field : object.getClass().getDeclaredFields()) {
             field.setAccessible(true);
-            if (field.get(object) != null && StringUtils.isNotEmpty(field.get(object).toString())) {
-                return true;
+            if (field.get(object) == null || StringUtils.isEmpty(field.get(object).toString())) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 }
