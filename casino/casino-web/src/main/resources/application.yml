@@ -13,6 +13,8 @@ project:
   telegram:
     register-password: 123456
     image-domain-and-bucket: http://192.168.26.24:9000/user
+  game:
+    count-down-seconds: 70
 
 spring:
 #  security:

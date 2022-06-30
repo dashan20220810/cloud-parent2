@@ -19,15 +19,15 @@ public class TestTasks {
 	@Autowired
 	private AsyncCommandService asyncCommandService;
 	
-//	@Scheduled(fixedRate = 1800000)
-	@Scheduled(initialDelay = 2000, fixedDelay = 15000)
+	@Scheduled(initialDelay = 2000, fixedRate = 180000)
+//	@Scheduled(initialDelay = 2000, fixedDelay = 15000)  // TODO
 	public void openNewGame() {
 
 		log.info("游戏开局测试");
-//		dealerBusiness.openNewGame("127.0.0.1");
+//		asyncCommandService.betting("G01", "G01202206300356");
 		
-		asyncCommandService.betting("G01", "G01202206300356");
-//		dealerBusiness.openNewGame("192.168.26.23");
+		dealerBusiness.openNewGame("127.0.0.1");
+		dealerBusiness.openNewGame("192.168.26.23");
 	}
 	
 }
