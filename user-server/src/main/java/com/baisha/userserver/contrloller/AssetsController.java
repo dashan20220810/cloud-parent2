@@ -55,7 +55,7 @@ public class AssetsController {
         return ResponseUtil.success(balanceBO);
     }
 
-    @ApiOperation(("用户上下分"))
+    @ApiOperation(("用户增加/减少余额"))
     @PostMapping("balance")
     public ResponseEntity balance(BalanceVO vo) throws Exception {
         if (Objects.isNull(vo.getUserId()) || vo.getUserId() < 0) {

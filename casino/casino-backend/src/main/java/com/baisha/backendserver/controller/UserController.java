@@ -42,7 +42,6 @@ public class UserController {
 
     @Value("${url.userServer}")
     private String userServerUrl;
-
     @Autowired
     private CommonService commonService;
 
@@ -54,6 +53,9 @@ public class UserController {
                 "&pageSize=" + vo.getPageSize());
         if (StringUtils.isNotBlank(vo.getUserName())) {
             sb.append("&userName=" + vo.getUserName());
+        }
+        if (StringUtils.isNotBlank(vo.getNickName())) {
+            sb.append("&nickName=" + vo.getNickName());
         }
         String url = sb.toString();
         String result = HttpClient4Util.doGet(url);

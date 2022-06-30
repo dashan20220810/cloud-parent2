@@ -115,8 +115,9 @@ public class UserController {
         String bcryptPassword = CommonUtil.checkNull(vo.getPassword()) ? null : UserServerUtil.bcrypt(vo.getPassword());
         user.setPassword(bcryptPassword);
         user.setIp(vo.getIp());
-        user.setOrigin(UserOriginEnum.TG_ORIGIN.getOrigin());
+        user.setOrigin(vo.getOrigin());
         user.setTgUserId(vo.getTgUserId());
+        user.setTgUserName(vo.getTgUserName());
         user.setTgGroupId(vo.getTgGroupId());
         user.setTgGroupName(vo.getTgGroupName());
         user.setInviteCode(UserServerUtil.randomCode());
@@ -141,8 +142,14 @@ public class UserController {
         Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize());
         Specification<User> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
-            if (StringUtils.isNotBlank(vo.getUserName())) {
-                predicates.add(cb.equal(root.get("userName"), vo.getUserName()));
+            if (StringUtils.isNotEmpty(vo.getUserName())) {
+                predicates.add(cb.or(
+                        cb.like(root.get("userName"), "%" + vo.getUserName().trim() + "%"),
+                        cb.like(root.get("tgUserName"), "%" + vo.getUserName().trim() + "%"))
+                );
+            }
+            if (StringUtils.isNotEmpty(vo.getNickName())) {
+                predicates.add(cb.like(root.get("nickName"), "%" + vo.getNickName().trim() + "%"));
             }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };
@@ -166,13 +173,20 @@ public class UserController {
                         bo.setBalance(assets.getBalance());
                         bo.setFreezeAmount(assets.getFreezeAmount());
                     }
+                    Long inviteUserId = bo.getInviteUserId();
+                    if (null != inviteUserId) {
+                        User inviteUser = userService.findById(inviteUserId);
+                        bo.setInviteTgUserId(inviteUser.getTgUserId());
+                        bo.setInviteTgUserName(inviteUser.getTgUserName());
+                    }
+
                     list.add(bo);
                 }
             }
             Page<UserPageBO> page = new PageImpl<>(list, pageList.getPageable(), pageList.getTotalElements());
             return page;
         }
-        return new PageImpl<UserPageBO>(new ArrayList<>());
+        return new PageImpl<>(new ArrayList<>());
     }
 
     @ApiOperation(("删除用户"))

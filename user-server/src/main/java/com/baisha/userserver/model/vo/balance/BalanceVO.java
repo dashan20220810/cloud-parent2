@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  * @author yihui
  */
 @Data
-@ApiModel(value = "用户中心-上/下分请求请对象")
+@ApiModel(value = "用户中心-增加/减少余额请求请对象")
 public class BalanceVO {
 
     @ApiModelProperty(value = "用户ID", required = true)

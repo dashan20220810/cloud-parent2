@@ -18,4 +18,13 @@ public class UserPageBO extends User {
     @ApiModelProperty(value = "冻结余额")
     private BigDecimal freezeAmount = BigDecimal.ZERO;
 
+    @ApiModelProperty(value = "邀请人会员ID")
+    private Long inviteUserId;
+
+    @ApiModelProperty(value = "邀请人TG用户ID")
+    private String inviteTgUserId;
+
+    @ApiModelProperty(value = "邀请人TG用户名")
+    private String inviteTgUserName;
+
 }
