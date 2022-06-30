@@ -1,6 +1,7 @@
 package com.baisha.modulespringcacheredis.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
@@ -42,6 +43,18 @@ public class RedisUtil {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * 设置有效时间
+     *
+     * @param key     Redis键
+     * @param timeout 超时时间
+     * @param unit    时间单位
+     * @return true=设置成功；false=设置失败
+     */
+    public boolean expire(final String key, final long timeout, final TimeUnit unit) {
+        return redisTemplate.expire(key, timeout, unit);
     }
 
     /**
@@ -668,6 +681,166 @@ public class RedisUtil {
      */
     public <T> void setValue(final String key, final T value, final Integer time, final TimeUnit timeUnit) {
         redisTemplate.opsForValue().set(key, value, time, timeUnit);
+    }
+
+    //================================Map=================================
+
+    /**
+     * 获取Hash中的数据
+     *
+     * @param key  Redis键
+     * @param hKey Hash键
+     * @return Hash中的对象
+     */
+    public <T> T hgetValue(final String key, final String hKey) {
+        HashOperations<String, String, T> opsForHash = redisTemplate.opsForHash();
+        return opsForHash.get(key, hKey);
+    }
+
+    /**
+     * 获取多个Hash中的数据
+     *
+     * @param key   Redis键
+     * @param hKeys Hash键集合
+     * @return Hash对象集合
+     */
+    public <T> List<T> hgets(final String key, final Collection<Object> hKeys) {
+        return redisTemplate.opsForHash().multiGet(key, hKeys);
+    }
+
+    /**
+     * 获取hashKey对应的所有键值
+     *
+     * @param key 键
+     * @return 对应的多个键值
+     */
+    public <T> Map<String, T> hmgetValue(final String key) {
+        return redisTemplate.opsForHash().entries(key);
+    }
+
+
+    /**
+     * HashSet
+     *
+     * @param key 键
+     * @param map 对应多个键值
+     */
+    public <T> void hmsetValue(final String key, final Map<String, T> map) {
+        if (map != null) {
+            redisTemplate.opsForHash().putAll(key, map);
+        }
+    }
+
+    /**
+     * HashSet 并设置时间
+     *
+     * @param key  键
+     * @param map  对应多个键值
+     * @param time 时间(秒)
+     */
+    public <T> void hmsetValue(final String key, final Map<String, T> map, final long time) {
+        if (map != null) {
+            redisTemplate.opsForHash().putAll(key, map);
+            expire(key, time);
+        }
+    }
+
+    /**
+     * HashSet 并设置时间
+     *
+     * @param key  键
+     * @param map  对应多个键值
+     * @param time 时间
+     * @param unit 时间单位
+     */
+    public <T> void hmsetValue(final String key, final Map<String, T> map, final long time, final TimeUnit unit) {
+        if (map != null) {
+            redisTemplate.opsForHash().putAll(key, map);
+            expire(key, time, unit);
+        }
+    }
+
+    /**
+     * 向一张hash表中放入数据,如果不存在将创建
+     *
+     * @param key   键
+     * @param hKey  项
+     * @param value 值
+     */
+    public <T> void hsetValue(final String key, final String hKey, final T value) {
+        redisTemplate.opsForHash().put(key, hKey, value);
+    }
+
+    /**
+     * 向一张hash表中放入数据,如果不存在将创建
+     *
+     * @param key   键
+     * @param hKey  项
+     * @param value 值
+     * @param time  时间(秒)  注意:如果已存在的hash表有时间,这里将会替换原有的时间
+     */
+    public <T> void hsetValue(final String key, final String hKey, final T value, final long time) {
+        redisTemplate.opsForHash().put(key, hKey, value);
+        expire(key, time);
+    }
+
+    /**
+     * 向一张hash表中放入数据,如果不存在将创建
+     *
+     * @param key   键
+     * @param hKey  项
+     * @param value 值
+     * @param time  时间  注意:如果已存在的hash表有时间,这里将会替换原有的时间
+     * @param unit  时间单位
+     */
+    public <T> void hsetValue(final String key, final String hKey, final T value, final long time, final TimeUnit unit) {
+        redisTemplate.opsForHash().put(key, hKey, value);
+        expire(key, time, unit);
+    }
+
+    /**
+     * 删除hash表中的值
+     *
+     * @param key  键 不能为null
+     * @param hKey 项 可以使多个 不能为null
+     */
+    public void hdelValue(final String key, final Object... hKey) {
+        redisTemplate.opsForHash().delete(key, hKey);
+    }
+
+    /**
+     * 判断hash表中是否有该项的值
+     *
+     * @param key  键 不能为null
+     * @param hKey 项 不能为null
+     * @return true 存在 false不存在
+     */
+    public boolean hHasKeyValue(final String key, final String hKey) {
+        return redisTemplate.opsForHash().hasKey(key, hKey);
+    }
+
+    /**
+     * hash递增 如果不存在,就会创建一个 并把新增后的值返回
+     *
+     * @param key  键
+     * @param hKey 项
+     * @param by   要增加几(大于0)
+     * @return
+     */
+    public double hincrValue(final String key, final String hKey, final double by) {
+        return redisTemplate.opsForHash().increment(key, hKey, by);
+    }
+
+    /**
+     * hash递减
+     *
+     * @param key  键
+     * @param hKey 项
+     * @param by   要减少记(小于0)
+     * @return
+     */
+    public double hdecrValue(final String key, final String hKey, final double by) {
+        return redisTemplate.opsForHash().increment(key, hKey, -by);
     }
 
 
