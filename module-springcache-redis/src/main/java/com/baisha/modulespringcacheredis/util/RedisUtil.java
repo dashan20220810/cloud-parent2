@@ -2,10 +2,14 @@ package com.baisha.modulespringcacheredis.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -83,6 +87,7 @@ public class RedisUtil {
 
     /**
      * 根据前缀模糊删除
+     *
      * @param prex
      */
     public void deleteByPrex(String prex) {
@@ -95,6 +100,7 @@ public class RedisUtil {
 
     /**
      * 根据前缀模糊查询所有key
+     *
      * @param prex
      */
     public Set<String> getKeysByPrex(String prex) {
@@ -592,6 +598,7 @@ public class RedisUtil {
 
     /**
      * 弹出(删除)list中最左边的元素
+     *
      * @param key
      * @return
      */
@@ -604,4 +611,64 @@ public class RedisUtil {
             return null;
         }
     }
+
+    /**
+     * 获得缓存的基本对象列表
+     *
+     * @param pattern 字符串前缀
+     * @return 对象列表
+     */
+    public Collection<String> keys(final String pattern) {
+        return redisTemplate.keys(pattern);
+    }
+
+    //********************************************泛型**********************************************************************
+
+    /**
+     * 普通缓存获取。
+     *
+     * @param key 缓存键值
+     * @return 缓存键值对应的数据
+     */
+    public <T> T getValue(final String key) {
+        ValueOperations<String, T> operation = redisTemplate.opsForValue();
+        return operation.get(key);
+    }
+
+
+    /**
+     * 缓存基本的对象，Integer、String、实体类等
+     *
+     * @param key   缓存的键值
+     * @param value 缓存的值
+     */
+    public <T> void setValue(final String key, final T value) {
+        redisTemplate.opsForValue().set(key, value);
+    }
+
+    /**
+     * 缓存基本的对象，Integer、String、实体类等
+     *
+     * @param key   缓存的键值
+     * @param value 缓存的值
+     * @param time  时间 (秒)
+     */
+    public <T> void setValue(final String key, final T value, final Integer time) {
+        redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
+    }
+
+
+    /**
+     * 缓存基本的对象，Integer、String、实体类等
+     *
+     * @param key      缓存的键值
+     * @param value    缓存的值
+     * @param time     时间
+     * @param timeUnit 时间颗粒度
+     */
+    public <T> void setValue(final String key, final T value, final Integer time, final TimeUnit timeUnit) {
+        redisTemplate.opsForValue().set(key, value, time, timeUnit);
+    }
+
+
 }
