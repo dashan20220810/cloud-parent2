@@ -7,6 +7,7 @@ import com.baisha.userserver.business.BalanceService;
 import com.baisha.userserver.model.Assets;
 import com.baisha.userserver.model.BalanceChange;
 import com.baisha.userserver.model.User;
+import com.baisha.userserver.model.vo.balance.PlayMoneyVO;
 import com.baisha.userserver.service.UserService;
 import com.baisha.userserver.model.vo.UserIdVO;
 import com.baisha.userserver.model.vo.balance.BalanceVO;
@@ -74,6 +75,28 @@ public class AssetsController {
         }
 
         ResponseEntity res = balanceService.doBalanceBusiness(user, vo);
+        return res;
+    }
+
+    @ApiOperation(("用户增加/减少打码量"))
+    @PostMapping("playMoney")
+    public ResponseEntity doPlayMoney(PlayMoneyVO vo) throws Exception {
+        if (Objects.isNull(vo.getUserId()) || vo.getUserId() < 0) {
+            return new ResponseEntity("用户名ID不规范");
+        }
+        if (BalanceChange.checkBalanceType(vo.getPlayMoneyType())) {
+            return new ResponseEntity("收支类型不规范");
+        }
+        if (BalanceChange.checkAmount(vo.getAmount())) {
+            return new ResponseEntity("金额必须大于0");
+        }
+        //获取用户
+        User user = userService.findById(vo.getUserId());
+        if (Objects.isNull(user)) {
+            return new ResponseEntity("会员不存在");
+        }
+
+        ResponseEntity res = balanceService.doPlayMoneyBusiness(user, vo);
         return res;
     }
 

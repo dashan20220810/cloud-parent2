@@ -14,7 +14,11 @@ public class RedisConstants {
     public static int UNLOCK_TIME = 10;
 
 
-    public static String USER_BALANCE = "userServer::balance::";
+    /**
+     * 资产锁
+     */
+    public static String USER_ASSETS = "userServer::assets::";
+
 
 
 }
