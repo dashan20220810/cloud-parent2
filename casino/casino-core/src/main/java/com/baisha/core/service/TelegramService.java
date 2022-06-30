@@ -20,7 +20,7 @@ public class TelegramService {
      * @return
      */
     public SysTelegramDto getSysTelegram() {
-        SysTelegramDto dto = (SysTelegramDto) redisUtil.get(RedisKeyConstants.SYS_TELEGRAM);
+        SysTelegramDto dto = redisUtil.getValue(RedisKeyConstants.SYS_TELEGRAM);
         return dto;
     }
 

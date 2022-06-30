@@ -87,9 +87,9 @@ public class LoginController {
     }
 
 
-    @ApiOperation(("退出"))
+    @ApiOperation(("登陆退出"))
     @PostMapping("quit")
-    public ResponseEntity loginOut() {
+    public ResponseEntity quit() {
         Long authId = BackendServerUtil.getCurrentUserId();
         if (null != authId) {
             String key = Constants.REDIS_TOKEN_ADMIN + authId;
