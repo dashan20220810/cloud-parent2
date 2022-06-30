@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
-public class BalanceService {
+public class UserAssetsService {
 
     @Autowired
     private RedissonClient redisson;
@@ -79,7 +79,7 @@ public class BalanceService {
         //支出先扣钱
         int flag = assetsService.doReduceBalanceById(vo.getAmount(), assets.getId());
         if (flag < 1) {
-            log.info("(支出)更新余额失败(userId={} assetsId={})", assets.getId());
+            log.info("(支出)更新余额失败(userId={} assetsId={})", user.getId(), assets.getId());
             return ResponseUtil.fail();
         }
         log.info("(支出)更新余额成功(userId={} assetsId={})", user.getId(), assets.getId());
@@ -184,19 +184,19 @@ public class BalanceService {
      */
     private ResponseEntity doReducePlayMoney(User user, PlayMoneyVO vo) {
         Assets assets = findAssetsByUserId(user.getId());
-        if (assets.getPlayMoney().compareTo(BigDecimal.ZERO) <= 0){
-            log.info("无打码量(已完成打码量)");
+        if (assets.getPlayMoney().compareTo(BigDecimal.ZERO) <= 0) {
+            log.info("无打码量(已完成打码量)(userId={} assetsId={})", user.getId(), assets.getId());
             return ResponseUtil.success();
         }
-        if (assets.getPlayMoney().compareTo(vo.getAmount()) <=0){
-            log.info("最后一笔打码");
+        if (assets.getPlayMoney().compareTo(vo.getAmount()) <= 0) {
+            log.info("最后一笔打码(userId={} assetsId={})", user.getId(), assets.getId());
             vo.setAmount(assets.getPlayMoney());
         }
 
         //支出先扣钱
         int flag = assetsService.doReducePlayMoneyById(vo.getAmount(), assets.getId());
         if (flag < 1) {
-            log.info("(支出)更新余额失败(userId={} assetsId={})", assets.getId());
+            log.info("(支出)更新打码量失败(userId={} assetsId={})", user.getId(), assets.getId());
             return ResponseUtil.fail();
         }
         log.info("(支出)更新打码量成功(userId={} assetsId={})", user.getId(), assets.getId());

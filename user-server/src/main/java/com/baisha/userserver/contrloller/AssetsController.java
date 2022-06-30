@@ -2,15 +2,14 @@ package com.baisha.userserver.contrloller;
 
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
-import com.baisha.userserver.model.bo.BalanceBO;
-import com.baisha.userserver.business.BalanceService;
-import com.baisha.userserver.model.Assets;
+import com.baisha.userserver.business.UserAssetsService;
 import com.baisha.userserver.model.BalanceChange;
 import com.baisha.userserver.model.User;
-import com.baisha.userserver.model.vo.balance.PlayMoneyVO;
-import com.baisha.userserver.service.UserService;
+import com.baisha.userserver.model.bo.BalanceBO;
 import com.baisha.userserver.model.vo.UserIdVO;
 import com.baisha.userserver.model.vo.balance.BalanceVO;
+import com.baisha.userserver.model.vo.balance.PlayMoneyVO;
+import com.baisha.userserver.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.Objects;
 
 /**
@@ -37,7 +33,7 @@ public class AssetsController {
     @Autowired
     private UserService userService;
     @Autowired
-    private BalanceService balanceService;
+    private UserAssetsService userAssetsService;
 
 
     @ApiOperation(("查询用户余额"))
@@ -52,7 +48,7 @@ public class AssetsController {
             //会员不存在
             return ResponseUtil.success(BalanceBO.builder().balance("0.00").build());
         }
-        BalanceBO balanceBO = balanceService.getUserBalance(vo.getUserId());
+        BalanceBO balanceBO = userAssetsService.getUserBalance(vo.getUserId());
         return ResponseUtil.success(balanceBO);
     }
 
@@ -74,7 +70,7 @@ public class AssetsController {
             return new ResponseEntity("会员不存在");
         }
 
-        ResponseEntity res = balanceService.doBalanceBusiness(user, vo);
+        ResponseEntity res = userAssetsService.doBalanceBusiness(user, vo);
         return res;
     }
 
@@ -96,7 +92,7 @@ public class AssetsController {
             return new ResponseEntity("会员不存在");
         }
 
-        ResponseEntity res = balanceService.doPlayMoneyBusiness(user, vo);
+        ResponseEntity res = userAssetsService.doPlayMoneyBusiness(user, vo);
         return res;
     }
 
