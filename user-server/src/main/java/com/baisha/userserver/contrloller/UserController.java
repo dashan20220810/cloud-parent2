@@ -1,31 +1,28 @@
 package com.baisha.userserver.contrloller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.enums.UserOriginEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.userserver.model.Assets;
-import com.baisha.userserver.model.bo.UserBO;
 import com.baisha.userserver.model.User;
 import com.baisha.userserver.model.UserTelegramRelation;
+import com.baisha.userserver.model.bo.UserBO;
 import com.baisha.userserver.model.bo.UserPageBO;
+import com.baisha.userserver.model.vo.IdVO;
 import com.baisha.userserver.model.vo.user.*;
 import com.baisha.userserver.service.AssetsService;
 import com.baisha.userserver.service.UserService;
 import com.baisha.userserver.service.UserTelegramRelationService;
 import com.baisha.userserver.util.UserServerUtil;
-import com.baisha.userserver.model.vo.IdVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.CollectionUtils;
@@ -240,7 +237,8 @@ public class UserController {
         if (Objects.isNull(user)) {
             return new ResponseEntity("会员不存在");
         }
-        return ResponseUtil.success(UserBO.builder().id(user.getId()).userName(user.getUserName()).nickName(user.getNickName()).build());
+        return ResponseUtil.success(UserBO.builder().id(user.getId())
+                .userName(user.getUserName()).nickName(user.getNickName()).build());
     }
 
     private ResponseEntity findTelegramUser(UserSearchVO vo) {
@@ -248,20 +246,18 @@ public class UserController {
         if (StringUtils.isEmpty(vo.getTgUserId())) {
             return new ResponseEntity("TG用户ID为空");
         }
-        /*if (StringUtils.isEmpty(vo.getTgGroupId())) {
-            return new ResponseEntity("TG群ID为空");
-        }*/
         vo.setUserName(vo.getTgUserId());
         User user = userService.findByUserName(vo.getUserName());
         if (Objects.isNull(user)) {
             return new ResponseEntity("会员不存在");
         }
-        return ResponseUtil.success(UserBO.builder().id(user.getId()).userName(user.getUserName()).nickName(user.getNickName()).build());
+        return ResponseUtil.success(UserBO.builder().id(user.getId())
+                .userName(user.getUserName()).nickName(user.getNickName()).build());
     }
 
     @ApiOperation(("根据id称查询"))
     @GetMapping("findById")
-    public ResponseEntity findById(IdVO vo) {
+    public ResponseEntity<UserBO> findById(IdVO vo) {
         if (Objects.isNull(vo.getId())) {
             return ResponseUtil.parameterNotNull();
         }
@@ -269,7 +265,8 @@ public class UserController {
         if (Objects.isNull(user)) {
             return new ResponseEntity("会员不存在");
         }
-        return ResponseUtil.success(UserBO.builder().id(user.getId()).userName(user.getUserName()).nickName(user.getNickName()).build());
+        return ResponseUtil.success(UserBO.builder().id(user.getId())
+                .userName(user.getUserName()).nickName(user.getNickName()).build());
     }
 
 
