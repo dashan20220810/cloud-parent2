@@ -62,16 +62,13 @@ public class OrderController {
     	if ( BetVO.checkRequest(betVO)==false 
     			|| (isTgRequest && betVO.getTgChatId()==null) ) {
     		log.info("[下注] 检核失败");
-    		return ResponseUtil.fail();
+            return ResponseUtil.custom("命令错误，请参考下注规则");
     	}
     	
-    	// TODO 以table id查deskcode，deskcode查局号
-    	JSONObject deskJson = deskBusiness.queryDeskById(betVO.getTableId());
-    	if ( deskJson==null ) {
-    		log.warn("[下注] 桌台号查无资料, table id: {}", betVO.getTableId());
-            return ResponseUtil.custom("桌台资料错误");
+    	if ( betVO.getMinAmount()==null || betVO.getMaxAmount()==null || betVO.getMaxShoeAmount()==null ) {
+    		log.info("[下注] 检核失败");
+            return ResponseUtil.custom("命令错误，请参考下注规则");
     	}
-    	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskJson.getString("deskCode"));
     	
     	//  user id查user
     	String userIdOrName = CasinoWebUtil.getCurrentUserId();
@@ -81,6 +78,14 @@ public class OrderController {
     		log.warn("[下注] user查无资料, id: {}", userIdOrName);
             return ResponseUtil.custom("玩家资料错误");
     	}
+    	
+    	// 桌台资料
+    	JSONObject deskJson = deskBusiness.queryDeskById(betVO.getTableId());
+    	if ( deskJson==null ) {
+    		log.warn("[下注] 桌台号查无资料, table id: {}", betVO.getTableId());
+            return ResponseUtil.custom("桌台资料错误");
+    	}
+    	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskJson.getString("deskCode"));
     	
     	// 检核限红
     	GameTgGroupInfo groupInfo = gameInfo.getTgGroupInfo(betVO.getTgChatId());
@@ -94,7 +99,7 @@ public class OrderController {
     	}
 
     	//  呼叫
-    	//	会员管理-下分api
+    	//	会员管理 - 下分api
     	String withdrawResult = assetsBusiness.withdraw(userVO.getId(), betVO.getAmount());
     	if ( StringUtils.isNotBlank(withdrawResult) ) {
     		log.warn("[下注] 下分失败");
@@ -105,7 +110,7 @@ public class OrderController {
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
 		//	TODO 輪/局號 應來自荷官端，不得從請求中代入
     	String betResult = orderBusiness.bet(isTgRequest, betVO.getTableId(), betVO.getTgChatId()
-    			, ip, userVO.getId(), betVO.getBetOption(), betVO.getAmount(), "00001");
+    			, ip, userVO.getId(), userVO.getUserName(), betVO.getBetOption(), betVO.getAmount(), "00001");
     	if ( StringUtils.isNotBlank(betResult) ) {
             return ResponseUtil.custom(betResult);
     	}

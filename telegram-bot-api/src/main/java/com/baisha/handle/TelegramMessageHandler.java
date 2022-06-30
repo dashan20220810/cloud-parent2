@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
+import com.baisha.model.vo.ConfigInfo;
 import com.baisha.model.vo.TgBetVO;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.enums.BetOption;
@@ -46,19 +47,14 @@ public class TelegramMessageHandler {
     CommonHandler commonHandler;
 
     public boolean registerEvery(MyTelegramLongPollingBot bot, User user, Chat chat, User from) {
-        String userName = "";
-        if (StrUtil.isNotEmpty(user.getFirstName())) {
-            userName += user.getFirstName();
-        }
-        if (StrUtil.isNotEmpty(user.getLastName())) {
-            userName += user.getLastName();
-        }
+        String userName = (user.getFirstName() == null ? "" : user.getFirstName()) + (user.getLastName() == null ? "" : user.getLastName());
         // 设置请求参数
         Map<String, Object> param = Maps.newHashMap();
         param.put("id", user.getId());
         param.put("nickname", userName);
+        param.put("tgUserName", user.getUserName());
         param.put("groupId", chat.getId());
-        if(!ObjectUtils.isEmpty(from)&&from.getId()!=null){
+        if(!ObjectUtils.isEmpty(from) && from.getId()!=null){
             param.put("inviteTgUserId",from.getId());
         }
         param.put("tgGroupName", chat.getTitle());
@@ -168,9 +164,7 @@ public class TelegramMessageHandler {
 
     private void showWords(User user, MyTelegramLongPollingBot bot, Chat chat) {
         // 获取唯一财务
-        String customerResult = commonHandler.getCustomer(user.getId());
-        // 获取唯一客服
-        String financeResult = getFinance(user.getId());
+        ConfigInfo configInfo = commonHandler.getConfigInfo(user.getId());
         // 注册成功之后的欢迎词
         StringBuilder welcome = new StringBuilder();
         welcome.append(WELCOME1);
@@ -181,25 +175,13 @@ public class TelegramMessageHandler {
         welcome.append(WELCOME3);
         welcome.append(WELCOME4);
         welcome.append(WELCOME5);
-        welcome.append(customerResult);
+        welcome.append(configInfo.getOnlyCustomerService());
         welcome.append("\n");
         welcome.append(WELCOME6);
-        welcome.append(financeResult);
+        welcome.append(configInfo.getOnlyFinance());
         welcome.append("\n");
         welcome.append(WELCOME7);
         bot.sendMessage(welcome.toString(), chat.getId()+"");
-    }
-
-    private String getFinance(Long id) {
-        String financeUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_PROP_FINANCE.getApiName();
-        Map<String, Object> financeParam = Maps.newHashMap();
-        String finance = TgHttpClient4Util.doPost(financeUrl, financeParam, id);
-        String financeResult = "";
-        if (StrUtil.isNotEmpty(finance)) {
-            ResponseEntity response = JSONObject.parseObject(finance, ResponseEntity.class);
-            financeResult = (String) response.getData();
-        }
-        return financeResult;
     }
 
     public boolean tgUserBet(Message message, MyTelegramLongPollingBot bot) {
@@ -230,7 +212,7 @@ public class TelegramMessageHandler {
         param.put("tableId", tgChat.getTableId());
         param.put("minAmount", tgChat.getMinAmount());
         param.put("maxAmount", tgChat.getMaxAmount());
-        param.put("maxShoeAmount;", tgChat.getMaxShoeAmount());
+        param.put("maxShoeAmount", tgChat.getMaxShoeAmount());
 
         // 远程调用
         String forObject = TgHttpClient4Util.doPost(requestUrl, param, userId);

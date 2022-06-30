@@ -44,7 +44,7 @@ public class UserService {
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }
 
-    @Cacheable
+    @Cacheable(key = "#id", unless = "#result == null")
     public User findById(Long id) {
         Optional<User> optional = userRepository.findById(id);
         return optional.orElse(null);

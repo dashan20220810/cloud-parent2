@@ -48,7 +48,7 @@ public class BetService {
             }
             
             if ( vo.getBetOption()!=null ) {
-                predicates.add(cb.equal(root.get("betOption"), vo.getBetOption() ));
+                predicates.add(cb.equal(root.get("betOption"), vo.getBetOption().toString() ));
             }
             
             if ( StringUtils.isNotBlank(vo.getClientType()) ) {
@@ -56,11 +56,11 @@ public class BetService {
             }
             
             if ( StringUtils.isNotBlank(vo.getNoRun()) ) {
-                predicates.add(cb.equal(root.get("noRun"), vo.getNoRun() ));
+                predicates.add(cb.like(root.get("noRun"), "%" +vo.getNoRun() +"%"));
             }
             
             if ( StringUtils.isNotBlank(vo.getNoActive()) ) {
-                predicates.add(cb.equal(root.get("noActive"), vo.getNoActive() ));
+                predicates.add(cb.like(root.get("noActive"), "%" +vo.getNoActive() +"%"));
             }
             
             if ( vo.getStatus()!=null ) {

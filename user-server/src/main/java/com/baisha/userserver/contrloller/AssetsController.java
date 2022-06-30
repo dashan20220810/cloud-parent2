@@ -48,12 +48,11 @@ public class AssetsController {
         //获取用户
         User user = userService.findById(vo.getUserId());
         if (Objects.isNull(user)) {
-            return new ResponseEntity("会员不存在");
+            //会员不存在
+            return ResponseUtil.success(BalanceBO.builder().balance("0.00").build());
         }
-        Assets assets = balanceService.findAssetsByUserId(user.getId());
-        DecimalFormat df = new DecimalFormat("#0.00");
-        BigDecimal balance = assets.getBalance().setScale(2, RoundingMode.HALF_UP);
-        return ResponseUtil.success(BalanceBO.builder().balance(df.format(balance)).build());
+        BalanceBO balanceBO = balanceService.getUserBalance(vo.getUserId());
+        return ResponseUtil.success(balanceBO);
     }
 
     @ApiOperation(("用户上下分"))

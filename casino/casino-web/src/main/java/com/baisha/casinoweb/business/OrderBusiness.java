@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.casinoweb.model.vo.BetVO;
 import com.baisha.casinoweb.model.vo.UserVO;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
@@ -39,7 +38,7 @@ public class OrderBusiness {
 	@Autowired
 	private DeskBusiness deskBusiness;
 	
-	public String bet ( boolean isTgRequest, Long tableId, Long tgChatId, String clientIP, Long userId, BetOption betOption, 
+	public String bet ( boolean isTgRequest, Long tableId, Long tgChatId, String clientIP, Long userId, String userName, BetOption betOption, 
 			Long amount, String noRun ) {
 		
 		log.info("下注");
@@ -70,6 +69,7 @@ public class OrderBusiness {
 		params.put("tgChatId", tgChatId);
 		params.put("clientIP", ip);
 		params.put("userId", userId);  
+		params.put("userName", userName); 
 		params.put("betOption", betOption);
 		params.put("amount", amount);
 		params.put("noRun", noRun);

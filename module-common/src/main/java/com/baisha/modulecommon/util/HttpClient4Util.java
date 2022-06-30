@@ -1,11 +1,16 @@
 package com.baisha.modulecommon.util;
 
 
-import com.alibaba.fastjson.JSONObject;
-import com.mysql.cj.util.StringUtils;
-import com.baisha.modulecommon.Constants;
-import com.baisha.modulecommon.config.LocaleConfig;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -18,15 +23,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URL;
-import java.util.*;
+import com.alibaba.fastjson.JSONObject;
+
+import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HttpClient4Util {
     public static String get(String url) throws Exception {
@@ -145,7 +145,7 @@ public class HttpClient4Util {
     }
 
     public static String doPost(String url, Map<String, Object> paramMap) {
-        log.info("doPost请求路径,url:{},paramMap",url, JSONObject.toJSONString(paramMap));
+        log.info("doPost请求路径,url:{},{}",url, JSONObject.toJSONString(paramMap));
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse httpResponse = null;
         String result = "";

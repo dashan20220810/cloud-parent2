@@ -40,7 +40,7 @@ public class OrderController {
     	
     	if ( Bet.checkRequestForGs(bet, betVO.isTgRequest())==false ) {
     		log.info("[下注] 检核失败");
-    		return ResponseUtil.fail();
+            return ResponseUtil.custom("命令错误，请参考下注规则");
     	}
     	
     	betService.save(bet);

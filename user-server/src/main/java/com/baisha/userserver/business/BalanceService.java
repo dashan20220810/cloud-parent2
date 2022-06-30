@@ -2,6 +2,8 @@ package com.baisha.userserver.business;
 
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
+import com.baisha.userserver.model.bo.BalanceBO;
+import com.baisha.userserver.service.UserService;
 import com.baisha.userserver.util.constants.RedisConstants;
 import com.baisha.userserver.util.constants.UserServerConstants;
 import com.baisha.userserver.model.Assets;
@@ -17,6 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +35,8 @@ public class BalanceService {
     private AssetsService assetsService;
     @Autowired
     private BalanceChangeService balanceChangeService;
+    @Autowired
+    private UserService userService;
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity doBalanceBusiness(User user, BalanceVO vo) throws Exception {
@@ -117,6 +124,14 @@ public class BalanceService {
             return assets;
         }
         return assets;
+    }
+
+
+    public BalanceBO getUserBalance(Long userId) {
+        DecimalFormat df = new DecimalFormat("#0.00");
+        Assets assets = findAssetsByUserId(userId);
+        BigDecimal balance = assets.getBalance().setScale(2, RoundingMode.HALF_UP);
+        return BalanceBO.builder().balance(df.format(balance)).build();
     }
 
 
