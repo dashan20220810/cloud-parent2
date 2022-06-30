@@ -114,10 +114,13 @@ public class DeskController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        Admin currentUser = commonService.getCurrentUser();
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.DELETE,
-                JSON.toJSONString(param), BackendConstants.DESK_MODULE);
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == 0) {
+            Admin currentUser = commonService.getCurrentUser();
+            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.DELETE,
+                    JSON.toJSONString(param), BackendConstants.DESK_MODULE);
+        }
+        return responseEntity;
     }
 
     @ApiOperation("桌台状态更新")
@@ -137,10 +140,13 @@ public class DeskController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        Admin currentUser = commonService.getCurrentUser();
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
-                JSON.toJSONString(param), BackendConstants.DESK_MODULE);
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == 0) {
+            Admin currentUser = commonService.getCurrentUser();
+            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                    JSON.toJSONString(param), BackendConstants.DESK_MODULE);
+        }
+        return responseEntity;
     }
 
 
@@ -156,10 +162,13 @@ public class DeskController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        Admin currentUser = commonService.getCurrentUser();
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
-                JSON.toJSONString(param), BackendConstants.DESK_MODULE);
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == 0) {
+            Admin currentUser = commonService.getCurrentUser();
+            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
+                    JSON.toJSONString(param), BackendConstants.DESK_MODULE);
+        }
+        return responseEntity;
     }
 
     @ApiOperation("桌台编辑")
@@ -178,10 +187,13 @@ public class DeskController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        Admin currentUser = commonService.getCurrentUser();
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
-                JSON.toJSONString(param), BackendConstants.DESK_MODULE);
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == 0) {
+            Admin currentUser = commonService.getCurrentUser();
+            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                    JSON.toJSONString(param), BackendConstants.DESK_MODULE);
+        }
+        return responseEntity;
     }
 
 

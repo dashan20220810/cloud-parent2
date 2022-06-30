@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -78,10 +77,13 @@ public class UserController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        Admin currentUser = commonService.getCurrentUser();
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.DELETE,
-                currentUser.getUserName() + "删除用户id={" + vo.getId() + "}", BackendConstants.USER_MODULE);
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == 0) {
+            Admin currentUser = commonService.getCurrentUser();
+            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.DELETE,
+                    currentUser.getUserName() + "删除用户id={" + vo.getId() + "}", BackendConstants.USER_MODULE);
+        }
+        return responseEntity;
     }
 
     @ApiOperation(("启用/禁用用户"))
@@ -96,10 +98,13 @@ public class UserController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        Admin currentUser = commonService.getCurrentUser();
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
-                currentUser.getUserName() + "修改用户状态id={" + vo.getId() + "}", BackendConstants.USER_MODULE);
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == 0) {
+            Admin currentUser = commonService.getCurrentUser();
+            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                    currentUser.getUserName() + "修改用户状态id={" + vo.getId() + "}", BackendConstants.USER_MODULE);
+        }
+        return responseEntity;
     }
 
 
@@ -122,10 +127,13 @@ public class UserController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        Admin currentUser = commonService.getCurrentUser();
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
-                currentUser.getUserName() + "为用户id={" + vo.getId() + "}上分", BackendConstants.USER_ASSETS_MODULE);
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == 0) {
+            Admin currentUser = commonService.getCurrentUser();
+            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                    currentUser.getUserName() + "为用户id={" + vo.getId() + "}上分", BackendConstants.USER_ASSETS_MODULE);
+        }
+        return responseEntity;
     }
 
     @ApiOperation(value = "用户下分")
@@ -147,10 +155,13 @@ public class UserController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        Admin currentUser = commonService.getCurrentUser();
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
-                currentUser.getUserName() + "为用户id={" + vo.getId() + "}下分", BackendConstants.USER_ASSETS_MODULE);
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == 0) {
+            Admin currentUser = commonService.getCurrentUser();
+            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                    currentUser.getUserName() + "为用户id={" + vo.getId() + "}下分", BackendConstants.USER_ASSETS_MODULE);
+        }
+        return responseEntity;
     }
 
 
