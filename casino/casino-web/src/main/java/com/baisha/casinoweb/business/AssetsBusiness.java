@@ -3,6 +3,7 @@ package com.baisha.casinoweb.business;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.model.vo.UserVO;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
+import com.baisha.modulecommon.vo.GameInfo;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,8 +24,18 @@ public class AssetsBusiness {
 
 	@Value("${project.server-url.user-server-domain}")
 	private String userServerDomain;
+
+	@Autowired
+	private GameInfoBusiness gameInfoBusiness;
 	
-	public String withdraw ( Long userId, Long amount ) {
+	@Autowired
+	private DeskBusiness deskBusiness;
+	
+	public String withdraw ( Long userId, Long amount, Long tableId ) {
+
+		JSONObject desk = deskBusiness.queryDeskById(tableId);
+		String deskCode = desk.getString("deskCode");
+		GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
 
 		log.info("呼叫下分, userID:{}", userId);
     	//	会员管理-下分api
@@ -31,7 +43,7 @@ public class AssetsBusiness {
     	params.put("userId", userId);
     	params.put("amount", amount);
     	params.put("balanceType", Constants.BALANCE_TYPE_WITHDRAW);
-    	params.put("remark", "下注");
+    	params.put("remark", String.format("user:%d ,局号:%s 下注", userId, gameInfo.getCurrentActive()));
 
     	String result = HttpClient4Util.doPost(
 				userServerDomain + RequestPathEnum.ASSETS_BALANCE.getApiName(),

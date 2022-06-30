@@ -18,14 +18,17 @@ public class GameInfo implements Serializable {
 	private String currentActive;
 	
 	/** 前局游戏资讯 */ // 设置前请先清空当前局的前一局
-	private GameInfo lastGameInfo;
+//	private GameInfo lastGameInfo;
 	
 	/** 游戏状态 */
 	private GameStatusEnum status;
 	
 	private Date beginTime;
 	
-	private Map<Long, GameTgGroupInfo> tgGroupMap = new HashMap<>();
+	/** 封盘时间 */
+	private Date endTime;
+	
+	private Map<Long, GameTgGroupInfo> tgGroupMap;
 	
 	public GameTgGroupInfo getTgGroupInfo ( Long tgGroupId ) {
 		if ( tgGroupMap==null ) {

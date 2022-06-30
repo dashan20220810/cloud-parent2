@@ -9,11 +9,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baisha.casinoweb.model.vo.BetVO;
 import com.baisha.casinoweb.model.vo.UserVO;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.enums.BetOption;
-import com.baisha.modulecommon.enums.GameStatusEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.util.IpUtil;
@@ -38,8 +38,15 @@ public class OrderBusiness {
 	@Autowired
 	private DeskBusiness deskBusiness;
 	
-	public String bet ( boolean isTgRequest, Long tableId, Long tgChatId, String clientIP, Long userId, String userName, BetOption betOption, 
-			Long amount, String noRun ) {
+
+	
+	public String bet ( boolean isTgRequest, BetVO betVO, UserVO userVO, String noRun ) {
+		return bet(isTgRequest, betVO.getTableId(), betVO.getTgChatId(), betVO.getBetOption(), betVO.getAmount()
+				, noRun, userVO.getId(), userVO.getUserName(), userVO.getNickName());
+	}
+	
+	public String bet ( boolean isTgRequest, Long tableId, Long tgChatId, BetOption betOption, 
+			Long amount, String noRun, Long userId, String userName, String nickName ) {
 		
 		log.info("下注");
 		JSONObject desk = deskBusiness.queryDeskById(tableId);
@@ -54,11 +61,6 @@ public class OrderBusiness {
 		if ( StringUtils.isBlank(gameInfo.getCurrentActive()) ) {
     		log.warn("下注 失败 局号不符, {}");
 			return "下注 失败 局号不符";
-		}
-		
-		if ( gameInfo.getStatus()!=GameStatusEnum.Betting ) {
-    		log.warn("下注 失败 非下注状态, {}", gameInfo.getStatus().toString());
-			return "下注 失败 非下注状态";
 		}
 
 		// 记录IP
@@ -94,7 +96,7 @@ public class OrderBusiness {
             return String.format("下注 失败, %s", betJson.toString());
 		}
 
-		gameInfo = gameInfoBusiness.calculateBetAmount(deskCode, tgChatId, userId, amount);
+		gameInfo = gameInfoBusiness.calculateBetAmount(deskCode, tgChatId, userId, nickName, betOption.toString(), amount);
 		
 		log.info("下注 成功");
 		return null;
