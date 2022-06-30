@@ -1,9 +1,61 @@
 package com.baisha.controller;
 
+import static com.baisha.util.constants.BotConstant.DEFAULT_USER_ID;
+import static com.baisha.util.constants.BotConstant.GAME_RULE1;
+import static com.baisha.util.constants.BotConstant.GAME_RULE10;
+import static com.baisha.util.constants.BotConstant.GAME_RULE11;
+import static com.baisha.util.constants.BotConstant.GAME_RULE2;
+import static com.baisha.util.constants.BotConstant.GAME_RULE3;
+import static com.baisha.util.constants.BotConstant.GAME_RULE4;
+import static com.baisha.util.constants.BotConstant.GAME_RULE5;
+import static com.baisha.util.constants.BotConstant.GAME_RULE6;
+import static com.baisha.util.constants.BotConstant.GAME_RULE7;
+import static com.baisha.util.constants.BotConstant.GAME_RULE8;
+import static com.baisha.util.constants.BotConstant.GAME_RULE9;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO1;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO10;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO11;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO12;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO13;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO14;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO15;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO16;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO17;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO18;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO19;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO2;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO20;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO21;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO3;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO4;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO5;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO6;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO7;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO8;
+import static com.baisha.util.constants.BotConstant.SEALING_BET_INFO9;
+
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.business.TgBotBusiness;
+import com.baisha.handle.CommonHandler;
 import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
+import com.baisha.model.vo.BetUserAmountVO;
+import com.baisha.model.vo.BetUserVO;
+import com.baisha.model.vo.ConfigInfo;
+import com.baisha.model.vo.SealingLineVO;
 import com.baisha.model.vo.StartNewBureauVO;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
@@ -11,25 +63,10 @@ import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.service.TgBotService;
 import com.baisha.service.TgChatService;
 import com.baisha.util.Base64Utils;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ResourceUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
-
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
-import java.util.Objects;
-
-import static com.baisha.util.constants.BotConstant.*;
-import static com.baisha.util.constants.BotConstant.GAME_RULE11;
 
 @Api(tags = "游戏指令推送")
 @Slf4j
@@ -42,6 +79,9 @@ public class CommandController {
 
     @Autowired
     TgChatService tgChatService;
+
+    @Autowired
+    CommonHandler commonHandler;
 
     @ApiOperation("开始新局")
     @PostMapping("startNewBureau")
@@ -88,6 +128,37 @@ public class CommandController {
         return ResponseUtil.success();
     }
 
+    @ApiOperation("封盘线")
+    @PostMapping("sealingLine")
+    public ResponseEntity sealingLine(@RequestBody SealingLineVO vo) throws Exception {
+        // 验证参数有效性
+        if (!SealingLineVO.check(vo)) {
+            return ResponseUtil.parameterNotNull();
+        }
+        // 获取配置信息
+        ConfigInfo configInfo = commonHandler.getConfigInfo(DEFAULT_USER_ID);
+
+        Map<Long, BetUserAmountVO> tgBetInfo = vo.getTgBetInfo();
+        tgBetInfo.forEach((chatId, betUserAmountVO) -> {
+            TgChat tgChat = tgChatService.findByChatId(chatId);
+            // 群审核通过，才发消息
+            if (!commonHandler.parseChat(tgChat)) {
+                return;
+            }
+            MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgChat.getBotName());
+            if (myBot == null) {
+                return;
+            }
+            // 组装TG信息
+            String sealingLine = buildSealingLine(vo);
+            String message = buildSealingLineMessage(configInfo, vo, betUserAmountVO);
+
+            myBot.sendMessage(sealingLine, tgChat.getChatId()+"");
+            myBot.sendMessage(message, tgChat.getChatId()+"");
+        });
+        return ResponseUtil.success();
+    }
+
     private String buildStartMessage(String bureauNum, String minAmount, String maxAmount, String maxShoeAmount) {
         //3.2 组装 局号+限红
         StringBuilder gameRule = new StringBuilder();
@@ -107,5 +178,54 @@ public class CommandController {
         gameRule.append(GAME_RULE10);
         gameRule.append(GAME_RULE11);
         return gameRule.toString();
+    }
+
+    private String buildSealingLine(SealingLineVO vo) {
+        // 封盘线
+        StringBuilder sealingLine = new StringBuilder();
+        sealingLine.append(vo.getBureauNum());
+        sealingLine.append(SEALING_BET_INFO1);
+        sealingLine.append(SEALING_BET_INFO2);
+        return sealingLine.toString();
+    }
+
+    private String buildSealingLineMessage(ConfigInfo configInfo, SealingLineVO vo, BetUserAmountVO betUserAmountVO) {
+        // 封盘线
+        StringBuilder sealingLine = new StringBuilder();
+        sealingLine.append(SEALING_BET_INFO3);
+        sealingLine.append(SEALING_BET_INFO4);
+        sealingLine.append(SEALING_BET_INFO5);
+        sealingLine.append(SEALING_BET_INFO6);
+        sealingLine.append(SEALING_BET_INFO7);
+        sealingLine.append(SEALING_BET_INFO7);
+        sealingLine.append(SEALING_BET_INFO7);
+        sealingLine.append(SEALING_BET_INFO8);
+        sealingLine.append(SEALING_BET_INFO9);
+        sealingLine.append(SEALING_BET_INFO10);
+        sealingLine.append(configInfo.getOnlyFinance());
+        sealingLine.append(SEALING_BET_INFO11);
+        sealingLine.append(SEALING_BET_INFO12);
+        sealingLine.append(configInfo.getOnlyCustomerService());
+        sealingLine.append(SEALING_BET_INFO13);
+        sealingLine.append(SEALING_BET_INFO14);
+        sealingLine.append(SEALING_BET_INFO15);
+        sealingLine.append(SEALING_BET_INFO16);
+        sealingLine.append(betUserAmountVO.getTotalBetAmount());
+        sealingLine.append(SEALING_BET_INFO17);
+        sealingLine.append(SEALING_BET_INFO18);
+        sealingLine.append(SEALING_BET_INFO19);
+
+        List<BetUserVO> top20Users = betUserAmountVO.getTop20Users();
+        top20Users.forEach(user -> {
+            String username = user.getUsername();
+            String betCommand = user.getBetCommand();
+            sealingLine.append(SEALING_BET_INFO20);
+            sealingLine.append(username);
+            sealingLine.append(SEALING_BET_INFO21);
+            sealingLine.append(betCommand);
+            sealingLine.append(SEALING_BET_INFO17);
+        });
+
+        return sealingLine.toString();
     }
 }

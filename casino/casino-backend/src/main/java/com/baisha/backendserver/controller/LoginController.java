@@ -87,4 +87,18 @@ public class LoginController {
     }
 
 
+    @ApiOperation(("登陆退出"))
+    @PostMapping("quit")
+    public ResponseEntity quit() {
+        Long authId = BackendServerUtil.getCurrentUserId();
+        if (null != authId) {
+            String key = Constants.REDIS_TOKEN_ADMIN + authId;
+            if (redisUtil.hasKey(key)) {
+                redisUtil.del(key);
+            }
+        }
+        return ResponseUtil.success();
+    }
+
+
 }

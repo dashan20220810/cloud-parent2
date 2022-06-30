@@ -80,8 +80,12 @@ public class TgBotController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        log.info("{} {} {} {}", current.getUserName(), BackendConstants.INSERT, JSON.toJSONString(paramMap), BackendConstants.TOBOT_MODULE);
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == 0) {
+            log.info("{} {} {} {}", current.getUserName(), BackendConstants.INSERT,
+                    JSON.toJSONString(paramMap), BackendConstants.TOBOT_MODULE);
+        }
+        return responseEntity;
     }
 
     @ApiOperation("机器人分页查询")
@@ -111,9 +115,13 @@ public class TgBotController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        Admin current = commonService.getCurrentUser();
-        log.info("{} {} {} {}", current.getUserName(), BackendConstants.UPDATE, JSON.toJSONString(statusVO), BackendConstants.TOBOT_MODULE);
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == 0) {
+            Admin current = commonService.getCurrentUser();
+            log.info("{} {} {} {}", current.getUserName(), BackendConstants.UPDATE,
+                    JSON.toJSONString(statusVO), BackendConstants.TOBOT_MODULE);
+        }
+        return responseEntity;
     }
 
     @ApiOperation("机器人删除")
@@ -128,10 +136,13 @@ public class TgBotController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        Admin current = commonService.getCurrentUser();
-        log.info("{} {} {} {}", current.getUserName(), BackendConstants.DELETE, "删除机器人" + JSON.toJSONString(vo)
-                , BackendConstants.TOBOT_MODULE);
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == 0) {
+            Admin current = commonService.getCurrentUser();
+            log.info("{} {} {} {}", current.getUserName(), BackendConstants.DELETE, "删除机器人" + JSON.toJSONString(vo)
+                    , BackendConstants.TOBOT_MODULE);
+        }
+        return responseEntity;
     }
 
 
@@ -206,10 +217,13 @@ public class TgBotController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        Admin currentUser = commonService.getCurrentUser();
-        log.info("{} {} 审核群(限红){} {}", currentUser.getUserName(), BackendConstants.UPDATE,
-                JSON.toJSONString(param), BackendConstants.TOBOT_GROUP_MODULE);
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == 0) {
+            Admin currentUser = commonService.getCurrentUser();
+            log.info("{} {} 审核群(限红){} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                    JSON.toJSONString(param), BackendConstants.TOBOT_GROUP_MODULE);
+        }
+        return responseEntity;
     }
 
     private TgBotGroupAuditVO setTgBotGroupAuditVO(TgBotGroupAuditVO vo) {
@@ -258,10 +272,13 @@ public class TgBotController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        Admin currentUser = commonService.getCurrentUser();
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.DELETE,
-                JSON.toJSONString(param), BackendConstants.TOBOT_GROUP_MODULE);
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == 0) {
+            Admin currentUser = commonService.getCurrentUser();
+            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.DELETE,
+                    JSON.toJSONString(param), BackendConstants.TOBOT_GROUP_MODULE);
+        }
+        return responseEntity;
     }
 
 

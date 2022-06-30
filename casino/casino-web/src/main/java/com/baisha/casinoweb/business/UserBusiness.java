@@ -49,7 +49,8 @@ public class UserBusiness {
     	return userVO;
 	}
 
-	public boolean registerTG( String clientIP, String id, String nickName, Long groupId, String inviteTgUserId, String tgGroupName ) {
+	public boolean registerTG( String clientIP, String id, String nickName, Long groupId
+			, String inviteTgUserId, String tgGroupName, String tgUserName ) {
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("ip", clientIP);
@@ -58,6 +59,7 @@ public class UserBusiness {
 		params.put("nickName", nickName);
 		params.put("inviteTgUserId", inviteTgUserId);
 		params.put("tgGroupName", tgGroupName);
+		params.put("tgUserName", tgUserName);
 		params.put("password", tgRegisterPassword);
 		params.put("origin", UserOriginEnum.TG_ORIGIN.getOrigin());
 

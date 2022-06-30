@@ -28,9 +28,17 @@ public class DeskBusiness {
      * @return
      */
     public JSONObject queryDeskByIp() {
+		String localIp = IpUtil.getIp(CasinoWebUtil.getRequest());
+		return queryDeskByIp(localIp);
+    }
+    
+    /**
+     * game server查桌台号
+     * @return
+     */
+    public JSONObject queryDeskByIp(String localIp) {
 
     	log.info("查桌台号");
-		String localIp = IpUtil.getIp(CasinoWebUtil.getRequest());
 		log.info("ip: {}", localIp);
 
 		try {
@@ -41,6 +49,7 @@ public class DeskBusiness {
             return null;
 		}
     }
+    
 
     /**
      * game server查桌台号

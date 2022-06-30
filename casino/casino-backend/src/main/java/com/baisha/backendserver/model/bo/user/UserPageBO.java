@@ -34,7 +34,7 @@ public class UserPageBO extends BaseBO {
     private String ip;
 
     @ApiModelProperty(value = "状态 1 正常 ，0禁用")
-    private Integer status = 1;
+    private Integer status;
 
     @ApiModelProperty(value = "来源")
     private String origin;
@@ -50,4 +50,11 @@ public class UserPageBO extends BaseBO {
 
     @ApiModelProperty(value = "冻结余额")
     private BigDecimal freezeAmount = BigDecimal.ZERO;
+
+    @ApiModelProperty(value = "邀请人TG用户ID")
+    private String inviteTgUserId;
+
+    @ApiModelProperty(value = "邀请人TG用户名")
+    private String inviteTgUserName;
+
 }

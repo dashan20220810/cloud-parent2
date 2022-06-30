@@ -206,7 +206,7 @@ public class TelegramMessageHandler {
         param.put("amount", tgBetVO.getAmount());
         param.put("tgChatId", chatId);
         TgChat tgChat = tgChatService.findByChatId(chatId);
-        if (!parseChat(tgChat)) {
+        if (!commonHandler.parseChat(tgChat)) {
             return false;
         }
         param.put("tableId", tgChat.getTableId());
@@ -238,25 +238,6 @@ public class TelegramMessageHandler {
         // 输出错误原因
         bot.sendMessage(username + " 下注失败，原因：" + result.getMsg(), chatId+"");
         return false;
-    }
-
-    private boolean parseChat(TgChat tgChat) {
-        if (null == tgChat || tgChat.getStatus() == Constants.close) {
-            return false;
-        }
-        if (null == tgChat.getTableId()) {
-            return false;
-        }
-        if (null == tgChat.getMinAmount()) {
-            return false;
-        }
-        if (null == tgChat.getMaxAmount()) {
-            return false;
-        }
-        if (null == tgChat.getMaxShoeAmount()) {
-            return false;
-        }
-        return true;
     }
 
     private TgBetVO parseBet(String originText) {

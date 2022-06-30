@@ -16,15 +16,15 @@ import java.math.BigDecimal;
 @Slf4j
 @Data
 @Entity
-@Table(name = "BalanceChange", indexes = {@Index(columnList = "userId")})
-@org.hibernate.annotations.Table(appliesTo = "balance_change", comment = "会员余额变动记录")
-public class BalanceChange extends BaseEntity {
+@Table(name = "PlayMoneyChange", indexes = {@Index(columnList = "userId")})
+@org.hibernate.annotations.Table(appliesTo = "play_money_change", comment = "会员打码量变动记录")
+public class PlayMoneyChange extends BaseEntity {
 
     @Column(columnDefinition = "bigint(20) comment '会员ID'")
     private Long userId;
 
     @Column(columnDefinition = "tinyint(2) comment '收支类型 1收入 2支出'")
-    private Integer balanceType;
+    private Integer playMoneyType;
 
     @Column(columnDefinition = "decimal(16,2) comment '交易前金额'")
     private BigDecimal beforeAmount;
@@ -39,7 +39,7 @@ public class BalanceChange extends BaseEntity {
     private String remark;
 
 
-    public static boolean checkBalanceType(Integer balanceType) {
+    public static boolean checkPlayMoneyType(Integer balanceType) {
         if (null == balanceType) {
             return true;
         }

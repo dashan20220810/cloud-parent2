@@ -2,7 +2,9 @@ package com.baisha.handle;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baisha.model.TgChat;
 import com.baisha.model.vo.ConfigInfo;
+import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.util.TelegramBotUtil;
 import com.baisha.util.TgHttpClient4Util;
@@ -43,5 +45,24 @@ public class CommonHandler {
             }
         }
         return configInfo;
+    }
+
+    public boolean parseChat(TgChat tgChat) {
+        if (null == tgChat || tgChat.getStatus() == Constants.close) {
+            return false;
+        }
+        if (null == tgChat.getTableId()) {
+            return false;
+        }
+        if (null == tgChat.getMinAmount()) {
+            return false;
+        }
+        if (null == tgChat.getMaxAmount()) {
+            return false;
+        }
+        if (null == tgChat.getMaxShoeAmount()) {
+            return false;
+        }
+        return true;
     }
 }

@@ -41,6 +41,10 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "varchar(64) comment 'TG群ID'")
     private String tgGroupId;
 
+    @ApiModelProperty(value = "TG用户名称(@xxx)")
+    @Column(columnDefinition = "varchar(30) comment 'TG用户名称(@xxx)'")
+    private String tgUserName;
+
     @ApiModelProperty(value = "TG群名称")
     @Column(columnDefinition = "varchar(64) comment 'TG群名称'")
     private String tgGroupName;

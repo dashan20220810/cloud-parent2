@@ -10,6 +10,7 @@ import com.baisha.backendserver.model.vo.sys.SysTelegramParameterVO;
 import com.baisha.backendserver.service.SysTelegramService;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.core.constants.RedisKeyConstants;
+import com.baisha.core.dto.SysTelegramDto;
 import com.baisha.core.service.TelegramService;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
@@ -67,7 +68,8 @@ public class SysTelegramController {
     @ApiOperation("设置信息 上传文件bucket是telegram")
     @PostMapping(value = "setInfo")
     public ResponseEntity<Long> setSysTelegramInfo(SysTelegramParameterVO vo) {
-        if (CommonUtil.checkNull(vo.getOnlyFinance(), vo.getOnlyCustomerService(), vo.getStartBetPicUrl())) {
+        if (CommonUtil.checkNull(vo.getOnlyFinance(), vo.getOnlyCustomerService(), vo.getStartBetPicUrl()
+                , vo.getSeventySecondsUrl(), vo.getOfficialGamingChannel())) {
             return ResponseUtil.parameterNotNull();
         }
         Admin admin = commonService.getCurrentUser();
@@ -108,9 +110,9 @@ public class SysTelegramController {
         if (StringUtils.isNotEmpty(vo.getStartBetPicUrl())) {
             stp.setStartBetPicUrl(vo.getStartBetPicUrl());
         }
-        if (null != vo.getStartBetSeventySeconds()) {
-            stp.setStartBetSeventySeconds(vo.getStartBetSeventySeconds());
-        }
+//        if (null != vo.getStartBetSeventySeconds()) {
+//            stp.setStartBetSeventySeconds(vo.getStartBetSeventySeconds());
+//        }
         if (StringUtils.isNotEmpty(vo.getSeventySecondsUrl())) {
             stp.setSeventySecondsUrl(vo.getSeventySecondsUrl());
         }
@@ -120,15 +122,14 @@ public class SysTelegramController {
     }
 
     private void doSetRedis(SysTelegramParameter stp) {
-        Map<String, Object> map = new HashMap<>(16);
-        map.put("onlyFinance", StringUtils.isEmpty(stp.getOnlyFinance()) ? "" : stp.getOnlyFinance());
-        map.put("onlyCustomerService", StringUtils.isEmpty(stp.getOnlyCustomerService()) ? "" :
-                stp.getOnlyCustomerService());
-        map.put("startBetPicUrl", StringUtils.isEmpty(stp.getStartBetPicUrl()) ? "" : commonService.getFileServerUrl(stp.getStartBetPicUrl()));
-        map.put("officialGamingChannel", StringUtils.isEmpty(stp.getOfficialGamingChannel()) ? "" : stp.getOfficialGamingChannel());
-        map.put("startBetSeventySeconds", Objects.isNull(stp.getStartBetSeventySeconds()) ? 70 : stp.getStartBetSeventySeconds());
-        map.put("seventySecondsUrl", StringUtils.isEmpty(stp.getSeventySecondsUrl()) ? "" : commonService.getFileServerUrl(stp.getSeventySecondsUrl()));
-        redisUtil.hmset(RedisKeyConstants.SYS_TELEGRAM, map);
+        SysTelegramDto sysTelegramDto = SysTelegramDto.builder()
+                .onlyFinance(stp.getOnlyFinance())
+                .onlyCustomerService(stp.getOnlyCustomerService())
+                .startBetPicUrl(StringUtils.isEmpty(stp.getStartBetPicUrl()) ? "" : commonService.getFileServerUrl(stp.getStartBetPicUrl()))
+                .officialGamingChannel(stp.getOfficialGamingChannel())
+                .seventySecondsUrl(StringUtils.isEmpty(stp.getSeventySecondsUrl()) ? "" : commonService.getFileServerUrl(stp.getSeventySecondsUrl()))
+                .build();
+        telegramService.setSysTelegram(sysTelegramDto);
     }
 
 

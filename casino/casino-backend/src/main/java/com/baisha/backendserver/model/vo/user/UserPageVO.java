@@ -12,7 +12,10 @@ import lombok.Data;
 @ApiModel(value = "后台-用户分页对象")
 public class UserPageVO extends PageVO {
 
-    @ApiModelProperty(value = "用户名(必须是6-15位的字母或数字)")
+    @ApiModelProperty(value = "用户名")
     private String userName;
+
+    @ApiModelProperty(value = "昵称")
+    private String nickName;
 
 }

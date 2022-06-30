@@ -26,8 +26,8 @@ public class SysTelegramParameterBO {
     @ApiModelProperty(value = "显示开始下注图片路径")
     private String startBetPicUrlShow;
 
-    @ApiModelProperty(value = "开始下注倒计时(秒) ")
-    private Integer startBetSeventySeconds;
+    //@ApiModelProperty(value = "开始下注倒计时(秒) ")
+    //private Integer startBetSeventySeconds;
 
     @ApiModelProperty(value = "开始下注倒计时路径 ")
     private String seventySecondsUrl;

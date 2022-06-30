@@ -6,9 +6,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.baisha.casinoweb.business.DealerBusiness;
+import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.modulecommon.annotation.NoAuthentication;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
+import com.baisha.modulecommon.util.IpUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,7 +35,8 @@ public class DealerEventController {
 	public ResponseEntity<String> openNewGame () {
 
 		log.info("游戏开局");
-		boolean result = dealerBusiness.openNewGame();
+		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
+		boolean result = dealerBusiness.openNewGame(ip);
 //		boolean result = false;
 		if ( result==false ) {
 			log.info("[游戏开局] 失敗");

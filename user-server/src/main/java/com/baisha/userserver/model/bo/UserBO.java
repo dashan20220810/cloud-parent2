@@ -24,4 +24,7 @@ public class UserBO implements Serializable {
     @ApiModelProperty(value = "昵称")
     private String nickName;
 
+    /*@ApiModelProperty(value = "余额")
+    private String balance;*/
+
 }

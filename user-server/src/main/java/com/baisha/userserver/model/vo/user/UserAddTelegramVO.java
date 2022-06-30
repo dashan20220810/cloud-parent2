@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
+
 /**
  * @author yihui
  */
@@ -16,9 +18,12 @@ public class UserAddTelegramVO {
 
     @ApiModelProperty(value = "TG群ID", required = true)
     private String tgGroupId;
-    
+
     @ApiModelProperty(value = "昵称(长度3-10位,只能输入字母或数字或汉字)", required = true)
     private String nickName;
+
+    @ApiModelProperty(value = "TG用户名称(@xxx)")
+    private String tgUserName;
 
     @ApiModelProperty(value = "密碼(长度3-20位)")
     private String password;
