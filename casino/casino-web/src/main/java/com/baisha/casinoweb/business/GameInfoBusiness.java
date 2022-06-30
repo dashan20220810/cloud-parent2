@@ -90,7 +90,7 @@ public class GameInfoBusiness {
 		
 		String response = HttpClient4Util.doPost(
 				telegramServerDomain + RequestPathEnum.TG_CLOSE_GAME.getApiName(),
-				result);
+				JSONObject.toJSONString(result));
 
         if (CommonUtil.checkNull(response)) {
         	log.warn("封盘 失败");
