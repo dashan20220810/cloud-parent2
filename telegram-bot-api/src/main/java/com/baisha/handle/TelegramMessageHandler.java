@@ -52,6 +52,7 @@ public class TelegramMessageHandler {
         Map<String, Object> param = Maps.newHashMap();
         param.put("id", user.getId());
         param.put("nickname", userName);
+        param.put("tgUserName", user.getUserName());
         param.put("groupId", chat.getId());
         if(!ObjectUtils.isEmpty(from) && from.getId()!=null){
             param.put("inviteTgUserId",from.getId());
