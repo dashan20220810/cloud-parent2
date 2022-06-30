@@ -92,22 +92,6 @@ public class UserServerUtil {
     }
 
     /**
-     * 验证 是否删除
-     *
-     * @param isDelete
-     * @return
-     */
-    public static boolean checkIsDelete(Integer isDelete) {
-        if (null == isDelete) {
-            return true;
-        }
-        if (isDelete != UserServerConstants.DELETE_NORMAL && isDelete != UserServerConstants.DELETE_DISABLED) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * 获取TG的userName
      *
      * @param tgGroupId

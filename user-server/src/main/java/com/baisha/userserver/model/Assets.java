@@ -24,5 +24,8 @@ public class Assets extends BaseEntity {
     @Column(columnDefinition = "decimal(16,2) comment '冻结余额'")
     private BigDecimal freezeAmount = BigDecimal.ZERO;
 
+    @Column(columnDefinition = "decimal(16,2) comment '打码量'")
+    private BigDecimal playMoney = BigDecimal.ZERO;
+
 
 }
