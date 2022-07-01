@@ -2,6 +2,8 @@ package com.baisha.gameserver.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +22,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Entity
+@Table(name = "Bet", indexes = {@Index(columnList = "no_active"), @Index(columnList = "status"), @Index(columnList = "user_id")})
 @ApiModel(value = "GS-Bet对象", description = "注单")
 public class Bet extends BaseEntity {
 
@@ -119,7 +122,7 @@ public class Bet extends BaseEntity {
 //            return false;
 //        }
 
-        if ( (bet.getAmountH()+bet.getAmountSs()+bet.getAmountX()+bet.getAmountXd()+bet.getAmountZ()+bet.getAmountZd()) <= 0L) {
+        if ((bet.getAmountH() + bet.getAmountSs() + bet.getAmountX() + bet.getAmountXd() + bet.getAmountZ() + bet.getAmountZd()) <= 0L) {
             return false;
         }
 
