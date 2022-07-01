@@ -45,6 +45,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.SetChatPermissions;
+import org.telegram.telegrambots.meta.api.objects.ChatPermissions;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 
 import com.baisha.bot.MyTelegramLongPollingBot;
@@ -67,6 +69,7 @@ import com.baisha.util.Base64Utils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Api(tags = "游戏指令推送")
 @Slf4j
@@ -116,6 +119,9 @@ public class CommandController {
             if (myBot == null) {
                 continue;
             }
+            // TG群-全员解禁
+            unmuteAllUser(tgChat, myBot);
+
             String message = buildStartMessage(vo.getBureauNum(), tgChat.getMinAmount() + "",
                     tgChat.getMaxAmount() + "", tgChat.getMaxShoeAmount() + "");
 
@@ -126,6 +132,20 @@ public class CommandController {
             myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(countdownAddress))), tgChat.getChatId()+"");
         }
         return ResponseUtil.success();
+    }
+
+    private void unmuteAllUser(TgChat tgChat, MyTelegramLongPollingBot myBot) {
+        ChatPermissions chatPermissions = new ChatPermissions();
+        chatPermissions.setCanSendMessages(true);
+        chatPermissions.setCanSendMediaMessages(true);
+        chatPermissions.setCanSendOtherMessages(true);
+        chatPermissions.setCanSendPolls(true);
+        SetChatPermissions setChatPermissions = new SetChatPermissions(tgChat.getChatId() +"", chatPermissions);
+        try {
+            myBot.execute(setChatPermissions);
+        } catch (TelegramApiException e) {
+            log.error("TG群{}-全员解禁失败", tgChat.getChatId());
+        }
     }
 
     @ApiOperation("封盘线")
@@ -149,6 +169,8 @@ public class CommandController {
             if (myBot == null) {
                 return;
             }
+            // TG群-全员禁言
+            muteAllUser(chatId, myBot);
             // 组装TG信息
             String sealingLine = buildSealingLine(vo);
             String message = buildSealingLineMessage(configInfo, vo, betUserAmountVO);
@@ -157,6 +179,20 @@ public class CommandController {
             myBot.sendMessage(message, tgChat.getChatId()+"");
         });
         return ResponseUtil.success();
+    }
+
+    private void muteAllUser(Long chatId, MyTelegramLongPollingBot myBot) {
+        ChatPermissions chatPermissions = new ChatPermissions();
+        chatPermissions.setCanSendMessages(false);
+        chatPermissions.setCanSendMediaMessages(false);
+        chatPermissions.setCanSendOtherMessages(false);
+        chatPermissions.setCanSendPolls(false);
+        SetChatPermissions setChatPermissions = new SetChatPermissions(chatId +"", chatPermissions);
+        try {
+            myBot.execute(setChatPermissions);
+        } catch (TelegramApiException e) {
+            log.error("TG群{}-全员禁言失败", chatId);
+        }
     }
 
     private String buildStartMessage(String bureauNum, String minAmount, String maxAmount, String maxShoeAmount) {

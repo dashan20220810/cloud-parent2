@@ -46,6 +46,8 @@ public enum RequestPathEnum {
     TG_OPEN_NEW_GAME("/command/startNewBureau"),
     /** 封盘中 */ 
     TG_CLOSE_GAME("/command/sealingLine"),
+    /** 取群id list */
+    TG_GET_GROUP_ID_LIST("/tgChat/findByTableId"),
     ;
 
     /**

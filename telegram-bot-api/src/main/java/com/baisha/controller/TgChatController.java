@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("tgChat")
 @Api(tags = "tg群组管理")
@@ -88,5 +90,14 @@ public class TgChatController {
     public ResponseEntity deleteById(Long chatId) {
         tgChatService.deleteById(chatId);
         return ResponseUtil.success();
+    }
+
+    @ApiOperation("根据桌子查询多个群")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "tableId", value = "桌子id", required = true),
+    })
+    @GetMapping("findByTableId")
+    public ResponseEntity findByTableId(Long tableId) {
+        return ResponseUtil.success(tgChatService.findByTableId(tableId));
     }
 }

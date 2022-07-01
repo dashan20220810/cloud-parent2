@@ -3,6 +3,7 @@ package com.baisha.modulecommon.vo;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.baisha.modulecommon.enums.GameStatusEnum;
@@ -41,5 +42,17 @@ public class GameInfo implements Serializable {
 			tgGroupMap.put(tgGroupId, result);
 		}
 		return result;
+	}
+	
+	public void initTgGRoupMap ( List<Long> tgGroupIdList ) {
+		if ( tgGroupMap==null ) {
+			tgGroupMap = new HashMap<>();
+		}
+		
+		for ( Long tgGroupId: tgGroupIdList ) {
+			GameTgGroupInfo groupInfo = new GameTgGroupInfo(tgGroupId);
+			groupInfo.setTotalBetAmount(0L);
+			tgGroupMap.put(tgGroupId, groupInfo);
+		}
 	}
 }
