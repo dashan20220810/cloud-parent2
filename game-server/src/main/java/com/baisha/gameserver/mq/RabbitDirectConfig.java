@@ -1,4 +1,4 @@
-package com.baisha.casinoweb.mq;
+package com.baisha.gameserver.mq;
 
 import com.baisha.modulecommon.MqConstants;
 import org.springframework.amqp.core.Binding;
@@ -11,20 +11,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitDirectConfig {
 
+
     @Bean
-    Queue queue() {
-        return new Queue("hello-queue");
+    Queue settleFinish() {
+        return new Queue(MqConstants.SETTLEMENT_FINISH);
     }
 
 
-    /**
-     * 下注结算
-     *
-     * @return
-     */
     @Bean
-    Queue betSettlementQueue() {
-        return new Queue(MqConstants.BET_SETTLEMENT);
+    Queue queue() {
+        return new Queue("hello-queue");
     }
 
     @Bean
