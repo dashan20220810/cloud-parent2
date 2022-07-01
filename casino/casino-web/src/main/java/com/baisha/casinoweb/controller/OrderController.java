@@ -88,7 +88,7 @@ public class OrderController {
     	
     	// 检核限红
     	GameTgGroupInfo groupInfo = gameInfo.getTgGroupInfo(betVO.getTgChatId());
-    	if ( groupInfo.checkTotalBetAmount(betVO.getAmount(), betVO.getMaxShoeAmount().longValue())==false ) {
+    	if ( groupInfo.checkTotalBetAmount(betVO.getTotalAmount(), betVO.getMaxShoeAmount().longValue())==false ) {
             return ResponseUtil.custom(String.format("下注失败 达到当局最大投注 %s", betVO.getMaxShoeAmount()));
     	}
     	
@@ -102,14 +102,14 @@ public class OrderController {
     	}
     	
     	GameUserInfo userInfo = groupInfo.getUserInfo(userVO.getId());
-    	if ( userInfo.checkUserBetAmount(betVO.getAmount()
+    	if ( userInfo.checkUserBetAmount(betVO.getTotalAmount()
     			, betVO.getMinAmount().longValue(), betVO.getMaxAmount().longValue())==false ) {
             return ResponseUtil.custom(String.format("下注失败 限红单注 %s-%s", betVO.getMinAmount(), betVO.getMaxAmount()));
     	}
 
     	//  呼叫
     	//	会员管理 - 下分api
-    	String withdrawResult = assetsBusiness.withdraw(userVO.getId(), betVO.getAmount(), betVO.getTableId());
+    	String withdrawResult = assetsBusiness.withdraw(userVO.getId(), betVO.getTotalAmount(), betVO.getTableId());
     	if ( StringUtils.isNotBlank(withdrawResult) ) {
     		log.warn("[下注] 下分失败");
             return ResponseUtil.custom(withdrawResult);

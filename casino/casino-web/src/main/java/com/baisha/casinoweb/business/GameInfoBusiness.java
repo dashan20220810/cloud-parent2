@@ -1,6 +1,7 @@
 package com.baisha.casinoweb.business;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,15 +53,18 @@ public class GameInfoBusiness {
      * @param amount
      * @return
      */
-    public synchronized GameInfo calculateBetAmount ( String deskCode, Long tgGroupId, Long userId, String nickName, String betOption
+    public synchronized GameInfo calculateBetAmount ( String deskCode, Long tgGroupId, Long userId, String nickName, List<String> betOptionList
     		, Long amount ) {
 		GameInfo gameInfo = getGameInfo(deskCode);
 		GameTgGroupInfo groupInfo = gameInfo.getTgGroupInfo(tgGroupId);
-		groupInfo.addTotalBetAmount(amount);
 		GameUserInfo userInfo = groupInfo.getUserInfo(userId);
 		userInfo.setNickName(nickName);
-		userInfo.addTotalBetAmount(amount);
-		userInfo.addBetHistory(betOption, amount);
+		
+		for ( String betOption: betOptionList ) {
+			groupInfo.addTotalBetAmount(amount);
+			userInfo.addTotalBetAmount(amount);
+			userInfo.addBetHistory(betOption, amount);
+		}
 		setGameInfo(deskCode, gameInfo);
     	return gameInfo;
     }

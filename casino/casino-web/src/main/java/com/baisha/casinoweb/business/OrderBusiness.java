@@ -1,6 +1,7 @@
 package com.baisha.casinoweb.business;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -41,11 +42,11 @@ public class OrderBusiness {
 
 	
 	public String bet ( boolean isTgRequest, BetVO betVO, UserVO userVO, String noRun ) {
-		return bet(isTgRequest, betVO.getTableId(), betVO.getTgChatId(), betVO.getBetOption(), betVO.getAmount()
+		return bet(isTgRequest, betVO.getTableId(), betVO.getTgChatId(), betVO.getBetOptionList(), betVO.getAmount()
 				, noRun, userVO.getId(), userVO.getUserName(), userVO.getNickName());
 	}
 	
-	public String bet ( boolean isTgRequest, Long tableId, Long tgChatId, BetOption betOption, 
+	public String bet ( boolean isTgRequest, Long tableId, Long tgChatId, List<String> betOptionList, 
 			Long amount, String noRun, Long userId, String userName, String nickName ) {
 		
 		log.info("下注");
@@ -72,12 +73,26 @@ public class OrderBusiness {
 		params.put("clientIP", ip);
 		params.put("userId", userId);  
 		params.put("userName", userName); 
-		params.put("betOption", betOption);
-		params.put("amount", amount);
 		params.put("noRun", noRun);
 		params.put("noActive", gameInfo.getCurrentActive());
 		params.put("status", 1);
 		params.put("orderNo", SnowFlakeUtils.getSnowId());
+		
+		for ( String betOption: betOptionList ) {
+			if ( StringUtils.equalsIgnoreCase(betOption, BetOption.X.toString()) ) {
+				params.put("amountX", amount);
+			} else if ( StringUtils.equalsIgnoreCase(betOption, BetOption.Z.toString()) ) {
+				params.put("amountZ", amount);
+			} else if ( StringUtils.equalsIgnoreCase(betOption, BetOption.H.toString()) ) {
+				params.put("amountH", amount);
+			} else if ( StringUtils.equalsIgnoreCase(betOption, BetOption.XD.toString()) ) {
+				params.put("amountXd", amount);
+			} else if ( StringUtils.equalsIgnoreCase(betOption, BetOption.ZD.toString()) ) {
+				params.put("amountZd", amount);
+			} else if ( StringUtils.equalsIgnoreCase(betOption, BetOption.SS.toString()) ) {
+				params.put("amountSs", amount);
+			}
+		}
 
 		String result = HttpClient4Util.doPost(
 				gameServerDomain + RequestPathEnum.ORDER_BET.getApiName(),
@@ -96,7 +111,7 @@ public class OrderBusiness {
             return String.format("下注 失败, %s", betJson.toString());
 		}
 
-		gameInfo = gameInfoBusiness.calculateBetAmount(deskCode, tgChatId, userId, nickName, betOption.toString(), amount);
+		gameInfo = gameInfoBusiness.calculateBetAmount(deskCode, tgChatId, userId, nickName, betOptionList, amount);
 		
 		log.info("下注 成功");
 		return null;

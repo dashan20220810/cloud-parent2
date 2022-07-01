@@ -1,6 +1,8 @@
 package com.baisha.casinoweb.model.vo;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 import com.baisha.modulecommon.enums.BetOption;
 
@@ -63,5 +65,27 @@ public class BetVO implements Serializable {
     	}
 
     	return true;
+    }
+    
+    public List<String> getBetOptionList () {
+    	switch (betOption) {
+			case D: // XD,ZD
+    			return Arrays.asList(new String[]{BetOption.XD.toString(), BetOption.ZD.toString()});
+    		case SB: // XD,ZD,H
+    			return Arrays.asList(new String[]{BetOption.XD.toString(), BetOption.ZD.toString(), BetOption.H.toString()});
+    		default:
+    			return Arrays.asList(new String[]{betOption.toString()});
+    	}
+    }
+    
+    public Long getTotalAmount () {
+    	switch (betOption) {
+		case D: // XD,ZD
+			return amount * 2;
+		case SB: // XD,ZD,H
+			return amount * 3;
+		default:
+			return amount;
+	}
     }
 }

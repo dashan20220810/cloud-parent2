@@ -5,7 +5,6 @@ import java.io.Serializable;
 import org.springframework.beans.BeanUtils;
 
 import com.baisha.gameserver.model.Bet;
-import com.baisha.modulecommon.enums.BetOption;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -36,11 +35,23 @@ public class BetVO implements Serializable {
 	@ApiModelProperty(required=true, value="user_name")
 	private String userName;
 
-    @ApiModelProperty(required=true, value="下注类型", notes="ZD庄对,XD闲对,Z庄,X闲,H和,D对,SS超六")
-	private BetOption betOption;
+    @ApiModelProperty("下注金额庄")
+    private Long amountZ = 0L;
 
-    @ApiModelProperty(required=true, value="下注金额")
-	private Long amount;
+    @ApiModelProperty("下注金额闲")
+    private Long amountX = 0L;
+
+    @ApiModelProperty("下注金额和")
+    private Long amountH = 0L;
+
+    @ApiModelProperty("下注金额庄对")
+    private Long amountZd = 0L;
+
+    @ApiModelProperty("下注金额闲对")
+    private Long amountXd = 0L;
+
+    @ApiModelProperty("下注金额幸运六")
+    private Long amountSs = 0L;
 
     @ApiModelProperty(required=true, value="游戏轮号")
     private String noRun;
@@ -57,7 +68,6 @@ public class BetVO implements Serializable {
     public Bet generateBet() {
     	Bet result = new Bet();
     	BeanUtils.copyProperties(this, result);
-    	result.setBetOption(this.getBetOption().toString());
     	return result;
     }
 }

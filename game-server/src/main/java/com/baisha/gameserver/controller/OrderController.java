@@ -45,7 +45,9 @@ public class OrderController {
     	
     	betService.save(bet);
 
-		log.info("[下注] 成功! 押{} 共{}", betVO.getBetOption().getDisplay(), betVO.getAmount());
+//		log.info("[下注] 成功! 押{} 共{}", betVO.getBetOption().getDisplay(), betVO.getAmount());
+		log.info("[下注] 成功! 庄{} 闲{} 和{} 庄对{} 闲对{} 超级六{}", betVO.getAmountZ(), betVO.getAmountX(), betVO.getAmountH()
+				, betVO.getAmountZd(), betVO.getAmountXd(), betVO.getAmountSs());
     	return ResponseUtil.success();
     }
 

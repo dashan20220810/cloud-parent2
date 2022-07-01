@@ -41,14 +41,34 @@ public class Bet extends BaseEntity {
     @Column(name = "tg_chat_id", columnDefinition = "BIGINT COMMENT 'telegram群id'")
     private Long tgChatId;
 
-    @ApiModelProperty("下注类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,D对,SS幸运六,SB三宝")
-    @Column(name = "bet_option", nullable = false
-            , columnDefinition = "VARCHAR(10) COMMENT '下注类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,D对,SS幸运六,SB三宝'")
-    private String betOption;
+//    @ApiModelProperty("下注类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,D对,SS幸运六,SB三宝")
+//    @Column(name = "bet_option", nullable = false
+//            , columnDefinition = "VARCHAR(10) COMMENT '下注类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,D对,SS幸运六,SB三宝'")
+//    private String betOption;
 
-    @ApiModelProperty("下注金额")
-    @Column(name = "amount", columnDefinition = "BIGINT COMMENT '下注金额'", nullable = false)
-    private Long amount;
+    @ApiModelProperty("下注金额庄")
+    @Column(name = "amount_z", columnDefinition = "BIGINT COMMENT '下注金额庄'", nullable = false)
+    private Long amountZ = 0L;
+
+    @ApiModelProperty("下注金额闲")
+    @Column(name = "amount_x", columnDefinition = "BIGINT COMMENT '下注金额闲'", nullable = false)
+    private Long amountX = 0L;
+
+    @ApiModelProperty("下注金额和")
+    @Column(name = "amount_h", columnDefinition = "BIGINT COMMENT '下注金额和'", nullable = false)
+    private Long amountH = 0L;
+
+    @ApiModelProperty("下注金额庄对")
+    @Column(name = "amount_zd", columnDefinition = "BIGINT COMMENT '下注金额庄对'", nullable = false)
+    private Long amountZd = 0L;
+
+    @ApiModelProperty("下注金额闲对")
+    @Column(name = "amount_xd", columnDefinition = "BIGINT COMMENT '下注金额闲对'", nullable = false)
+    private Long amountXd = 0L;
+
+    @ApiModelProperty("下注金额幸运六")
+    @Column(name = "amount_ss", columnDefinition = "BIGINT COMMENT '下注金额幸运六'", nullable = false)
+    private Long amountSs = 0L;
 
     @ApiModelProperty("客户端IP")
     @Column(name = "client_ip", columnDefinition = "VARCHAR(20) COMMENT '客户端IP'")
@@ -95,11 +115,11 @@ public class Bet extends BaseEntity {
             return false;
         }
 
-        if (StringUtils.isBlank(bet.getBetOption())) {
-            return false;
-        }
+//        if (StringUtils.isBlank(bet.getBetOption())) {
+//            return false;
+//        }
 
-        if (bet.getAmount() == null || bet.getAmount() <= 0L) {
+        if ( (bet.getAmountH()+bet.getAmountSs()+bet.getAmountX()+bet.getAmountXd()+bet.getAmountZ()+bet.getAmountZd()) <= 0L) {
             return false;
         }
 
