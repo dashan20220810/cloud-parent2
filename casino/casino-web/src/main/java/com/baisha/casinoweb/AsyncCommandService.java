@@ -1,7 +1,9 @@
 package com.baisha.casinoweb;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.casinoweb.business.GameInfoBusiness;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
@@ -76,6 +79,43 @@ public class AsyncCommandService {
     		return CompletableFuture.completedFuture(false);
 		}
 
+    	Date beginTime = new Date();
+    	Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
+//    	Date endTime = DateUtils.addSeconds(beginTime, 20); // TODO
+    	GameInfo gameInfo = new GameInfo();
+    	gameInfo.setCurrentActive(newActive);
+    	gameInfo.setStatus(GameStatusEnum.Betting);		// 状态: 下注中
+    	gameInfo.setBeginTime(beginTime);
+    	gameInfo.setEndTime(endTime);
+
+		log.info("局号、桌台id、新局图片url: {}, {}, {}", newActive, deskId, openNewGameUrl);
+		result = HttpClient4Util.doGet(
+				telegramServerDomain + RequestPathEnum.TG_GET_GROUP_ID_LIST.getApiName() + "?tableId=" +deskId);
+		
+        if (CommonUtil.checkNull(result)) {
+        	log.warn("开新局 失败");
+    		return CompletableFuture.completedFuture(false);
+        }
+        
+		JSONObject groupListJson = JSONObject.parseObject(result);
+		code = groupListJson.getInteger("code");
+
+		if ( code!=0 ) {
+        	log.warn("开新局 失败, {}", result);
+    		return CompletableFuture.completedFuture(false);
+		}
+		
+		JSONArray groupJsonList = groupListJson.getJSONArray("data");
+		List<Long> groupIdList = new ArrayList<>();
+		
+		for ( int index=0; index<groupJsonList.size(); index++ ) {
+			JSONObject groupJson = groupJsonList.getJSONObject(index);
+			groupIdList.add(groupJson.getLong("chatId"));
+		}
+		gameInfo.initTgGRoupMap(groupIdList);
+    	
+    	gameInfoBusiness.setGameInfo(deskCode, gameInfo);
+
     	log.info("开新局 成功");
 		return CompletableFuture.completedFuture(true);
     }
@@ -89,17 +129,11 @@ public class AsyncCommandService {
     @Async
     public Future<Boolean> betting ( String deskCode, String newActive) {
     	
-    	Date beginTime = new Date();
-//    	Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
-    	Date endTime = DateUtils.addSeconds(beginTime, 20);
+    	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
+    	Date beginTime = gameInfo.getBeginTime();
+    	Date endTime = gameInfo.getEndTime();
 
     	log.info("下注中 倒数计时");
-    	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
-    	gameInfo.setCurrentActive(newActive);
-    	gameInfo.setStatus(GameStatusEnum.Betting);		// 状态: 下注中
-    	gameInfo.setBeginTime(beginTime);
-    	gameInfo.setEndTime(endTime);
-    	gameInfoBusiness.setGameInfo(deskCode, gameInfo);
     	
     	Date now = new Date();
     	while (endTime.after(now)) {
