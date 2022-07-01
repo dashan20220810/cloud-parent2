@@ -49,7 +49,8 @@ public class BotConstant {
     public static final String SEALING_BET_INFO16 = "总下注金额：";
     public static final String SEALING_BET_INFO17 = "\n";
     public static final String SEALING_BET_INFO18 = "----------------\n";
-    public static final String SEALING_BET_INFO19 = "前20位下注玩家\n";
+    public static final String SEALING_BET_INFO19 = "前20位下注玩家：\n";
     public static final String SEALING_BET_INFO20 = "【";
     public static final String SEALING_BET_INFO21 = "】";
+    public static final String SEALING_BET_INFO22 = "无";
 }
