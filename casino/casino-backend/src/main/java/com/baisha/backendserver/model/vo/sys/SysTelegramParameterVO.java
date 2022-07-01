@@ -34,5 +34,8 @@ public class SysTelegramParameterVO {
     @ApiModelProperty(value = "博彩官方频道", required = true)
     private String officialGamingChannel;
 
+    @ApiModelProperty(value = "开牌图片路径", required = true)
+    private String openCardUrl;
+
 
 }

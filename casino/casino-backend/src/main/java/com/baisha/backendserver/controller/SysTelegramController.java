@@ -62,6 +62,9 @@ public class SysTelegramController {
         if (StringUtils.isNotEmpty(bo.getSeventySecondsUrl())) {
             bo.setSeventySecondsUrlShow(commonService.getFileServerUrl(bo.getSeventySecondsUrl()));
         }
+        if (StringUtils.isNotEmpty(bo.getOpenCardUrl())) {
+            bo.setOpenCardUrlShow(commonService.getFileServerUrl(bo.getOpenCardUrl()));
+        }
         return ResponseUtil.success(bo);
     }
 
@@ -69,7 +72,7 @@ public class SysTelegramController {
     @PostMapping(value = "setInfo")
     public ResponseEntity<Long> setSysTelegramInfo(SysTelegramParameterVO vo) {
         if (CommonUtil.checkNull(vo.getOnlyFinance(), vo.getOnlyCustomerService(), vo.getStartBetPicUrl()
-                , vo.getSeventySecondsUrl(), vo.getOfficialGamingChannel())) {
+                , vo.getSeventySecondsUrl(), vo.getOfficialGamingChannel(), vo.getOpenCardUrl())) {
             return ResponseUtil.parameterNotNull();
         }
         Admin admin = commonService.getCurrentUser();
@@ -119,6 +122,9 @@ public class SysTelegramController {
         if (StringUtils.isNotEmpty(vo.getOfficialGamingChannel())) {
             stp.setOfficialGamingChannel(vo.getOfficialGamingChannel());
         }
+        if (StringUtils.isNotEmpty(vo.getStartBetPicUrl())) {
+            stp.setOpenCardUrl(vo.getStartBetPicUrl());
+        }
     }
 
     private void doSetRedis(SysTelegramParameter stp) {
@@ -128,6 +134,7 @@ public class SysTelegramController {
                 .startBetPicUrl(StringUtils.isEmpty(stp.getStartBetPicUrl()) ? "" : commonService.getFileServerUrl(stp.getStartBetPicUrl()))
                 .officialGamingChannel(stp.getOfficialGamingChannel())
                 .seventySecondsUrl(StringUtils.isEmpty(stp.getSeventySecondsUrl()) ? "" : commonService.getFileServerUrl(stp.getSeventySecondsUrl()))
+                .openCardUrl(StringUtils.isEmpty(stp.getOpenCardUrl()) ? "" : commonService.getFileServerUrl(stp.getOpenCardUrl()))
                 .build();
         telegramService.setSysTelegram(sysTelegramDto);
     }

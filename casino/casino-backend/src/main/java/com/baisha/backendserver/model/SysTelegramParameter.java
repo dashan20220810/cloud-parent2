@@ -33,5 +33,8 @@ public class SysTelegramParameter extends BaseEntity {
     @Column(columnDefinition = "varchar(150) comment '博彩官方频道' ")
     private String officialGamingChannel;
 
+    @Column(columnDefinition = "varchar(150) comment '开牌图片路径' ")
+    private String openCardUrl;
+
 
 }

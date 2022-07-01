@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
+
 /**
  * @author yihui
  */
@@ -38,5 +40,10 @@ public class SysTelegramParameterBO {
     @ApiModelProperty(value = "博彩官方频道")
     private String officialGamingChannel;
 
+    @ApiModelProperty(value = "开牌图片路径")
+    private String openCardUrl;
+
+    @ApiModelProperty(value = "显示开牌图片路径 ")
+    private String openCardUrlShow;
 
 }

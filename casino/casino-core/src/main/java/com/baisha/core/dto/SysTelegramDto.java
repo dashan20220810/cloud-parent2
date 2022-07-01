@@ -31,4 +31,7 @@ public class SysTelegramDto {
 
     @ApiModelProperty(value = " 博彩官方频道 ")
     private String officialGamingChannel;
+
+    @ApiModelProperty(value = "开牌图片路径")
+    private String openCardUrl;
 }

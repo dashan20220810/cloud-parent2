@@ -33,3 +33,8 @@ spring:
       pool-name: DatebookHikariCP
       maximum-pool-size: 16
       connection-test-query: select 1
+  rabbitmq:
+    host: 192.168.26.24
+    port: 5672
+    username: admin
+    password: 12qw!@QW
