@@ -199,7 +199,7 @@ public class TelegramMessageHandler {
         Map<String, Object> param = Maps.newHashMap();
         TgBetVO tgBetVO = parseBet(originText);
         if (StrUtil.isEmpty(tgBetVO.getCommand()) || null == tgBetVO.getAmount()) {
-            bot.sendMessage(username + " 下注信息错误，请参照下注规则", chatId+"");
+            bot.sendMessage(username + " 下注信息错误，请参照下注规则", chatId+"", message.getMessageId());
             return false;
         }
         param.put("betOption", tgBetVO.getCommand());
@@ -236,7 +236,7 @@ public class TelegramMessageHandler {
                 originText,
                 result.getMsg());
         // 输出错误原因
-        bot.sendMessage(username + " 下注失败，原因：" + result.getMsg(), chatId+"");
+        bot.sendMessage(username + " 下注失败，原因：" + result.getMsg(), chatId+"", message.getMessageId());
         return false;
     }
 
