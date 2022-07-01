@@ -25,9 +25,14 @@ public class UserServerConstants {
     public static final String USERSERVER_ASSETS_QUERY = "/assets/query";
 
     /**
-     * 用户上下分
+     * 用户增加/减少余额
      */
     public static final String USERSERVER_ASSETS_BALANCE = "/assets/balance";
+
+    /**
+     * 用户增加/减少打码量
+     */
+    public static final String USERSERVER_ASSETS_PLAY_MONEY = "/assets/playMoney";
 
     //**************************用户中心***************************************
 

@@ -2,10 +2,13 @@ package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonService;
+import com.baisha.backendserver.business.PlayMoneyService;
 import com.baisha.backendserver.model.Admin;
+import com.baisha.backendserver.model.bo.sys.SysPlayMoneyParameterBO;
 import com.baisha.backendserver.model.bo.user.UserPageBO;
 import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.user.BalanceVO;
+import com.baisha.backendserver.model.vo.user.PlayMoneyVO;
 import com.baisha.backendserver.model.vo.user.UserPageVO;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -43,6 +47,8 @@ public class UserController {
     private String userServerUrl;
     @Autowired
     private CommonService commonService;
+    @Autowired
+    private PlayMoneyService playMoneyService;
 
     @GetMapping("page")
     @ApiOperation(("用户分页"))
@@ -108,7 +114,7 @@ public class UserController {
     }
 
 
-    @ApiOperation(value = "用户上分")
+    @ApiOperation(value = "用户充值")
     @PostMapping("increaseBalance")
     public ResponseEntity increaseBalance(BalanceVO vo) {
         if (null == vo.getId() || vo.getId() < 0 || null == vo.getAmount() || vo.getAmount() < 0) {
@@ -117,6 +123,47 @@ public class UserController {
         if (BackendServerUtil.checkIntAmount(vo.getAmount())) {
             return new ResponseEntity("金额不规范");
         }
+        //增加余额
+        ResponseEntity balanceResponseEntity = doIncomeBalance(vo);
+        if (balanceResponseEntity.getCode() == 0) {
+            Admin currentUser = commonService.getCurrentUser();
+            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                    currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加余额成功", BackendConstants.USER_ASSETS_MODULE);
+            //充值余额成功过后，在增加打码量
+            //获取充值打码量倍率
+            PlayMoneyVO playMoneyVO = new PlayMoneyVO();
+            playMoneyVO.setPlayMoneyType(BackendConstants.INCOME);
+            playMoneyVO.setId(vo.getId());
+            playMoneyVO.setRemark(vo.getRemark());
+            SysPlayMoneyParameterBO sysPlayMoneyParameterBO = playMoneyService.getSysPlayMoney();
+            BigDecimal recharge = sysPlayMoneyParameterBO.getRecharge();
+            playMoneyVO.setAmount(BigDecimal.valueOf(vo.getAmount().longValue()).multiply(recharge));
+            ResponseEntity playMoneyResponseEntity = doIncomePlayMoney(playMoneyVO);
+            if (playMoneyResponseEntity.getCode() == 0) {
+                log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                        currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加打码量成功", BackendConstants.USER_ASSETS_MODULE);
+                return ResponseUtil.success();
+            }
+        }
+        return ResponseUtil.fail();
+    }
+
+    private ResponseEntity doIncomePlayMoney(PlayMoneyVO vo) {
+        String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_PLAY_MONEY;
+        Map<String, Object> param = new HashMap<>(16);
+        param.put("playMoneyType", BackendConstants.INCOME);
+        param.put("userId", vo.getId());
+        param.put("amount", vo.getAmount());
+        param.put("remark", vo.getRemark() + "(充值增加打码量)");
+        String result = HttpClient4Util.doPost(url, param);
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        return responseEntity;
+    }
+
+    private ResponseEntity doIncomeBalance(BalanceVO vo) {
         String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_BALANCE;
         Map<String, Object> param = new HashMap<>(16);
         param.put("balanceType", BackendConstants.INCOME);
@@ -128,11 +175,6 @@ public class UserController {
             return ResponseUtil.fail();
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        if (responseEntity.getCode() == 0) {
-            Admin currentUser = commonService.getCurrentUser();
-            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
-                    currentUser.getUserName() + "为用户id={" + vo.getId() + "}上分", BackendConstants.USER_ASSETS_MODULE);
-        }
         return responseEntity;
     }
 
