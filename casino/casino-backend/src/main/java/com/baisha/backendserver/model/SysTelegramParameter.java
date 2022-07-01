@@ -12,7 +12,7 @@ import javax.persistence.Entity;
 @Slf4j
 @Data
 @Entity
-@org.hibernate.annotations.Table(appliesTo = "sys_telegram_parameter", comment = "系统参数配置")
+@org.hibernate.annotations.Table(appliesTo = "sys_telegram_parameter", comment = "电报系统参数配置")
 public class SysTelegramParameter extends BaseEntity {
 
     @Column(columnDefinition = "varchar(30) comment '唯一财务'")

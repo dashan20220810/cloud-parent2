@@ -8,7 +8,6 @@
         <module>module-jjwt</module>
         <module>module-authenticator</module>
         <module>module-springcache-redis</module>
-        <module>module-spring-rabbitmq</module>
         <module>module-swagger2</module>
 
         <module>game-server</module>
