@@ -1,5 +1,6 @@
 package com.baisha.gameserver.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -91,4 +92,7 @@ public class BetService {
         return betRepository.findByNoActiveAndStatus(noActive, status);
     }
 
+    public int settleBet(Long id, BigDecimal winAmount, BigDecimal finalAmount) {
+        return betRepository.updateSettleBetById(id, winAmount, finalAmount,new Date());
+    }
 }
