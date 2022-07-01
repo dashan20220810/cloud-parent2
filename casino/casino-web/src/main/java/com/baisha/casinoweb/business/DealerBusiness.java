@@ -65,6 +65,20 @@ public class DealerBusiness {
 		return true;
     }
     
+    public void open ( String dealerIp, String awardOption ) {
+
+    	log.info("开牌");
+    	asyncCommandService.open(dealerIp, awardOption);
+    	log.info("开牌成功");
+    }
+    
+    public void settlement ( String noActive ) {
+    	
+    	log.info("结算");
+    	asyncCommandService.settlement(noActive);
+    	log.info("结算成功");
+    }
+    
     private boolean handleFuture( Future<Boolean> future ) {
     	while ( future.isDone()==false ) {
     		try {

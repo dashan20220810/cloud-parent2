@@ -48,6 +48,10 @@ public enum RequestPathEnum {
     TG_CLOSE_GAME("/command/sealingLine"),
     /** 取群id list */
     TG_GET_GROUP_ID_LIST("/tgChat/findByTableId"),
+    /** 开牌 */
+    TG_OPEN(""), // TODO
+    /** 结算 */
+    TG_SETTLEMENT(""),
     ;
 
     /**

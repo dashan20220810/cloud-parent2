@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -16,14 +17,17 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baisha.casinoweb.business.DeskBusiness;
 import com.baisha.casinoweb.business.GameInfoBusiness;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.core.dto.SysTelegramDto;
 import com.baisha.core.service.TelegramService;
+import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.enums.GameStatusEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.GameInfo;
+import com.baisha.modulecommon.vo.mq.BetSettleVO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,10 +42,16 @@ public class AsyncCommandService {
     private Integer gameCountDownSeconds;
 
     @Autowired
+    RabbitTemplate rabbitTemplate;
+
+    @Autowired
     private TelegramService telegramService;
     
     @Autowired
     private GameInfoBusiness gameInfoBusiness;
+    
+    @Autowired
+    private DeskBusiness deskBusiness;
 
     /**
      * 开新局
@@ -154,6 +164,76 @@ public class AsyncCommandService {
     	
     	log.info("下注中 倒数计时 结束");
 		return CompletableFuture.completedFuture(true);
+    }
+    
+    @Async
+    public void open ( String dealerIp, String awardOption ) {
+
+    	JSONObject desk = deskBusiness.queryDeskByIp(dealerIp);
+    	if ( desk==null ) {
+    		log.warn("开牌 失败, 查无桌台");
+    		return;
+    	}
+    	
+//    	Long deskId = desk.getLong("id");
+    	String deskCode = desk.getString("deskCode");
+
+    	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
+    	
+        BetSettleVO vo = BetSettleVO.builder().noActive(gameInfo.getCurrentActive()).awardOption(awardOption).build();
+        rabbitTemplate.convertAndSend(MqConstants.BET_SETTLEMENT, vo);
+
+    	SysTelegramDto sysTg = telegramService.getSysTelegram();
+        // 开牌 5 request parameter
+    	Map<String, Object> params = new HashMap<>();
+		params.put("", sysTg.getOpenCardUrl());
+//		params.put("bureauNum", newActive);
+
+		String result = HttpClient4Util.doPost(
+				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),
+				params);
+        if (CommonUtil.checkNull(result)) {
+        	log.warn("开牌 失败");
+    		return;
+        }
+        
+		JSONObject openJson = JSONObject.parseObject(result);
+		Integer code = openJson.getInteger("code");
+		if ( code!=0 ) {
+        	log.warn("开牌 失败, {}", result);
+    		return;
+		}
+    }
+    
+    @Async
+    public void settlement ( String noActive ) {
+    	 
+
+//    	Map<String, Object> params = new HashMap<>();
+//		params.put("bureauNum", newActive);
+//		params.put("tableId", deskId);
+//		params.put("imageAddress", openNewGameUrl);
+//		params.put("countdownAddress", sysTg.getSeventySecondsUrl());
+//
+//		log.info("局号、桌台id、新局图片url: {}, {}, {}", newActive, deskId, openNewGameUrl);
+//		String result = HttpClient4Util.doPost(
+//				telegramServerDomain + RequestPathEnum.TG_OPEN_NEW_GAME.getApiName(),
+//				params);
+//
+//        if (CommonUtil.checkNull(result)) {
+//        	log.warn("开新局 失败");
+//    		return CompletableFuture.completedFuture(false);
+//        }
+//        
+//		JSONObject betJson = JSONObject.parseObject(result);
+//		Integer code = betJson.getInteger("code");
+//
+//		if ( code!=0 ) {
+//        	log.warn("开新局 失败, {}", result);
+//    		return CompletableFuture.completedFuture(false);
+//		}
+    	
+    	// TODO
     }
     
 }
