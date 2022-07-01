@@ -15,21 +15,6 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitDirectConfig {
 
     @Bean
-    Queue queue() {
-        return new Queue("hello-queue");
-    }
-
-    @Bean
-    DirectExchange directExchange() {
-        return new DirectExchange("first-direct", true, false);
-    }
-
-    @Bean
-    Binding binding() {
-        return BindingBuilder.bind(queue()).to(directExchange()).with("direct");
-    }
-
-    @Bean
     DirectExchange baishaDirectExchange() {
         return new DirectExchange("baisha-direct", true, false);
     }
