@@ -14,19 +14,50 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitDirectConfig {
 
-
     @Bean
-    Queue settleFinish() {
-        return new Queue(MqConstants.SETTLEMENT_FINISH);
+    Queue queue() {
+        return new Queue("hello-queue");
     }
 
     @Bean
-    DirectExchange settleFinishDirectExchange() {
-        return new DirectExchange("settleFinish-direct", true, false);
+    DirectExchange directExchange() {
+        return new DirectExchange("first-direct", true, false);
     }
 
     @Bean
     Binding binding() {
-        return BindingBuilder.bind(settleFinish()).to(settleFinishDirectExchange()).with("direct");
+        return BindingBuilder.bind(queue()).to(directExchange()).with("direct");
+    }
+
+    @Bean
+    DirectExchange baishaDirectExchange() {
+        return new DirectExchange("baisha-direct", true, false);
+    }
+
+
+    @Bean
+    Binding betSettlementBinding() {
+        return BindingBuilder.bind(betSettlementQueue()).to(baishaDirectExchange())
+        		.with(MqConstants.BET_SETTLEMENT +"-direct");
+    }
+    
+    /**
+     *
+     * @return
+     */
+    @Bean
+    Queue betSettlementQueue() {
+        return new Queue(MqConstants.BET_SETTLEMENT);
+    }
+
+    @Bean
+    Binding settlementFinishBinding() {
+        return BindingBuilder.bind(settlementFinishQueue()).to(baishaDirectExchange())
+        		.with(MqConstants.SETTLEMENT_FINISH +"-direct");
+    }
+
+    @Bean
+    Queue settlementFinishQueue() {
+        return new Queue(MqConstants.SETTLEMENT_FINISH);
     }
 }
