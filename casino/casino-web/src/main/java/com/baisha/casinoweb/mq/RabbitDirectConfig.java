@@ -17,6 +17,17 @@ public class RabbitDirectConfig {
     }
 
 
+    @Bean
+    DirectExchange directExchange() {
+        return new DirectExchange("first-direct", true, false);
+    }
+
+    @Bean
+    Binding binding() {
+        return BindingBuilder.bind(queue()).to(directExchange()).with("direct");
+    }
+
+
     /**
      * 下注结算
      *
@@ -28,12 +39,12 @@ public class RabbitDirectConfig {
     }
 
     @Bean
-    DirectExchange directExchange() {
-        return new DirectExchange("first-direct", true, false);
+    DirectExchange betSettlementDirectExchange() {
+        return new DirectExchange("betSettlement-direct", true, false);
     }
 
     @Bean
-    Binding binding() {
-        return BindingBuilder.bind(queue()).to(directExchange()).with("direct");
+    Binding betSettlementBinding() {
+        return BindingBuilder.bind(betSettlementQueue()).to(betSettlementDirectExchange()).with("direct");
     }
 }

@@ -122,8 +122,8 @@ public class SysTelegramController {
         if (StringUtils.isNotEmpty(vo.getOfficialGamingChannel())) {
             stp.setOfficialGamingChannel(vo.getOfficialGamingChannel());
         }
-        if (StringUtils.isNotEmpty(vo.getStartBetPicUrl())) {
-            stp.setOpenCardUrl(vo.getStartBetPicUrl());
+        if (StringUtils.isNotEmpty(vo.getOpenCardUrl())) {
+            stp.setOpenCardUrl(vo.getOpenCardUrl());
         }
     }
 

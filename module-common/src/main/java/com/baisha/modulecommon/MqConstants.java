@@ -6,9 +6,9 @@ package com.baisha.modulecommon;
 public class MqConstants {
 
     //下注结算
-    public final static String BET_SETTLEMENT = "bet_settlement";
+    public final static String BET_SETTLEMENT = "gs_bet_settlement";
     //结算完成
-    public final static String SETTLEMENT_FINISH = "settlement_finish";
+    public final static String SETTLEMENT_FINISH = "web_settlement_finish";
 
 
 }

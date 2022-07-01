@@ -8,6 +8,9 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * @author yihui
+ */
 @Configuration
 public class RabbitDirectConfig {
 
@@ -17,19 +20,13 @@ public class RabbitDirectConfig {
         return new Queue(MqConstants.SETTLEMENT_FINISH);
     }
 
-
     @Bean
-    Queue queue() {
-        return new Queue("hello-queue");
-    }
-
-    @Bean
-    DirectExchange directExchange() {
-        return new DirectExchange("first-direct", true, false);
+    DirectExchange settleFinishDirectExchange() {
+        return new DirectExchange("settleFinish-direct", true, false);
     }
 
     @Bean
     Binding binding() {
-        return BindingBuilder.bind(queue()).to(directExchange()).with("direct");
+        return BindingBuilder.bind(settleFinish()).to(settleFinishDirectExchange()).with("direct");
     }
 }
