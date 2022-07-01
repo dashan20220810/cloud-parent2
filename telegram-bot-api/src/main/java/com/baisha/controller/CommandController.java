@@ -152,7 +152,6 @@ public class CommandController {
     @PostMapping("sealingLine")
     public ResponseEntity sealingLine(@RequestBody SealingLineVO vo) throws Exception {
         // 验证参数有效性
-
         if (!SealingLineVO.check(vo)) {
             return ResponseUtil.parameterNotNull();
         }
