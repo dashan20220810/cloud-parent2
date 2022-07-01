@@ -1,9 +1,11 @@
 package com.baisha.gameserver.mq;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baisha.gameserver.business.BetSettlementService;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +15,22 @@ import org.springframework.stereotype.Component;
  * @author yihui
  */
 @Component
+@Slf4j
 public class BetSettlementDirectReceiver {
     @Autowired
     RabbitTemplate rabbitTemplate;
+    @Autowired
+    private BetSettlementService betSettlementService;
 
     @RabbitListener(queues = MqConstants.BET_SETTLEMENT)
     public void betSettlement(BetSettleVO vo) {
-        System.out.println("==============" + JSONObject.toJSONString(vo));
-        SettleFinishVO fvo = SettleFinishVO.builder().noActive(vo.getNoActive()).build();
-        rabbitTemplate.convertAndSend(MqConstants.SETTLEMENT_FINISH, fvo);
+        log.info("结算参数 {}", JSONObject.toJSONString(vo));
+
+        betSettlementService.betSettlement(vo);
+
+
+
+        /*SettleFinishVO fvo = SettleFinishVO.builder().noActive(vo.getNoActive()).build();
+        rabbitTemplate.convertAndSend(MqConstants.SETTLEMENT_FINISH, fvo);*/
     }
 }

@@ -12,9 +12,11 @@ import com.baisha.gameserver.model.Bet;
 /**
  * @author: alvin
  */
-public interface BetRepository extends JpaRepository<Bet ,Long>, JpaSpecificationExecutor<Bet> {
+public interface BetRepository extends JpaRepository<Bet, Long>, JpaSpecificationExecutor<Bet> {
 
-	List<Bet> findAllByUserIdAndCreateTimeBetween ( Long userId, Date createBeginTime, Date createEndTime );
+    List<Bet> findAllByUserIdAndCreateTimeBetween(Long userId, Date createBeginTime, Date createEndTime);
 
-	List<Bet> findAllByUserId ( Long userId, Pageable pageable );
+    List<Bet> findAllByUserId(Long userId, Pageable pageable);
+
+    List<Bet> findByNoActiveAndStatus(String noActive, Integer status);
 }
