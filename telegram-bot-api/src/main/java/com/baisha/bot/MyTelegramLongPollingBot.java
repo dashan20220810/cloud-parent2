@@ -190,7 +190,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     }
 
     /**
-     * 傳送照片
+     * 发送照片
      *
      * @param file
      */

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.baisha.business.CommandBusiness;
+import com.baisha.model.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,10 +22,6 @@ import com.baisha.business.TgBotBusiness;
 import com.baisha.handle.CommonHandler;
 import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
-import com.baisha.model.vo.BetUserAmountVO;
-import com.baisha.model.vo.ConfigInfo;
-import com.baisha.model.vo.SealingLineVO;
-import com.baisha.model.vo.StartNewBureauVO;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -131,6 +128,69 @@ public class CommandController {
 
             myBot.sendMessage(sealingLine, tgChat.getChatId()+"");
             myBot.sendMessage(message, tgChat.getChatId()+"");
+        });
+        return ResponseUtil.success();
+    }
+
+    @ApiOperation("开牌")
+    @PostMapping("openCard")
+    public ResponseEntity openCard(OpenCardVO vo) throws Exception {
+
+        // 验证参数有效性
+        if (!OpenCardVO.check(vo)) {
+            return ResponseUtil.parameterNotNull();
+        }
+
+        // 根据参数中的桌台ID，找到绑定该桌台的有效群
+        List<TgChat> chatList = tgChatService.findByTableId(vo.getTableId());
+        if (CollectionUtils.isEmpty(chatList)) {
+            return ResponseUtil.success();
+        }
+
+        // 循环不同的群配置，组装不同的推送消息并发送
+        //TODO,找出所有需要发送的群ID。遍历执行发送（要求多线程）
+        URL openCardAddress = new URL(vo.getOpenCardAddress());
+        URL resultAddress = new URL(vo.getResultAddress());
+        URL roadAddress = new URL(vo.getRoadAddress());
+        for (TgChat tgChat : chatList) {
+            // 群审核通过，才发消息
+            if(!Constants.open.equals(tgChat.getStatus())){
+                continue;
+            }
+            MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgChat.getBotName());
+            if (myBot == null) {
+                continue;
+            }
+
+            commandBusiness.showOpenCardButton(vo, openCardAddress, tgChat, myBot);
+            myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(resultAddress))), tgChat.getChatId()+"");
+            myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(roadAddress))), tgChat.getChatId()+"");
+        }
+        return ResponseUtil.success();
+    }
+
+    @ApiOperation("结算")
+    @PostMapping("settlement")
+    public ResponseEntity settlement(@RequestBody SettlementVO vo) throws Exception {
+        // 验证参数有效性
+        if (!SettlementVO.check(vo)) {
+            return ResponseUtil.parameterNotNull();
+        }
+
+        Map<Long, SettlementResultVO> settlementInfo = vo.getSettlementInfo();
+        settlementInfo.forEach((chatId, settlementResultVO) -> {
+            TgChat tgChat = tgChatService.findByChatId(chatId);
+            // 群审核通过，才发消息
+            if (!commonHandler.parseChat(tgChat)) {
+                return;
+            }
+            MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgChat.getBotName());
+            if (myBot == null) {
+                return;
+            }
+            // 组装结算信息
+            String settlementMessage = commandBusiness.buildSettlementMessage(vo, settlementResultVO);
+            myBot.sendMessage(settlementMessage, tgChat.getChatId()+"");
         });
         return ResponseUtil.success();
     }

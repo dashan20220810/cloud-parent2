@@ -53,4 +53,7 @@ public class BotConstant {
     public static final String SEALING_BET_INFO20 = "【";
     public static final String SEALING_BET_INFO21 = "】";
     public static final String SEALING_BET_INFO22 = "无";
+
+    public static final String SETTLEMENT1 = "局号：";
+    public static final String SETTLEMENT2 = "结算：";
 }

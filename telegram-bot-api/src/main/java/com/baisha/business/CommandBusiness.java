@@ -3,17 +3,23 @@ package com.baisha.business;
 import cn.hutool.core.collection.CollUtil;
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.model.TgChat;
-import com.baisha.model.vo.BetUserAmountVO;
-import com.baisha.model.vo.BetUserVO;
-import com.baisha.model.vo.ConfigInfo;
-import com.baisha.model.vo.SealingLineVO;
+import com.baisha.model.vo.*;
+import com.baisha.util.Base64Utils;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.SetChatPermissions;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.ChatPermissions;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.baisha.util.constants.BotConstant.*;
 
@@ -120,5 +126,63 @@ public class CommandBusiness {
         });
 
         return sealingLine.toString();
+    }
+
+    public void showOpenCardButton(OpenCardVO vo, URL openCardAddress, TgChat tgChat, MyTelegramLongPollingBot myBot) {
+        SendPhoto sp = new SendPhoto();
+        sp.setChatId(tgChat.getChatId()+"");
+        sp.setPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(openCardAddress))));
+        // 设置按钮
+        List<InlineKeyboardButton> firstRow = Lists.newArrayList();
+        // 实时开牌俯视地址
+        InlineKeyboardButton lookDownAddress = new InlineKeyboardButton();
+        lookDownAddress.setText("实时开牌俯视地址");
+        lookDownAddress.setCallbackData("实时开牌俯视地址");
+        lookDownAddress.setUrl(vo.getLookDownAddress());
+        // 实时开牌正面地址
+        InlineKeyboardButton frontAddress = new InlineKeyboardButton();
+        frontAddress.setText("实时开牌正面地址");
+        frontAddress.setCallbackData("实时开牌正面地址");
+        frontAddress.setUrl(vo.getFrontAddress());
+
+        firstRow.add(lookDownAddress);
+        firstRow.add(frontAddress);
+
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(firstRow);
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(rowList);
+        sp.setReplyMarkup(inlineKeyboardMarkup);
+        // 展示
+        myBot.SendPhoto(sp);
+    }
+
+    public String buildSettlementMessage(SettlementVO vo, SettlementResultVO settlementResultVO) {
+        // 结算
+        StringBuilder settlement = new StringBuilder();
+        settlement.append(SETTLEMENT1);
+        settlement.append(vo.getBureauNum());
+        settlement.append(SEALING_BET_INFO1);
+        settlement.append(SETTLEMENT2);
+        settlement.append(settlementResultVO.getSettlementResult());
+        settlement.append(SEALING_BET_INFO17);
+        settlement.append(SEALING_BET_INFO14);
+
+        List<UserWinVO> top20WinUsers = settlementResultVO.getTop20WinUsers();
+        if (CollUtil.isEmpty(top20WinUsers)) {
+            settlement.append(SEALING_BET_INFO22);
+        }
+        top20WinUsers.forEach(user -> {
+            String username = user.getUsername();
+            String winAmount = user.getWinAmount();
+            settlement.append(SEALING_BET_INFO20);
+            settlement.append(username);
+            settlement.append(SEALING_BET_INFO21);
+            settlement.append(winAmount);
+            settlement.append(SEALING_BET_INFO17);
+        });
+
+        return settlement.toString();
     }
 }

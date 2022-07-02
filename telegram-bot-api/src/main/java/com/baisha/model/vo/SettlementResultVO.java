@@ -15,12 +15,12 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value = "BetUserAmountVO对象", description = "TG群下注信息")
-public class BetUserAmountVO {
+@ApiModel(value = "SettlementResultVO对象", description = "TG群结算信息")
+public class SettlementResultVO {
 
-    @ApiModelProperty(value = "总下注金额", required = true)
-    private String totalBetAmount;
+    @ApiModelProperty(value = "结算结果", required = true)
+    private String settlementResult;
 
-    @ApiModelProperty(value = "前20位下注玩家")
-    private List<BetUserVO> top20Users = Lists.newArrayList();
+    @ApiModelProperty(value = "前20位输赢玩家")
+    private List<UserWinVO> top20WinUsers = Lists.newArrayList();
 }
