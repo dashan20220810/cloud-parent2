@@ -27,10 +27,22 @@ public class BetSettlementDirectReceiver {
 
     @RabbitListener(queues = MqConstants.BET_SETTLEMENT)
     public void betSettlement(BetSettleVO vo) {
+        sleep();
         log.info("结算参数 {}", JSONObject.toJSONString(vo));
         //结算注单
         betSettlementService.betSettlement(vo);
         SettleFinishVO fvo = SettleFinishVO.builder().noActive(vo.getNoActive()).build();
         rabbitTemplate.convertAndSend(MqConstants.SETTLEMENT_FINISH, fvo);
     }
+
+    public void sleep() {
+        try {
+            //收到结算通知后，延迟X秒，防止有人在封盘的瞬间下注 而造成 注单未查询到 造成的不能结算的情况
+            Thread.sleep(2000L);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
