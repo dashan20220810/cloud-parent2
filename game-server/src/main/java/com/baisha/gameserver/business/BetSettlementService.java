@@ -73,7 +73,8 @@ public class BetSettlementService {
         String awardOption = vo.getAwardOption().toUpperCase();
         List<Bet> settleList = new ArrayList<>();
         for (Bet bet : item) {
-            Long betAmount = getAetAmount(bet);
+            //总下注金额
+            Long betAmount = getBetAmount(bet);
             boolean isWinFlag = isWinBet(bet, awardOption);
             BigDecimal finalAmount;
             BigDecimal winAmount;
@@ -81,8 +82,14 @@ public class BetSettlementService {
                 //中奖
                 BetOddsEnum betOddsEnum = BetOddsEnum.getBetOddsByCode(awardOption);
                 BigDecimal odds = betOddsEnum.getOdds();
-                winAmount = odds.multiply(BigDecimal.valueOf(betAmount));
-                finalAmount = winAmount.add(BigDecimal.valueOf(betAmount));
+                //中奖选项的下注金额
+                Long winBetAmount = getWinBetAmount(bet, awardOption);
+                //赢的钱
+                BigDecimal winAwardAmount = odds.multiply(BigDecimal.valueOf(winBetAmount));
+                //输赢金额
+                winAmount = winAwardAmount.subtract(BigDecimal.valueOf(betAmount));
+                //派彩=赢得钱+ 中奖选项的下注金额
+                finalAmount = winAwardAmount.add(BigDecimal.valueOf(winBetAmount));
             } else {
                 //未中奖
                 finalAmount = BigDecimal.ZERO;
@@ -120,17 +127,59 @@ public class BetSettlementService {
         }
     }
 
+
     /**
      * 下注金额
      *
      * @param bet
      * @return
      */
-    private Long getAetAmount(Bet bet) {
+    private Long getBetAmount(Bet bet) {
         Long amount = bet.getAmountZ() + bet.getAmountX() + bet.getAmountH()
                 + bet.getAmountZd() + bet.getAmountXd() + bet.getAmountSs();
         return amount;
     }
+
+    /**
+     * 获取中奖选择的下注金额
+     *
+     * @param bet
+     * @return
+     */
+    private Long getWinBetAmount(Bet bet, String awardOption) {
+        if (awardOption.equals(BetOddsEnum.Z.getCode())) {
+            if (bet.getAmountZ() > 0) {
+                return bet.getAmountZ();
+            }
+        }
+        if (awardOption.equals(BetOddsEnum.X.getCode())) {
+            if (bet.getAmountX() > 0) {
+                return bet.getAmountX();
+            }
+        }
+        if (awardOption.equals(BetOddsEnum.H.getCode())) {
+            if (bet.getAmountH() > 0) {
+                return bet.getAmountH();
+            }
+        }
+        if (awardOption.equals(BetOddsEnum.ZD.getCode())) {
+            if (bet.getAmountZd() > 0) {
+                return bet.getAmountZd();
+            }
+        }
+        if (awardOption.equals(BetOddsEnum.XD.getCode())) {
+            if (bet.getAmountXd() > 0) {
+                return bet.getAmountXd();
+            }
+        }
+        if (awardOption.equals(BetOddsEnum.SS.getCode())) {
+            if (bet.getAmountSs() > 0) {
+                return bet.getAmountSs();
+            }
+        }
+        return 0L;
+    }
+
 
     /**
      * 注单 是否中奖
