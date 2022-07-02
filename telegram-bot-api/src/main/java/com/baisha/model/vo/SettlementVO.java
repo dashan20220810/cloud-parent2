@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,7 +20,7 @@ import java.util.Map;
 public class SettlementVO {
 
     @ApiModelProperty(value = "TG群结算信息", required = true)
-    private Map<Long, SettlementResultVO> settlementInfo;
+    private Map<Long, List<UserWinVO>> settlementInfo;
 
     @ApiModelProperty(value = "局号", required = true)
     private String bureauNum;

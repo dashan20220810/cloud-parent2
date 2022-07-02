@@ -158,7 +158,7 @@ public class CommandBusiness {
         myBot.SendPhoto(sp);
     }
 
-    public String buildSettlementMessage(SettlementVO vo, SettlementResultVO settlementResultVO) {
+    public String buildSettlementMessage(SettlementVO vo, List<UserWinVO> userWinVOs) {
         // 结算
         StringBuilder settlement = new StringBuilder();
         settlement.append(SETTLEMENT1);
@@ -169,13 +169,12 @@ public class CommandBusiness {
         settlement.append(SEALING_BET_INFO17);
         settlement.append(SEALING_BET_INFO14);
 
-        List<UserWinVO> top20WinUsers = settlementResultVO.getTop20WinUsers();
-        if (CollUtil.isEmpty(top20WinUsers)) {
+        if (CollUtil.isEmpty(userWinVOs)) {
             settlement.append(SEALING_BET_INFO22);
         }
-        top20WinUsers.forEach(user -> {
-            String username = user.getUsername();
-            String winAmount = user.getWinAmount();
+        userWinVOs.forEach(userWinVO -> {
+            String username = userWinVO.getUsername();
+            String winAmount = userWinVO.getWinAmount();
             settlement.append(SEALING_BET_INFO20);
             settlement.append(username);
             settlement.append(SEALING_BET_INFO21);

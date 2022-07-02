@@ -177,8 +177,8 @@ public class CommandController {
             return ResponseUtil.parameterNotNull();
         }
 
-        Map<Long, SettlementResultVO> settlementInfo = vo.getSettlementInfo();
-        settlementInfo.forEach((chatId, settlementResultVO) -> {
+        Map<Long, List<UserWinVO>> settlementInfo = vo.getSettlementInfo();
+        settlementInfo.forEach((chatId, userWinVOs) -> {
             TgChat tgChat = tgChatService.findByChatId(chatId);
             // 群审核通过，才发消息
             if (!commonHandler.parseChat(tgChat)) {
@@ -189,7 +189,7 @@ public class CommandController {
                 return;
             }
             // 组装结算信息
-            String settlementMessage = commandBusiness.buildSettlementMessage(vo, settlementResultVO);
+            String settlementMessage = commandBusiness.buildSettlementMessage(vo, userWinVOs);
             myBot.sendMessage(settlementMessage, tgChat.getChatId()+"");
         });
         return ResponseUtil.success();

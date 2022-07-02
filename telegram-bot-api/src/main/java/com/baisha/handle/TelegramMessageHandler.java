@@ -250,7 +250,10 @@ public class TelegramMessageHandler {
                 Set<String> commands = betOption.getCommands();
                 for (String command : commands) {
                     if (text.contains(command)) {
-                        Long amount = Long.parseLong(text.replace(command, ""));
+                        long amount = Long.parseLong(text.replace(command, ""));
+                        if (amount <= 0) {
+                            return result;
+                        }
                         result.setCommand(betOption.name());
                         result.setAmount(amount);
                         return result;
