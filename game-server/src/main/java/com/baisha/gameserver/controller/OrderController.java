@@ -1,11 +1,7 @@
 package com.baisha.gameserver.controller;
 
-import java.math.BigDecimal;
 import java.util.List;
 
-import com.baisha.modulecommon.MqConstants;
-import com.baisha.modulecommon.vo.mq.BetSettleVO;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,6 +58,15 @@ public class OrderController {
         log.info("订单查询");
         Page<Bet> pageList = betService.getBetPage(vo);
         return ResponseUtil.success(pageList);
+    }
+    
+    @PostMapping("settlement")
+    @ApiOperation("结算订单")
+    public ResponseEntity<List<Bet>> settlement( String noActive ) {
+        Integer settlementStatus = 2;
+
+        log.info("结算订单");
+        return ResponseUtil.success(betService.findBetNoSettle(noActive, settlementStatus));
     }
 
     @PostMapping("currentList")

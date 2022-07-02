@@ -40,6 +40,10 @@ public class Bet extends BaseEntity {
     @Column(name = "user_name", nullable = false)
     private String userName;
 
+    @ApiModelProperty("nick_name")
+    @Column(name = "nick_name", nullable = false)
+    private String nickName;
+
     @ApiModelProperty("tg_chat_id")
     @Column(name = "tg_chat_id", columnDefinition = "BIGINT COMMENT 'telegram群id'")
     private Long tgChatId;

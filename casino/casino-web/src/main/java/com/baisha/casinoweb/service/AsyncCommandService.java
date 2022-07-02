@@ -1,12 +1,14 @@
-package com.baisha.casinoweb;
+package com.baisha.casinoweb.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -19,15 +21,19 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.casinoweb.business.DeskBusiness;
 import com.baisha.casinoweb.business.GameInfoBusiness;
+import com.baisha.casinoweb.model.vo.response.BetResponseVO;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
+import com.baisha.core.constants.RedisKeyConstants;
 import com.baisha.core.dto.SysTelegramDto;
 import com.baisha.core.service.TelegramService;
 import com.baisha.modulecommon.MqConstants;
+import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.enums.GameStatusEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.GameInfo;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
+import com.baisha.modulespringcacheredis.util.RedisUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,12 +43,18 @@ public class AsyncCommandService {
 	
     @Value("${project.server-url.telegram-server-domain}")
     private String telegramServerDomain;
+	
+    @Value("${project.server-url.game-server-domain}")
+    private String gameServerDomain;
 
     @Value("${project.game.count-down-seconds}")
     private Integer gameCountDownSeconds;
 
     @Autowired
-    RabbitTemplate rabbitTemplate;
+    private RabbitTemplate rabbitTemplate;
+    
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Autowired
     private TelegramService telegramService;
@@ -52,6 +64,9 @@ public class AsyncCommandService {
     
     @Autowired
     private DeskBusiness deskBusiness;
+    
+    @Autowired
+    private AsyncApiService asyncApiService;
 
     /**
      * 开新局
@@ -90,8 +105,8 @@ public class AsyncCommandService {
 		}
 
     	Date beginTime = new Date();
-    	Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
-//    	Date endTime = DateUtils.addSeconds(beginTime, 20); // TODO
+//    	Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
+    	Date endTime = DateUtils.addSeconds(beginTime, 20); // TODO
     	GameInfo gameInfo = new GameInfo();
     	gameInfo.setCurrentActive(newActive);
     	gameInfo.setStatus(GameStatusEnum.Betting);		// 状态: 下注中
@@ -175,22 +190,26 @@ public class AsyncCommandService {
     		return;
     	}
     	
-//    	Long deskId = desk.getLong("id");
+    	Long deskId = desk.getLong("id");
     	String deskCode = desk.getString("deskCode");
-
     	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
-    	
+
+		redisUtil.hset(RedisKeyConstants.SYS_GAME_RESULT, gameInfo.getCurrentActive(), awardOption);
         BetSettleVO vo = BetSettleVO.builder().noActive(gameInfo.getCurrentActive()).awardOption(awardOption).build();
         rabbitTemplate.convertAndSend(MqConstants.BET_SETTLEMENT, vo);
 
     	SysTelegramDto sysTg = telegramService.getSysTelegram();
-        // 开牌 5 request parameter
+        // 开牌 5 request parameter 
     	Map<String, Object> params = new HashMap<>();
-		params.put("", sysTg.getOpenCardUrl());
-//		params.put("bureauNum", newActive);
+		params.put("openCardAddress", sysTg.getOpenCardUrl());
+		params.put("tableId", deskId);
+		params.put("frontAddress", "https://www.google.com"); // TODO for test
+		params.put("lookDownAddress", "https://tw.yahoo.com"); // TODO for test
+		params.put("resultAddress", sysTg.getStartBetPicUrl()); // TODO for test
+		params.put("roadAddress", sysTg.getStartBetPicUrl()); // TODO for test
 
 		String result = HttpClient4Util.doPost(
-				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),
+				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),	// TODO uri
 				params);
         if (CommonUtil.checkNull(result)) {
         	log.warn("开牌 失败");
@@ -208,32 +227,56 @@ public class AsyncCommandService {
     @Async
     public void settlement ( String noActive ) {
     	 
+    	Map<String, Object> params = new HashMap<>();
+		params.put("noActive", noActive);
 
-//    	Map<String, Object> params = new HashMap<>();
-//		params.put("bureauNum", newActive);
-//		params.put("tableId", deskId);
-//		params.put("imageAddress", openNewGameUrl);
-//		params.put("countdownAddress", sysTg.getSeventySecondsUrl());
-//
-//		log.info("局号、桌台id、新局图片url: {}, {}, {}", newActive, deskId, openNewGameUrl);
-//		String result = HttpClient4Util.doPost(
-//				telegramServerDomain + RequestPathEnum.TG_OPEN_NEW_GAME.getApiName(),
-//				params);
-//
-//        if (CommonUtil.checkNull(result)) {
-//        	log.warn("开新局 失败");
-//    		return CompletableFuture.completedFuture(false);
-//        }
-//        
-//		JSONObject betJson = JSONObject.parseObject(result);
-//		Integer code = betJson.getInteger("code");
-//
-//		if ( code!=0 ) {
-//        	log.warn("开新局 失败, {}", result);
-//    		return CompletableFuture.completedFuture(false);
-//		}
+		String result = HttpClient4Util.doPost(
+				gameServerDomain + RequestPathEnum.ORDER_SETTLEMENT.getApiName(),
+				params);
+
+        if (CommonUtil.checkNull(result)) {
+        	log.warn("结算 失败");
+    		return;
+        }
+        
+		JSONObject betJson = JSONObject.parseObject(result);
+		Integer code = betJson.getInteger("code");
+
+		if ( code!=0 ) {
+        	log.warn("结算 失败, {}", result);
+    		return;
+		}
+		
+		JSONArray betArray = betJson.getJSONArray("data");
+		Map<Long, List<BetResponseVO>> betMap = null;
+		String betResult = (String) redisUtil.hget(RedisKeyConstants.SYS_GAME_RESULT, noActive);
+		String betDisplay = BetOption.getBetOption(betResult).getDisplay();
+		
+		if ( betArray!=null && betArray.size()>0 ) {
+			List<BetResponseVO> betList = betArray.toJavaList(BetResponseVO.class);
+			betMap = betList.stream().sorted(Comparator.comparingLong(bet -> { 
+				return (bet.getAmountH()+bet.getAmountSs()+bet.getAmountX()+bet.getAmountXd()+bet.getAmountZ()+bet.getAmountZd());
+			})).collect(Collectors.groupingBy(BetResponseVO::getTgChatId));
+		}
+		
+		if ( betMap!=null ) {
+			
+			Map<Long, List<Map<String, Object>>> top20WinUsers = new HashMap<>();
+			for ( Long tgGroupId: betMap.keySet() ) {
+				List<BetResponseVO> list = betMap.get(tgGroupId);
+				List<Map<String, Object>> betHistoryList = list.stream().map(betRes -> {
+					Map<String, Object> betHistory = new HashMap<>();
+					betHistory.put("username", betRes.getNickName());
+					betHistory.put("winAmount", betRes.getTotalAmount());
+					return betHistory;
+				}).collect(Collectors.toList());
+				
+				top20WinUsers.put(tgGroupId, betHistoryList);
+				// Map<Long, List>
+				asyncApiService.tgSettlement(noActive, betDisplay, top20WinUsers);
+			}
+		}
     	
-    	// TODO
     }
     
 }

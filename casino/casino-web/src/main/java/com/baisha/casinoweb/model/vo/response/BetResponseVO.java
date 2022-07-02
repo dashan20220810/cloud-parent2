@@ -1,7 +1,5 @@
 package com.baisha.casinoweb.model.vo.response;
 
-import com.baisha.modulecommon.enums.BetOption;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -21,14 +19,29 @@ public class BetResponseVO {
 	@ApiModelProperty("user_id")
 	private Long userId;
 
+	@ApiModelProperty("nick_name")
+	private String nickName;
+
 	@ApiModelProperty("tg_chat_id")
 	private Long tgChatId;
 
-    @ApiModelProperty("下注类型")
-	private BetOption betOption;
+    @ApiModelProperty("下注金额庄")
+    private Long amountZ = 0L;
 
-    @ApiModelProperty("下注金额")
-	private Long amount;
+    @ApiModelProperty("下注金额闲")
+    private Long amountX = 0L;
+
+    @ApiModelProperty("下注金额和")
+    private Long amountH = 0L;
+
+    @ApiModelProperty("下注金额庄对")
+    private Long amountZd = 0L;
+
+    @ApiModelProperty("下注金额闲对")
+    private Long amountXd = 0L;
+
+    @ApiModelProperty("下注金额幸运六")
+    private Long amountSs = 0L;
 
     @ApiModelProperty("客户端IP")
     private String clientIP;
@@ -41,4 +54,8 @@ public class BetResponseVO {
 
     @ApiModelProperty("注單狀態(1.下注成功)")
     private Integer status;
+    
+    public Long getTotalAmount() {
+    	return amountZ +amountX +amountH +amountZd +amountXd +amountSs;
+    }
 }

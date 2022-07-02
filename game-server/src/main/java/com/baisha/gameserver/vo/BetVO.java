@@ -35,6 +35,9 @@ public class BetVO implements Serializable {
 	@ApiModelProperty(required=true, value="user_name")
 	private String userName;
 
+	@ApiModelProperty(required=true, value="nick_name")
+	private String nickName;
+
     @ApiModelProperty("下注金额庄")
     private Long amountZ = 0L;
 

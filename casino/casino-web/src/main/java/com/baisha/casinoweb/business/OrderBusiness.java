@@ -73,6 +73,7 @@ public class OrderBusiness {
 		params.put("clientIP", ip);
 		params.put("userId", userId);  
 		params.put("userName", userName); 
+		params.put("nickName", nickName); 
 		params.put("noRun", noRun);
 		params.put("noActive", gameInfo.getCurrentActive());
 		params.put("status", 1);

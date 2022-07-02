@@ -10,6 +10,9 @@ public class RedisKeyConstants {
 
     //redis 游戏资讯前缀
     public static final String SYS_GAME_INFO = "game::game_info";
+
+    //redis 游戏开盘结果前缀
+    public static final String SYS_GAME_RESULT = "game::game_result";
     
     /** 游戏局号 */
     public static final String GAMBLING_ACTIVE_INFO = "gambling::active_info";

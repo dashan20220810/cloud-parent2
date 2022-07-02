@@ -26,6 +26,8 @@ public enum RequestPathEnum {
 	 */
     /** 下注 */
     ORDER_BET("/order/bet"),
+    /** 结算注单 */
+    ORDER_SETTLEMENT("/order/settlement"),
     /** 近期注单 */
     ORDER_CURRENT_LIST("/order/currentList"),
     /** 查询桌台 by ip */
@@ -49,9 +51,9 @@ public enum RequestPathEnum {
     /** 取群id list */
     TG_GET_GROUP_ID_LIST("/tgChat/findByTableId"),
     /** 开牌 */
-    TG_OPEN(""), // TODO
+    TG_OPEN("/command/openCard"),
     /** 结算 */
-    TG_SETTLEMENT(""),
+    TG_SETTLEMENT("/command/settlement"),
     ;
 
     /**

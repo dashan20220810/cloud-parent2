@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.casinoweb.AsyncCommandService;
+import com.baisha.casinoweb.service.AsyncCommandService;
 
 import lombok.extern.slf4j.Slf4j;
 
