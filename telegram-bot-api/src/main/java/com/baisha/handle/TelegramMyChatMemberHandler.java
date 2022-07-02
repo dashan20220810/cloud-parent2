@@ -6,7 +6,6 @@ import com.baisha.model.TgChat;
 import com.baisha.modulecommon.Constants;
 import com.baisha.service.TgBotService;
 import com.baisha.service.TgChatService;
-import com.baisha.util.TelegramBotUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,9 +17,9 @@ public class TelegramMyChatMemberHandler {
 
     @Autowired
     TgChatService tgChatService;
+
     @Autowired
     TgBotService tgBotService;
-
 
     public void myChatMemberHandler(MyTelegramLongPollingBot bot, Update update) {
         ChatMemberUpdated myChatMember = update.getMyChatMember();

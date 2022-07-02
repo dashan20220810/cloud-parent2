@@ -24,6 +24,9 @@ public class SettlementVO {
     @ApiModelProperty(value = "局号", required = true)
     private String bureauNum;
 
+    @ApiModelProperty(value = "结算结果", required = true)
+    private String settlementResult;
+
     // 校验参数合法性
     public static boolean check(SettlementVO vo) throws IllegalAccessException {
        return CommonUtil.checkObjectFieldNotNull(vo);

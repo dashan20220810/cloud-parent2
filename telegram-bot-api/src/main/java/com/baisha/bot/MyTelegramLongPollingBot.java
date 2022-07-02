@@ -60,13 +60,13 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
             getTelegramMyChatMemberHandler().myChatMemberHandler(this, update);
             return;
         }
-        //TG群会员的监听事件
+        // TG群会员的监听事件
         if (update.hasMessage()) {
             // 消息处理
             getTelegramMessageHandler().messageHandler(this, update);
             return;
         }
-
+        // 按钮事件
         if (update.hasCallbackQuery()) {
             getTelegramCallbackQueryHandler().callbackQueryHandler(this, update);
             return;
@@ -161,7 +161,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     }
 
     /**
-     * 傳送 html
+     * 发送 html
      *
      * @param msg
      */
@@ -178,10 +178,6 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     }
 
     public void SendMessageHtml(SendMessage sm) {
-//		SendMessage sm = new SendMessage();
-//		sm.setChatId(TelegramUtil.getStringResourceByKey("chat_id").trim());
-//		sm.setParseMode(ParseMode.HTML);
-//		sm.setText(msg);
         try {
             execute(sm);
         } catch (TelegramApiException e) {
@@ -206,9 +202,6 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     }
 
     public void SendPhoto(SendPhoto sp) {
-//		SendPhoto sp = new SendPhoto();
-//		sp.setChatId(TelegramUtil.getStringResourceByKey("chat_id").trim());
-//		sp.setPhoto(file);
         try {
             execute(sp);
         } catch (TelegramApiException e) {
@@ -217,7 +210,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     }
 
     /**
-     * 傳送影片
+     * 发送影片
      *
      * @param file
      */
@@ -225,7 +218,6 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
         SendAnimation sa = new SendAnimation();
         sa.setChatId(chatId);
         sa.setAnimation(file);
-
         try {
             execute(sa);
         } catch (TelegramApiException e) {
@@ -234,9 +226,6 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
     }
 
     public void SendAnimation(SendAnimation sa) {
-//		SendAnimation sa = new SendAnimation();
-//		sa.setChatId(TelegramUtil.getStringResourceByKey("chat_id").trim());
-//		sa.setAnimation(file);
         try {
             execute(sa);
         } catch (TelegramApiException e) {

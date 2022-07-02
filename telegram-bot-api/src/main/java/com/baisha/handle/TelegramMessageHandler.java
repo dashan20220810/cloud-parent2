@@ -41,8 +41,10 @@ import static com.baisha.util.constants.BotConstant.*;
 public class TelegramMessageHandler {
     @Autowired
     TgChatService tgChatService;
+
     @Autowired
     TgBotService tgBotService;
+
     @Autowired
     CommonHandler commonHandler;
 
@@ -199,7 +201,7 @@ public class TelegramMessageHandler {
         Map<String, Object> param = Maps.newHashMap();
         TgBetVO tgBetVO = parseBet(originText);
         if (StrUtil.isEmpty(tgBetVO.getCommand()) || null == tgBetVO.getAmount()) {
-            bot.sendMessage(username + " 下注信息错误，请参照下注规则", chatId+"", message.getMessageId());
+//            bot.sendMessage(username + " 下注信息错误，请参照下注规则", chatId+"", message.getMessageId());
             return false;
         }
         param.put("betOption", tgBetVO.getCommand());
@@ -261,13 +263,6 @@ public class TelegramMessageHandler {
         return result;
     }
 
-    public static void main(String[] args) {
-        String ss = "Z1000";
-        String replace = ss.replace(" ", "");
-        String[] split = replace.split("1");
-        System.out.println(Arrays.toString(split));
-    }
-
     /**
      * Unicode轉 漢字字串
      *
@@ -275,7 +270,6 @@ public class TelegramMessageHandler {
      * @return '木' 26408
      */
     public static String unicodeToString(String str) {
-
         Pattern pattern = Pattern.compile("(\\\\u(\\p{XDigit}{4}))");
         Matcher matcher = pattern.matcher(str);
         char ch;
@@ -290,90 +284,4 @@ public class TelegramMessageHandler {
         }
         return str;
     }
-
-//    int ready_counter = 0;
-//
-//    public void ready() {
-//        Timer timer = new Timer("ready");//
-//
-//        TimerTask timerTask = new TimerTask() {
-//            @Override
-//            public void run() {
-////				System.out.println("ready_counter is: " + ready_counter);
-//                ready_counter++;
-//
-//                if (ready_counter == 1) {
-//                    // TelegramExtension.telegramExtension.SendMessage("★★ 📝 核對表格 📝 ★★");
-//                    InputFile file_jpg = new InputFile();
-//                    java.io.File jpg;
-//
-//                    jpg = new java.io.File("resources/image/check_table.jpg");
-//                    file_jpg.setMedia(jpg);
-//                    TelegramBotUtil.telegramExtension.SendPhoto(file_jpg);
-//
-//                } else if (ready_counter == 2) {
-//
-//                    if (version == 1) {
-//                        ThreadPool.getInstance().putThread(new BaccDrawTable1());
-//                    } else {
-//                        ThreadPool.getInstance().putThread(new BaccDrawTable1V2());
-//                    }
-//
-//                } else if (ready_counter == 3) {
-//                    InputFile file_jpg = new InputFile();
-//                    java.io.File jpg;
-//                    jpg = new java.io.File("resources/image/open.jpg");
-//                    file_jpg.setMedia(jpg);
-//
-//                    SendPhoto sp = new SendPhoto();
-//                    sp.setChatId(TelegramUtil.getStringResourceByKey("chat_id").trim());
-//                    sp.setPhoto(file_jpg);
-//                    if (version == 2) {
-//                        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-////				        InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
-//                        InlineKeyboardButton inlineKeyboardButton2 = new InlineKeyboardButton();
-//                        InlineKeyboardButton inlineKeyboardButton3 = new InlineKeyboardButton();
-//                        InlineKeyboardButton inlineKeyboardButton4 = new InlineKeyboardButton();
-////				        inlineKeyboardButton1.setText("玩法说明");
-////				        inlineKeyboardButton1.setCallbackData("how_to_play");
-////				        inlineKeyboardButton1.setUrl("https://t.me/+Fav9bXn40Eo2Mzg1");
-//                        inlineKeyboardButton2.setText("近景视频");
-//                        inlineKeyboardButton2.setCallbackData("近景视频");
-//                        inlineKeyboardButton2.setUrl(
-//                                "https://play.dtlive.net/players/rtc_player.html?schema=https&api=1990&stream=G26&autostart=true");
-//                        inlineKeyboardButton3.setText("远景视频");
-//                        inlineKeyboardButton3.setCallbackData("vision_video");
-//                        inlineKeyboardButton3.setUrl("http://wstgst-bc.live-gameclub.com/#/?G26");
-//                        inlineKeyboardButton4.setText("上分唯一客服");
-//                        inlineKeyboardButton4.setCallbackData("how_to_play2");
-//                        inlineKeyboardButton4.setUrl("https://t.me/+7bBFwkj2bwliZGI1");
-//
-////				        List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
-//                        List<InlineKeyboardButton> keyboardButtonsRow2 = new ArrayList<>();
-////				        List<InlineKeyboardButton> keyboardButtonsRow3 = new ArrayList<>();
-//                        List<InlineKeyboardButton> keyboardButtonsRow4 = new ArrayList<>();
-////				        keyboardButtonsRow1.add(inlineKeyboardButton1);
-//                        // keyboardButtonsRow1.add(new
-//                        // InlineKeyboardButton().setText("Fi4a").setCallbackData("CallFi4a"));
-//                        keyboardButtonsRow2.add(inlineKeyboardButton2);
-//                        keyboardButtonsRow2.add(inlineKeyboardButton3);
-//                        keyboardButtonsRow4.add(inlineKeyboardButton4);
-//                        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-////				        rowList.add(keyboardButtonsRow1);
-//                        rowList.add(keyboardButtonsRow2);
-////				        rowList.add(keyboardButtonsRow3);
-//                        rowList.add(keyboardButtonsRow4);
-//
-//                        inlineKeyboardMarkup.setKeyboard(rowList);
-//                        // message.setReplyMarkup(inlineKeyboardMarkup);
-//                        sp.setReplyMarkup(inlineKeyboardMarkup);
-//                    }
-//                    TelegramBotUtil.telegramExtension.SendPhoto(sp);
-//                    ready_counter = 0;
-//                    timer.cancel();
-//                }
-//            }
-//        };
-//        timer.scheduleAtFixedRate(timerTask, 1000, 1000);//
-//    }
 }

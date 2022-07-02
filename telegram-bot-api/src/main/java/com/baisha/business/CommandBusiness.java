@@ -165,7 +165,7 @@ public class CommandBusiness {
         settlement.append(vo.getBureauNum());
         settlement.append(SEALING_BET_INFO1);
         settlement.append(SETTLEMENT2);
-        settlement.append(settlementResultVO.getSettlementResult());
+        settlement.append(vo.getSettlementResult());
         settlement.append(SEALING_BET_INFO17);
         settlement.append(SEALING_BET_INFO14);
 

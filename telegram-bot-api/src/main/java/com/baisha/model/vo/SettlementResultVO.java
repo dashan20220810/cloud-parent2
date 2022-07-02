@@ -18,9 +18,6 @@ import java.util.List;
 @ApiModel(value = "SettlementResultVO对象", description = "TG群结算信息")
 public class SettlementResultVO {
 
-    @ApiModelProperty(value = "结算结果", required = true)
-    private String settlementResult;
-
     @ApiModelProperty(value = "前20位输赢玩家")
     private List<UserWinVO> top20WinUsers = Lists.newArrayList();
 }
