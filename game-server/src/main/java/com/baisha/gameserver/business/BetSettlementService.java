@@ -38,14 +38,15 @@ public class BetSettlementService {
     private BetService betService;
 
     @Transactional(rollbackFor = Exception.class)
-    public boolean betSettlement(BetSettleVO vo) {
+    public void betSettlement(BetSettleVO vo) {
         log.info("===============开始结算=================");
         //下注成功状态
         int status = 1;
         List<Bet> bets = betService.findBetNoSettle(vo.getNoActive(), status);
         if (CollectionUtils.isEmpty(bets)) {
             //没有注单数据，直接返回true
-            return true;
+            log.info("noActive={}没有未结算的注单",vo.getNoActive());
+            return;
         }
         int size = bets.size();
         log.info("{}====未结算注单===={}条", vo.getNoActive(), size);
@@ -58,11 +59,7 @@ public class BetSettlementService {
         bets = trans(lists);
         int settleSize = bets.size();
         log.info("{}====结算注单===={}条", vo.getNoActive(), settleSize);
-        if (size != settleSize) {
-            log.info("有未结算完成的注单,需要检查");
-        }
         log.info("===============结束结算=================");
-        return true;
     }
 
     /**
