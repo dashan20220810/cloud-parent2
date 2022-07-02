@@ -99,6 +99,13 @@ public class BetSettlementService {
         return settleList;
     }
 
+    /**
+     * 派奖
+     *
+     * @param userId
+     * @param noActive
+     * @param finalAmount
+     */
     private void doAddBalance(Long userId, String noActive, BigDecimal finalAmount) {
         String url = userServerDomain + UserServerContants.ASSETS_BALANCE;
         Map<String, Object> param = new HashMap<>(16);
@@ -113,28 +120,25 @@ public class BetSettlementService {
         }
     }
 
+    /**
+     * 下注金额
+     *
+     * @param bet
+     * @return
+     */
     private Long getAetAmount(Bet bet) {
-        if (bet.getAmountZ() > 0) {
-            return bet.getAmountZ();
-        }
-        if (bet.getAmountX() > 0) {
-            return bet.getAmountX();
-        }
-        if (bet.getAmountH() > 0) {
-            return bet.getAmountH();
-        }
-        if (bet.getAmountZd() > 0) {
-            return bet.getAmountZd();
-        }
-        if (bet.getAmountXd() > 0) {
-            return bet.getAmountXd();
-        }
-        if (bet.getAmountSs() > 0) {
-            return bet.getAmountSs();
-        }
-        return 0L;
+        Long amount = bet.getAmountZ() + bet.getAmountX() + bet.getAmountH()
+                + bet.getAmountZd() + bet.getAmountXd() + bet.getAmountSs();
+        return amount;
     }
 
+    /**
+     * 注单 是否中奖
+     *
+     * @param bet
+     * @param awardOption
+     * @return
+     */
     private boolean isWinBet(Bet bet, String awardOption) {
         if (awardOption.equals(BetOddsEnum.Z.getCode())) {
             if (bet.getAmountZ() > 0) {
@@ -169,14 +173,12 @@ public class BetSettlementService {
         return false;
     }
 
-
-//    Z("Z", new BigDecimal("1.0")),
-//    X("X", new BigDecimal("1.0")),
-//    H("H", new BigDecimal("8.0")),
-//    ZD("ZD", new BigDecimal("2.0")),
-//    XD("XD", new BigDecimal("2.0")),
-//    SS("SS", new BigDecimal("10")),
-
+    /**
+     * 转换
+     *
+     * @param lists
+     * @return
+     */
     private List<Bet> trans(List<List<Bet>> lists) {
         List<Bet> list = new ArrayList<>();
         lists.forEach(item -> {
