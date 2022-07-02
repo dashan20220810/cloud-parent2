@@ -39,13 +39,13 @@ public class BetSettlementService {
 
     @Transactional(rollbackFor = Exception.class)
     public void betSettlement(BetSettleVO vo) {
-        log.info("===============开始结算=================");
+        log.info("==============={}开始结算=================", vo.getNoActive());
         //下注成功状态
         int status = 1;
         List<Bet> bets = betService.findBetNoSettle(vo.getNoActive(), status);
         if (CollectionUtils.isEmpty(bets)) {
             //没有注单数据，直接返回true
-            log.info("noActive={}没有未结算的注单",vo.getNoActive());
+            log.info("noActive={}没有未结算的注单", vo.getNoActive());
             return;
         }
         int size = bets.size();
@@ -58,8 +58,8 @@ public class BetSettlementService {
         lists = futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
         bets = trans(lists);
         int settleSize = bets.size();
-        log.info("{}====结算注单===={}条", vo.getNoActive(), settleSize);
-        log.info("===============结束结算=================");
+        log.info("{}==未结算注单{}==结算注单{}条", vo.getNoActive(), size, settleSize);
+        log.info("==============={}结束结算=================", vo.getNoActive());
     }
 
     /**
