@@ -89,9 +89,8 @@ public class BetSettlementService {
                 winAmount = finalAmount.subtract(BigDecimal.valueOf(betAmount));
             }
             //修改注单数据
-            betService.settleBet(bet.getId(), winAmount, finalAmount);
-
-            if (isWinFlag) {
+            int flag = betService.settleBet(bet.getId(), winAmount, finalAmount);
+            if (flag > 0 && isWinFlag) {
                 //派奖
                 doAddBalance(bet.getUserId(), bet.getNoActive(), finalAmount);
             }
