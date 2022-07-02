@@ -48,7 +48,7 @@ public class TelegramMessageHandler {
     @Autowired
     CommonHandler commonHandler;
 
-    public boolean registerEvery(MyTelegramLongPollingBot bot, User user, Chat chat, User from) {
+    public boolean registerEvery(User user, Chat chat, User from) {
         String userName = (user.getFirstName() == null ? "" : user.getFirstName()) + (user.getLastName() == null ? "" : user.getLastName());
         // 设置请求参数
         Map<String, Object> param = Maps.newHashMap();
@@ -84,7 +84,7 @@ public class TelegramMessageHandler {
         Chat chat = message.getChat();
         User from = message.getFrom();
 
-        // 判断此群消息，是否审核通过。未通过不处理
+        // 判断此群是否通过审核，未通过不处理消息。
         TgBot tgBot = tgBotService.findByBotName(bot.getBotUsername());
         TgChat tgChat = tgChatService.findByChatIdAndBotId(chat.getId(), tgBot.getId());
 
@@ -92,14 +92,14 @@ public class TelegramMessageHandler {
             return;
         }
 
-        //新会员绑定事件
+        // 新会员绑定事件
         List<User> users = message.getNewChatMembers();
         if (!CollectionUtils.isEmpty(users)) {
             for (User user : users) {
-                boolean isSuccess = registerEvery(bot, user, chat, from);
-                //注册成功推送消息
+                boolean isSuccess = registerEvery(user, chat, from);
+                // 注册成功推送消息
                 if (isSuccess) {
-                    showWords(user, bot, chat);
+                    showWords(user, chat, bot);
                 }
             }
             return;
@@ -164,7 +164,7 @@ public class TelegramMessageHandler {
         return reply.toString();
     }
 
-    private void showWords(User user, MyTelegramLongPollingBot bot, Chat chat) {
+    private void showWords(User user, Chat chat, MyTelegramLongPollingBot bot) {
         // 获取唯一财务
         ConfigInfo configInfo = commonHandler.getConfigInfo(user.getId());
         // 注册成功之后的欢迎词
