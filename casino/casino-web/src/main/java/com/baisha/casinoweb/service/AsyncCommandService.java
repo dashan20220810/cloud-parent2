@@ -86,8 +86,8 @@ public class AsyncCommandService {
     	// 准备桌台、tg群资料，用来初始game info
     	Map<String, Object> params = new HashMap<>();
     	Date beginTime = new Date();
-    	Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
-//    	Date endTime = DateUtils.addSeconds(beginTime, 20); // TODO
+//    	Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
+    	Date endTime = DateUtils.addSeconds(beginTime, 30); // TODO
     	GameInfo gameInfo = new GameInfo();
     	gameInfo.setCurrentActive(newActive);
     	gameInfo.setStatus(GameStatusEnum.Betting);		// 状态: 下注中
@@ -272,7 +272,7 @@ public class AsyncCommandService {
 				List<Map<String, Object>> betHistoryList = list.stream().map(betRes -> {
 					Map<String, Object> betHistory = new HashMap<>();
 					betHistory.put("username", betRes.getNickName());
-					betHistory.put("winAmount", betRes.getTotalAmount());
+					betHistory.put("winAmount", betRes.getWinAmount());
 					return betHistory;
 				}).limit(20).collect(Collectors.toList());
 				
