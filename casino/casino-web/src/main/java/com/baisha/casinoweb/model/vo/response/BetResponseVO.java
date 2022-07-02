@@ -1,5 +1,7 @@
 package com.baisha.casinoweb.model.vo.response;
 
+import java.math.BigDecimal;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -54,6 +56,9 @@ public class BetResponseVO {
 
     @ApiModelProperty("注單狀態(1.下注成功)")
     private Integer status;
+
+    @ApiModelProperty(value = "输赢金额")
+    private BigDecimal winAmount;
     
     public Long getTotalAmount() {
     	return amountZ +amountX +amountH +amountZd +amountXd +amountSs;

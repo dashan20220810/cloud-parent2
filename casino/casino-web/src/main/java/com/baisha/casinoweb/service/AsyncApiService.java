@@ -28,7 +28,7 @@ public class AsyncApiService {
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("bureauNum", noActive);
-		params.put("betDisplay", betDisplay); // TODO key
+		params.put("settlementResult", betDisplay); 
 		params.put("settlementInfo", betHistoryList);
 		
 		String result = HttpClient4Util.doPost(

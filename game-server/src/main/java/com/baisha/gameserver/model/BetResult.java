@@ -3,10 +3,13 @@ package com.baisha.gameserver.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
+import org.apache.commons.lang3.StringUtils;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author: alvin
@@ -14,6 +17,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper=false)
 @Entity
+@Slf4j
 @ApiModel(value = "GS-BetResult对象", description = "开牌结果")
 public class BetResult extends BaseEntity{
 	
@@ -24,11 +28,26 @@ public class BetResult extends BaseEntity{
 	private Long tableId;
 
     @ApiModelProperty("游戏局号")
-    @Column(name="no_active", nullable=false, columnDefinition="VARCHAR(50) COMMENT '游戏局号'")
+    @Column(name="no_active", nullable=false, unique=true, columnDefinition="VARCHAR(50) COMMENT '游戏局号'")
     private String noActive;
 
-    @ApiModelProperty("下注类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,D对,SS幸运六,SB三宝")
-    @Column(name="bet_option", nullable=false
-    	, columnDefinition="VARCHAR(10) COMMENT '下注类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,D对,SS幸运六,SB三宝'")
-	private String betOption;
+    @ApiModelProperty("类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,SS幸运六")
+    @Column(name="award_option"
+    	, columnDefinition="VARCHAR(10) COMMENT '开牌类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,SS幸运六'")
+	private String awardOption;
+    
+    public boolean checkRequest () {
+    	
+    	if ( tableId==null ) {
+    		log.warn(" tableId required!! ");
+    		return false;
+    	}
+    	
+    	if ( StringUtils.isBlank(noActive) ) {
+    		log.warn(" noActive required!! ");
+    		return false;
+    	}
+    	
+    	return true;
+    }
 }

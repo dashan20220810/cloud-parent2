@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -22,6 +24,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baisha.casinoweb.business.DeskBusiness;
 import com.baisha.casinoweb.business.GameInfoBusiness;
 import com.baisha.casinoweb.model.vo.response.BetResponseVO;
+import com.baisha.casinoweb.util.ValidateUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.core.constants.RedisKeyConstants;
 import com.baisha.core.dto.SysTelegramDto;
@@ -29,7 +32,6 @@ import com.baisha.core.service.TelegramService;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.enums.GameStatusEnum;
-import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.GameInfo;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
@@ -77,36 +79,15 @@ public class AsyncCommandService {
     public Future<Boolean> openNewGame ( Long deskId, String deskCode, String newActive ) {
 
     	log.info("开新局");
+    	String action = "开新局";
     	SysTelegramDto sysTg = telegramService.getSysTelegram();
     	String openNewGameUrl = sysTg.getStartBetPicUrl();
     	
+    	// 准备桌台、tg群资料，用来初始game info
     	Map<String, Object> params = new HashMap<>();
-		params.put("bureauNum", newActive);
-		params.put("tableId", deskId);
-		params.put("imageAddress", openNewGameUrl);
-		params.put("countdownAddress", sysTg.getSeventySecondsUrl());
-
-		log.info("局号、桌台id、新局图片url: {}, {}, {}", newActive, deskId, openNewGameUrl);
-		String result = HttpClient4Util.doPost(
-				telegramServerDomain + RequestPathEnum.TG_OPEN_NEW_GAME.getApiName(),
-				params);
-
-        if (CommonUtil.checkNull(result)) {
-        	log.warn("开新局 失败");
-    		return CompletableFuture.completedFuture(false);
-        }
-        
-		JSONObject betJson = JSONObject.parseObject(result);
-		Integer code = betJson.getInteger("code");
-
-		if ( code!=0 ) {
-        	log.warn("开新局 失败, {}", result);
-    		return CompletableFuture.completedFuture(false);
-		}
-
     	Date beginTime = new Date();
-//    	Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
-    	Date endTime = DateUtils.addSeconds(beginTime, 20); // TODO
+    	Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
+//    	Date endTime = DateUtils.addSeconds(beginTime, 20); // TODO
     	GameInfo gameInfo = new GameInfo();
     	gameInfo.setCurrentActive(newActive);
     	gameInfo.setStatus(GameStatusEnum.Betting);		// 状态: 下注中
@@ -114,22 +95,14 @@ public class AsyncCommandService {
     	gameInfo.setEndTime(endTime);
 
 		log.info("局号、桌台id、新局图片url: {}, {}, {}", newActive, deskId, openNewGameUrl);
-		result = HttpClient4Util.doGet(
+		String result = HttpClient4Util.doGet(
 				telegramServerDomain + RequestPathEnum.TG_GET_GROUP_ID_LIST.getApiName() + "?tableId=" +deskId);
 		
-        if (CommonUtil.checkNull(result)) {
-        	log.warn("开新局 失败");
-    		return CompletableFuture.completedFuture(false);
-        }
-        
-		JSONObject groupListJson = JSONObject.parseObject(result);
-		code = groupListJson.getInteger("code");
-
-		if ( code!=0 ) {
-        	log.warn("开新局 失败, {}", result);
+		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
     		return CompletableFuture.completedFuture(false);
 		}
 		
+		JSONObject groupListJson = JSONObject.parseObject(result);
 		JSONArray groupJsonList = groupListJson.getJSONArray("data");
 		List<Long> groupIdList = new ArrayList<>();
 		
@@ -138,8 +111,35 @@ public class AsyncCommandService {
 			groupIdList.add(groupJson.getLong("chatId"));
 		}
 		gameInfo.initTgGRoupMap(groupIdList);
-    	
     	gameInfoBusiness.setGameInfo(deskCode, gameInfo);
+    	
+    	// 预存开牌资料
+    	params = new HashMap<>();
+		params.put("noActive", newActive);
+		params.put("tableId", deskId);
+		result = HttpClient4Util.doPost(
+				gameServerDomain + RequestPathEnum.BET_RESULT_ADD.getApiName(),
+				params);
+
+		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+    		return CompletableFuture.completedFuture(false);
+		}
+    	
+    	// call telegram server
+    	params = new HashMap<>();
+		params.put("bureauNum", newActive);
+		params.put("tableId", deskId);
+		params.put("imageAddress", openNewGameUrl);
+		params.put("countdownAddress", sysTg.getSeventySecondsUrl());
+
+		log.info("局号、桌台id、新局图片url: {}, {}, {}", newActive, deskId, openNewGameUrl);
+		result = HttpClient4Util.doPost(
+				telegramServerDomain + RequestPathEnum.TG_OPEN_NEW_GAME.getApiName(),
+				params);
+
+		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+    		return CompletableFuture.completedFuture(false);
+		}
 
     	log.info("开新局 成功");
 		return CompletableFuture.completedFuture(true);
@@ -184,6 +184,7 @@ public class AsyncCommandService {
     @Async
     public void open ( String dealerIp, String awardOption ) {
 
+    	String action = "开牌";
     	JSONObject desk = deskBusiness.queryDeskByIp(dealerIp);
     	if ( desk==null ) {
     		log.warn("开牌 失败, 查无桌台");
@@ -193,75 +194,79 @@ public class AsyncCommandService {
     	Long deskId = desk.getLong("id");
     	String deskCode = desk.getString("deskCode");
     	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
-
+    	
 		redisUtil.hset(RedisKeyConstants.SYS_GAME_RESULT, gameInfo.getCurrentActive(), awardOption);
-        BetSettleVO vo = BetSettleVO.builder().noActive(gameInfo.getCurrentActive()).awardOption(awardOption).build();
-        rabbitTemplate.convertAndSend(MqConstants.BET_SETTLEMENT, vo);
+		redisUtil.hset(RedisKeyConstants.SYS_GAME_DESK, gameInfo.getCurrentActive(), deskCode);
+
+    	// 预存开牌资料
+		Map<String, Object> params = new HashMap<>();
+		params.put("noActive", gameInfo.getCurrentActive());
+		params.put("tableId", deskId);
+		params.put("awardOption", awardOption);
+		String result = HttpClient4Util.doPost(
+				gameServerDomain + RequestPathEnum.BET_RESULT_UPDATE.getApiName(),
+				params);
+
+		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+    		return;
+		}
 
     	SysTelegramDto sysTg = telegramService.getSysTelegram();
         // 开牌 5 request parameter 
-    	Map<String, Object> params = new HashMap<>();
+    	params = new HashMap<>();
 		params.put("openCardAddress", sysTg.getOpenCardUrl());
 		params.put("tableId", deskId);
 		params.put("frontAddress", "https://www.google.com"); // TODO for test
 		params.put("lookDownAddress", "https://tw.yahoo.com"); // TODO for test
-		params.put("resultAddress", sysTg.getStartBetPicUrl()); // TODO for test
-		params.put("roadAddress", sysTg.getStartBetPicUrl()); // TODO for test
+		params.put("resultAddress", "http://192.168.26.24:9000/user/kaipaijieguo.png"); // TODO for test
+		params.put("roadAddress", "http://192.168.26.24:9000/user/lutu.png"); // TODO for test
 
-		String result = HttpClient4Util.doPost(
-				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),	// TODO uri
+		result = HttpClient4Util.doPost(
+				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),
 				params);
-        if (CommonUtil.checkNull(result)) {
-        	log.warn("开牌 失败");
-    		return;
-        }
-        
-		JSONObject openJson = JSONObject.parseObject(result);
-		Integer code = openJson.getInteger("code");
-		if ( code!=0 ) {
-        	log.warn("开牌 失败, {}", result);
+		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
     		return;
 		}
+
+        BetSettleVO vo = BetSettleVO.builder().noActive(gameInfo.getCurrentActive()).awardOption(awardOption).build();
+        rabbitTemplate.convertAndSend(MqConstants.BET_SETTLEMENT, vo);
     }
     
     @Async
     public void settlement ( String noActive ) {
     	 
+    	String action = "结算";
     	Map<String, Object> params = new HashMap<>();
 		params.put("noActive", noActive);
 
 		String result = HttpClient4Util.doPost(
 				gameServerDomain + RequestPathEnum.ORDER_SETTLEMENT.getApiName(),
 				params);
-
-        if (CommonUtil.checkNull(result)) {
-        	log.warn("结算 失败");
-    		return;
-        }
-        
-		JSONObject betJson = JSONObject.parseObject(result);
-		Integer code = betJson.getInteger("code");
-
-		if ( code!=0 ) {
-        	log.warn("结算 失败, {}", result);
+		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
     		return;
 		}
-		
+
+		JSONObject betJson = JSONObject.parseObject(result);
 		JSONArray betArray = betJson.getJSONArray("data");
 		Map<Long, List<BetResponseVO>> betMap = null;
 		String betResult = (String) redisUtil.hget(RedisKeyConstants.SYS_GAME_RESULT, noActive);
+		String deskCode = (String) redisUtil.hget(RedisKeyConstants.SYS_GAME_DESK, noActive);
 		String betDisplay = BetOption.getBetOption(betResult).getDisplay();
+		GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
 		
 		if ( betArray!=null && betArray.size()>0 ) {
 			List<BetResponseVO> betList = betArray.toJavaList(BetResponseVO.class);
-			betMap = betList.stream().sorted(Comparator.comparingLong(bet -> { 
-				return (bet.getAmountH()+bet.getAmountSs()+bet.getAmountX()+bet.getAmountXd()+bet.getAmountZ()+bet.getAmountZd());
+			betMap = betList.stream().sorted(Comparator.comparingDouble(bet -> { 
+				return (bet.getWinAmount().doubleValue());
 			})).collect(Collectors.groupingBy(BetResponseVO::getTgChatId));
 		}
 		
+		Set<Long> allGroupIdSet = gameInfo.getTgGroupMap().keySet();
+		Set<Long> groupIdSet = new HashSet<>();
+
+		Map<Long, List<Map<String, Object>>> top20WinUsers = new HashMap<>();
 		if ( betMap!=null ) {
-			
-			Map<Long, List<Map<String, Object>>> top20WinUsers = new HashMap<>();
+			groupIdSet = betMap.keySet();
 			for ( Long tgGroupId: betMap.keySet() ) {
 				List<BetResponseVO> list = betMap.get(tgGroupId);
 				List<Map<String, Object>> betHistoryList = list.stream().map(betRes -> {
@@ -269,14 +274,17 @@ public class AsyncCommandService {
 					betHistory.put("username", betRes.getNickName());
 					betHistory.put("winAmount", betRes.getTotalAmount());
 					return betHistory;
-				}).collect(Collectors.toList());
+				}).limit(20).collect(Collectors.toList());
 				
 				top20WinUsers.put(tgGroupId, betHistoryList);
-				// Map<Long, List>
-				asyncApiService.tgSettlement(noActive, betDisplay, top20WinUsers);
 			}
 		}
     	
+		allGroupIdSet.removeAll(groupIdSet);
+		for ( Long tgGroupId: allGroupIdSet ) {
+			top20WinUsers.put(tgGroupId, new ArrayList<>());
+		}
+		asyncApiService.tgSettlement(noActive, betDisplay, top20WinUsers);
     }
     
 }

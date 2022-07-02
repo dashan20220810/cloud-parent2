@@ -13,6 +13,9 @@ public class RedisKeyConstants {
 
     //redis 游戏开盘结果前缀
     public static final String SYS_GAME_RESULT = "game::game_result";
+
+    //redis 游戏局号查桌台编码
+    public static final String SYS_GAME_DESK = "game::game_desk";
     
     /** 游戏局号 */
     public static final String GAMBLING_ACTIVE_INFO = "gambling::active_info";
