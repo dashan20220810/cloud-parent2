@@ -86,10 +86,10 @@ public class BetSettlementService {
                 Long winBetAmount = getWinBetAmount(bet, awardOption);
                 //赢的钱
                 BigDecimal winAwardAmount = odds.multiply(BigDecimal.valueOf(winBetAmount));
-                //输赢金额
-                winAmount = winAwardAmount.subtract(BigDecimal.valueOf(betAmount));
                 //派彩=赢得钱+ 中奖选项的下注金额
                 finalAmount = winAwardAmount.add(BigDecimal.valueOf(winBetAmount));
+                //输赢金额
+                winAmount = finalAmount.subtract(BigDecimal.valueOf(betAmount));
             } else {
                 //未中奖
                 finalAmount = BigDecimal.ZERO;
