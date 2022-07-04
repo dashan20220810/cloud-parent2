@@ -1,6 +1,8 @@
 package com.baisha.userserver.model;
 
 import com.baisha.userserver.util.constants.UserServerConstants;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,29 +20,38 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "BalanceChange", indexes = {@Index(columnList = "userId")})
 @org.hibernate.annotations.Table(appliesTo = "balance_change", comment = "会员余额变动记录")
+@ApiModel(value = "用户中心-会员余额变动记录")
 public class BalanceChange extends BaseEntity {
 
+    @ApiModelProperty(value = "会员ID")
     @Column(columnDefinition = "bigint(20) comment '会员ID'")
     private Long userId;
 
+    @ApiModelProperty(value = "关联ID")
     @Column(columnDefinition = "bigint(20) comment '关联ID'")
     private Long relateId;
 
+    @ApiModelProperty(value = "变动类型  1充值 2下注 3 派奖")
     @Column(columnDefinition = "tinyint(2) comment '类型  1充值 2下注 3 派奖'")
     private Integer changeType;
 
+    @ApiModelProperty(value = "收支类型 1收入 2支出")
     @Column(columnDefinition = "tinyint(2) comment '收支类型 1收入 2支出'")
     private Integer balanceType;
 
+    @ApiModelProperty(value = "交易前金额")
     @Column(columnDefinition = "decimal(16,2) comment '交易前金额'")
     private BigDecimal beforeAmount;
 
+    @ApiModelProperty(value = "变化金额")
     @Column(columnDefinition = "decimal(16,2) comment '金额 变化金额'")
     private BigDecimal amount;
 
+    @ApiModelProperty(value = "交易后金额")
     @Column(columnDefinition = "decimal(16,2) comment '交易后金额'")
     private BigDecimal afterAmount;
 
+    @ApiModelProperty(value = "备注信息")
     @Column(columnDefinition = "varchar(100) comment '备注信息'")
     private String remark;
 

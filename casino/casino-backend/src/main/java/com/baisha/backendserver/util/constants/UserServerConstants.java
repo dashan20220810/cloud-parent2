@@ -34,6 +34,12 @@ public class UserServerConstants {
      */
     public static final String USERSERVER_ASSETS_PLAY_MONEY = "/assets/playMoney";
 
+
+    /**
+     * 用户余额变动分页接口
+     */
+    public static final String USERSERVER_ASSETS_CHANGE_BALANCE_PAGE = "/assets/changeBalancePage";
+
     //**************************用户中心***************************************
 
 

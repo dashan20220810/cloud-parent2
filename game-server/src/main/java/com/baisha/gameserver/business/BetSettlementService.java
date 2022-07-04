@@ -123,7 +123,7 @@ public class BetSettlementService {
         //收支类型(1收入 2支出)
         param.put("balanceType", GameServerContants.INCOME);
         param.put("amount", finalAmount);
-        param.put("remark", "会员userId=" + userId + "在noActive=" + noActive + "中奖");
+        param.put("remark", "会员" + "在局号为" + noActive + "中奖");
         param.put("relateId", bet.getId());
         param.put("changeType", BalanceChangeEnum.WIN.getCode());
         String result = HttpClient4Util.doPost(url, param);

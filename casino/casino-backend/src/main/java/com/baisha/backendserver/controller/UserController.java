@@ -1,14 +1,18 @@
 package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.business.PlayMoneyService;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.bo.sys.SysPlayMoneyParameterBO;
+import com.baisha.backendserver.model.bo.user.UserBalanceChangePageBO;
 import com.baisha.backendserver.model.bo.user.UserPageBO;
 import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.user.BalanceVO;
 import com.baisha.backendserver.model.vo.user.PlayMoneyVO;
+import com.baisha.backendserver.model.vo.user.UserChangeBalancePageVO;
 import com.baisha.backendserver.model.vo.user.UserPageVO;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
@@ -26,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -226,6 +232,69 @@ public class UserController {
             return ResponseUtil.fail();
         }
         return JSON.parseObject(result, ResponseEntity.class);
+    }
+
+
+    @GetMapping("changeBalancePage")
+    @ApiOperation(("用户余额变动记录分页"))
+    public ResponseEntity<Page<UserBalanceChangePageBO>> changeBalancePage(UserChangeBalancePageVO vo) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(userServerUrl + UserServerConstants.USERSERVER_ASSETS_CHANGE_BALANCE_PAGE + "?pageNumber=" + vo.getPageNumber() +
+                "&pageSize=" + vo.getPageSize());
+        sb.append("&userId=" + vo.getId());
+        if (null != vo.getChangeType()) {
+            sb.append("&changeType=" + vo.getChangeType());
+        }
+        String url = sb.toString();
+        String result = HttpClient4Util.doGet(url);
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (Objects.nonNull(responseEntity) && responseEntity.getCode() == 0) {
+            JSONObject page = (JSONObject) responseEntity.getData();
+            List<UserBalanceChangePageBO> list = JSONArray.parseArray(page.getString("content"), UserBalanceChangePageBO.class);
+            if (!CollectionUtils.isEmpty(list)) {
+                for (UserBalanceChangePageBO bo : list) {
+                    setUserBalanceChangePageBo(bo);
+                }
+                page.put("content", list);
+                responseEntity.setData(page);
+            }
+        }
+        return responseEntity;
+    }
+
+    private void setUserBalanceChangePageBo(UserBalanceChangePageBO bo) {
+        balanceType(bo);
+        changeType(bo);
+    }
+
+    private void changeType(UserBalanceChangePageBO bo) {
+        if (Objects.nonNull(bo.getChangeType())) {
+            if (bo.getChangeType().equals(BalanceChangeEnum.RECHARGE.getCode())) {
+                bo.setChangeTypeName(BalanceChangeEnum.RECHARGE.getName());
+                return;
+            }
+            if (bo.getChangeType().equals(BalanceChangeEnum.BET.getCode())) {
+                bo.setChangeTypeName(BalanceChangeEnum.BET.getName());
+                return;
+            }
+            if (bo.getChangeType().equals(BalanceChangeEnum.WIN.getCode())) {
+                bo.setChangeTypeName(BalanceChangeEnum.WIN.getName());
+                return;
+            }
+        }
+    }
+
+    private void balanceType(UserBalanceChangePageBO bo) {
+        if (Objects.nonNull(bo.getBalanceType())) {
+            if (bo.getBalanceType() == BackendConstants.INCOME) {
+                bo.setBalanceTypeName("收入");
+            } else {
+                bo.setBalanceTypeName("支出");
+            }
+        }
     }
 
 
