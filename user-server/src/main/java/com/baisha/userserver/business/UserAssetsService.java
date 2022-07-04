@@ -188,8 +188,9 @@ public class UserAssetsService {
      */
     private ResponseEntity doReducePlayMoney(User user, PlayMoneyVO vo) {
         Assets assets = findAssetsByUserId(user.getId());
-        if (assets.getPlayMoney().compareTo(BigDecimal.ZERO) <= 0) {
-            log.info("无打码量(已完成打码量)(userId={} assetsId={})", user.getId(), assets.getId());
+        if (assets.getPlayMoney().compareTo(BigDecimal.ONE) < 0) {
+            log.info("打码量小于1,不需要打码(userId={} assetsId={})", user.getId(), assets.getId());
+            assets.setPlayMoney(BigDecimal.ZERO);
             return ResponseUtil.success();
         }
         if (assets.getPlayMoney().compareTo(vo.getAmount()) <= 0) {
