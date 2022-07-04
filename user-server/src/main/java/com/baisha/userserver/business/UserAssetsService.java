@@ -212,6 +212,8 @@ public class UserAssetsService {
         change.setBeforeAmount(assets.getPlayMoney());
         change.setAmount(vo.getAmount());
         change.setAfterAmount(assets.getPlayMoney().subtract(vo.getAmount()));
+        change.setChangeType(vo.getChangeType());
+        change.setRelateId(vo.getRelateId());
         PlayMoneyChange pc = playMoneyChangeService.save(change);
         if (Objects.nonNull(pc)) {
             log.info("(支出)创建打码量变化成功(userId={})", user.getId());
@@ -238,6 +240,8 @@ public class UserAssetsService {
         change.setBeforeAmount(assets.getPlayMoney());
         change.setAmount(vo.getAmount());
         change.setAfterAmount(assets.getPlayMoney().add(vo.getAmount()));
+        change.setChangeType(vo.getChangeType());
+        change.setRelateId(vo.getRelateId());
         PlayMoneyChange pc = playMoneyChangeService.save(change);
         if (Objects.nonNull(pc)) {
             log.info("(收入)创建打码量变化成功(userId={})", user.getId());

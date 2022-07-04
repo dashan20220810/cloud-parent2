@@ -8,6 +8,7 @@ import com.baisha.backendserver.model.vo.order.BetPageVO;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.GameServerConstants;
 import com.baisha.modulecommon.enums.BetOption;
+import com.baisha.modulecommon.enums.BetStatusEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -74,33 +75,35 @@ public class OrderController {
         sb.append(bo.getAmountZ() + bo.getAmountX() + bo.getAmountH() + bo.getAmountZd() + bo.getAmountXd() + bo.getAmountSs());
         sb.append("(");
         if (bo.getAmountZ() > 0) {
-            sb.append("庄-" + bo.getAmountZ() + " ");
+            sb.append("庄-" + bo.getAmountZ());
         }
         if (bo.getAmountX() > 0) {
-            sb.append("闲-" + bo.getAmountX() + " ");
+            sb.append("闲-" + bo.getAmountX());
         }
         if (bo.getAmountH() > 0) {
-            sb.append("和-" + bo.getAmountH() + " ");
+            sb.append("和-" + bo.getAmountH());
         }
         if (bo.getAmountZd() > 0) {
-            sb.append("庄对-" + bo.getAmountZd() + " ");
+            sb.append("庄对-" + bo.getAmountZd());
         }
         if (bo.getAmountXd() > 0) {
-            sb.append("闲对-" + bo.getAmountXd() + " ");
+            sb.append("闲对-" + bo.getAmountXd());
         }
         if (bo.getAmountSs() > 0) {
-            sb.append("幸运6-" + bo.getAmountSs() + " ");
+            sb.append("幸运6-" + bo.getAmountSs());
         }
         sb.append(")");
         bo.setTotalAmount(sb.toString());
     }
 
     private void getBetStatusName(BetPageBO bo) {
-        if (bo.getStatus() == 1) {
-            bo.setStatusName("下注成功");
+        if (bo.getStatus().equals(BetStatusEnum.BET.getCode())) {
+            bo.setStatusName("下注");
+            return;
         }
-        if (bo.getStatus() == 2) {
-            bo.setStatusName("结算成功");
+        if (bo.getStatus().equals(BetStatusEnum.SETTLEMENT.getCode())) {
+            bo.setStatusName("结算");
+            return;
         }
     }
 

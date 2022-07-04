@@ -1,5 +1,6 @@
 package com.baisha.backendserver.model.bo.order;
 
+import com.baisha.backendserver.model.bo.BaseBO;
 import com.baisha.modulecommon.enums.BetOption;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -21,7 +22,7 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel(value = "Bet对象", description = "注单")
-public class BetPageBO {
+public class BetPageBO extends BaseBO {
 
     @ApiModelProperty("订单编号")
     private String orderNo;
@@ -70,13 +71,6 @@ public class BetPageBO {
 
     @ApiModelProperty("注单状态名称")
     private String statusName;
-
-    @ApiModelProperty("创建时间")
-    private String createTime;
-
-    //@ApiModelProperty("更新时间")
-    //private String updateTime;
-
 
     @ApiModelProperty(value = "下注金额详细")
     private String totalAmount;
