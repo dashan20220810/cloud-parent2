@@ -41,23 +41,14 @@ public class BetService {
     }
 
     public Page<Bet> getBetPage(BetPageVO vo) {
-        Pageable pageable = PageUtil.setPageable(vo.getPageNumber(), vo.getPageSize());
+        Pageable pageable = PageUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
         Specification<Bet> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             if (StringUtils.isNotBlank(vo.getUserName())) {
-                predicates.add(cb.like(root.get("userName"), "%" + vo.getUserName() + "%"));
-            }
-
-            if (vo.getBetOption() != null) {
-                predicates.add(cb.equal(root.get("betOption"), vo.getBetOption().toString()));
-            }
-
-            if (StringUtils.isNotBlank(vo.getClientType())) {
-                predicates.add(cb.equal(root.get("clientType"), vo.getClientType()));
-            }
-
-            if (StringUtils.isNotBlank(vo.getNoRun())) {
-                predicates.add(cb.like(root.get("noRun"), "%" + vo.getNoRun() + "%"));
+                predicates.add(cb.or(
+                        cb.like(root.get("userName"), "%" + vo.getUserName().trim() + "%"),
+                        cb.like(root.get("nickName"), "%" + vo.getUserName().trim() + "%"))
+                );
             }
 
             if (StringUtils.isNotBlank(vo.getNoActive())) {
@@ -93,6 +84,6 @@ public class BetService {
     }
 
     public int settleBet(Long id, BigDecimal winAmount, BigDecimal finalAmount) {
-        return betRepository.updateSettleBetById(id, winAmount, finalAmount,new Date());
+        return betRepository.updateSettleBetById(id, winAmount, finalAmount, new Date());
     }
 }

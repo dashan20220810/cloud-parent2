@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -136,7 +137,8 @@ public class UserController {
         if (StringUtils.isNotEmpty(vo.getUserName()) && User.checkUserName(vo.getUserName())) {
             return new ResponseEntity("用户名不规范");
         }
-        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize());
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), sort);
         Specification<User> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             if (StringUtils.isNotEmpty(vo.getUserName())) {

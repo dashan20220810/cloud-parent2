@@ -18,16 +18,16 @@ public class BetPageVO extends PageVO {
     @ApiModelProperty("会员名")
     private String userName;
 
-    @ApiModelProperty("下注类型  Z（庄） X（闲） H（和） ZD（庄对） XD（闲对） D（庄对 闲对）SB（庄对 闲对 和）SS（幸运6）")
-    private String betOption;
+    //@ApiModelProperty("下注类型  Z（庄） X（闲） H（和） ZD（庄对） XD（闲对） D（庄对 闲对）SB（庄对 闲对 和）SS（幸运6）")
+    //private String betOption;
 
-    @ApiModelProperty("游戏轮号")
-    private String noRun;
+    //@ApiModelProperty("游戏轮号")
+    // private String noRun;
 
     @ApiModelProperty("游戏局号")
     private String noActive;
 
-    @ApiModelProperty("注單狀態(1.下注成功)")
+    @ApiModelProperty("注单状态(1.下注 2.结算)")
     private Integer status;
 
 }

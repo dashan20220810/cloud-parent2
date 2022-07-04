@@ -19,9 +19,9 @@ public enum BetOddsEnum {
     Z("Z", new BigDecimal("1.0")),
     X("X", new BigDecimal("1.0")),
     H("H", new BigDecimal("8.0")),
-    ZD("ZD", new BigDecimal("2.0")),
-    XD("XD", new BigDecimal("2.0")),
-    SS("SS", new BigDecimal("10")),
+    ZD("ZD", new BigDecimal("11.0")),
+    XD("XD", new BigDecimal("11.0")),
+    SS("SS", new BigDecimal("20.0")),
 
     ;
 

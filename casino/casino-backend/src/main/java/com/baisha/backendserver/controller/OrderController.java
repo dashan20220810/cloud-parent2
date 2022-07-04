@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,11 +53,8 @@ public class OrderController {
             JSONObject page = (JSONObject) responseEntity.getData();
             List<BetPageBO> list = JSONArray.parseArray(page.getString("content"), BetPageBO.class);
             if (!CollectionUtils.isEmpty(list)) {
-                List<Map<String, String>> bets = getBetOption();
                 for (BetPageBO bo : list) {
-                    String betOption = bo.getBetOption();
-                    String betOptionName = getBetOptionName(bets, betOption);
-                    bo.setBetOptionName(betOptionName);
+                    setBetBo(bo);
                 }
                 page.put("content", list);
                 responseEntity.setData(page);
@@ -67,8 +63,50 @@ public class OrderController {
         return responseEntity;
     }
 
-    @GetMapping("betOption")
-    @ApiOperation("下注类型")
+    private void setBetBo(BetPageBO bo) {
+        getBetStatusName(bo);
+        getBetTotalAmount(bo);
+    }
+
+    private void getBetTotalAmount(BetPageBO bo) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("总金额:");
+        sb.append(bo.getAmountZ() + bo.getAmountX() + bo.getAmountH() + bo.getAmountZd() + bo.getAmountXd() + bo.getAmountSs());
+        sb.append("(");
+        if (bo.getAmountZ() > 0) {
+            sb.append("庄-" + bo.getAmountZ() + " ");
+        }
+        if (bo.getAmountX() > 0) {
+            sb.append("闲-" + bo.getAmountX() + " ");
+        }
+        if (bo.getAmountH() > 0) {
+            sb.append("和-" + bo.getAmountH() + " ");
+        }
+        if (bo.getAmountZd() > 0) {
+            sb.append("庄对-" + bo.getAmountZd() + " ");
+        }
+        if (bo.getAmountXd() > 0) {
+            sb.append("闲对-" + bo.getAmountXd() + " ");
+        }
+        if (bo.getAmountSs() > 0) {
+            sb.append("幸运6-" + bo.getAmountSs() + " ");
+        }
+        sb.append(")");
+        bo.setTotalAmount(sb.toString());
+    }
+
+    private void getBetStatusName(BetPageBO bo) {
+        if (bo.getStatus() == 1) {
+            bo.setStatusName("下注成功");
+        }
+        if (bo.getStatus() == 2) {
+            bo.setStatusName("结算成功");
+        }
+    }
+
+
+    //@GetMapping("betOption")
+    //@ApiOperation("下注类型")
     public ResponseEntity<List<Map<String, String>>> betOption() {
         return ResponseUtil.success(BetOption.getList()
                 .stream()
