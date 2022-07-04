@@ -238,12 +238,21 @@ public class UserController {
     @GetMapping("changeBalancePage")
     @ApiOperation(("用户余额变动记录分页"))
     public ResponseEntity<Page<UserBalanceChangePageBO>> changeBalancePage(UserChangeBalancePageVO vo) {
+        if (null == vo.getId()) {
+            return ResponseUtil.parameterNotNull();
+        }
         StringBuffer sb = new StringBuffer();
-        sb.append(userServerUrl + UserServerConstants.USERSERVER_ASSETS_CHANGE_BALANCE_PAGE + "?pageNumber=" + vo.getPageNumber() +
-                "&pageSize=" + vo.getPageSize());
+        sb.append(userServerUrl + UserServerConstants.USERSERVER_ASSETS_CHANGE_BALANCE_PAGE);
+        sb.append("?pageNumber=" + vo.getPageNumber() + "&pageSize=" + vo.getPageSize());
         sb.append("&userId=" + vo.getId());
         if (null != vo.getChangeType()) {
             sb.append("&changeType=" + vo.getChangeType());
+        }
+        if (StringUtils.isNotEmpty(vo.getStartTime())) {
+            sb.append("&startTime=" + vo.getStartTime());
+        }
+        if (StringUtils.isNotEmpty(vo.getEndTime())) {
+            sb.append("&endTime=" + vo.getEndTime());
         }
         String url = sb.toString();
         String result = HttpClient4Util.doGet(url);

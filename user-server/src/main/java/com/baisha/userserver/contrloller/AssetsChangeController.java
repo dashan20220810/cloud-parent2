@@ -5,6 +5,7 @@ import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.userserver.model.BalanceChange;
 import com.baisha.userserver.model.vo.balance.UserChangeBalancePageVO;
 import com.baisha.userserver.service.BalanceChangeService;
+import com.baisha.userserver.service.PlayMoneyChangeService;
 import com.baisha.userserver.util.UserServerUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -31,6 +32,9 @@ public class AssetsChangeController {
 
     @Autowired
     private BalanceChangeService balanceChangeService;
+
+    @Autowired
+    private PlayMoneyChangeService playMoneyChangeService;
 
 
     @ApiOperation(("用户余额记录"))
