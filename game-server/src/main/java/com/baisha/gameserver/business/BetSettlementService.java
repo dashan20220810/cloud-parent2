@@ -4,7 +4,9 @@ import com.baisha.gameserver.enums.BetOddsEnum;
 import com.baisha.gameserver.model.Bet;
 import com.baisha.gameserver.service.BetService;
 import com.baisha.gameserver.util.GameServerUtil;
+import com.baisha.gameserver.util.contants.GameServerContants;
 import com.baisha.gameserver.util.contants.UserServerContants;
+import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
 import lombok.extern.slf4j.Slf4j;
@@ -99,7 +101,7 @@ public class BetSettlementService {
             int flag = betService.settleBet(bet.getId(), winAmount, finalAmount);
             if (flag > 0 && isWinFlag) {
                 //派奖
-                doAddBalance(bet.getUserId(), bet.getNoActive(), finalAmount);
+                doAddBalance(bet, bet.getNoActive(), finalAmount);
             }
             settleList.add(bet);
         }
@@ -109,18 +111,21 @@ public class BetSettlementService {
     /**
      * 派奖
      *
-     * @param userId
+     * @param bet
      * @param noActive
      * @param finalAmount
      */
-    private void doAddBalance(Long userId, String noActive, BigDecimal finalAmount) {
+    private void doAddBalance(Bet bet, String noActive, BigDecimal finalAmount) {
+        Long userId = bet.getUserId();
         String url = userServerDomain + UserServerContants.ASSETS_BALANCE;
         Map<String, Object> param = new HashMap<>(16);
         param.put("userId", userId);
         //收支类型(1收入 2支出)
-        param.put("balanceType", 1);
+        param.put("balanceType", GameServerContants.INCOME);
         param.put("amount", finalAmount);
         param.put("remark", "会员userId=" + userId + "在noActive=" + noActive + "中奖");
+        param.put("relateId", bet.getId());
+        param.put("changeType", BalanceChangeEnum.WIN.getCode());
         String result = HttpClient4Util.doPost(url, param);
         if (StringUtils.isEmpty(result)) {
             log.error("增加会员userId=" + userId + "的彩金" + finalAmount + "失败");

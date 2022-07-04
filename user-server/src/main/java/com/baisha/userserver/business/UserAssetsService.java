@@ -90,6 +90,8 @@ public class UserAssetsService {
         balanceChange.setBeforeAmount(assets.getBalance());
         balanceChange.setAmount(vo.getAmount());
         balanceChange.setAfterAmount(assets.getBalance().subtract(vo.getAmount()));
+        balanceChange.setChangeType(vo.getChangeType());
+        balanceChange.setRelateId(vo.getRelateId());
         BalanceChange bc = balanceChangeService.save(balanceChange);
         if (Objects.nonNull(bc)) {
             log.info("(支出)创建余额变化成功(userId={})", user.getId());
@@ -109,6 +111,8 @@ public class UserAssetsService {
         balanceChange.setBeforeAmount(assets.getBalance());
         balanceChange.setAmount(vo.getAmount());
         balanceChange.setAfterAmount(assets.getBalance().add(vo.getAmount()));
+        balanceChange.setChangeType(vo.getChangeType());
+        balanceChange.setRelateId(vo.getRelateId());
         BalanceChange bc = balanceChangeService.save(balanceChange);
         if (Objects.nonNull(bc)) {
             log.info("(收入)创建余额变化成功(userId={})", user.getId());

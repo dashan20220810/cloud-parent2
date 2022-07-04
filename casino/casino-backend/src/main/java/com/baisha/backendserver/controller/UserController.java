@@ -13,6 +13,8 @@ import com.baisha.backendserver.model.vo.user.UserPageVO;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.UserServerConstants;
+import com.baisha.modulecommon.enums.BalanceChangeEnum;
+import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -155,6 +157,8 @@ public class UserController {
         param.put("userId", vo.getId());
         param.put("amount", vo.getAmount());
         param.put("remark", vo.getRemark() + "(充值增加打码量)");
+        //param.put("relateId",null);
+        param.put("changeType", PlayMoneyChangeEnum.RECHARGE.getCode());
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
@@ -170,6 +174,9 @@ public class UserController {
         param.put("userId", vo.getId());
         param.put("amount", vo.getAmount());
         param.put("remark", vo.getRemark());
+        //param.put("relateId",null);
+        // 1 是充值
+        param.put("changeType", BalanceChangeEnum.RECHARGE.getCode());
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();

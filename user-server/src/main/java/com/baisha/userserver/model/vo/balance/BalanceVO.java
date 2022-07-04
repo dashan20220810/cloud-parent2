@@ -17,6 +17,12 @@ public class BalanceVO {
     @ApiModelProperty(value = "用户ID", required = true)
     private Long userId;
 
+    @ApiModelProperty(value = "业务关联ID(例如 下注传注单ID)")
+    private Long relateId;
+
+    @ApiModelProperty(value = "类型  1充值 2下注 3派彩", required = true)
+    private Integer changeType = 2;
+
     @ApiModelProperty(value = "金额", required = true)
     private BigDecimal amount;
 

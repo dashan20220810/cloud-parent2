@@ -23,6 +23,12 @@ public class BalanceChange extends BaseEntity {
     @Column(columnDefinition = "bigint(20) comment '会员ID'")
     private Long userId;
 
+    @Column(columnDefinition = "bigint(20) comment '关联ID'")
+    private Long relateId;
+
+    @Column(columnDefinition = "tinyint(2) comment '类型  1充值 2下注 3 派奖'")
+    private Integer changeType;
+
     @Column(columnDefinition = "tinyint(2) comment '收支类型 1收入 2支出'")
     private Integer balanceType;
 
