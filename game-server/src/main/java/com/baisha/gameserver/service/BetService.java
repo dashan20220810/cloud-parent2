@@ -2,6 +2,7 @@ package com.baisha.gameserver.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +12,7 @@ import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -89,5 +91,21 @@ public class BetService {
 
     public int settleBet(Long id, BigDecimal winAmount, BigDecimal finalAmount) {
         return betRepository.updateSettleBetById(id, winAmount, finalAmount, new Date());
+    }
+    
+    public BigDecimal todayTotalProfit( Long userId ) {
+    	Date todayStartTime = DateUtils.truncate(new Date(), Calendar.DATE);
+    	Date todayEndTime = DateUtils.addDays(todayStartTime, 1);
+    	todayEndTime = DateUtils.addMilliseconds(todayEndTime, -1);
+    	BigDecimal result = betRepository.todayTotalProfit(userId, todayStartTime, todayEndTime);
+    	return result==null ? BigDecimal.ZERO : result;
+    }
+    
+    public BigDecimal todayTotalWater( Long userId ) {
+    	Date todayStartTime = DateUtils.truncate(new Date(), Calendar.DATE);
+    	Date todayEndTime = DateUtils.addDays(todayStartTime, 1);
+    	todayEndTime = DateUtils.addMilliseconds(todayEndTime, -1);
+    	BigDecimal result = betRepository.todayTotalWater(userId, todayStartTime, todayEndTime);
+    	return result==null ? BigDecimal.ZERO : result;
     }
 }

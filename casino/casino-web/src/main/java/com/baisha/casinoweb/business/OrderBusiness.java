@@ -1,5 +1,6 @@
 package com.baisha.casinoweb.business;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -157,6 +158,52 @@ public class OrderBusiness {
             return null;
         }
         return JSONObject.parseObject(result);
+	}
+	
+	public BigDecimal todayTotalWater () {
+		String action = "当日流水";
+    	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
+    	//  user id查user
+    	String userIdOrName = CasinoWebUtil.getCurrentUserId();
+    	UserVO userVO = userBusiness.getUserVO(isTgRequest, userIdOrName);
+    	
+    	if ( userVO==null ) {
+    		log.info("{} 失败 查不到玩家资料", action);
+            return null;
+    	}
+
+        String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.ORDER_WATER.getApiName() +"?userId=" +userVO.getId());
+        
+        if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+        	return null;
+        }
+        
+        JSONObject json = JSONObject.parseObject(result);
+        
+        return json.getBigDecimal("data");
+	}
+	
+	public BigDecimal todayTotalProfit () {
+		String action = "当日盈亏";
+    	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
+    	//  user id查user
+    	String userIdOrName = CasinoWebUtil.getCurrentUserId();
+    	UserVO userVO = userBusiness.getUserVO(isTgRequest, userIdOrName);
+    	
+    	if ( userVO==null ) {
+    		log.info("{} 失败 查不到玩家资料", action);
+            return null;
+    	}
+
+        String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.ORDER_PROFIT.getApiName() +"?userId=" +userVO.getId());
+        
+        if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+        	return null;
+        }
+        
+        JSONObject json = JSONObject.parseObject(result);
+        
+        return json.getBigDecimal("data");
 	}
 	
 }

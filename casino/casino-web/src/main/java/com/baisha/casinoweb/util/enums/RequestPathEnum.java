@@ -32,6 +32,11 @@ public enum RequestPathEnum {
     ORDER_CURRENT_LIST("/order/currentList"),
     /** 删除注单 */
     ORDER_DELETE("/order/delete"),
+    // 
+    /** 当日流水 */
+    ORDER_WATER("/order/todayTotalWater"),
+    /** 当日盈亏 */
+    ORDER_PROFIT("/order/todayTotalProfit"),
     
     /** 开牌结果储存 */
     BET_RESULT_ADD("/betResult/add"),

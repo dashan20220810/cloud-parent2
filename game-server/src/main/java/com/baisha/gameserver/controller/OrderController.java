@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -85,6 +86,23 @@ public class OrderController {
         betService.delete(betId);
         return ResponseUtil.success();
     }
+
+    @GetMapping("todayTotalWater")
+    @ApiOperation("当日流水")
+    public ResponseEntity<String> todayTotalWater(Long userId) {
+
+        log.info("当日流水 user id: {}", userId);
+        return ResponseUtil.success(betService.todayTotalWater(userId));
+    }
+
+    @GetMapping("todayTotalProfit")
+    @ApiOperation("当日盈利")
+    public ResponseEntity<String> todayTotalProfit(Long userId) {
+
+        log.info("当日盈利 user id: {}", userId);
+        return ResponseUtil.success(betService.todayTotalProfit(userId));
+    }
+    
 
 
   /*  @Autowired

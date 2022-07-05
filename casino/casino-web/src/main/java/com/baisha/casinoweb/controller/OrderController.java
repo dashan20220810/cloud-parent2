@@ -1,10 +1,12 @@
 package com.baisha.casinoweb.controller;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -130,6 +132,30 @@ public class OrderController {
     public ResponseEntity<List<BetResponseVO>> currentList() {
 		log.info("近期订单");
 		JSONObject result = orderBusiness.currentOrderList();
+        if ( result==null ) {
+            return ResponseUtil.fail();
+        }
+        return ResponseUtil.success(result);
+    }
+
+    @GetMapping("todayTotalWater")
+    @ApiOperation("当日流水")
+    public ResponseEntity<String> todayTotalWater() {
+
+        log.info("当日流水");
+        BigDecimal result = orderBusiness.todayTotalWater();
+        if ( result==null ) {
+            return ResponseUtil.fail();
+        }
+        return ResponseUtil.success(result);
+    }
+
+    @GetMapping("todayTotalProfit")
+    @ApiOperation("当日盈利")
+    public ResponseEntity<String> todayTotalProfit() {
+
+        log.info("当日盈利");
+        BigDecimal result = orderBusiness.todayTotalProfit();
         if ( result==null ) {
             return ResponseUtil.fail();
         }
