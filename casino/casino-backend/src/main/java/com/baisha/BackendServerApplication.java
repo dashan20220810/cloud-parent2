@@ -8,12 +8,16 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
+import java.util.TimeZone;
+
 @EnableTransactionManagement
 @SpringBootApplication
 @EnableJpaAuditing
 public class BackendServerApplication {
 
     public static void main(String[] args) {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
         SpringApplication.run(BackendServerApplication.class, args);
     }
 
