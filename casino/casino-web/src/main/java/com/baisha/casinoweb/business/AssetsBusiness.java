@@ -12,6 +12,7 @@ import com.baisha.casinoweb.util.constant.Constants;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.model.vo.UserVO;
+import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.GameInfo;
@@ -31,7 +32,7 @@ public class AssetsBusiness {
 	@Autowired
 	private DeskBusiness deskBusiness;
 	
-	public String withdraw ( Long userId, Long amount, Long tableId ) {
+	public String withdraw ( Long userId, Long amount, Long tableId, Long relatedBetId ) {
 
 		JSONObject desk = deskBusiness.queryDeskById(tableId);
 		String deskCode = desk.getString("deskCode");
@@ -43,6 +44,8 @@ public class AssetsBusiness {
     	params.put("userId", userId);
     	params.put("amount", amount);
     	params.put("balanceType", Constants.BALANCE_TYPE_WITHDRAW);
+    	params.put("changeType", BalanceChangeEnum.BET.getCode());
+    	params.put("relateId", relatedBetId);
     	params.put("remark", String.format("user:%d ,局号:%s 下注", userId, gameInfo.getCurrentActive()));
 
     	String result = HttpClient4Util.doPost(

@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.casinoweb.business.AssetsBusiness;
 import com.baisha.casinoweb.business.DeskBusiness;
 import com.baisha.casinoweb.business.GameInfoBusiness;
 import com.baisha.casinoweb.business.OrderBusiness;
@@ -42,8 +41,8 @@ public class OrderController {
 	@Autowired
 	private UserBusiness userBusiness;
 	
-	@Autowired
-	private AssetsBusiness assetsBusiness;
+//	@Autowired
+//	private AssetsBusiness assetsBusiness;
 	
 	@Autowired
 	private OrderBusiness orderBusiness;
@@ -109,11 +108,11 @@ public class OrderController {
 
     	//  呼叫
     	//	会员管理 - 下分api
-    	String withdrawResult = assetsBusiness.withdraw(userVO.getId(), betVO.getTotalAmount(), betVO.getTableId());
-    	if ( StringUtils.isNotBlank(withdrawResult) ) {
-    		log.warn("[下注] 下分失败");
-            return ResponseUtil.custom(withdrawResult);
-    	}
+//    	String withdrawResult = assetsBusiness.withdraw(userVO.getId(), betVO.getTotalAmount(), betVO.getTableId());
+//    	if ( StringUtils.isNotBlank(withdrawResult) ) {
+//    		log.warn("[下注] 下分失败");
+//            return ResponseUtil.custom(withdrawResult);
+//    	}
     	
 		//	TODO 輪/局號 應來自荷官端，不得從請求中代入
     	String betResult = orderBusiness.bet(isTgRequest, betVO, userVO, "00001");

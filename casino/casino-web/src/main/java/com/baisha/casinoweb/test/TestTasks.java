@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.enums.BetOption;
+import com.baisha.modulecommon.vo.mq.OpenNewGameVO;
 import com.baisha.modulecommon.vo.mq.OpenVO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -21,27 +23,41 @@ public class TestTasks {
 
 //	@Autowired
 //	private DealerBusiness dealerBusiness;
+	
+	private static Integer gameNo = 14;
 
     @Autowired
     RabbitTemplate rabbitTemplate;
 	
-//	@Scheduled(initialDelay = 2000, fixedDelay = 180000)
-	@Scheduled(initialDelay = 2000, fixedDelay = 60000)  // TODO
+	@Scheduled(initialDelay = 2000, fixedRate = 110000)
+//	@Scheduled(initialDelay = 2000, fixedRate = 60000)  // TODO
 	public void openNewGame() {
 
-		log.info("游戏开局测试");
+		log.info("\r\n============  游戏开局测试 ============ ");
 		
 //		dealerBusiness.openNewGame("127.0.0.1");
 //		dealerBusiness.openNewGame("192.168.26.23");
-//        rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN_NEW_GAME, "127.0.0.1");
-        rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN_NEW_GAME, "192.168.26.23");
-	}
+        try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+        rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN_NEW_GAME, JSONObject.toJSONString(OpenNewGameVO.builder().dealerIp("127.0.0.1").gameNo(gameNo).build())  );
+        rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN_NEW_GAME, JSONObject.toJSONString(OpenNewGameVO.builder().dealerIp("192.168.26.23").gameNo(gameNo).build())  );
+        gameNo++;
+//	}
+//
+//	@Scheduled(initialDelay = 85000, fixedRate = 110000)
+////	@Scheduled(initialDelay = 40000, fixedRate = 60000)  // TODO
+//	public void open() {
 
-//	@Scheduled(initialDelay = 85000, fixedDelay = 180000)
-	@Scheduled(initialDelay = 40000, fixedDelay = 60000)  // TODO
-	public void open() {
-
-		log.info("开牌测试");
+        try {
+			Thread.sleep(75000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+        
+		log.info("\r\n============  开牌测试 ============ ");
 //		asyncCommandService.betting("G01", "G01202206300356");
 		
 		List<BetOption> betOptList = new ArrayList<>(BetOption.getList());
@@ -54,8 +70,8 @@ public class TestTasks {
 //		dealerBusiness.open("127.0.0.1", option.toString());
 //		dealerBusiness.open("192.168.26.23", option.toString());
 
-//        rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN
-//        		, OpenVO.builder().dealerIp("127.0.0.1").awardOption(option.toString()).build());
+        rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN
+        		, OpenVO.builder().dealerIp("127.0.0.1").awardOption(option.toString()).build());
         rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN
         		, OpenVO.builder().dealerIp("192.168.26.23").awardOption(option.toString()).build());
 	}

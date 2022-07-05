@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.casinoweb.business.DealerBusiness;
 import com.baisha.modulecommon.MqConstants;
+import com.baisha.modulecommon.vo.mq.OpenNewGameVO;
 import com.baisha.modulecommon.vo.mq.OpenVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 
@@ -22,9 +23,12 @@ public class DirectReceiver {
     }
 
     @RabbitListener(queues = MqConstants.WEB_OPEN_NEW_GAME)
-    public void openNewGame(String dealerIp) {
-        System.out.println("==============" + dealerIp);
-        dealerBusiness.openNewGame(dealerIp);
+    public void openNewGame(String jsonStr) {
+        System.out.println("==============" + jsonStr);
+        
+        OpenNewGameVO vo = JSONObject.parseObject(jsonStr, OpenNewGameVO.class);
+        //TODO
+        dealerBusiness.openNewGame(vo.getDealerIp(), vo.getGameNo());
     }
 
     @RabbitListener(queues = MqConstants.WEB_OPEN)

@@ -1,11 +1,9 @@
 package com.baisha.casinoweb.business;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -42,7 +40,7 @@ public class GamblingBusiness {
 	 * @param tgChatId
 	 * @return
 	 */
-	public String generateNewActive ( String deskCode ) {
+	public String generateNewActive ( String deskCode, Integer gameNo ) {
 		
 		log.info("产生新局号, deskCode:{}", deskCode);
 		JSONObject desk = deskBusiness.queryDeskByDeskCode(deskCode);
@@ -52,27 +50,27 @@ public class GamblingBusiness {
 		}
 		
 		Date now = new Date();
-		Integer counter = null;
-		@SuppressWarnings("unchecked")
-		Map<String, Object> map = (Map<String, Object>) redisUtil.hget(RedisKeyConstants.GAMBLING_ACTIVE_INFO, deskCode);
-		if ( map==null ) {
-			map = new HashMap<>();
-			counter = 1;
-		} else {
-			counter = (Integer) map.get("counter") +1;
-			Date lastUpdateDate = (Date) map.get("lastUpdateDate");
-			
-			if ( DateUtils.isSameDay(now, lastUpdateDate)==false ) {
-				counter = 1;
-			}
-		}
-
-		map.put("counter", counter);
-		map.put("lastUpdateDate", now);
-		redisUtil.hset(RedisKeyConstants.GAMBLING_ACTIVE_INFO, deskCode, map);
+//		Integer counter = null;
+//		@SuppressWarnings("unchecked")
+//		Map<String, Object> map = (Map<String, Object>) redisUtil.hget(RedisKeyConstants.GAMBLING_ACTIVE_INFO, deskCode);
+//		if ( map==null ) {
+//			map = new HashMap<>();
+//			counter = 1;
+//		} else {
+//			counter = (Integer) map.get("counter") +1;
+//			Date lastUpdateDate = (Date) map.get("lastUpdateDate");
+//			
+//			if ( DateUtils.isSameDay(now, lastUpdateDate)==false ) {
+//				counter = 1;
+//			}
+//		}
+//
+//		map.put("counter", counter);
+//		map.put("lastUpdateDate", now);
+//		redisUtil.hset(RedisKeyConstants.GAMBLING_ACTIVE_INFO, deskCode, map);
 		
     	String yyyyMMdd = DateUtil.dateToyyyyMMdd(now);
-    	String result = deskCode +yyyyMMdd +StringUtils.leftPad(String.valueOf(counter), 4, "0");
+    	String result = deskCode +yyyyMMdd +StringUtils.leftPad(String.valueOf(gameNo), 4, "0");
 		return result;
 	}
 

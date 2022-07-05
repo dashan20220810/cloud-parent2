@@ -30,6 +30,8 @@ public enum RequestPathEnum {
     ORDER_SETTLEMENT("/order/settlement"),
     /** 近期注单 */
     ORDER_CURRENT_LIST("/order/currentList"),
+    /** 删除注单 */
+    ORDER_DELETE("/order/delete"),
     
     /** 开牌结果储存 */
     BET_RESULT_ADD("/betResult/add"),

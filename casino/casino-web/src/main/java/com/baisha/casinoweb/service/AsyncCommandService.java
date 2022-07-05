@@ -1,5 +1,6 @@
 package com.baisha.casinoweb.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -37,6 +38,7 @@ import com.baisha.modulecommon.vo.GameInfo;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
 import com.baisha.modulespringcacheredis.util.RedisUtil;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -51,6 +53,9 @@ public class AsyncCommandService {
 
     @Value("${project.game.count-down-seconds}")
     private Integer gameCountDownSeconds;
+
+    @Value("${project.game.settle-buffer-time-seconds}")
+    private Integer gameSettleBufferTimeSeconds;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -78,7 +83,7 @@ public class AsyncCommandService {
     @Async
     public Future<Boolean> openNewGame ( Long deskId, String deskCode, String newActive ) {
 
-    	log.info("开新局");
+    	log.info("\r\n================= 开新局");
     	String action = "开新局";
     	SysTelegramDto sysTg = telegramService.getSysTelegram();
     	String openNewGameUrl = sysTg.getStartBetPicUrl();
@@ -86,8 +91,8 @@ public class AsyncCommandService {
     	// 准备桌台、tg群资料，用来初始game info
     	Map<String, Object> params = new HashMap<>();
     	Date beginTime = new Date();
-//    	Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
-    	Date endTime = DateUtils.addSeconds(beginTime, 30); // TODO
+    	Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
+//    	Date endTime = DateUtils.addSeconds(beginTime, 30); // TODO
     	GameInfo gameInfo = new GameInfo();
     	gameInfo.setCurrentActive(newActive);
     	gameInfo.setStatus(GameStatusEnum.Betting);		// 状态: 下注中
@@ -158,7 +163,7 @@ public class AsyncCommandService {
     	Date beginTime = gameInfo.getBeginTime();
     	Date endTime = gameInfo.getEndTime();
 
-    	log.info("下注中 倒数计时");
+    	log.info("\r\n================= 下注中 倒数计时");
     	
     	Date now = new Date();
     	while (endTime.after(now)) {
@@ -257,7 +262,7 @@ public class AsyncCommandService {
 		if ( betArray!=null && betArray.size()>0 ) {
 			List<BetResponseVO> betList = betArray.toJavaList(BetResponseVO.class);
 			betMap = betList.stream().sorted(Comparator.comparingDouble(bet -> { 
-				return (bet.getWinAmount().doubleValue());
+				return (-bet.getWinAmount().doubleValue());
 			})).collect(Collectors.groupingBy(BetResponseVO::getTgChatId));
 		}
 		
@@ -269,14 +274,22 @@ public class AsyncCommandService {
 			groupIdSet = betMap.keySet();
 			for ( Long tgGroupId: betMap.keySet() ) {
 				List<BetResponseVO> list = betMap.get(tgGroupId);
-				List<Map<String, Object>> betHistoryList = list.stream().map(betRes -> {
-					Map<String, Object> betHistory = new HashMap<>();
-					betHistory.put("username", betRes.getNickName());
-					betHistory.put("winAmount", betRes.getWinAmount());
+				Map<String, Double> sumMap = list.stream().map(betRes -> {
+					BetHistory betHistory = new BetHistory();
+					betHistory.setUsername(betRes.getNickName());
+					betHistory.setWinAmount(betRes.getWinAmount().doubleValue());
 					return betHistory;
-				}).limit(20).collect(Collectors.toList());
+				}).collect(Collectors.groupingBy(BetHistory::getUsername, Collectors.summingDouble(BetHistory::getWinAmount))); //.limit(20)
+
+				List<Map<String, Object>> betHistoryList = new ArrayList<>();
+				for ( String nickName: sumMap.keySet() ) {
+					Map<String, Object> betHistory = new HashMap<>();
+					betHistory.put("username", nickName);
+					betHistory.put("winAmount", sumMap.get(nickName));
+					betHistoryList.add(betHistory);
+				}
 				
-				top20WinUsers.put(tgGroupId, betHistoryList);
+				top20WinUsers.put(tgGroupId, betHistoryList.subList(0, betHistoryList.size()>20 ? 20 : betHistoryList.size() ));
 			}
 		}
     	
@@ -287,4 +300,10 @@ public class AsyncCommandService {
 		asyncApiService.tgSettlement(noActive, betDisplay, top20WinUsers);
     }
     
+    @Data
+    class BetHistory {
+    	
+    	private String username;
+    	private Double winAmount;
+    }
 }

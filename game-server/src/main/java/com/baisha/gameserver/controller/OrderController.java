@@ -43,12 +43,12 @@ public class OrderController {
             return ResponseUtil.custom("命令错误，请参考下注规则");
         }
 
-        betService.save(bet);
+        Bet newBet = betService.save(bet);
 
 //		log.info("[下注] 成功! 押{} 共{}", betVO.getBetOption().getDisplay(), betVO.getAmount());
         log.info("[下注] 成功! 庄{} 闲{} 和{} 庄对{} 闲对{} 超级六{}", betVO.getAmountZ(), betVO.getAmountX(), betVO.getAmountH()
                 , betVO.getAmountZd(), betVO.getAmountXd(), betVO.getAmountSs());
-        return ResponseUtil.success();
+        return ResponseUtil.success(newBet.getId());
     }
 
     @PostMapping("page")
@@ -75,6 +75,15 @@ public class OrderController {
 
         log.info("近期订单");
         return ResponseUtil.success(betService.findAllByUserId(userId));
+    }
+
+    @PostMapping("delete")
+    @ApiOperation("删除订单")
+    public ResponseEntity<String> delete(Long betId) {
+
+        log.info("删除订单 id: {}", betId);
+        betService.delete(betId);
+        return ResponseUtil.success();
     }
 
 

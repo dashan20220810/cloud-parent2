@@ -1,10 +1,13 @@
 package com.baisha.casinoweb.business;
 
+import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
@@ -18,9 +21,6 @@ public class DealerBusiness {
 	
     @Value("${project.server-url.telegram-server-domain}")
     private String telegramServerDomain;
-
-    @Value("${project.game.count-down-seconds}")
-    private Integer gameCountDownSeconds;
     
     @Autowired
     private GamblingBusiness gamblingBusiness;
@@ -36,45 +36,48 @@ public class DealerBusiness {
      * @param deskCode	桌台号
      * @return
      */
-    public boolean openNewGame (String dealerIp) {
+    @Async
+    public Future<Boolean> openNewGame (String dealerIp, Integer gameNo) {
 
     	log.info("开新局");
 
     	JSONObject desk = deskBusiness.queryDeskByIp(dealerIp);
     	if ( desk==null ) {
     		log.warn("开新局 失败, 查无桌台");
-    		return false;
+    		return CompletableFuture.completedFuture(false);
     	}
     	
     	Long deskId = desk.getLong("id");
     	String deskCode = desk.getString("deskCode");
-    	String newActive = gamblingBusiness.generateNewActive(deskCode);
+    	String newActive = gamblingBusiness.generateNewActive(deskCode, gameNo);
     	
     	Future<Boolean> openNewGameResult = asyncCommandService.openNewGame(deskId, deskCode, newActive);
     	
     	if ( handleFuture(openNewGameResult)==false ) {
-    		return false;
+    		return CompletableFuture.completedFuture(false);
     	}
 
     	Future<Boolean> bettingResult = asyncCommandService.betting(deskCode, newActive);
 
     	if ( handleFuture(bettingResult)==false ) {
-    		return false;
+    		return CompletableFuture.completedFuture(false);
     	}
-    	
-		return true;
+
+		return CompletableFuture.completedFuture(true);
     }
-    
+
+    @Async
     public void open ( String dealerIp, String awardOption ) {
 
-    	log.info("开牌");
+    	log.info("\r\n================= 开牌");
     	asyncCommandService.open(dealerIp, awardOption);
     	log.info("开牌成功");
     }
-    
+
+    @Async
     public void settlement ( String noActive ) {
     	
-    	log.info("结算");
+    	log.info("\r\n================= 结算");
     	asyncCommandService.settlement(noActive);
     	log.info("结算成功");
     }

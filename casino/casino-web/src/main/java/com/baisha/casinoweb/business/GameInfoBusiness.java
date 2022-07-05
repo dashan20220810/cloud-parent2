@@ -29,6 +29,9 @@ public class GameInfoBusiness {
     @Value("${project.server-url.telegram-server-domain}")
     private String telegramServerDomain;
 
+    @Value("${project.game.settle-buffer-time-seconds}")
+    private Integer gameSettleBufferTimeSeconds;
+
     @Autowired
     private RedisUtil redisUtil;
 
@@ -92,6 +95,13 @@ public class GameInfoBusiness {
 		result.put("tgBetInfo", groupTeamMap);
 		setGameInfo(deskCode, gameInfo);
 		
+		try {
+			Thread.sleep( gameSettleBufferTimeSeconds*1000 );
+		} catch (InterruptedException e) {
+			log.error("封盘 失败", e);
+		}
+		
+    	log.info("\r\n================= 封盘");
 		String response = HttpClient4Util.doPost(
 				telegramServerDomain + RequestPathEnum.TG_CLOSE_GAME.getApiName(),
 				JSONObject.toJSONString(result));

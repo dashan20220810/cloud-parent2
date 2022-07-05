@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baisha.casinoweb.model.vo.BetVO;
 import com.baisha.casinoweb.model.vo.UserVO;
 import com.baisha.casinoweb.util.CasinoWebUtil;
+import com.baisha.casinoweb.util.ValidateUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -39,6 +40,9 @@ public class OrderBusiness {
 	@Autowired
 	private DeskBusiness deskBusiness;
 	
+	@Autowired
+	private AssetsBusiness assetsBusiness;
+	
 
 	
 	public String bet ( boolean isTgRequest, BetVO betVO, UserVO userVO, String noRun ) {
@@ -49,10 +53,12 @@ public class OrderBusiness {
 	public String bet ( boolean isTgRequest, Long tableId, Long tgChatId, List<String> betOptionList, 
 			Long amount, String noRun, Long userId, String userName, String nickName ) {
 		
-		log.info("下注");
+		String action = "下注";
+		log.info(action);
 		JSONObject desk = deskBusiness.queryDeskById(tableId);
 		String deskCode = desk.getString("deskCode");
 		GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
+		Long totalAmount = 0L;
 		
 		if ( gameInfo==null ) {
     		log.warn("下注 失败 无游戏资讯");
@@ -93,25 +99,40 @@ public class OrderBusiness {
 			} else if ( StringUtils.equalsIgnoreCase(betOption, BetOption.SS.toString()) ) {
 				params.put("amountSs", amount);
 			}
+			
+			totalAmount += amount;
 		}
 
+		
 		String result = HttpClient4Util.doPost(
 				gameServerDomain + RequestPathEnum.ORDER_BET.getApiName(),
 				params);
 
-        if (CommonUtil.checkNull(result)) {
-    		log.warn("下注 失败");
-            return "下注 失败";
-        }
-        
-		JSONObject betJson = JSONObject.parseObject(result);
-		Integer code = betJson.getInteger("code");
-
-		if ( code!=0 ) {
-    		log.warn("下注 失败, {}", betJson.toString());
-            return String.format("下注 失败, %s", betJson.toString());
+		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+            return String.format("下注 失败, %s", StringUtils.defaultString(result));
 		}
 
+		JSONObject betJson = JSONObject.parseObject(result);
+		Long betId = betJson.getLong("data");
+
+    	//  呼叫
+    	//	会员管理 - 下分api
+    	String withdrawResult = assetsBusiness.withdraw(userId, totalAmount, tableId, betId);
+    	if ( StringUtils.isNotBlank(withdrawResult) ) {
+    		log.warn("[下注] 下分失败");
+    		params = new HashMap<>();
+    		params.put("betId", betId);
+    		
+    		result = HttpClient4Util.doPost(
+    				gameServerDomain + RequestPathEnum.ORDER_CURRENT_LIST.getApiName(),
+    				params);
+
+    		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+                return String.format("下注 失败, 必须人工删除bet, id:%s, %s", betId.toString(), StringUtils.defaultString(result));
+    		}
+            return withdrawResult;
+    	}
+    	
 		gameInfo = gameInfoBusiness.calculateBetAmount(deskCode, tgChatId, userId, nickName, betOptionList, amount);
 		
 		log.info("下注 成功");

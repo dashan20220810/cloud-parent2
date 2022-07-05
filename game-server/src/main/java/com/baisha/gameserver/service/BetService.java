@@ -36,8 +36,12 @@ public class BetService {
     @Autowired
     BetRepository betRepository;
 
-    public void save(Bet bet) {
-        betRepository.save(bet);
+    public Bet save(Bet bet) {
+        return betRepository.save(bet);
+    }
+    
+    public void delete( Long id ) {
+    	betRepository.deleteById(id);
     }
 
     public Page<Bet> getBetPage(BetPageVO vo) {
