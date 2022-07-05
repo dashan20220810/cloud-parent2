@@ -56,8 +56,8 @@ public class TelegramMessageHandler {
         param.put("nickname", userName);
         param.put("tgUserName", user.getUserName());
         param.put("groupId", chat.getId());
-        if(!ObjectUtils.isEmpty(from) && from.getId()!=null){
-            param.put("inviteTgUserId",from.getId());
+        if(!ObjectUtils.isEmpty(from) && from.getId() != null){
+            param.put("inviteTgUserId", from.getId());
         }
         param.put("tgGroupName", chat.getTitle());
         // 远程调用
@@ -104,7 +104,25 @@ public class TelegramMessageHandler {
             }
             return;
         }
-        // 下注
+        // 下面都是：发送消息事件
+        String originText = message.getText();
+        if (StrUtil.isEmpty(originText)) {
+            return;
+        }
+        if (originText.replace(" ", "").contains("余额")) {
+            // 查询余额，并拼接信息
+            String userBalanceMessage = checkUserBalance(from);
+            // 发送消息，展示按钮
+            showButtonBalance(chat, bot, userBalanceMessage, message.getMessageId());
+            return;
+        }
+        if (originText.replace(" ", "").contains("流水")) {
+            // 查询流水，并拼接信息
+            String runningWaterMessage = checkRunningWater(from);
+            // 发送消息，展示按钮
+            showButtonBalance(chat, bot, runningWaterMessage, message.getMessageId());
+            return;
+        }
         boolean isSuccess = tgUserBet(message, bot);
         if (isSuccess) {
             // 下注成功，回复会员
@@ -156,8 +174,86 @@ public class TelegramMessageHandler {
     private String getTextParam(User user) {
         StringBuilder reply = new StringBuilder();
         reply.append(BET_SUCCESS);
-        reply.append("----------------------------\n");
-        reply.append("用户余额：");
+        reply.append(USER_BALANCE1);
+        reply.append(USER_BALANCE4);
+        // 查询用户余额
+        String userBalance = commonHandler.checkUserBalance(user.getId());
+        reply.append(userBalance);
+        return reply.toString();
+    }
+
+    private String checkUserBalance(User user) {
+        StringBuilder reply = new StringBuilder();
+        reply.append(USER_BALANCE1);
+        reply.append(USER_BALANCE2);
+        reply.append(user.getId());
+        reply.append(SEALING_BET_INFO17);
+        reply.append(USER_BALANCE3);
+        reply.append((user.getFirstName() == null ? "" : user.getFirstName()) + (user.getLastName() == null ? "" : user.getLastName()));
+        reply.append(SEALING_BET_INFO17);
+        reply.append(USER_BALANCE4);
+        // 查询用户余额
+        String userBalance = commonHandler.checkUserBalance(user.getId());
+        reply.append(userBalance);
+        return reply.toString();
+    }
+
+    private void showButtonBalance(Chat chat, MyTelegramLongPollingBot bot, String userBalanceMessage, Integer messageId) {
+        SendMessage sp = new SendMessage();
+        sp.setChatId(chat.getId()+"");
+        sp.setText(userBalanceMessage);
+        sp.setAllowSendingWithoutReply(false);
+        sp.setReplyToMessageId(messageId);
+
+        List<InlineKeyboardButton> firstRow = Lists.newArrayList();
+        // 查看余额
+        InlineKeyboardButton checkUserBalance = new InlineKeyboardButton();
+        checkUserBalance.setText("查看余额");
+        checkUserBalance.setCallbackData("查看余额");
+        // 唯一财务
+        InlineKeyboardButton onlyFinance = new InlineKeyboardButton();
+        onlyFinance.setText("唯一财务");
+        onlyFinance.setCallbackData("唯一财务");
+
+        firstRow.add(checkUserBalance);
+        firstRow.add(onlyFinance);
+
+        List<InlineKeyboardButton> secondRow = Lists.newArrayList();
+        // 查看流水
+        InlineKeyboardButton getRunningWater = new InlineKeyboardButton();
+        getRunningWater.setText("查看流水");
+        getRunningWater.setCallbackData("查看流水");
+        // 最近注单
+        InlineKeyboardButton getRecentBet = new InlineKeyboardButton();
+        getRecentBet.setText("最近注单");
+        getRecentBet.setCallbackData("最近注单");
+
+        secondRow.add(getRunningWater);
+        secondRow.add(getRecentBet);
+
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(firstRow);
+        rowList.add(secondRow);
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(rowList);
+        sp.setReplyMarkup(inlineKeyboardMarkup);
+        // 展示
+        bot.SendMessage(sp);
+    }
+
+    private String checkRunningWater(User user) {
+        StringBuilder reply = new StringBuilder();
+        reply.append(USER_BALANCE1);
+        reply.append(RUNNING_WATER1);
+        // 当日流水
+        reply.append("11000");
+        reply.append(SEALING_BET_INFO17);
+        reply.append(RUNNING_WATER2);
+        // 当日盈利
+        reply.append("11000");
+        reply.append(SEALING_BET_INFO17);
+        reply.append(USER_BALANCE4);
         // 查询用户余额
         String userBalance = commonHandler.checkUserBalance(user.getId());
         reply.append(userBalance);
@@ -165,7 +261,7 @@ public class TelegramMessageHandler {
     }
 
     private void showWords(User user, Chat chat, MyTelegramLongPollingBot bot) {
-        // 获取唯一财务
+        // 获取配置信息
         ConfigInfo configInfo = commonHandler.getConfigInfo(user.getId());
         // 注册成功之后的欢迎词
         StringBuilder welcome = new StringBuilder();
@@ -177,20 +273,17 @@ public class TelegramMessageHandler {
         welcome.append(WELCOME3);
         welcome.append(WELCOME4);
         welcome.append(WELCOME5);
-        welcome.append(configInfo.getOnlyCustomerService());
-        welcome.append("\n");
-        welcome.append(WELCOME6);
         welcome.append(configInfo.getOnlyFinance());
-        welcome.append("\n");
+        welcome.append(SEALING_BET_INFO17);
+        welcome.append(WELCOME6);
+        welcome.append(configInfo.getOnlyCustomerService());
+        welcome.append(SEALING_BET_INFO17);
         welcome.append(WELCOME7);
         bot.sendMessage(welcome.toString(), chat.getId()+"");
     }
 
     public boolean tgUserBet(Message message, MyTelegramLongPollingBot bot) {
         String originText = message.getText();
-        if (StrUtil.isEmpty(originText)) {
-            return false;
-        }
         User user = message.getFrom();
         Long userId = user.getId();
         String username = (user.getFirstName() == null ? "" : user.getFirstName()) + (user.getLastName() == null ? "" : user.getLastName());

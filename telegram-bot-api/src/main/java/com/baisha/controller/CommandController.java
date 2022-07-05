@@ -123,11 +123,8 @@ public class CommandController {
             // TG群-全员禁言
             commandBusiness.muteAllUser(chatId, myBot);
             // 组装TG信息
-            String sealingLine = commandBusiness.buildSealingLine(vo);
-            String message = commandBusiness.buildSealingLineMessage(configInfo, vo, betUserAmountVO);
-
-            myBot.sendMessage(sealingLine, tgChat.getChatId()+"");
-            myBot.sendMessage(message, tgChat.getChatId()+"");
+            String sealingLineMessage = commandBusiness.buildSealingLineMessage(configInfo, vo, betUserAmountVO);
+            myBot.sendMessage(sealingLineMessage, tgChat.getChatId()+"");
         });
         return ResponseUtil.success();
     }

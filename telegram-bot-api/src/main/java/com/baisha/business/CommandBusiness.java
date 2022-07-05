@@ -56,9 +56,9 @@ public class CommandBusiness {
     }
 
     public String buildStartMessage(String bureauNum, String minAmount, String maxAmount, String maxShoeAmount) {
-        //3.2 组装 局号+限红
         StringBuilder gameRule = new StringBuilder();
         gameRule.append(bureauNum);
+        gameRule.append(GAME_RULE12);
         gameRule.append(GAME_RULE1);
         gameRule.append(GAME_RULE2);
         gameRule.append(GAME_RULE3);
@@ -76,39 +76,28 @@ public class CommandBusiness {
         return gameRule.toString();
     }
 
-    public String buildSealingLine(SealingLineVO vo) {
+    public String buildSealingLineMessage(ConfigInfo configInfo, SealingLineVO vo, BetUserAmountVO betUserAmountVO) {
         // 封盘线
         StringBuilder sealingLine = new StringBuilder();
         sealingLine.append(vo.getBureauNum());
         sealingLine.append(SEALING_BET_INFO1);
         sealingLine.append(SEALING_BET_INFO2);
-        return sealingLine.toString();
-    }
-
-    public String buildSealingLineMessage(ConfigInfo configInfo, SealingLineVO vo, BetUserAmountVO betUserAmountVO) {
-        // 封盘线
-        StringBuilder sealingLine = new StringBuilder();
-        sealingLine.append(SEALING_BET_INFO3);
         sealingLine.append(SEALING_BET_INFO4);
         sealingLine.append(SEALING_BET_INFO5);
-        sealingLine.append(SEALING_BET_INFO6);
         sealingLine.append(SEALING_BET_INFO7);
         sealingLine.append(SEALING_BET_INFO7);
         sealingLine.append(SEALING_BET_INFO7);
-        sealingLine.append(SEALING_BET_INFO8);
-        sealingLine.append(SEALING_BET_INFO9);
+        sealingLine.append(SEALING_BET_INFO5);
         sealingLine.append(SEALING_BET_INFO10);
         sealingLine.append(configInfo.getOnlyFinance());
-        sealingLine.append(SEALING_BET_INFO11);
+        sealingLine.append(SEALING_BET_INFO17);
         sealingLine.append(SEALING_BET_INFO12);
         sealingLine.append(configInfo.getOnlyCustomerService());
-        sealingLine.append(SEALING_BET_INFO13);
+        sealingLine.append(SEALING_BET_INFO17);
         sealingLine.append(SEALING_BET_INFO14);
-        sealingLine.append(SEALING_BET_INFO15);
         sealingLine.append(SEALING_BET_INFO16);
         sealingLine.append(betUserAmountVO.getTotalBetAmount());
         sealingLine.append(SEALING_BET_INFO17);
-        sealingLine.append(SEALING_BET_INFO18);
         sealingLine.append(SEALING_BET_INFO19);
 
         List<BetUserVO> top20Users = betUserAmountVO.getTop20Users();

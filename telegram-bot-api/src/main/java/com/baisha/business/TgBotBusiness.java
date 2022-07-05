@@ -7,12 +7,11 @@ import com.baisha.model.vo.TgBotPageVO;
 import com.baisha.modulecommon.Constants;
 import com.baisha.service.TgBotService;
 import com.baisha.util.TelegramServerUtil;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -21,7 +20,6 @@ import org.telegram.telegrambots.meta.generics.BotSession;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import javax.persistence.criteria.Predicate;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,7 +38,8 @@ public class TgBotBusiness {
     private TgBotService tgBotService;
 
     public Page<TgBot> getTgBotPage(TgBotPageVO vo) {
-        Pageable pageable = TelegramServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize());
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        Pageable pageable = TelegramServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), sort);
         Specification<TgBot> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             if (StrUtil.isNotEmpty(vo.getBotName())) {

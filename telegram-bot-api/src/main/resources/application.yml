@@ -6,6 +6,10 @@ project:
   server-url:
     casino-web-domain: http://192.168.26.26:9401
 
+logging:
+  level:
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+
 spring:
   security:
     user:
@@ -18,7 +22,7 @@ spring:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
   datasource:
-    url: jdbc:mysql://192.168.26.24:3306/cloud_telegram?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://192.168.26.24:3306/cloud_telegram?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
     username: cloud
     password: 12qw!@QW
     driver-class-name: com.mysql.cj.jdbc.Driver

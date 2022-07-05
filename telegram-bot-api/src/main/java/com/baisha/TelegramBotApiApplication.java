@@ -10,12 +10,14 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.TimeZone;
 
 @Slf4j
 @SpringBootApplication
 @EnableJpaAuditing
 public class TelegramBotApiApplication {
     public static void main(String[] args) throws UnknownHostException {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
         ConfigurableApplicationContext applicationContext = SpringApplication.run(TelegramBotApiApplication.class, args);
         new SpringContextUtil().setApplicationContext(applicationContext);
 
