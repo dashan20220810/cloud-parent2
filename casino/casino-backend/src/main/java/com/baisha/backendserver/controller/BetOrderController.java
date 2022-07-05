@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @Api(tags = "订单管理")
 @RequestMapping("order")
 @Slf4j
-public class OrderController {
+public class BetOrderController {
 
     @Value("${url.gameServer}")
     private String gameServerUrl;
