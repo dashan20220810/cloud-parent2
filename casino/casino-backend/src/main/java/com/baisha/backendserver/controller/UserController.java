@@ -1,17 +1,21 @@
 package com.baisha.backendserver.controller;
 
+import cn.hutool.Hutool;
+import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.backendserver.business.CommonService;
 import com.baisha.backendserver.business.PlayMoneyService;
 import com.baisha.backendserver.model.Admin;
+import com.baisha.backendserver.model.SsOrder;
 import com.baisha.backendserver.model.bo.sys.SysPlayMoneyParameterBO;
 import com.baisha.backendserver.model.bo.user.UserBalanceChangePageBO;
 import com.baisha.backendserver.model.bo.user.UserPageBO;
 import com.baisha.backendserver.model.bo.user.UserPlayMoneyChangePageBO;
 import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.user.*;
+import com.baisha.backendserver.service.SsOrderService;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.UserServerConstants;
@@ -56,6 +60,8 @@ public class UserController {
     private CommonService commonService;
     @Autowired
     private PlayMoneyService playMoneyService;
+    @Autowired
+    private SsOrderService ssOrderService;
 
     @GetMapping("page")
     @ApiOperation(("用户分页"))
@@ -136,14 +142,18 @@ public class UserController {
         if (BackendServerUtil.checkIntAmount(vo.getAmount())) {
             return new ResponseEntity("金额不规范");
         }
+
+        //获取当前登陆用户
+        Admin currentUser = commonService.getCurrentUser();
+        //新增订单
+        SsOrder order = doCreateOrder(vo, currentUser);
         //增加余额
-        ResponseEntity balanceResponseEntity = doIncomeBalance(vo);
+        ResponseEntity balanceResponseEntity = doIncomeBalance(vo, order.getId());
         if (balanceResponseEntity.getCode() == 0) {
-            Admin currentUser = commonService.getCurrentUser();
             log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
                     currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加余额成功", BackendConstants.USER_ASSETS_MODULE);
             //充值余额成功过后，在增加打码量
-            //获取充值打码量倍率
+            //获取充值打码量倍率 充值增加打码量
             PlayMoneyVO playMoneyVO = new PlayMoneyVO();
             playMoneyVO.setPlayMoneyType(BackendConstants.INCOME);
             playMoneyVO.setId(vo.getId());
@@ -151,24 +161,42 @@ public class UserController {
             SysPlayMoneyParameterBO sysPlayMoneyParameterBO = playMoneyService.getSysPlayMoney();
             BigDecimal recharge = sysPlayMoneyParameterBO.getRecharge();
             playMoneyVO.setAmount(BigDecimal.valueOf(vo.getAmount().longValue()).multiply(recharge));
-            ResponseEntity playMoneyResponseEntity = doIncomePlayMoney(playMoneyVO);
+            ResponseEntity playMoneyResponseEntity = doIncomePlayMoney(playMoneyVO, order.getId());
             if (playMoneyResponseEntity.getCode() == 0) {
                 log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
                         currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加打码量成功", BackendConstants.USER_ASSETS_MODULE);
                 return ResponseUtil.success();
             }
+        } else {
+            //删除订单
+            ssOrderService.delete(order.getId());
         }
         return ResponseUtil.fail();
     }
 
-    private ResponseEntity doIncomePlayMoney(PlayMoneyVO vo) {
+    private SsOrder doCreateOrder(BalanceVO vo, Admin currentUser) {
+        SsOrder ssOrder = new SsOrder();
+        ssOrder.setOrderNum(BackendServerUtil.randomIds());
+        ssOrder.setUserId(vo.getId());
+        ssOrder.setOrderType(BackendConstants.CHARGEORDER);
+        ssOrder.setOrderStatus(BackendConstants.ORDER_SUCCESS);
+        ssOrder.setAmount(new BigDecimal(vo.getAmount().intValue()));
+        ssOrder.setRemark(currentUser.getUserName() + "为用户userId=" + vo.getId() + "充值" + vo.getAmount());
+        ssOrder.setCreateBy(currentUser.getUserName());
+        ssOrder.setUpdateBy(currentUser.getUserName());
+        ssOrderService.save(ssOrder);
+        return ssOrder;
+
+    }
+
+    private ResponseEntity doIncomePlayMoney(PlayMoneyVO vo, Long relateId) {
         String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_PLAY_MONEY;
         Map<String, Object> param = new HashMap<>(16);
         param.put("playMoneyType", BackendConstants.INCOME);
         param.put("userId", vo.getId());
         param.put("amount", vo.getAmount());
-        param.put("remark", vo.getRemark() + "(充值增加打码量)");
-        //param.put("relateId",null);
+        param.put("remark", vo.getRemark());
+        param.put("relateId", relateId);
         param.put("changeType", PlayMoneyChangeEnum.RECHARGE.getCode());
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
@@ -178,15 +206,14 @@ public class UserController {
         return responseEntity;
     }
 
-    private ResponseEntity doIncomeBalance(BalanceVO vo) {
+    private ResponseEntity doIncomeBalance(BalanceVO vo, Long relateId) {
         String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_BALANCE;
         Map<String, Object> param = new HashMap<>(16);
         param.put("balanceType", BackendConstants.INCOME);
         param.put("userId", vo.getId());
         param.put("amount", vo.getAmount());
         param.put("remark", vo.getRemark());
-        //param.put("relateId",null);
-        // 1 是充值
+        param.put("relateId", relateId);
         param.put("changeType", BalanceChangeEnum.RECHARGE.getCode());
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {

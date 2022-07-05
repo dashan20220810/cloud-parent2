@@ -1,5 +1,7 @@
 package com.baisha.backendserver.util;
 
+import cn.hutool.core.lang.Snowflake;
+import cn.hutool.core.util.IdUtil;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulejjwt.JjwtUtil;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +22,10 @@ import static com.baisha.modulecommon.util.CommonUtil.checkNull;
  * @author yihui
  */
 public class BackendServerUtil {
+    //机器标识占用的位数
+    private final static long MACHINE_BIT = 10;
+    //数据中心占用的位数
+    private final static long DATACENTER_BIT = 10;
 
     /**
      * 加密
@@ -186,6 +192,7 @@ public class BackendServerUtil {
 
     /**
      * 验证金额
+     *
      * @param amount
      * @return
      */
@@ -203,22 +210,31 @@ public class BackendServerUtil {
         return false;
     }
 
+    /**
+     * 获取随机数 如订单编码
+     *
+     * @return
+     */
+    public static String randomIds() {
+        Snowflake snowflake = IdUtil.createSnowflake(DATACENTER_BIT, MACHINE_BIT);
+        return snowflake.nextIdStr();
+    }
 
-    public static void main(String[] args) {
-     /*   TgGroupPageVO vo = new TgGroupPageVO();
+
+    /*public static void main(String[] args) {
+     *//*   TgGroupPageVO vo = new TgGroupPageVO();
         vo.setBotName("1");
         System.out.println(JSON.toJSONString(vo));
-        System.out.println(objectToMap(vo));*/
+        System.out.println(objectToMap(vo));*//*
 
         //TgGroupBoundVO v = new TgGroupBoundVO();
         //v.setTgGroupId("1111");
         //System.out.println(objectToMap(v));
 
-        Integer amount = 1212121;
-        int length = String.valueOf(amount.intValue()).length();
-        System.out.println(length);
+        //System.out.println(randomIds());
 
-    }
+
+    }*/
 
 
 }
