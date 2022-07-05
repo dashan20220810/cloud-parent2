@@ -6,6 +6,10 @@ project:
   swagger:
     enable: true
 
+logging:
+  level:
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+
 spring:
   security:
     user:
