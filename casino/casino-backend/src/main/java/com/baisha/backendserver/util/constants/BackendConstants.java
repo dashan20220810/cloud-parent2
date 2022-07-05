@@ -1,6 +1,11 @@
 package com.baisha.backendserver.util.constants;
 
+/**
+ * @author yihui
+ */
 public class BackendConstants {
+
+    public static final String UTF8 = "UTF-8";
 
     /**
      * 收入

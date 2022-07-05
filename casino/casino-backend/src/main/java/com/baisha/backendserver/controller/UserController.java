@@ -9,11 +9,9 @@ import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.bo.sys.SysPlayMoneyParameterBO;
 import com.baisha.backendserver.model.bo.user.UserBalanceChangePageBO;
 import com.baisha.backendserver.model.bo.user.UserPageBO;
+import com.baisha.backendserver.model.bo.user.UserPlayMoneyChangePageBO;
 import com.baisha.backendserver.model.vo.IdVO;
-import com.baisha.backendserver.model.vo.user.BalanceVO;
-import com.baisha.backendserver.model.vo.user.PlayMoneyVO;
-import com.baisha.backendserver.model.vo.user.UserChangeBalancePageVO;
-import com.baisha.backendserver.model.vo.user.UserPageVO;
+import com.baisha.backendserver.model.vo.user.*;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.UserServerConstants;
@@ -37,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +59,7 @@ public class UserController {
 
     @GetMapping("page")
     @ApiOperation(("用户分页"))
-    public ResponseEntity<Page<UserPageBO>> page(UserPageVO vo) {
+    public ResponseEntity<Page<UserPageBO>> page(UserPageVO vo) throws Exception {
         StringBuffer sb = new StringBuffer();
         sb.append(userServerUrl + UserServerConstants.USERSERVER_USER_PAGE + "?pageNumber=" + vo.getPageNumber() +
                 "&pageSize=" + vo.getPageSize());
@@ -69,6 +68,12 @@ public class UserController {
         }
         if (StringUtils.isNotBlank(vo.getNickName())) {
             sb.append("&nickName=" + vo.getNickName());
+        }
+        if (StringUtils.isNotEmpty(vo.getStartTime())) {
+            sb.append("&startTime=" + URLEncoder.encode(vo.getStartTime().trim(), BackendConstants.UTF8));
+        }
+        if (StringUtils.isNotEmpty(vo.getEndTime())) {
+            sb.append("&endTime=" + URLEncoder.encode(vo.getEndTime().trim(), BackendConstants.UTF8));
         }
         String url = sb.toString();
         String result = HttpClient4Util.doGet(url);
@@ -237,7 +242,7 @@ public class UserController {
 
     @GetMapping("changeBalancePage")
     @ApiOperation(("用户余额变动记录分页"))
-    public ResponseEntity<Page<UserBalanceChangePageBO>> changeBalancePage(UserChangeBalancePageVO vo) {
+    public ResponseEntity<Page<UserBalanceChangePageBO>> changeBalancePage(UserChangeBalancePageVO vo) throws Exception {
         if (null == vo.getId()) {
             return ResponseUtil.parameterNotNull();
         }
@@ -249,10 +254,10 @@ public class UserController {
             sb.append("&changeType=" + vo.getChangeType());
         }
         if (StringUtils.isNotEmpty(vo.getStartTime())) {
-            sb.append("&startTime=" + vo.getStartTime());
+            sb.append("&startTime=" + URLEncoder.encode(vo.getStartTime().trim(), BackendConstants.UTF8));
         }
         if (StringUtils.isNotEmpty(vo.getEndTime())) {
-            sb.append("&endTime=" + vo.getEndTime());
+            sb.append("&endTime=" + URLEncoder.encode(vo.getEndTime().trim(), BackendConstants.UTF8));
         }
         String url = sb.toString();
         String result = HttpClient4Util.doGet(url);
@@ -302,6 +307,74 @@ public class UserController {
                 bo.setBalanceTypeName("收入");
             } else {
                 bo.setBalanceTypeName("支出");
+            }
+        }
+    }
+
+
+    @GetMapping("changePlayMoneyPage")
+    @ApiOperation(("用户打码量变动记录分页"))
+    public ResponseEntity<Page<UserPlayMoneyChangePageBO>> changePlayMoneyPage(UserChangePlayMoneyPageVO vo) throws Exception {
+        if (null == vo.getId()) {
+            return ResponseUtil.parameterNotNull();
+        }
+        StringBuffer sb = new StringBuffer();
+        sb.append(userServerUrl + UserServerConstants.USERSERVER_ASSETS_CHANGE_PLAYMONEY_PAGE);
+        sb.append("?pageNumber=" + vo.getPageNumber() + "&pageSize=" + vo.getPageSize());
+        sb.append("&userId=" + vo.getId());
+        if (null != vo.getChangeType()) {
+            sb.append("&changeType=" + vo.getChangeType());
+        }
+        if (StringUtils.isNotEmpty(vo.getStartTime())) {
+            sb.append("&startTime=" + URLEncoder.encode(vo.getStartTime().trim(), BackendConstants.UTF8));
+        }
+        if (StringUtils.isNotEmpty(vo.getEndTime())) {
+            sb.append("&endTime=" + URLEncoder.encode(vo.getEndTime().trim(), BackendConstants.UTF8));
+        }
+        String url = sb.toString();
+        String result = HttpClient4Util.doGet(url);
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (Objects.nonNull(responseEntity) && responseEntity.getCode() == 0) {
+            JSONObject page = (JSONObject) responseEntity.getData();
+            List<UserPlayMoneyChangePageBO> list = JSONArray.parseArray(page.getString("content"), UserPlayMoneyChangePageBO.class);
+            if (!CollectionUtils.isEmpty(list)) {
+                for (UserPlayMoneyChangePageBO bo : list) {
+                    setUserPlayMoneyChangePageBo(bo);
+                }
+                page.put("content", list);
+                responseEntity.setData(page);
+            }
+        }
+        return responseEntity;
+    }
+
+    private void setUserPlayMoneyChangePageBo(UserPlayMoneyChangePageBO bo) {
+        playMoneyType(bo);
+        playMoneyChangeType(bo);
+    }
+
+    private void playMoneyType(UserPlayMoneyChangePageBO bo) {
+        if (Objects.nonNull(bo.getChangeType())) {
+            if (bo.getChangeType().equals(PlayMoneyChangeEnum.RECHARGE.getCode())) {
+                bo.setChangeTypeName(PlayMoneyChangeEnum.RECHARGE.getName());
+                return;
+            }
+            if (bo.getChangeType().equals(PlayMoneyChangeEnum.SETTLEMENT.getCode())) {
+                bo.setChangeTypeName(PlayMoneyChangeEnum.SETTLEMENT.getName());
+                return;
+            }
+        }
+    }
+
+    private void playMoneyChangeType(UserPlayMoneyChangePageBO bo) {
+        if (Objects.nonNull(bo.getPlayMoneyType())) {
+            if (bo.getPlayMoneyType() == BackendConstants.INCOME) {
+                bo.setPlayMoneyTypeName("收入");
+            } else {
+                bo.setPlayMoneyTypeName("支出");
             }
         }
     }

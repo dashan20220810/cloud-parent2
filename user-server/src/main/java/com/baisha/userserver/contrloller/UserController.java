@@ -5,6 +5,7 @@ import com.baisha.modulecommon.enums.UserOriginEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
+import com.baisha.modulecommon.util.DateUtil;
 import com.baisha.userserver.model.Assets;
 import com.baisha.userserver.model.User;
 import com.baisha.userserver.model.UserTelegramRelation;
@@ -33,10 +34,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.criteria.Predicate;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author yihui
@@ -149,6 +148,17 @@ public class UserController {
             }
             if (StringUtils.isNotEmpty(vo.getNickName())) {
                 predicates.add(cb.like(root.get("nickName"), "%" + vo.getNickName().trim() + "%"));
+            }
+
+            try {
+                if (StringUtils.isNotEmpty(vo.getStartTime())) {
+                    predicates.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), DateUtil.getSimpleDateFormat().parse(vo.getStartTime().trim())));
+                }
+                if (StringUtils.isNotEmpty(vo.getEndTime())) {
+                    predicates.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), DateUtil.getSimpleDateFormat().parse(vo.getEndTime().trim())));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };

@@ -7,5 +7,10 @@ public class UserServerContants {
      */
     public static final String ASSETS_BALANCE = "/assets/balance";
 
+    /**
+     * 增加减少用户余额
+     */
+    public static final String ASSETS_PLAY_MONEY = "/assets/playMoney";
+
 
 }

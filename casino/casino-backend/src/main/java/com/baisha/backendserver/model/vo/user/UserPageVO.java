@@ -18,4 +18,10 @@ public class UserPageVO extends PageVO {
     @ApiModelProperty(value = "昵称")
     private String nickName;
 
+    @ApiModelProperty(value = "开始时间 yyyy-MM-dd HH:mm:ss")
+    private String startTime;
+
+    @ApiModelProperty(value = "结束时间 yyyy-MM-dd HH:mm:ss")
+    private String endTime;
+
 }

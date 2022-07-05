@@ -7,6 +7,7 @@ import com.baisha.gameserver.util.GameServerUtil;
 import com.baisha.gameserver.util.contants.GameServerContants;
 import com.baisha.gameserver.util.contants.UserServerContants;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
+import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
 import lombok.extern.slf4j.Slf4j;
@@ -99,13 +100,39 @@ public class BetSettlementService {
             }
             //修改注单数据
             int flag = betService.settleBet(bet.getId(), winAmount, finalAmount);
-            if (flag > 0 && isWinFlag) {
-                //派奖
-                doAddBalance(bet, bet.getNoActive(), finalAmount);
+            if (flag > 0) {
+                //打码量
+                doReducePlayMoney(bet, BigDecimal.valueOf(betAmount));
+                if (isWinFlag && finalAmount.compareTo(BigDecimal.ZERO) > 0) {
+                    //派奖
+                    doAddBalance(bet, bet.getNoActive(), finalAmount);
+                }
             }
             settleList.add(bet);
         }
         return settleList;
+    }
+
+    /**
+     * 结算成功后，减去用户打码量
+     *
+     * @param bet
+     * @param betAmount
+     */
+    private void doReducePlayMoney(Bet bet, BigDecimal betAmount) {
+        Long userId = bet.getUserId();
+        String url = userServerDomain + UserServerContants.ASSETS_PLAY_MONEY;
+        Map<String, Object> param = new HashMap<>(16);
+        param.put("userId", userId);
+        param.put("playMoneyType", GameServerContants.EXPENSES);
+        param.put("amount", betAmount);
+        param.put("remark", "会员结算打码量，注单ID为" + bet.getId());
+        param.put("relateId", bet.getId());
+        param.put("changeType", PlayMoneyChangeEnum.SETTLEMENT.getCode());
+        String result = HttpClient4Util.doPost(url, param);
+        if (StringUtils.isEmpty(result)) {
+            log.error("增加会员userId=" + userId + "的减少打码量" + betAmount + "失败,注单ID=" + bet.getId());
+        }
     }
 
     /**
@@ -120,7 +147,6 @@ public class BetSettlementService {
         String url = userServerDomain + UserServerContants.ASSETS_BALANCE;
         Map<String, Object> param = new HashMap<>(16);
         param.put("userId", userId);
-        //收支类型(1收入 2支出)
         param.put("balanceType", GameServerContants.INCOME);
         param.put("amount", finalAmount);
         param.put("remark", "会员" + "在局号为" + noActive + "中奖");
@@ -128,7 +154,7 @@ public class BetSettlementService {
         param.put("changeType", BalanceChangeEnum.WIN.getCode());
         String result = HttpClient4Util.doPost(url, param);
         if (StringUtils.isEmpty(result)) {
-            log.error("增加会员userId=" + userId + "的彩金" + finalAmount + "失败");
+            log.error("增加会员userId=" + userId + "的彩金" + finalAmount + "失败,注单ID=" + bet.getId());
         }
     }
 

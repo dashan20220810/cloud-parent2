@@ -40,6 +40,12 @@ public class UserServerConstants {
      */
     public static final String USERSERVER_ASSETS_CHANGE_BALANCE_PAGE = "/assets/changeBalancePage";
 
+
+    /**
+     * 用户打码量变动分页接口
+     */
+    public static final String USERSERVER_ASSETS_CHANGE_PLAYMONEY_PAGE = "/assets/changePlayMoneyPage";
+
     //**************************用户中心***************************************
 
 

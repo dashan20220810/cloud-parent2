@@ -190,7 +190,6 @@ public class UserAssetsService {
         Assets assets = findAssetsByUserId(user.getId());
         if (assets.getPlayMoney().compareTo(BigDecimal.ONE) < 0) {
             log.info("打码量小于1,不需要打码(userId={} assetsId={})", user.getId(), assets.getId());
-            assets.setPlayMoney(BigDecimal.ZERO);
             return ResponseUtil.success();
         }
         if (assets.getPlayMoney().compareTo(vo.getAmount()) <= 0) {
