@@ -7,6 +7,7 @@ import com.baisha.gameserver.util.GameServerUtil;
 import com.baisha.gameserver.util.contants.GameServerContants;
 import com.baisha.gameserver.util.contants.UserServerContants;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
+import com.baisha.modulecommon.enums.BetStatusEnum;
 import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
@@ -44,11 +45,12 @@ public class BetSettlementService {
     public void betSettlement(BetSettleVO vo) {
         log.info("==============={}开始结算=================", vo.getNoActive());
         //下注成功状态
-        int status = 1;
+        int status = BetStatusEnum.BET.getCode();
         List<Bet> bets = betService.findBetNoSettle(vo.getNoActive(), status);
         if (CollectionUtils.isEmpty(bets)) {
             //没有注单数据，直接返回true
             log.info("noActive={}没有未结算的注单", vo.getNoActive());
+            log.info("==============={}结束结算=================", vo.getNoActive());
             return;
         }
         int size = bets.size();
