@@ -47,7 +47,7 @@ public class BetStatisticsService {
     public BetStatistics updateFlowAmount(Long userId, Integer statisticsDate, BigDecimal flowAmount) {
         int i = betStatisticsRepository.updateFlowAmount(userId, statisticsDate, flowAmount);
         if (i > 0) {
-            return findByUserIdAndStatisticsDateSql(userId, statisticsDate);
+            return betStatisticsRepository.findByUserIdAndStatisticsDate(userId, statisticsDate);
         }
         return null;
     }
@@ -56,12 +56,9 @@ public class BetStatisticsService {
     public BetStatistics statisticsWinAmount(Integer statisticsDate, Long userId, BigDecimal winAmount) {
         int i = betStatisticsRepository.updateWinAmount(userId, statisticsDate, winAmount);
         if (i > 0) {
-            return findByUserIdAndStatisticsDateSql(userId, statisticsDate);
+            return betStatisticsRepository.findByUserIdAndStatisticsDate(userId, statisticsDate);
         }
         return null;
     }
 
-    private BetStatistics findByUserIdAndStatisticsDateSql(Long userId, Integer statisticsDate) {
-        return betStatisticsRepository.findByUserIdAndStatisticsDate(userId, statisticsDate);
-    }
 }
