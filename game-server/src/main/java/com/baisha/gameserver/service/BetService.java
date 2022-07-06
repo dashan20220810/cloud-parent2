@@ -41,32 +41,12 @@ public class BetService {
     public Bet save(Bet bet) {
         return betRepository.save(bet);
     }
-    
-    public void delete( Long id ) {
-    	betRepository.deleteById(id);
+
+    public void delete(Long id) {
+        betRepository.deleteById(id);
     }
 
-    public Page<Bet> getBetPage(BetPageVO vo) {
-        Pageable pageable = PageUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
-        Specification<Bet> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new LinkedList<>();
-            if (StringUtils.isNotBlank(vo.getUserName())) {
-                predicates.add(cb.or(
-                        cb.like(root.get("userName"), "%" + vo.getUserName().trim() + "%"),
-                        cb.like(root.get("nickName"), "%" + vo.getUserName().trim() + "%"))
-                );
-            }
-
-            if (StringUtils.isNotBlank(vo.getNoActive())) {
-                predicates.add(cb.like(root.get("noActive"), "%" + vo.getNoActive() + "%"));
-            }
-
-            if (vo.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), vo.getStatus()));
-            }
-
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
-        };
+    public Page<Bet> getBetPage(Specification<Bet> spec, Pageable pageable) {
         Page<Bet> page = betRepository.findAll(spec, pageable);
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }
@@ -92,20 +72,20 @@ public class BetService {
     public int settleBet(Long id, BigDecimal winAmount, BigDecimal finalAmount) {
         return betRepository.updateSettleBetById(id, winAmount, finalAmount, new Date());
     }
-    
-    public BigDecimal todayTotalProfit( Long userId ) {
-    	Date todayStartTime = DateUtils.truncate(new Date(), Calendar.DATE);
-    	Date todayEndTime = DateUtils.addDays(todayStartTime, 1);
-    	todayEndTime = DateUtils.addMilliseconds(todayEndTime, -1);
-    	BigDecimal result = betRepository.todayTotalProfit(userId, todayStartTime, todayEndTime);
-    	return result==null ? BigDecimal.ZERO : result;
+
+    public BigDecimal todayTotalProfit(Long userId) {
+        Date todayStartTime = DateUtils.truncate(new Date(), Calendar.DATE);
+        Date todayEndTime = DateUtils.addDays(todayStartTime, 1);
+        todayEndTime = DateUtils.addMilliseconds(todayEndTime, -1);
+        BigDecimal result = betRepository.todayTotalProfit(userId, todayStartTime, todayEndTime);
+        return result == null ? BigDecimal.ZERO : result;
     }
-    
-    public BigDecimal todayTotalWater( Long userId ) {
-    	Date todayStartTime = DateUtils.truncate(new Date(), Calendar.DATE);
-    	Date todayEndTime = DateUtils.addDays(todayStartTime, 1);
-    	todayEndTime = DateUtils.addMilliseconds(todayEndTime, -1);
-    	BigDecimal result = betRepository.todayTotalWater(userId, todayStartTime, todayEndTime);
-    	return result==null ? BigDecimal.ZERO : result;
+
+    public BigDecimal todayTotalWater(Long userId) {
+        Date todayStartTime = DateUtils.truncate(new Date(), Calendar.DATE);
+        Date todayEndTime = DateUtils.addDays(todayStartTime, 1);
+        todayEndTime = DateUtils.addMilliseconds(todayEndTime, -1);
+        BigDecimal result = betRepository.todayTotalWater(userId, todayStartTime, todayEndTime);
+        return result == null ? BigDecimal.ZERO : result;
     }
 }

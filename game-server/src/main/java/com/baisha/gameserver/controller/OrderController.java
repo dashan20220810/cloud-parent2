@@ -1,9 +1,17 @@
 package com.baisha.gameserver.controller;
 
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
+import com.baisha.modulecommon.util.DateUtil;
+import com.baisha.modulecommon.util.PageUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +27,8 @@ import com.baisha.modulecommon.reponse.ResponseUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.persistence.criteria.Predicate;
 
 /**
  * @author: alvin
@@ -55,15 +65,42 @@ public class OrderController {
     @PostMapping("page")
     @ApiOperation("订单查询")
     public ResponseEntity<Page<Bet>> page(BetPageVO vo) {
-
         log.info("订单查询");
-        Page<Bet> pageList = betService.getBetPage(vo);
+        Pageable pageable = PageUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
+        Specification<Bet> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new LinkedList<>();
+            if (StringUtils.isNotBlank(vo.getUserName())) {
+                predicates.add(cb.or(
+                        cb.like(root.get("userName"), "%" + vo.getUserName().trim() + "%"),
+                        cb.like(root.get("nickName"), "%" + vo.getUserName().trim() + "%"))
+                );
+            }
+            if (StringUtils.isNotBlank(vo.getNoActive())) {
+                predicates.add(cb.like(root.get("noActive"), "%" + vo.getNoActive() + "%"));
+            }
+            if (vo.getStatus() != null) {
+                predicates.add(cb.equal(root.get("status"), vo.getStatus()));
+            }
+            try {
+                if (StringUtils.isNotEmpty(vo.getStartTime())) {
+                    predicates.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), DateUtil.getSimpleDateFormat().parse(vo.getStartTime().trim())));
+                }
+                if (StringUtils.isNotEmpty(vo.getEndTime())) {
+                    predicates.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), DateUtil.getSimpleDateFormat().parse(vo.getEndTime().trim())));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+        };
+        Page<Bet> pageList = betService.getBetPage(spec, pageable);
         return ResponseUtil.success(pageList);
     }
-    
+
     @PostMapping("settlement")
     @ApiOperation("结算订单")
-    public ResponseEntity<List<Bet>> settlement( String noActive ) {
+    public ResponseEntity<List<Bet>> settlement(String noActive) {
         Integer settlementStatus = 2;
 
         log.info("结算订单");

@@ -30,4 +30,10 @@ public class BetPageVO extends PageVO {
     @ApiModelProperty("注单状态(1.下注 2.结算)")
     private Integer status;
 
+    @ApiModelProperty(value = "开始时间 yyyy-MM-dd HH:mm:ss")
+    private String startTime;
+
+    @ApiModelProperty(value = "结束时间 yyyy-MM-dd HH:mm:ss")
+    private String endTime;
+
 }
