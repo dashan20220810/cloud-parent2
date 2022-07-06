@@ -187,6 +187,9 @@ public class TelegramCallbackQueryHandler {
         reply.append(USER_BALANCE4);
         // 查询用户余额
         String userBalance = commonHandler.checkUserBalance(user.getId());
+        if (StrUtil.isEmpty(userBalance)) {
+            userBalance = "0";
+        }
         reply.append(userBalance);
         return reply.toString();
     }
@@ -202,6 +205,9 @@ public class TelegramCallbackQueryHandler {
         reply.append(USER_BALANCE4);
         // 查询用户余额
         String userBalance = commonHandler.checkUserBalance(user.getId());
+        if (StrUtil.isEmpty(userBalance)) {
+            userBalance = "0";
+        }
         reply.append(userBalance);
         return reply.toString();
     }
