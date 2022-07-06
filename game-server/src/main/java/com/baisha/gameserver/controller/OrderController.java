@@ -44,7 +44,7 @@ public class OrderController {
 
     @Autowired
     BetService betService;
-    
+
     @Autowired
     BetStatisticsService betStatisticsService;
 
@@ -61,21 +61,21 @@ public class OrderController {
         }
 
         Bet newBet = betService.save(bet);
-        
+
         String dateStr = DateUtil.today(DateUtil.YYYYMMDD);
         Long userId = betVO.getUserId();
-    	BigDecimal flowAmount = new BigDecimal(bet.getFlowAmount());
-        
+        BigDecimal flowAmount = new BigDecimal(bet.getFlowAmount());
+
         BetStatistics betStatistics = betStatisticsService.findByUserIdAndStatisticsDate(userId, dateStr);
-        
-        if ( betStatistics==null ) {
+
+        if (betStatistics == null) {
             betStatistics = new BetStatistics();
             betStatistics.setUserId(userId);
-            betStatistics.setStatisticsDate(dateStr);
-        	betStatistics.setFlowAmount(flowAmount);
+            betStatistics.setStatisticsDate(Integer.parseInt(dateStr));
+            betStatistics.setFlowAmount(flowAmount);
             betStatisticsService.save(betStatistics);
         } else {
-        	betStatisticsService.updateFlowAmount(userId, dateStr, flowAmount);
+            betStatisticsService.updateFlowAmount(userId, dateStr, flowAmount);
         }
 
 //		log.info("[下注] 成功! 押{} 共{}", betVO.getBetOption().getDisplay(), betVO.getAmount());

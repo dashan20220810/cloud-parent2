@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Entity
-@Table(name = "Bet_Statistics", indexes = {@Index(columnList = "user_id")})
+@Table(name = "Bet_Statistics", indexes = {@Index(columnList = "user_id"),@Index(columnList = "statistics_date")})
 @ApiModel(value = "GS-Bet对象", description = "注单")
 public class BetStatistics extends BaseEntity {
 
@@ -31,8 +31,8 @@ public class BetStatistics extends BaseEntity {
     private Long userId;
     
     @ApiModelProperty("统计日期")
-    @Column(name = "statistics_date", nullable = false, columnDefinition = "VARCHAR(12) COMMENT '统计日期 yyyyMMdd'")
-    private String statisticsDate;
+    @Column(name = "statistics_date", nullable = false, columnDefinition = "int(11) COMMENT '统计日期 yyyyMMdd'")
+    private Integer statisticsDate;
 
     @ApiModelProperty(value = "输赢金额")
     @Column(columnDefinition = "decimal(16,2) comment '输赢金额'")
