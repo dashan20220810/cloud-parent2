@@ -129,14 +129,19 @@ public class OrderController {
 
     @PostMapping("currentList")
     @ApiOperation("近期订单")
-    public ResponseEntity<List<Bet>> currentList(Long userId, Long tgChatId) {
+    public ResponseEntity<List<Bet>> currentList(Long userId, Long tgChatId, Integer queryAmount) {
 
         if ( userId==null || tgChatId==null ) {
             log.info("[近期订单] 检核失败");
             return ResponseUtil.custom("检核失败");
         }
+        if ( queryAmount==null ) {
+        	queryAmount = 10;
+        } else if ( queryAmount > 100 ) {
+        	queryAmount = 100;
+        }
         log.info("近期订单");
-        return ResponseUtil.success(betService.findAllByUserId(userId));
+        return ResponseUtil.success(betService.findAllByUserIdAndTgChatId(userId, tgChatId, queryAmount));
     }
 
     @PostMapping("delete")
@@ -160,7 +165,7 @@ public class OrderController {
             log.info("[当日流水] 检核失败");
             return ResponseUtil.custom("检核失败");
         }
-        log.info("当日流水 user id: {}", userId);
+        log.info("当日流水 user id: {}, tgChatId: {}", userId, tgChatId);
         BetStatistics entity = betStatisticsService.findByUserIdAndTgChatIdAndStatisticsDate(userId, tgChatId);
         return ResponseUtil.success(entity==null||entity.getFlowAmount()==null ? "0" : entity.getFlowAmount().toString());
     }
@@ -173,9 +178,22 @@ public class OrderController {
             log.info("[当日盈利] 检核失败");
             return ResponseUtil.custom("检核失败");
         }
-        log.info("当日盈利 user id: {}", userId);
+        log.info("当日盈利 user id: {}, tgChatId: {}", userId, tgChatId);
         BetStatistics entity = betStatisticsService.findByUserIdAndTgChatIdAndStatisticsDate(userId, tgChatId);
         return ResponseUtil.success(entity==null||entity.getWinAmount()==null ? "0" : entity.getWinAmount().toString());
     }
-    
+
+
+    @PostMapping("returnAmount")
+    @ApiOperation("返水")
+    public ResponseEntity<String> returnAmount(Long userId, Long tgChatId) {
+
+        if ( userId==null || tgChatId==null ) {
+            log.info("[返水] 检核失败");
+            return ResponseUtil.custom("检核失败");
+        }
+        log.info("返水 user id: {}, tgChatId: {}", userId, tgChatId);
+//        betService.delete(betId);
+        return ResponseUtil.success();
+    }
 }

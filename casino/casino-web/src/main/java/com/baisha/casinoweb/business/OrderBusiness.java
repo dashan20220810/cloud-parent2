@@ -17,6 +17,7 @@ import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.util.ValidateUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.enums.BetOption;
+import com.baisha.modulecommon.enums.BetStatusEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.util.IpUtil;
@@ -83,7 +84,7 @@ public class OrderBusiness {
 		params.put("nickName", nickName); 
 		params.put("noRun", noRun);
 		params.put("noActive", gameInfo.getCurrentActive());
-		params.put("status", 1);
+		params.put("status", BetStatusEnum.BET.getCode());
 		params.put("orderNo", SnowFlakeUtils.getSnowId());
 		
 		for ( String betOption: betOptionList ) {
@@ -140,7 +141,7 @@ public class OrderBusiness {
 		return null;
 	}
 	
-	public JSONObject currentOrderList () {
+	public JSONObject currentOrderList (Long tgChatId, Integer queryAmount) {
     	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
     	//  user id查user
     	String userIdOrName = CasinoWebUtil.getCurrentUserId();
@@ -152,7 +153,9 @@ public class OrderBusiness {
     	}
 
         Map<String, Object> params = new HashMap<>();
-        params.put("userId", userVO.getId());
+        params.put("userId", userVO.getId()); 
+        params.put("tgChatId", tgChatId);
+        params.put("queryAmount", queryAmount);
         String result = HttpClient4Util.doPost(gameServerDomain + RequestPathEnum.ORDER_CURRENT_LIST.getApiName(), params);
         if (CommonUtil.checkNull(result)) {
             return null;

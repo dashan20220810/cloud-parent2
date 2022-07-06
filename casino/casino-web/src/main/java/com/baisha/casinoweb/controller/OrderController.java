@@ -129,9 +129,9 @@ public class OrderController {
 
     @PostMapping("currentList")
     @ApiOperation(("近期订单"))
-    public ResponseEntity<List<BetResponseVO>> currentList() {
+    public ResponseEntity<List<BetResponseVO>> currentList(Long tgChatId, Integer queryAmount) {
 		log.info("近期订单");
-		JSONObject result = orderBusiness.currentOrderList();
+		JSONObject result = orderBusiness.currentOrderList(tgChatId, queryAmount);
         if ( result==null ) {
             return ResponseUtil.fail();
         }

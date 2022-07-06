@@ -54,8 +54,8 @@ public class BetService {
      * @param userId
      * @return
      */
-    public List<Bet> findAllByUserId(Long userId) {
-        return betRepository.findAllByUserId(userId, PageRequest.of(0, 20, Sort.by("createTime").descending()));
+    public List<Bet> findAllByUserIdAndTgChatId(Long userId, Long tgChatId, Integer queryAmount) {
+        return betRepository.findAllByUserIdAndTgChatId(userId, tgChatId, PageRequest.of(0, queryAmount, Sort.by("createTime").descending()));
     }
 
     public List<Bet> findBetNoSettle(String noActive, Integer status) {
@@ -66,4 +66,11 @@ public class BetService {
         return betRepository.updateSettleBetById(id, winAmount, finalAmount, new Date());
     }
 
+    public BigDecimal returnAmount ( Long userId, Long tgChatId ) {
+    	 
+    	
+    	
+    	//TODO
+    	return null;
+    }
 }

@@ -105,6 +105,10 @@ public class Bet extends BaseEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date settleTime;
 
+    @ApiModelProperty(value = "已返水")
+    @Column(columnDefinition = "VARCHAR(6) comment '已返水'")
+    private Boolean isReturned = false;
+
 
     /**
      * 检核下注请求

@@ -19,7 +19,7 @@ public interface BetRepository extends JpaRepository<Bet, Long>, JpaSpecificatio
 
     List<Bet> findAllByUserIdAndCreateTimeBetween(Long userId, Date createBeginTime, Date createEndTime);
 
-    List<Bet> findAllByUserId(Long userId, Pageable pageable);
+    List<Bet> findAllByUserIdAndTgChatId(Long userId, Long tgChatId, Pageable pageable);
 
     List<Bet> findByNoActiveAndStatus(String noActive, Integer status);
 
