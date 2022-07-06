@@ -51,6 +51,9 @@ public class UserPageBO extends BaseBO {
     @ApiModelProperty(value = "冻结余额")
     private BigDecimal freezeAmount = BigDecimal.ZERO;
 
+    @ApiModelProperty(value = "打码量")
+    private BigDecimal playMoney = BigDecimal.ZERO;
+
     @ApiModelProperty(value = "邀请人TG用户ID")
     private String inviteTgUserId;
 

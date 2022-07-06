@@ -181,6 +181,7 @@ public class UserController {
                     if (Objects.nonNull(assets)) {
                         bo.setBalance(assets.getBalance());
                         bo.setFreezeAmount(assets.getFreezeAmount());
+                        bo.setPlayMoney(assets.getPlayMoney());
                     }
                     Long inviteUserId = bo.getInviteUserId();
                     if (null != inviteUserId) {

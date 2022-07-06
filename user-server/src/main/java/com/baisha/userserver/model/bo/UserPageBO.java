@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.persistence.Column;
 import java.math.BigDecimal;
 
 @Data
@@ -17,6 +16,9 @@ public class UserPageBO extends User {
 
     @ApiModelProperty(value = "冻结余额")
     private BigDecimal freezeAmount = BigDecimal.ZERO;
+
+    @ApiModelProperty(value = "打码量")
+    private BigDecimal playMoney = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "邀请人会员ID")
     private Long inviteUserId;
