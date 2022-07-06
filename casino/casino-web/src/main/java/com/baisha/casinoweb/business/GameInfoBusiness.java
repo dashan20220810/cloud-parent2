@@ -116,7 +116,6 @@ public class GameInfoBusiness {
 
 		if ( code!=0 ) {
         	log.warn("封盘 失败, {}", response);
-    		return;
 		}
     }
     

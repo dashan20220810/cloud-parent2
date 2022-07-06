@@ -1,6 +1,5 @@
 package com.baisha.casinoweb.business;
 
-import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -32,19 +31,20 @@ public class DealerBusiness {
     private AsyncCommandService asyncCommandService;
 
     /**
-     * 开新局
-     * @param deskCode	桌台号
-     * @return
-     */
+	 * 开新局
+	 *
+	 * @param deskCode 桌台号
+	 */
     @Async
-    public Future<Boolean> openNewGame (String dealerIp, Integer gameNo) {
+    public void openNewGame (String dealerIp, Integer gameNo) {
 
     	log.info("开新局");
 
     	JSONObject desk = deskBusiness.queryDeskByIp(dealerIp);
     	if ( desk==null ) {
     		log.warn("开新局 失败, 查无桌台");
-    		return CompletableFuture.completedFuture(false);
+			CompletableFuture.completedFuture(false);
+			return;
     	}
     	
     	Long deskId = desk.getLong("id");
@@ -53,18 +53,20 @@ public class DealerBusiness {
     	
     	Future<Boolean> openNewGameResult = asyncCommandService.openNewGame(deskId, deskCode, newActive);
     	
-    	if ( handleFuture(openNewGameResult)==false ) {
-    		return CompletableFuture.completedFuture(false);
+    	if (!handleFuture(openNewGameResult)) {
+			CompletableFuture.completedFuture(false);
+			return;
     	}
 
     	Future<Boolean> bettingResult = asyncCommandService.betting(deskCode, newActive);
 
-    	if ( handleFuture(bettingResult)==false ) {
-    		return CompletableFuture.completedFuture(false);
+    	if (!handleFuture(bettingResult)) {
+			CompletableFuture.completedFuture(false);
+			return;
     	}
 
-		return CompletableFuture.completedFuture(true);
-    }
+		CompletableFuture.completedFuture(true);
+	}
 
     @Async
     public void open ( String dealerIp, String awardOption ) {

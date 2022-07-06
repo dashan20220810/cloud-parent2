@@ -34,17 +34,11 @@ public class UserBusiness {
     	
     	if ( isTelegramRequest ) {
         	userVO = CasinoWebUtil.getUserVO(userServerDomain, userId);
-        	if ( userVO==null ) {
-        		//	token中查无user资料
-                return null;
-        	}
-    	} else {
+			//	token中查无user资料
+		} else {
         	userVO = CasinoWebUtil.getUserVO(userServerDomain, Long.parseLong(userId));
-        	if ( userVO==null ) {
-        		//	token中查无user资料
-                return null;
-        	}
-    	}
+			//	token中查无user资料
+		}
     	
     	return userVO;
 	}
@@ -74,11 +68,7 @@ public class UserBusiness {
 		JSONObject json = JSONObject.parseObject(result);
 		Integer code = json.getInteger("code");
 
-		if ( code==null || code!=0 ) {
-            return false;
-		}
-        
-        return true;
+		return code != null && code == 0;
 	}
 	
 }

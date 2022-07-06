@@ -109,7 +109,7 @@ public class OrderBusiness {
 				gameServerDomain + RequestPathEnum.ORDER_BET.getApiName(),
 				params);
 
-		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+		if (!ValidateUtil.checkHttpResponse(action, result)) {
             return String.format("下注 失败, %s", StringUtils.defaultString(result));
 		}
 
@@ -128,7 +128,7 @@ public class OrderBusiness {
     				gameServerDomain + RequestPathEnum.ORDER_CURRENT_LIST.getApiName(),
     				params);
 
-    		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+    		if (!ValidateUtil.checkHttpResponse(action, result)) {
                 return String.format("下注 失败, 必须人工删除bet, id:%s, %s", betId.toString(), StringUtils.defaultString(result));
     		}
             return withdrawResult;
@@ -174,7 +174,7 @@ public class OrderBusiness {
 
         String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.ORDER_WATER.getApiName() +"?userId=" +userVO.getId());
         
-        if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+        if (!ValidateUtil.checkHttpResponse(action, result)) {
         	return null;
         }
         
@@ -197,7 +197,7 @@ public class OrderBusiness {
 
         String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.ORDER_PROFIT.getApiName() +"?userId=" +userVO.getId());
         
-        if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+        if (!ValidateUtil.checkHttpResponse(action, result)) {
         	return null;
         }
         
