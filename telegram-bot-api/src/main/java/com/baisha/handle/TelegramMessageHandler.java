@@ -27,6 +27,7 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.Arrays;
 import java.util.List;
@@ -247,11 +248,13 @@ public class TelegramMessageHandler {
         reply.append(USER_BALANCE1);
         reply.append(RUNNING_WATER1);
         // 当日流水
-        reply.append("11000");
+        Integer flowOfDay = commonHandler.flowOfDay(user.getId());
+        reply.append(flowOfDay);
         reply.append(SEALING_BET_INFO17);
         reply.append(RUNNING_WATER2);
         // 当日盈利
-        reply.append("11000");
+        BigDecimal profitOfDay = commonHandler.profitOfDay(user.getId());
+        reply.append(profitOfDay);
         reply.append(SEALING_BET_INFO17);
         reply.append(USER_BALANCE4);
         // 查询用户余额

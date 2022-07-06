@@ -2,11 +2,18 @@ package com.baisha.business;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baisha.bot.MyTelegramLongPollingBot;
+import com.baisha.handle.CommonHandler;
+import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
 import com.baisha.model.vo.*;
+import com.baisha.modulecommon.Constants;
+import com.baisha.service.TgBotService;
+import com.baisha.service.TgChatService;
 import com.baisha.util.Base64Utils;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.SetChatPermissions;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
@@ -26,6 +33,92 @@ import static com.baisha.util.constants.BotConstant.*;
 @Slf4j
 @Service
 public class CommandBusiness {
+
+    @Autowired
+    private TgBotService tgBotService;
+
+    @Autowired
+    private TgChatService tgChatService;
+
+    @Autowired
+    private CommonHandler commonHandler;
+
+    public void startNewBureauLoop(StartNewBureauVO vo, URL imageAddress, URL countdownAddress, TgChat tgChat) {
+        //验证群审核通过，才发消息
+        if(!Constants.open.equals(tgChat.getStatus())){
+            return;
+        }
+        //3.1。  找出机器人实例。
+        TgBot tgBot = tgBotService.findById(tgChat.getBotId());
+        if (tgBot == null) {
+            return;
+        }
+        MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgBot.getBotName());
+        if (myBot == null) {
+            return;
+        }
+        // TG群-全员解禁
+        this.unmuteAllUser(tgChat, myBot);
+
+        String message = this.buildStartMessage(vo.getBureauNum(), tgChat.getMinAmount() + "",
+                tgChat.getMaxAmount() + "", tgChat.getMaxShoeAmount() + "");
+
+        //3.3： 每个桌台推送开局消息
+        myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(imageAddress))), tgChat.getChatId()+"");
+        myBot.SendMessageHtml(message, tgChat.getChatId()+"");
+        // 倒计时视频
+        myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(countdownAddress))), tgChat.getChatId()+"");
+    }
+
+    @Async
+    public void sealingLineLoop(SealingLineVO vo, ConfigInfo configInfo, Long chatId, BetUserAmountVO betUserAmountVO) {
+        TgChat tgChat = tgChatService.findByChatId(chatId);
+        // 群审核通过，才发消息
+        if (!commonHandler.parseChat(tgChat)) {
+            return;
+        }
+        MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgChat.getBotName());
+        if (myBot == null) {
+            return;
+        }
+        // TG群-全员禁言
+        this.muteAllUser(chatId, myBot);
+        // 组装TG信息
+        String sealingLineMessage = this.buildSealingLineMessage(configInfo, vo, betUserAmountVO);
+        myBot.sendMessage(sealingLineMessage, tgChat.getChatId()+"");
+    }
+
+    @Async
+    public void openCardLoop(OpenCardVO vo, URL openCardAddress, URL resultAddress, URL roadAddress, TgChat tgChat) {
+        // 群审核通过，才发消息
+        if(!Constants.open.equals(tgChat.getStatus())){
+            return;
+        }
+        MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgChat.getBotName());
+        if (myBot == null) {
+            return;
+        }
+
+        this.showOpenCardButton(vo, openCardAddress, tgChat, myBot);
+        myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(resultAddress))), tgChat.getChatId()+"");
+        myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(roadAddress))), tgChat.getChatId()+"");
+    }
+
+    @Async
+    public void settlementLoop(SettlementVO vo, Long chatId, List<UserWinVO> userWinVOs) {
+        TgChat tgChat = tgChatService.findByChatId(chatId);
+        // 群审核通过，才发消息
+        if (!commonHandler.parseChat(tgChat)) {
+            return;
+        }
+        MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgChat.getBotName());
+        if (myBot == null) {
+            return;
+        }
+        // 组装结算信息
+        String settlementMessage = this.buildSettlementMessage(vo, userWinVOs);
+        myBot.sendMessage(settlementMessage, tgChat.getChatId()+"");
+    }
 
     public void muteAllUser(Long chatId, MyTelegramLongPollingBot myBot) {
         ChatPermissions chatPermissions = new ChatPermissions();

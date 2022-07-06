@@ -94,7 +94,7 @@ public class TgHttpClient4Util {
         return doGet(url, null);
     }
 
-    public static String doGet(String url,String tgId) {
+    public static String doGet(String url,Long tgId) {
         log.info("doGet请求参数{}",url);
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse response = null;
@@ -108,9 +108,10 @@ public class TgHttpClient4Util {
 //            httpGet.setHeader("Authorization", "Bearer da3efcbf-0845-4fe3-8aba-ee040be542c0");
             httpGet.addHeader("Accept-Encoding", "gzip,deflate");
             httpGet.addHeader(UserOriginEnum.TG_ORIGIN.getOrigin(), "true");
-            if (StringUtils.isNotEmpty(tgId)) {
+            if (null != tgId) {
                 JjwtUtil.Subject subject=new JjwtUtil.Subject();
-                subject.setUserId(tgId);
+                subject.setUserId(tgId+"");
+                subject.setBcryptPassword("123456");
                 String jwtToken = JjwtUtil.generic(subject, Constants.CASINO_WEB);
                 httpGet.addHeader(Constants.AUTHORIZATION,"Bearer "+ jwtToken);
             }

@@ -28,18 +28,8 @@ public class StartNewBureauVO {
     @ApiModelProperty(value = "局号", required = true)
     private String bureauNum;
 
-//    @ApiModelProperty(name = "单注限红最低", required = true)
-//    private Integer minAmount;
-//
-//    @ApiModelProperty(name = "单注限红最高", required = true)
-//    private Integer maxAmount;
-//
-//    @ApiModelProperty(name = "当局最高", required = true)
-//    private Integer maxShoeAmount;
-
-    //校验参数合法性
+    // 校验参数合法性
     public static boolean check(StartNewBureauVO vo) throws IllegalAccessException {
-
        return CommonUtil.checkObjectFieldNotNull(vo);
     }
 }

@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.*;
 
+import java.math.BigDecimal;
+
 import static com.baisha.util.constants.BotConstant.*;
 import static com.baisha.util.constants.BotConstant.USER_BALANCE4;
 
@@ -60,11 +62,13 @@ public class TelegramCallbackQueryHandler {
         StringBuilder reply = new StringBuilder();
         reply.append(RUNNING_WATER1);
         // 当日流水
-        reply.append("11000");
+        Integer flowOfDay = commonHandler.flowOfDay(user.getId());
+        reply.append(flowOfDay);
         reply.append(SEALING_BET_INFO17);
         reply.append(RUNNING_WATER2);
         // 当日盈利
-        reply.append("11000");
+        BigDecimal profitOfDay = commonHandler.profitOfDay(user.getId());
+        reply.append(profitOfDay);
         reply.append(SEALING_BET_INFO17);
         reply.append(USER_BALANCE4);
         // 查询用户余额
