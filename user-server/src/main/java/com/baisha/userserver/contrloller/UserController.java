@@ -288,7 +288,8 @@ public class UserController {
         if (StringUtils.isEmpty(vo.getTgGroupId())) {
             return new ResponseEntity("群ID必填");
         }
-        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize());
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), sort);
         Specification<UserTelegramRelation> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             predicates.add(cb.equal(root.get("tgGroupId"), vo.getTgGroupId()));
