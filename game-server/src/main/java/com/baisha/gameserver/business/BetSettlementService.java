@@ -122,7 +122,7 @@ public class BetSettlementService {
         Date createTime = bet.getCreateTime();
         String time = DateUtil.dateToyyyyMMdd(createTime);
         Integer day = Integer.parseInt(time);
-        betStatisticsService.statisticsWinAmount(day, bet.getUserId(), winAmount);
+        betStatisticsService.statisticsWinAmount(day, bet.getUserId(), bet.getTgChatId(), winAmount);
     }
 
     /**

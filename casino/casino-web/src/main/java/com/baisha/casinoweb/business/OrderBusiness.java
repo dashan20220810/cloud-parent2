@@ -160,7 +160,7 @@ public class OrderBusiness {
         return JSONObject.parseObject(result);
 	}
 	
-	public BigDecimal todayTotalWater () {
+	public BigDecimal todayTotalWater (Long tgChatId) {
 		String action = "当日流水";
     	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
     	//  user id查user
@@ -172,7 +172,7 @@ public class OrderBusiness {
             return null;
     	}
 
-        String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.ORDER_WATER.getApiName() +"?userId=" +userVO.getId());
+        String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.ORDER_WATER.getApiName() +"?userId=" +userVO.getId() +"&tgChatId=" +tgChatId);
         
         if (!ValidateUtil.checkHttpResponse(action, result)) {
         	return null;
@@ -183,7 +183,7 @@ public class OrderBusiness {
         return json.getBigDecimal("data");
 	}
 	
-	public BigDecimal todayTotalProfit () {
+	public BigDecimal todayTotalProfit (Long tgChatId) {
 		String action = "当日盈亏";
     	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
     	//  user id查user
@@ -195,7 +195,7 @@ public class OrderBusiness {
             return null;
     	}
 
-        String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.ORDER_PROFIT.getApiName() +"?userId=" +userVO.getId());
+        String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.ORDER_PROFIT.getApiName() +"?userId=" +userVO.getId() +"&tgChatId=" +tgChatId);
         
         if (!ValidateUtil.checkHttpResponse(action, result)) {
         	return null;

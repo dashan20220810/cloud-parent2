@@ -140,10 +140,10 @@ public class OrderController {
 
     @GetMapping("todayTotalWater")
     @ApiOperation("当日流水")
-    public ResponseEntity<String> todayTotalWater() {
+    public ResponseEntity<String> todayTotalWater(Long tgChatId) {
 
         log.info("当日流水");
-        BigDecimal result = orderBusiness.todayTotalWater();
+        BigDecimal result = orderBusiness.todayTotalWater(tgChatId);
         if ( result==null ) {
             return ResponseUtil.fail();
         }
@@ -152,10 +152,10 @@ public class OrderController {
 
     @GetMapping("todayTotalProfit")
     @ApiOperation("当日盈利")
-    public ResponseEntity<String> todayTotalProfit() {
+    public ResponseEntity<String> todayTotalProfit(Long tgChatId) {
 
         log.info("当日盈利");
-        BigDecimal result = orderBusiness.todayTotalProfit();
+        BigDecimal result = orderBusiness.todayTotalProfit(tgChatId);
         if ( result==null ) {
             return ResponseUtil.fail();
         }

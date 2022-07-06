@@ -19,16 +19,20 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Entity
-@Table(name = "Bet_Statistics", indexes = {@Index(columnList = "user_id"), @Index(columnList = "statistics_date")})
+@Table(name = "Bet_Statistics", indexes = {@Index(columnList = "user_id"), @Index(columnList = "statistics_date"), @Index(columnList = "tg_chat_id") })
 @ApiModel(value = "GS-Bet_Statistics对象", description = "注单")
 public class BetStatistics extends BaseEntity {
 
 
     private static final long serialVersionUID = -8866767574064666756L;
-
+    
     @ApiModelProperty("user_id")
     @Column(name = "user_id", nullable = false)
     private Long userId;
+    
+    @ApiModelProperty("tg_chat_id")
+    @Column(name = "tg_chat_id", nullable = false)
+    private Long tgChatId;
 
     @ApiModelProperty("统计日期")
     @Column(name = "statistics_date", nullable = false, columnDefinition = "int(11) COMMENT '统计日期 yyyyMMdd'")

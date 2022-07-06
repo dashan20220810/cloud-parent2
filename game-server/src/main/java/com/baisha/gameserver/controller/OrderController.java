@@ -63,7 +63,7 @@ public class OrderController {
         Long userId = betVO.getUserId();
         BigDecimal flowAmount = new BigDecimal(bet.getFlowAmount());
 
-        BetStatistics betStatistics = betStatisticsService.findByUserIdAndStatisticsDate(userId, Integer.parseInt(dateStr));
+        BetStatistics betStatistics = betStatisticsService.findByUserIdAndTgChatIdAndStatisticsDate(userId, betVO.getTgChatId(), Integer.parseInt(dateStr));
 
         if (betStatistics == null) {
             betStatistics = new BetStatistics();
@@ -72,7 +72,7 @@ public class OrderController {
             betStatistics.setFlowAmount(flowAmount);
             betStatisticsService.save(betStatistics);
         } else {
-            betStatisticsService.updateFlowAmount(userId, Integer.parseInt(dateStr), flowAmount);
+            betStatisticsService.updateFlowAmount(userId, betVO.getTgChatId(), Integer.parseInt(dateStr), flowAmount);
         }
 
 //		log.info("[下注] 成功! 押{} 共{}", betVO.getBetOption().getDisplay(), betVO.getAmount());
@@ -130,10 +130,10 @@ public class OrderController {
     @ApiOperation("近期订单")
     public ResponseEntity<List<Bet>> currentList(Long userId, Long tgChatId) {
 
-//        if ( userId==null || tgChatId==null ) {
-//            log.info("[近期订单] 检核失败");
-//            return ResponseUtil.custom("检核失败");
-//        }
+        if ( userId==null || tgChatId==null ) {
+            log.info("[近期订单] 检核失败");
+            return ResponseUtil.custom("检核失败");
+        }
         log.info("近期订单");
         return ResponseUtil.success(betService.findAllByUserId(userId));
     }
@@ -155,12 +155,12 @@ public class OrderController {
     @ApiOperation("当日流水")
     public ResponseEntity<String> todayTotalWater(Long userId, Long tgChatId) {
 
-//        if ( userId==null || tgChatId==null ) {
-//            log.info("[当日流水] 检核失败");
-//            return ResponseUtil.custom("检核失败");
-//        }
+        if ( userId==null || tgChatId==null ) {
+            log.info("[当日流水] 检核失败");
+            return ResponseUtil.custom("检核失败");
+        }
         log.info("当日流水 user id: {}", userId);
-        BetStatistics entity = betStatisticsService.findByUserIdAndStatisticsDate(userId);
+        BetStatistics entity = betStatisticsService.findByUserIdAndTgChatIdAndStatisticsDate(userId, tgChatId);
         return ResponseUtil.success(entity==null||entity.getFlowAmount()==null ? "0" : entity.getFlowAmount().toString());
     }
 
@@ -168,12 +168,12 @@ public class OrderController {
     @ApiOperation("当日盈利")
     public ResponseEntity<String> todayTotalProfit(Long userId, Long tgChatId) {
 
-//        if ( userId==null || tgChatId==null ) {
-//            log.info("[当日盈利] 检核失败");
-//            return ResponseUtil.custom("检核失败");
-//        }
+        if ( userId==null || tgChatId==null ) {
+            log.info("[当日盈利] 检核失败");
+            return ResponseUtil.custom("检核失败");
+        }
         log.info("当日盈利 user id: {}", userId);
-        BetStatistics entity = betStatisticsService.findByUserIdAndStatisticsDate(userId);
+        BetStatistics entity = betStatisticsService.findByUserIdAndTgChatIdAndStatisticsDate(userId, tgChatId);
         return ResponseUtil.success(entity==null||entity.getWinAmount()==null ? "0" : entity.getWinAmount().toString());
     }
     

@@ -28,35 +28,35 @@ public class BetStatisticsService {
     @Autowired
     BetStatisticsRepository betStatisticsRepository;
 
-    @Caching(put = {@CachePut(key = "#entity.userId +'_' +#entity.statisticsDate")})
+    @Caching(put = {@CachePut(key = "#entity.userId +'_' #entity.tgChatId +'_' +#entity.statisticsDate")})
     public BetStatistics save(BetStatistics entity) {
         return betStatisticsRepository.save(entity);
     }
 
-    public BetStatistics findByUserIdAndStatisticsDate(Long userId) {
+    public BetStatistics findByUserIdAndTgChatIdAndStatisticsDate(Long userId, Long tgChatId) {
         String dateStr = DateUtil.today(DateUtil.YYYYMMDD);
-        return findByUserIdAndStatisticsDate(userId, Integer.parseInt(dateStr));
+        return findByUserIdAndTgChatIdAndStatisticsDate(userId, tgChatId, Integer.parseInt(dateStr));
     }
 
-    @Cacheable(key = "#userId +'_' +#statisticsDate", unless = "#result == null")
-    public BetStatistics findByUserIdAndStatisticsDate(Long userId, Integer statisticsDate) {
-        return betStatisticsRepository.findByUserIdAndStatisticsDate(userId, statisticsDate);
+    @Cacheable(key = "#userId +'_' #tgChatId +'_'+#statisticsDate", unless = "#result == null")
+    public BetStatistics findByUserIdAndTgChatIdAndStatisticsDate(Long userId, Long tgChatId, Integer statisticsDate) {
+        return betStatisticsRepository.findByUserIdAndTgChatIdAndStatisticsDate(userId, tgChatId, statisticsDate);
     }
 
-    @Caching(put = {@CachePut(key = "#userId +'_' +#statisticsDate")})
-    public BetStatistics updateFlowAmount(Long userId, Integer statisticsDate, BigDecimal flowAmount) {
-        int i = betStatisticsRepository.updateFlowAmount(userId, statisticsDate, flowAmount);
+    @Caching(put = {@CachePut(key = "#userId +'_' #tgChatId +'_' +#statisticsDate")})
+    public BetStatistics updateFlowAmount(Long userId, Long tgChatId, Integer statisticsDate, BigDecimal flowAmount) {
+        int i = betStatisticsRepository.updateFlowAmount(userId, tgChatId, statisticsDate, flowAmount);
         if (i > 0) {
-            return betStatisticsRepository.findByUserIdAndStatisticsDate(userId, statisticsDate);
+            return betStatisticsRepository.findByUserIdAndTgChatIdAndStatisticsDate(userId, tgChatId, statisticsDate);
         }
         return null;
     }
 
-    @CachePut(key = "#userId +'_' +#statisticsDate")
-    public BetStatistics statisticsWinAmount(Integer statisticsDate, Long userId, BigDecimal winAmount) {
-        int i = betStatisticsRepository.updateWinAmount(userId, statisticsDate, winAmount);
+    @CachePut(key = "#userId +'_' #tgChatId +'_' +#statisticsDate")
+    public BetStatistics statisticsWinAmount(Integer statisticsDate, Long userId, Long tgChatId, BigDecimal winAmount) {
+        int i = betStatisticsRepository.updateWinAmount(userId, tgChatId, statisticsDate, winAmount);
         if (i > 0) {
-            return betStatisticsRepository.findByUserIdAndStatisticsDate(userId, statisticsDate);
+            return betStatisticsRepository.findByUserIdAndTgChatIdAndStatisticsDate(userId, tgChatId, statisticsDate);
         }
         return null;
     }
