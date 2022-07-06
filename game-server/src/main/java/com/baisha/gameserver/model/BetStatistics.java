@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "Bet_Statistics", indexes = {@Index(columnList = "user_id"), @Index(columnList = "statistics_date")})
-@ApiModel(value = "GS-Bet对象", description = "注单")
+@ApiModel(value = "GS-Bet_Statistics对象", description = "注单")
 public class BetStatistics extends BaseEntity {
 
 

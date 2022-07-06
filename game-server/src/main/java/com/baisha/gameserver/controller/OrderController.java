@@ -128,8 +128,12 @@ public class OrderController {
 
     @PostMapping("currentList")
     @ApiOperation("近期订单")
-    public ResponseEntity<List<Bet>> currentList(Long userId) {
+    public ResponseEntity<List<Bet>> currentList(Long userId, Long tgChatId) {
 
+//        if ( userId==null || tgChatId==null ) {
+//            log.info("[近期订单] 检核失败");
+//            return ResponseUtil.custom("检核失败");
+//        }
         log.info("近期订单");
         return ResponseUtil.success(betService.findAllByUserId(userId));
     }
@@ -138,6 +142,10 @@ public class OrderController {
     @ApiOperation("删除订单")
     public ResponseEntity<String> delete(Long betId) {
 
+        if ( betId==null ) {
+            log.info("[删除订单] 检核失败");
+            return ResponseUtil.custom("检核失败");
+        }
         log.info("删除订单 id: {}", betId);
         betService.delete(betId);
         return ResponseUtil.success();
@@ -145,30 +153,28 @@ public class OrderController {
 
     @GetMapping("todayTotalWater")
     @ApiOperation("当日流水")
-    public ResponseEntity<String> todayTotalWater(Long userId) {
+    public ResponseEntity<String> todayTotalWater(Long userId, Long tgChatId) {
 
+//        if ( userId==null || tgChatId==null ) {
+//            log.info("[当日流水] 检核失败");
+//            return ResponseUtil.custom("检核失败");
+//        }
         log.info("当日流水 user id: {}", userId);
-        return ResponseUtil.success(betService.todayTotalWater(userId));
+        BetStatistics entity = betStatisticsService.findByUserIdAndStatisticsDate(userId);
+        return ResponseUtil.success(entity==null||entity.getFlowAmount()==null ? "0" : entity.getFlowAmount().toString());
     }
 
     @GetMapping("todayTotalProfit")
     @ApiOperation("当日盈利")
-    public ResponseEntity<String> todayTotalProfit(Long userId) {
+    public ResponseEntity<String> todayTotalProfit(Long userId, Long tgChatId) {
 
+//        if ( userId==null || tgChatId==null ) {
+//            log.info("[当日盈利] 检核失败");
+//            return ResponseUtil.custom("检核失败");
+//        }
         log.info("当日盈利 user id: {}", userId);
-        return ResponseUtil.success(betService.todayTotalProfit(userId));
+        BetStatistics entity = betStatisticsService.findByUserIdAndStatisticsDate(userId);
+        return ResponseUtil.success(entity==null||entity.getWinAmount()==null ? "0" : entity.getWinAmount().toString());
     }
     
-
-
-  /*  @Autowired
-    private RabbitTemplate rabbitTemplate;
-    @PostMapping("tt")
-    @ApiOperation("tt")
-    public ResponseEntity tt() {
-        rabbitTemplate.convertAndSend(MqConstants.BET_SETTLEMENT, BetSettleVO.builder().noActive("G01202206301004").awardOption("X").build());
-        return ResponseUtil.success();
-    }
-*/
-
 }

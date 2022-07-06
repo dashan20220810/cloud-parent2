@@ -135,7 +135,7 @@ public class OrderController {
         if ( result==null ) {
             return ResponseUtil.fail();
         }
-        return ResponseUtil.success(result);
+        return ResponseUtil.success(result.getJSONArray("data"));
     }
 
     @GetMapping("todayTotalWater")
