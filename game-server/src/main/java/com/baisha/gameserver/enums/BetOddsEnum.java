@@ -16,13 +16,15 @@ import java.util.List;
 @Getter
 public enum BetOddsEnum {
     //Z（庄）  X（闲）  H（和） ZD（庄对） XD（闲对） D（庄对 闲对）SB（庄对 闲对 和）SS（幸运6)
-    Z("Z", new BigDecimal("1.0")),
+    //不免佣金
+    Z("Z", new BigDecimal("0.95")),
     X("X", new BigDecimal("1.0")),
     H("H", new BigDecimal("8.0")),
     ZD("ZD", new BigDecimal("11.0")),
     XD("XD", new BigDecimal("11.0")),
     SS("SS", new BigDecimal("20.0")),
 
+    //SS2("SS2", new BigDecimal("12.0")),  //幸运6 2张牌
     ;
 
     private String code;
