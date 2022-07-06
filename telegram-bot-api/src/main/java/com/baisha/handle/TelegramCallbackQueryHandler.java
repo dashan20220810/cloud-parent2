@@ -1,16 +1,28 @@
 package com.baisha.handle;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.model.vo.ConfigInfo;
+import com.baisha.model.vo.RecentBetVO;
+import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.service.TgBotService;
 import com.baisha.service.TgChatService;
+import com.baisha.util.TelegramBotUtil;
+import com.baisha.util.TgHttpClient4Util;
+import com.baisha.util.enums.RequestPathEnum;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.*;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 import static com.baisha.util.constants.BotConstant.*;
 import static com.baisha.util.constants.BotConstant.USER_BALANCE4;
@@ -46,11 +58,11 @@ public class TelegramCallbackQueryHandler {
                 bot.showAlert(callbackQuery, onlyFinanceMessage);
                 break;
             case "查看流水":
-                String runningWaterMessage = checkRunningWater(user);
+                String runningWaterMessage = checkRunningWater(user, chat);
                 bot.showAlert(callbackQuery, runningWaterMessage);
                 break;
             case "最近注单":
-                String recentBetMessage = checkRunningWater(user);
+                String recentBetMessage = checkRecentBet(user, chat);
                 bot.showAlert(callbackQuery, recentBetMessage);
                 break;
             default:
@@ -58,16 +70,118 @@ public class TelegramCallbackQueryHandler {
         }
     }
 
-    private String checkRunningWater(User user) {
+    private String checkRecentBet(User user, Chat chat) {
+        StringBuilder reply = new StringBuilder();
+        reply.append(RECENT_BET2);
+        reply.append(RECENT_BET3);
+        reply.append(SEALING_BET_INFO17);
+
+        String commandSb;
+        String commandD;
+        String commandZd;
+        String commandXd;
+        String commandZ;
+        String commandX;
+        String commandH;
+        String commandSs;
+        List<RecentBetVO> recentBetVOS = recentBet(user.getId(), chat.getId());
+        for (RecentBetVO recentBetVO : recentBetVOS) {
+            if (0 != recentBetVO.getAmountZd()
+                    && 0 != recentBetVO.getAmountXd()
+                    && 0 != recentBetVO.getAmountH()) {
+                commandSb = "SB" + recentBetVO.getAmountZd().toString();
+                reply.append(commandSb);
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getFinalAmount());
+                reply.append(SEALING_BET_INFO17);
+                continue;
+            }
+            if (0 != recentBetVO.getAmountZd()
+                    && 0 != recentBetVO.getAmountXd()) {
+                commandD = "D" + recentBetVO.getAmountZd().toString();
+                reply.append(commandD);
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getFinalAmount());
+                reply.append(SEALING_BET_INFO17);
+                continue;
+            }
+            if (0 != recentBetVO.getAmountZd()) {
+                commandZd = "ZD" + recentBetVO.getAmountZd().toString();
+                reply.append(commandZd);
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getFinalAmount());
+                reply.append(SEALING_BET_INFO17);
+                continue;
+            }
+            if (0 != recentBetVO.getAmountXd()) {
+                commandXd = "XD" + recentBetVO.getAmountXd().toString();
+                reply.append(commandXd);
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getFinalAmount());
+                reply.append(SEALING_BET_INFO17);
+                continue;
+            }
+            if (0 != recentBetVO.getAmountZ()) {
+                commandZ = "Z" + recentBetVO.getAmountZ();
+                reply.append(commandZ);
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getFinalAmount());
+                reply.append(SEALING_BET_INFO17);
+                continue;
+            }
+            if (0 != recentBetVO.getAmountX()) {
+                commandX = "X" + recentBetVO.getAmountX();
+                reply.append(commandX);
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getFinalAmount());
+                reply.append(SEALING_BET_INFO17);
+                continue;
+            }
+            if (0 != recentBetVO.getAmountH()) {
+                commandH = "H" + recentBetVO.getAmountH();
+                reply.append(commandH);
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getFinalAmount());
+                reply.append(SEALING_BET_INFO17);
+                continue;
+            }
+            if (0 != recentBetVO.getAmountSs()) {
+                commandSs = "SS" + recentBetVO.getAmountSs();
+                reply.append(commandSs);
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getFinalAmount());
+                reply.append(SEALING_BET_INFO17);
+            }
+        }
+        return reply.toString();
+    }
+
+    private List<RecentBetVO> recentBet(Long userId, Long chatId) {
+        List<RecentBetVO> result = Lists.newArrayList();
+        String recentBetUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_ORDER_RECENT_BET.getApiName();
+        Map<String, Object> recentBetParam = Maps.newHashMap();
+        recentBetParam.put("tgChatId", chatId);
+        String recentBet = TgHttpClient4Util.doPost(recentBetUrl, recentBetParam, userId);
+        
+        if (StrUtil.isNotEmpty(recentBet)) {
+            ResponseEntity response = JSONObject.parseObject(recentBet, ResponseEntity.class);
+            if (response.getCode() == 0 && null != response.getData()) {
+                result = JSONArray.parseArray(response.getData().toString(), RecentBetVO.class);
+            }
+        }
+        return result;
+    }
+
+    private String checkRunningWater(User user, Chat chat) {
         StringBuilder reply = new StringBuilder();
         reply.append(RUNNING_WATER1);
         // 当日流水
-        Integer flowOfDay = commonHandler.flowOfDay(user.getId());
+        BigDecimal flowOfDay = commonHandler.flowOfDay(user.getId(), chat.getId());
         reply.append(flowOfDay);
         reply.append(SEALING_BET_INFO17);
         reply.append(RUNNING_WATER2);
         // 当日盈利
-        BigDecimal profitOfDay = commonHandler.profitOfDay(user.getId());
+        BigDecimal profitOfDay = commonHandler.profitOfDay(user.getId(), chat.getId());
         reply.append(profitOfDay);
         reply.append(SEALING_BET_INFO17);
         reply.append(USER_BALANCE4);

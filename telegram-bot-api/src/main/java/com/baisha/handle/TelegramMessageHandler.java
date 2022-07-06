@@ -119,7 +119,7 @@ public class TelegramMessageHandler {
         }
         if (originText.replace(" ", "").contains("流水")) {
             // 查询流水，并拼接信息
-            String runningWaterMessage = checkRunningWater(from);
+            String runningWaterMessage = checkRunningWater(from, chat);
             // 发送消息，展示按钮
             showButtonBalance(chat, bot, runningWaterMessage, message.getMessageId());
             return;
@@ -243,17 +243,17 @@ public class TelegramMessageHandler {
         bot.SendMessage(sp);
     }
 
-    private String checkRunningWater(User user) {
+    private String checkRunningWater(User user, Chat chat) {
         StringBuilder reply = new StringBuilder();
         reply.append(USER_BALANCE1);
         reply.append(RUNNING_WATER1);
         // 当日流水
-        Integer flowOfDay = commonHandler.flowOfDay(user.getId());
+        BigDecimal flowOfDay = commonHandler.flowOfDay(user.getId(), chat.getId());
         reply.append(flowOfDay);
         reply.append(SEALING_BET_INFO17);
         reply.append(RUNNING_WATER2);
         // 当日盈利
-        BigDecimal profitOfDay = commonHandler.profitOfDay(user.getId());
+        BigDecimal profitOfDay = commonHandler.profitOfDay(user.getId(), chat.getId());
         reply.append(profitOfDay);
         reply.append(SEALING_BET_INFO17);
         reply.append(USER_BALANCE4);

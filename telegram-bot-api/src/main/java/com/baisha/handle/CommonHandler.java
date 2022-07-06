@@ -36,22 +36,22 @@ public class CommonHandler {
         return userBalanceResult;
     }
 
-    public Integer flowOfDay(Long userId) {
+    public BigDecimal flowOfDay(Long userId, Long chatId) {
         String flowOfDayUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_ORDER_DAY_FLOW.getApiName();
-        String flowOfDay = TgHttpClient4Util.doGet(flowOfDayUrl, userId);
-        Integer flowOfDayResult = 0;
+        String flowOfDay = TgHttpClient4Util.doGet(flowOfDayUrl+"?tgChatId="+chatId, userId);
+        BigDecimal flowOfDayResult = BigDecimal.ZERO;
         if (StrUtil.isNotEmpty(flowOfDay)) {
             ResponseEntity response = JSONObject.parseObject(flowOfDay, ResponseEntity.class);
             if (response.getCode() == 0) {
-                flowOfDayResult = (Integer) response.getData();
+                flowOfDayResult = (BigDecimal) response.getData();
             }
         }
         return flowOfDayResult;
     }
 
-    public BigDecimal profitOfDay(Long userId) {
+    public BigDecimal profitOfDay(Long userId, Long chatId) {
         String profitOfDayUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_ORDER_DAY_PROFIT.getApiName();
-        String profitOfDay = TgHttpClient4Util.doGet(profitOfDayUrl, userId);
+        String profitOfDay = TgHttpClient4Util.doGet(profitOfDayUrl+"?tgChatId="+chatId, userId);
         BigDecimal profitOfDayResult = BigDecimal.ZERO;
         if (StrUtil.isNotEmpty(profitOfDay)) {
             ResponseEntity response = JSONObject.parseObject(profitOfDay, ResponseEntity.class);
