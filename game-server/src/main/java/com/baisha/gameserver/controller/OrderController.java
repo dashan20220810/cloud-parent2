@@ -67,6 +67,7 @@ public class OrderController {
 
         if (betStatistics == null) {
             betStatistics = new BetStatistics();
+            betStatistics.setTgChatId(betVO.getTgChatId());
             betStatistics.setUserId(userId);
             betStatistics.setStatisticsDate(Integer.parseInt(dateStr));
             betStatistics.setFlowAmount(flowAmount);
