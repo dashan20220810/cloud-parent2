@@ -171,5 +171,13 @@ public class Bet extends BaseEntity {
 
         return true;
     }
+    
+    /**
+     * 返回流水 6个下注金额加总
+     * @return
+     */
+    public Long getFlowAmount() {
+    	return amountH +amountSs +amountX +amountXd +amountZ +amountZd;
+    }
 
 }

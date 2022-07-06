@@ -125,7 +125,7 @@ public class OrderBusiness {
     		params.put("betId", betId);
     		
     		result = HttpClient4Util.doPost(
-    				gameServerDomain + RequestPathEnum.ORDER_CURRENT_LIST.getApiName(),
+    				gameServerDomain + RequestPathEnum.ORDER_DELETE.getApiName(),
     				params);
 
     		if (!ValidateUtil.checkHttpResponse(action, result)) {
@@ -153,7 +153,7 @@ public class OrderBusiness {
 
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userVO.getId());
-        String result = HttpClient4Util.doPost(gameServerDomain + RequestPathEnum.ORDER_CURRENT_LIST, params);
+        String result = HttpClient4Util.doPost(gameServerDomain + RequestPathEnum.ORDER_CURRENT_LIST.getApiName(), params);
         if (CommonUtil.checkNull(result)) {
             return null;
         }

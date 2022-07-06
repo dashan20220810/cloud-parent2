@@ -1,11 +1,12 @@
 package com.baisha.gameserver.controller;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.baisha.modulecommon.util.DateUtil;
-import com.baisha.modulecommon.util.PageUtil;
+import javax.persistence.criteria.Predicate;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,17 +19,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.baisha.gameserver.model.Bet;
+import com.baisha.gameserver.model.BetStatistics;
 import com.baisha.gameserver.service.BetService;
+import com.baisha.gameserver.service.BetStatisticsService;
 import com.baisha.gameserver.vo.BetPageVO;
 import com.baisha.gameserver.vo.BetVO;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
+import com.baisha.modulecommon.util.DateUtil;
+import com.baisha.modulecommon.util.PageUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-
-import javax.persistence.criteria.Predicate;
 
 /**
  * @author: alvin
@@ -41,6 +44,9 @@ public class OrderController {
 
     @Autowired
     BetService betService;
+    
+    @Autowired
+    BetStatisticsService betStatisticsService;
 
     @PostMapping("bet")
     @ApiOperation("下注")
@@ -55,6 +61,22 @@ public class OrderController {
         }
 
         Bet newBet = betService.save(bet);
+        
+        String dateStr = DateUtil.today(DateUtil.YYYYMMDD);
+        Long userId = betVO.getUserId();
+    	BigDecimal flowAmount = new BigDecimal(bet.getFlowAmount());
+        
+        BetStatistics betStatistics = betStatisticsService.findByUserIdAndStatisticsDate(userId, dateStr);
+        
+        if ( betStatistics==null ) {
+            betStatistics = new BetStatistics();
+            betStatistics.setUserId(userId);
+            betStatistics.setStatisticsDate(dateStr);
+        	betStatistics.setFlowAmount(flowAmount);
+            betStatisticsService.save(betStatistics);
+        } else {
+        	betStatisticsService.updateFlowAmount(userId, dateStr, flowAmount);
+        }
 
 //		log.info("[下注] 成功! 押{} 共{}", betVO.getBetOption().getDisplay(), betVO.getAmount());
         log.info("[下注] 成功! 庄{} 闲{} 和{} 庄对{} 闲对{} 超级六{}", betVO.getAmountZ(), betVO.getAmountX(), betVO.getAmountH()
