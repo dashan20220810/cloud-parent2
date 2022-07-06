@@ -3,12 +3,14 @@ package com.baisha.gameserver.business;
 import com.baisha.gameserver.enums.BetOddsEnum;
 import com.baisha.gameserver.model.Bet;
 import com.baisha.gameserver.service.BetService;
+import com.baisha.gameserver.service.BetStatisticsService;
 import com.baisha.gameserver.util.GameServerUtil;
 import com.baisha.gameserver.util.contants.GameServerContants;
 import com.baisha.gameserver.util.contants.UserServerContants;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.enums.BetStatusEnum;
 import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
+import com.baisha.modulecommon.util.DateUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -40,6 +39,8 @@ public class BetSettlementService {
 
     @Autowired
     private BetService betService;
+    @Autowired
+    private BetStatisticsService betStatisticsService;
 
     @Transactional(rollbackFor = Exception.class)
     public void betSettlement(BetSettleVO vo) {
@@ -110,9 +111,18 @@ public class BetSettlementService {
                     doAddBalance(bet, bet.getNoActive(), finalAmount);
                 }
             }
+            //用户统计今日数据(输赢结果)
+            statisticsWinAmount(bet, winAmount);
             settleList.add(bet);
         }
         return settleList;
+    }
+
+    private void statisticsWinAmount(Bet bet, BigDecimal winAmount) {
+        Date createTime = bet.getCreateTime();
+        String time = DateUtil.dateToyyyyMMdd(createTime);
+        Integer day = Integer.parseInt(time);
+        betStatisticsService.statisticsWinAmount(day, bet.getUserId(), winAmount);
     }
 
     /**

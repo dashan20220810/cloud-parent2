@@ -29,27 +29,39 @@ public class BetStatisticsService {
     BetStatisticsRepository betStatisticsRepository;
 
     @Caching(put = {@CachePut(key = "#entity.userId +'_' +#entity.statisticsDate")})
-    public BetStatistics save (BetStatistics entity) {
-    	return betStatisticsRepository.save(entity);
+    public BetStatistics save(BetStatistics entity) {
+        return betStatisticsRepository.save(entity);
     }
 
-    public BetStatistics findByUserIdAndStatisticsDate ( Long userId ) {
-    	String dateStr = DateUtil.today(DateUtil.YYYYMMDD);
-    	
-    	return findByUserIdAndStatisticsDate(userId, dateStr);
+    public BetStatistics findByUserIdAndStatisticsDate(Long userId) {
+        String dateStr = DateUtil.today(DateUtil.YYYYMMDD);
+        return findByUserIdAndStatisticsDate(userId, Integer.parseInt(dateStr));
     }
 
     @Cacheable(key = "#userId +'_' +#statisticsDate", unless = "#result == null")
-    public BetStatistics findByUserIdAndStatisticsDate ( Long userId, String statisticsDate ) {
-    	return betStatisticsRepository.findByUserIdAndStatisticsDate(userId, statisticsDate);
+    public BetStatistics findByUserIdAndStatisticsDate(Long userId, Integer statisticsDate) {
+        return betStatisticsRepository.findByUserIdAndStatisticsDate(userId, statisticsDate);
     }
 
     @Caching(put = {@CachePut(key = "#userId +'_' +#statisticsDate")})
-    public BetStatistics updateFlowAmount ( Long userId, String statisticsDate, BigDecimal flowAmount ) {
+    public BetStatistics updateFlowAmount(Long userId, Integer statisticsDate, BigDecimal flowAmount) {
         int i = betStatisticsRepository.updateFlowAmount(userId, statisticsDate, flowAmount);
         if (i > 0) {
-            return betStatisticsRepository.findByUserIdAndStatisticsDate(userId, statisticsDate);
+            return findByUserIdAndStatisticsDateSql(userId, statisticsDate);
         }
         return null;
+    }
+
+    @CachePut(key = "#userId +'_' +#statisticsDate")
+    public BetStatistics statisticsWinAmount(Integer statisticsDate, Long userId, BigDecimal winAmount) {
+        int i = betStatisticsRepository.updateWinAmount(userId, statisticsDate, winAmount);
+        if (i > 0) {
+            return findByUserIdAndStatisticsDateSql(userId, statisticsDate);
+        }
+        return null;
+    }
+
+    private BetStatistics findByUserIdAndStatisticsDateSql(Long userId, Integer statisticsDate) {
+        return betStatisticsRepository.findByUserIdAndStatisticsDate(userId, statisticsDate);
     }
 }

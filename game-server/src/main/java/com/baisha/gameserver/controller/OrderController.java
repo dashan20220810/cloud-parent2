@@ -1,12 +1,18 @@
 package com.baisha.gameserver.controller;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.persistence.criteria.Predicate;
-
+import com.baisha.gameserver.model.Bet;
+import com.baisha.gameserver.model.BetStatistics;
+import com.baisha.gameserver.service.BetService;
+import com.baisha.gameserver.service.BetStatisticsService;
+import com.baisha.gameserver.vo.BetPageVO;
+import com.baisha.gameserver.vo.BetVO;
+import com.baisha.modulecommon.reponse.ResponseEntity;
+import com.baisha.modulecommon.reponse.ResponseUtil;
+import com.baisha.modulecommon.util.DateUtil;
+import com.baisha.modulecommon.util.PageUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,20 +24,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.baisha.gameserver.model.Bet;
-import com.baisha.gameserver.model.BetStatistics;
-import com.baisha.gameserver.service.BetService;
-import com.baisha.gameserver.service.BetStatisticsService;
-import com.baisha.gameserver.vo.BetPageVO;
-import com.baisha.gameserver.vo.BetVO;
-import com.baisha.modulecommon.reponse.ResponseEntity;
-import com.baisha.modulecommon.reponse.ResponseUtil;
-import com.baisha.modulecommon.util.DateUtil;
-import com.baisha.modulecommon.util.PageUtil;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
+import javax.persistence.criteria.Predicate;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author: alvin
@@ -66,7 +63,7 @@ public class OrderController {
         Long userId = betVO.getUserId();
         BigDecimal flowAmount = new BigDecimal(bet.getFlowAmount());
 
-        BetStatistics betStatistics = betStatisticsService.findByUserIdAndStatisticsDate(userId, dateStr);
+        BetStatistics betStatistics = betStatisticsService.findByUserIdAndStatisticsDate(userId, Integer.parseInt(dateStr));
 
         if (betStatistics == null) {
             betStatistics = new BetStatistics();
@@ -75,7 +72,7 @@ public class OrderController {
             betStatistics.setFlowAmount(flowAmount);
             betStatisticsService.save(betStatistics);
         } else {
-            betStatisticsService.updateFlowAmount(userId, dateStr, flowAmount);
+            betStatisticsService.updateFlowAmount(userId, Integer.parseInt(dateStr), flowAmount);
         }
 
 //		log.info("[下注] 成功! 押{} 共{}", betVO.getBetOption().getDisplay(), betVO.getAmount());
