@@ -32,7 +32,7 @@ public class BalanceChange extends BaseEntity {
     private Long relateId;
 
     @ApiModelProperty(value = "变动类型  1充值 2下注 3 派奖")
-    @Column(columnDefinition = "tinyint(2) comment '类型  1充值 2下注 3 派奖'")
+    @Column(columnDefinition = "tinyint(2) comment '类型  1充值 2下注 3派奖 4提现(下分) '")
     private Integer changeType;
 
     @ApiModelProperty(value = "收支类型 1收入 2支出")
