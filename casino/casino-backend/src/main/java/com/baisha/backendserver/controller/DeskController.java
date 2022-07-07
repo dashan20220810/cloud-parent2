@@ -8,6 +8,8 @@ import com.baisha.backendserver.business.DeskService;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.bo.desk.DeskListBO;
 import com.baisha.backendserver.model.bo.desk.DeskPageBO;
+import com.baisha.backendserver.model.bo.desk.GameBaccOddsBO;
+import com.baisha.backendserver.model.bo.desk.GameOddsListBO;
 import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.StatusVO;
 import com.baisha.backendserver.model.vo.desk.DeskAddVO;
@@ -17,6 +19,7 @@ import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.GameServerConstants;
 import com.baisha.backendserver.util.constants.TgBotServerConstants;
+import com.baisha.modulecommon.enums.TgBaccRuleEnum;
 import com.baisha.modulecommon.reponse.ResponseCode;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -30,11 +33,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -85,17 +90,6 @@ public class DeskController {
         }
 
         String result = HttpClient4Util.doGet(sb.toString());
-        if (CommonUtil.checkNull(result)) {
-            return ResponseUtil.fail();
-        }
-        return JSON.parseObject(result, ResponseEntity.class);
-    }
-
-    @ApiOperation("获取桌台游戏编码列表")
-    @GetMapping(value = "gameCode/list")
-    public ResponseEntity gameCodeList() {
-        String url = gameServerUrl + GameServerConstants.DESK_GAMECODE;
-        String result = HttpClient4Util.doGet(url);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
@@ -195,6 +189,79 @@ public class DeskController {
                     JSON.toJSONString(param), BackendConstants.DESK_MODULE);
         }
         return responseEntity;
+    }
+
+
+    @ApiOperation("获取游戏编码列表")
+    @GetMapping(value = "gameCode/list")
+    public ResponseEntity gameCodeList() {
+        String url = gameServerUrl + GameServerConstants.GAME_CODE_LIST;
+        String result = HttpClient4Util.doGet(url);
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
+        return JSON.parseObject(result, ResponseEntity.class);
+    }
+
+
+    @ApiOperation("获取游戏赔率列表")
+    @GetMapping(value = "gameOdds/list")
+    public ResponseEntity<GameBaccOddsBO> gameOddsList(String gameCode) {
+        if (StringUtils.isEmpty(gameCode)) {
+            return ResponseUtil.parameterNotNull();
+        }
+        String url = gameServerUrl + GameServerConstants.GAME_ODDS_LIST + "?gameCode=" + gameCode.toUpperCase();
+        String result = HttpClient4Util.doGet(url);
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
+
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
+            JSONArray jsonArray = (JSONArray) responseEntity.getData();
+            if (CollectionUtils.isEmpty(jsonArray)) {
+                //默认
+                return ResponseUtil.success(new GameBaccOddsBO());
+            } else {
+                List<GameOddsListBO> list = JSONArray.parseArray(JSONObject.toJSONString(jsonArray), GameOddsListBO.class);
+                //转换
+                GameBaccOddsBO bo = transOddsBo(list);
+                return ResponseUtil.success(bo);
+            }
+        }
+
+        return ResponseUtil.fail();
+    }
+
+    private GameBaccOddsBO transOddsBo(List<GameOddsListBO> list) {
+        GameBaccOddsBO bo = new GameBaccOddsBO();
+        for (GameOddsListBO g : list) {
+            BigDecimal odds = g.getOdds();
+            String gameCode = g.getGameCode().toUpperCase();
+            if (gameCode.equals(TgBaccRuleEnum.Z.getCode())) {
+                bo.setZ(odds);
+            }
+            if (gameCode.equals(TgBaccRuleEnum.X.getCode())) {
+                bo.setX(odds);
+            }
+            if (gameCode.equals(TgBaccRuleEnum.H.getCode())) {
+                bo.setH(odds);
+            }
+            if (gameCode.equals(TgBaccRuleEnum.ZD.getCode())) {
+                bo.setZd(odds);
+            }
+            if (gameCode.equals(TgBaccRuleEnum.XD.getCode())) {
+                bo.setXd(odds);
+            }
+            if (gameCode.equals(TgBaccRuleEnum.SS2.getCode())) {
+                bo.setSs2(odds);
+            }
+            if (gameCode.equals(TgBaccRuleEnum.SS3.getCode())) {
+                bo.setSs3(odds);
+            }
+        }
+
+        return bo;
     }
 
 

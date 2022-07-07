@@ -76,22 +76,22 @@ public class BetOrderController {
         sb.append(bo.getAmountZ() + bo.getAmountX() + bo.getAmountH() + bo.getAmountZd() + bo.getAmountXd() + bo.getAmountSs());
         sb.append("(");
         if (bo.getAmountZ() > 0) {
-            sb.append("庄-" + bo.getAmountZ());
+            sb.append("庄:" + bo.getAmountZ());
         }
         if (bo.getAmountX() > 0) {
-            sb.append("闲-" + bo.getAmountX());
+            sb.append("闲:" + bo.getAmountX());
         }
         if (bo.getAmountH() > 0) {
-            sb.append("和-" + bo.getAmountH());
+            sb.append("和:" + bo.getAmountH());
         }
         if (bo.getAmountZd() > 0) {
-            sb.append("庄对-" + bo.getAmountZd());
+            sb.append("庄对:" + bo.getAmountZd());
         }
         if (bo.getAmountXd() > 0) {
-            sb.append("闲对-" + bo.getAmountXd());
+            sb.append("闲对:" + bo.getAmountXd());
         }
         if (bo.getAmountSs() > 0) {
-            sb.append("幸运6-" + bo.getAmountSs());
+            sb.append("幸运6:" + bo.getAmountSs());
         }
         sb.append(")");
         bo.setTotalAmount(sb.toString());
@@ -99,11 +99,11 @@ public class BetOrderController {
 
     private void getBetStatusName(BetPageBO bo) {
         if (bo.getStatus().equals(BetStatusEnum.BET.getCode())) {
-            bo.setStatusName("下注");
+            bo.setStatusName(BetStatusEnum.BET.getName());
             return;
         }
         if (bo.getStatus().equals(BetStatusEnum.SETTLEMENT.getCode())) {
-            bo.setStatusName("结算");
+            bo.setStatusName(BetStatusEnum.SETTLEMENT.getName());
             return;
         }
     }
