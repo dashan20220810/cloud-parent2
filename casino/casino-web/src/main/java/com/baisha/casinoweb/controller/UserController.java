@@ -51,14 +51,14 @@ public class UserController {
 	@NoAuthentication
 	public ResponseEntity<?> registerTG(String id, String nickname, Long groupId, String inviteTgUserId, String tgGroupName, String tgUserName) {
 		log.info("注册使用者");
-		if ( CommonUtil.checkNull(id, nickname, tgGroupName, tgUserName) || groupId==null ) {
+		if ( CommonUtil.checkNull(id, nickname, tgGroupName) || groupId==null ) {
 			log.info("注册检核失败");
 			return ResponseUtil.parameterNotNull();
 		}
 		
 		// 记录IP
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
-		if ( userBusiness.registerTG(ip, id, nickname, groupId, inviteTgUserId, tgGroupName, tgUserName)==false ) {
+		if (!userBusiness.registerTG(ip, id, nickname, groupId, inviteTgUserId, tgGroupName, tgUserName)) {
             return ResponseUtil.fail();
 		}
 
