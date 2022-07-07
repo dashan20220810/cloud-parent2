@@ -41,40 +41,40 @@ public class DeskService {
     private DeskRepository deskRepository;
 
     @CachePut(value = "desk", key = "#desk.id")
-    public void save ( Desk desk ) {
-    	deskRepository.save(desk);
+    public void save(Desk desk) {
+        deskRepository.save(desk);
     }
 
     public List<Desk> findAllDeskList() {
         return deskRepository.findAllDeskList();
     }
 
-    public Desk findByLocalIp ( String localIp ) {
-    	return deskRepository.findByLocalIp(localIp);
+    public Desk findByLocalIp(String localIp) {
+        return deskRepository.findByLocalIp(localIp);
     }
 
-    public Desk findByDeskCode ( String deskCode ) {
-    	return deskRepository.findByDeskCode(deskCode);
+    public Desk findByDeskCode(String deskCode) {
+        return deskRepository.findByDeskCode(deskCode);
     }
 
     @Cacheable(key = "#id", unless = "#result == null")
-    public Desk findById ( Long id ) {
+    public Desk findById(Long id) {
         Optional<Desk> optional = deskRepository.findById(id);
         return optional.orElse(null);
     }
 
     @CacheEvict(key = "#id")
-    public void delete ( Long id ) {
-    	deskRepository.deleteById(id);
+    public void delete(Long id) {
+        deskRepository.deleteById(id);
     }
 
     @Caching(put = {@CachePut(key = "#id")})
-    public Desk updateStatus ( Long id, Integer status ) {
-    	int i = deskRepository.updateStatusById(status, id);
-    	if ( i>0 ) {
-    		return deskRepository.findById(id).get();
-    	}
-    	return null;
+    public Desk updateStatus(Long id, Integer status) {
+        int i = deskRepository.updateStatusById(status, id);
+        if (i > 0) {
+            return deskRepository.findById(id).get();
+        }
+        return null;
     }
 
     public Page<Desk> getDeskPage(DeskPageVO vo) {
@@ -84,41 +84,41 @@ public class DeskService {
 //            if (StringUtils.isNotBlank(vo.getUserName())) {
 //                predicates.add(cb.like(root.get("userName"), "%" +vo.getUserName() +"%"));
 //            }
-            
-            if ( vo.getDeskCode()!=null ) {
-                predicates.add(cb.equal(root.get("deskCode"), vo.getDeskCode() ));
-            }
-            
-            if ( vo.getName()!=null ) {
-                predicates.add(cb.equal(root.get("name"), vo.getName() ));
+
+            if (vo.getDeskCode() != null) {
+                predicates.add(cb.equal(root.get("deskCode"), vo.getDeskCode()));
             }
 
-            if ( vo.getLocalIp()!=null ) {
-                predicates.add(cb.equal(root.get("localIp"), vo.getLocalIp() ));
+            if (vo.getName() != null) {
+                predicates.add(cb.equal(root.get("name"), vo.getName()));
             }
 
-            if ( vo.getVideoAddress()!=null ) {
-                predicates.add(cb.equal(root.get("videoAddress"), vo.getVideoAddress() ));
+            if (vo.getLocalIp() != null) {
+                predicates.add(cb.equal(root.get("localIp"), vo.getLocalIp()));
             }
 
-            if ( vo.getStatus()!=null ) {
-                predicates.add(cb.equal(root.get("status"), vo.getStatus() ));
+            if (vo.getVideoAddress() != null) {
+                predicates.add(cb.equal(root.get("videoAddress"), vo.getVideoAddress()));
             }
 
-            if ( vo.getGameCode()!=null ) {
-                predicates.add(cb.equal(root.get("gameCode"), vo.getGameCode().getCode() ));
+            if (vo.getStatus() != null) {
+                predicates.add(cb.equal(root.get("status"), vo.getStatus()));
             }
-            
+
+            if (vo.getGameCode() != null) {
+                predicates.add(cb.equal(root.get("gameCode"), vo.getGameCode()));
+            }
+
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };
-        
+
         Page<Desk> page = deskRepository.findAll(spec, pageable);
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }
-    
+
     @CachePut(key = "#id")
-    public int update ( Long id, String localIp, String videoAddress, String gameCode, Integer status, String name ) {
-    	return deskRepository.update(id, localIp, videoAddress, gameCode, status, name, new Date());
+    public int update(Long id, String localIp, String videoAddress, String gameCode, Integer status, String name) {
+        return deskRepository.update(id, localIp, videoAddress, gameCode, status, name, new Date());
     }
 
 }

@@ -1,6 +1,5 @@
 package com.baisha.gameserver.vo;
 
-import com.baisha.gameserver.enums.GameType;
 import com.baisha.modulecommon.PageVO;
 
 import io.swagger.annotations.ApiModel;
@@ -29,5 +28,5 @@ public class DeskPageVO extends PageVO {
     private Integer status;
 
     @ApiModelProperty(value = "游戏编码: bacc百家乐")
-    private GameType gameCode;
+    private String gameCode;
 }

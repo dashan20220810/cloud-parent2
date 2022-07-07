@@ -1,23 +1,28 @@
-package com.baisha.gameserver.enums;
+package com.baisha.modulecommon.enums;
 
-import java.util.Arrays;
-import java.util.List;
-
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
+import java.math.BigDecimal;
+
 /**
- * 游戏类型
- *
- * @author yihui
+ * 电报百家乐玩法
  */
-public enum GameType {
-    BACC("BACC", "百家乐"),
-    LONGHU("LONGHU", "龙虎");
+@Getter
+public enum TgBaccRuleEnum {
+    Z("Z", "庄"),
+    X("X", "闲"),
+    H("H", "和"),
+    ZD("ZD", "庄对"),
+    XD("XD", "闲对"),
+    SS2("SS2", "幸运六(ss2)"),
+    SS3("SS3", "幸运六(ss3)"),
+    ;
 
     private String code;
     private String name;
 
-    GameType(String code, String name) {
+    TgBaccRuleEnum(String code, String name) {
         this.code = code;
         this.name = name;
     }
@@ -38,20 +43,18 @@ public enum GameType {
         this.name = name;
     }
 
-    public static GameType nameOfCode(String code) {
+    public static TgBaccRuleEnum nameOfCode(String code) {
         if (StringUtils.isEmpty(code)) {
             return null;
         }
-        GameType[] types = GameType.values();
-        for (GameType type : types) {
+        TgBaccRuleEnum[] types = TgBaccRuleEnum.values();
+        for (TgBaccRuleEnum type : types) {
             if (code.equals(type.getCode())) {
                 return type;
             }
         }
         return null;
     }
-    
-    public static List<GameType> getList() {
-    	return Arrays.asList(values());
-    }
+
+
 }

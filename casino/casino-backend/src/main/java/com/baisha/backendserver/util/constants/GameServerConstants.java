@@ -40,7 +40,7 @@ public class GameServerConstants {
     /**
      * 桌台游戏编码
      */
-    public static final String DESK_GAMECODE = "/desk/gameCode";
+    public static final String DESK_GAMECODE = "/game/gameCode";
 
 
 }
