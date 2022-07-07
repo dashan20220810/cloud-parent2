@@ -9,6 +9,7 @@ import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.GameServerConstants;
 import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.enums.BetStatusEnum;
+import com.baisha.modulecommon.reponse.ResponseCode;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -50,7 +51,7 @@ public class BetOrderController {
             return ResponseUtil.fail();
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        if (Objects.nonNull(responseEntity) && responseEntity.getCode() == 0) {
+        if (Objects.nonNull(responseEntity) && responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
             JSONObject page = (JSONObject) responseEntity.getData();
             List<BetPageBO> list = JSONArray.parseArray(page.getString("content"), BetPageBO.class);
             if (!CollectionUtils.isEmpty(list)) {

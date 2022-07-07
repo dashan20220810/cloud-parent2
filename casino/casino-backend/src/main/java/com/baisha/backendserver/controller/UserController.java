@@ -10,6 +10,7 @@ import com.baisha.backendserver.business.PlayMoneyService;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.SsOrder;
 import com.baisha.backendserver.model.bo.sys.SysPlayMoneyParameterBO;
+import com.baisha.backendserver.model.bo.user.UserAssetsBO;
 import com.baisha.backendserver.model.bo.user.UserBalanceChangePageBO;
 import com.baisha.backendserver.model.bo.user.UserPageBO;
 import com.baisha.backendserver.model.bo.user.UserPlayMoneyChangePageBO;
@@ -21,6 +22,7 @@ import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
+import com.baisha.modulecommon.reponse.ResponseCode;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -103,7 +105,7 @@ public class UserController {
             return ResponseUtil.fail();
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        if (responseEntity.getCode() == 0) {
+        if (responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
             Admin currentUser = commonService.getCurrentUser();
             log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.DELETE,
                     currentUser.getUserName() + "删除用户id={" + vo.getId() + "}", BackendConstants.USER_MODULE);
@@ -124,7 +126,7 @@ public class UserController {
             return ResponseUtil.fail();
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        if (responseEntity.getCode() == 0) {
+        if (responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
             Admin currentUser = commonService.getCurrentUser();
             log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
                     currentUser.getUserName() + "修改用户状态id={" + vo.getId() + "}", BackendConstants.USER_MODULE);
@@ -162,7 +164,7 @@ public class UserController {
             BigDecimal recharge = sysPlayMoneyParameterBO.getRecharge();
             playMoneyVO.setAmount(BigDecimal.valueOf(vo.getAmount().longValue()).multiply(recharge));
             ResponseEntity playMoneyResponseEntity = doIncomePlayMoney(playMoneyVO, order.getId());
-            if (playMoneyResponseEntity.getCode() == 0) {
+            if (playMoneyResponseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
                 log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
                         currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加打码量成功", BackendConstants.USER_ASSETS_MODULE);
                 return ResponseUtil.success();
@@ -186,7 +188,6 @@ public class UserController {
         ssOrder.setUpdateBy(currentUser.getUserName());
         ssOrderService.save(ssOrder);
         return ssOrder;
-
     }
 
     private ResponseEntity doIncomePlayMoney(PlayMoneyVO vo, Long relateId) {
@@ -232,38 +233,70 @@ public class UserController {
         if (BackendServerUtil.checkIntAmount(vo.getAmount())) {
             return new ResponseEntity("金额不规范");
         }
+
+        //获取个人资产
+        ResponseEntity assetsResponse = findAssetsById(vo.getId());
+        if (assetsResponse.getCode() != ResponseCode.SUCCESS.getCode()) {
+            return assetsResponse;
+        }
+        UserAssetsBO userAssetsBO = JSONObject.parseObject(assetsResponse.getData().toString(), UserAssetsBO.class);
+        if (userAssetsBO.getPlayMoney().compareTo(BigDecimal.ONE) >= 0) {
+            return new ResponseEntity("不能下分，打码量不足");
+        }
+        Admin currentUser = commonService.getCurrentUser();
+        SsOrder withdrawOrder = doCreateWithdrawOrder(vo, currentUser);
         String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_BALANCE;
         Map<String, Object> param = new HashMap<>(16);
         param.put("balanceType", BackendConstants.EXPENSES);
         param.put("userId", vo.getId());
         param.put("amount", vo.getAmount());
         param.put("remark", vo.getRemark());
+        param.put("changeType", BalanceChangeEnum.WITHDRAW.getCode());
+        param.put("relateId", withdrawOrder.getUserId());
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        if (responseEntity.getCode() == 0) {
-            Admin currentUser = commonService.getCurrentUser();
+        if (responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
             log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
                     currentUser.getUserName() + "为用户id={" + vo.getId() + "}下分", BackendConstants.USER_ASSETS_MODULE);
         }
         return responseEntity;
     }
 
+    private SsOrder doCreateWithdrawOrder(BalanceVO vo, Admin currentUser) {
+        SsOrder ssOrder = new SsOrder();
+        ssOrder.setOrderNum(BackendServerUtil.randomIds());
+        ssOrder.setUserId(vo.getId());
+        ssOrder.setOrderType(BackendConstants.WITHDRAWORDER);
+        ssOrder.setOrderStatus(BackendConstants.ORDER_SUCCESS);
+        ssOrder.setAmount(new BigDecimal(vo.getAmount().intValue()));
+        ssOrder.setRemark(currentUser.getUserName() + "为用户userId=" + vo.getId() + "提现" + vo.getAmount());
+        ssOrder.setCreateBy(currentUser.getUserName());
+        ssOrder.setUpdateBy(currentUser.getUserName());
+        ssOrderService.save(ssOrder);
+        return ssOrder;
+    }
 
-    @ApiOperation(value = "用户余额")
-    @GetMapping("balance")
-    public ResponseEntity<String> getBalance(IdVO vo) {
+
+    @ApiOperation(value = "用户个人资产")
+    @GetMapping("findAssetsById")
+    public ResponseEntity<UserAssetsBO> getAssetsById(IdVO vo) {
         if (null == vo.getId() || vo.getId() < 0) {
             return ResponseUtil.parameterNotNull();
         }
-        String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_QUERY + "?userId=" + vo.getId();
+        return findAssetsById(vo.getId());
+    }
+
+    private ResponseEntity<UserAssetsBO> findAssetsById(Long id) {
+        String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_BYID + "?userId=" + id;
         String result = HttpClient4Util.doGet(url);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        return responseEntity;
     }
 
 
@@ -364,7 +397,7 @@ public class UserController {
             return ResponseUtil.fail();
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        if (Objects.nonNull(responseEntity) && responseEntity.getCode() == 0) {
+        if (Objects.nonNull(responseEntity) && responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
             JSONObject page = (JSONObject) responseEntity.getData();
             List<UserPlayMoneyChangePageBO> list = JSONArray.parseArray(page.getString("content"), UserPlayMoneyChangePageBO.class);
             if (!CollectionUtils.isEmpty(list)) {

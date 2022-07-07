@@ -20,6 +20,7 @@ import com.baisha.backendserver.util.constants.GameServerConstants;
 import com.baisha.backendserver.util.constants.TgBotServerConstants;
 import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.modulecommon.Constants;
+import com.baisha.modulecommon.reponse.ResponseCode;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -81,7 +82,7 @@ public class TgBotController {
             return ResponseUtil.fail();
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        if (responseEntity.getCode() == 0) {
+        if (responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
             log.info("{} {} {} {}", current.getUserName(), BackendConstants.INSERT,
                     JSON.toJSONString(paramMap), BackendConstants.TOBOT_MODULE);
         }
@@ -116,7 +117,7 @@ public class TgBotController {
             return ResponseUtil.fail();
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        if (responseEntity.getCode() == 0) {
+        if (responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
             Admin current = commonService.getCurrentUser();
             log.info("{} {} {} {}", current.getUserName(), BackendConstants.UPDATE,
                     JSON.toJSONString(statusVO), BackendConstants.TOBOT_MODULE);
@@ -137,7 +138,7 @@ public class TgBotController {
             return ResponseUtil.fail();
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        if (responseEntity.getCode() == 0) {
+        if (responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
             Admin current = commonService.getCurrentUser();
             log.info("{} {} {} {}", current.getUserName(), BackendConstants.DELETE, "删除机器人" + JSON.toJSONString(vo)
                     , BackendConstants.TOBOT_MODULE);
@@ -164,7 +165,7 @@ public class TgBotController {
 
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
         JSONObject page = (JSONObject) responseEntity.getData();
-        if (Objects.nonNull(page) && responseEntity.getCode() == 0) {
+        if (Objects.nonNull(page) && responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
             List<TgGroupPageBO> list = JSONArray.parseArray(page.getString("content"), TgGroupPageBO.class);
             if (!CollectionUtils.isEmpty(list)) {
                 List<DeskListBO> deskList = deskService.findAllDeskList();
@@ -218,7 +219,7 @@ public class TgBotController {
             return ResponseUtil.fail();
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        if (responseEntity.getCode() == 0) {
+        if (responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
             Admin currentUser = commonService.getCurrentUser();
             log.info("{} {} 审核群(限红){} {}", currentUser.getUserName(), BackendConstants.UPDATE,
                     JSON.toJSONString(param), BackendConstants.TOBOT_GROUP_MODULE);
@@ -273,7 +274,7 @@ public class TgBotController {
             return ResponseUtil.fail();
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        if (responseEntity.getCode() == 0) {
+        if (responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
             Admin currentUser = commonService.getCurrentUser();
             log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.DELETE,
                     JSON.toJSONString(param), BackendConstants.TOBOT_GROUP_MODULE);

@@ -25,6 +25,12 @@ public class UserServerConstants {
     public static final String USERSERVER_ASSETS_QUERY = "/assets/query";
 
     /**
+     * 用户资产
+     */
+    public static final String USERSERVER_ASSETS_BYID = "/assets/findAssetsById";
+
+
+    /**
      * 用户增加/减少余额
      */
     public static final String USERSERVER_ASSETS_BALANCE = "/assets/balance";

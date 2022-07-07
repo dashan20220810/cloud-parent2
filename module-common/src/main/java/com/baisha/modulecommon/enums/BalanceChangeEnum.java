@@ -12,7 +12,9 @@ public enum BalanceChangeEnum {
 
     RECHARGE(1, "充值"),
     BET(2, "下注"),
-    WIN(3, "派彩");
+    WIN(3, "派彩"),
+    WITHDRAW(4, "提现(下分)"),
+    ;
 
     private Integer code;
     private String name;
