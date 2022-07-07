@@ -90,15 +90,15 @@ public class GameController {
                 || null == vo.getSs3() || vo.getSs3().compareTo(BigDecimal.ZERO) <= 0) {
             return new ResponseEntity("赔率不规范");
         }
-
-        doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.X.getCode(), vo.getX());
-        doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.Z.getCode(), vo.getZ());
-        doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.H.getCode(), vo.getH());
-        doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.XD.getCode(), vo.getXd());
-        doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.ZD.getCode(), vo.getZd());
-        doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.SS2.getCode(), vo.getSs2());
-        doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.SS3.getCode(), vo.getSs3());
-
+        synchronized (vo.getGameCode()) {
+            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.X.getCode(), vo.getX());
+            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.Z.getCode(), vo.getZ());
+            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.H.getCode(), vo.getH());
+            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.XD.getCode(), vo.getXd());
+            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.ZD.getCode(), vo.getZd());
+            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.SS2.getCode(), vo.getSs2());
+            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.SS3.getCode(), vo.getSs3());
+        }
         return ResponseUtil.success();
     }
 

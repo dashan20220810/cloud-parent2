@@ -52,7 +52,7 @@ import java.util.Objects;
 @Slf4j
 @RestController
 @RequestMapping(value = "desk")
-@Api(tags = "桌台管理")
+@Api(tags = "桌台管理/游戏赔率")
 public class DeskController {
 
     @Autowired
