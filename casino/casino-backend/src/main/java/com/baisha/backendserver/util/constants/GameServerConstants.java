@@ -42,11 +42,15 @@ public class GameServerConstants {
      */
     public static final String GAME_CODE_LIST = "/game/gameCode";
 
-
     /**
      * 桌台游戏编码
      */
     public static final String GAME_ODDS_LIST = "/game/oddsList";
+
+    /**
+     * 桌台游戏百家乐赔率
+     */
+    public static final String GAME_SET_BACC_ODDS = "/game/bacc/odds";
 
 
 }

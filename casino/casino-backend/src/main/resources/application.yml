@@ -4,7 +4,7 @@ server:
 #应用接口
 url:
   userServer: http://192.168.26.25:9300
-  gameServer: http://192.168.26.21:9500
+  gameServer: http://192.168.26.25:9500
   tgBotServer: http://192.168.26.25:9000
   fileServer: http://192.168.26.26:9700
 

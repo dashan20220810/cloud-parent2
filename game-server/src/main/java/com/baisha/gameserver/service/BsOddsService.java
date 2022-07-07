@@ -20,4 +20,13 @@ public class BsOddsService {
     public List<BsOdds> findAllByGameCode(String gameCode) {
         return oddsRepository.findAllByGameCode(gameCode);
     }
+
+    public BsOdds findByGameCodeAndRuleCode(String gameCode, String ruleCode) {
+        return oddsRepository.findByGameCodeAndRuleCode(gameCode, ruleCode);
+    }
+
+    public BsOdds save(BsOdds bsOdds) {
+        oddsRepository.save(bsOdds);
+        return bsOdds;
+    }
 }

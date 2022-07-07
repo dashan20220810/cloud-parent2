@@ -15,18 +15,19 @@ import com.baisha.backendserver.model.vo.StatusVO;
 import com.baisha.backendserver.model.vo.desk.DeskAddVO;
 import com.baisha.backendserver.model.vo.desk.DeskPageVO;
 import com.baisha.backendserver.model.vo.desk.DeskUpdateVO;
+import com.baisha.backendserver.model.vo.desk.GameBaccOddsVO;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.GameServerConstants;
-import com.baisha.backendserver.util.constants.TgBotServerConstants;
 import com.baisha.modulecommon.enums.TgBaccRuleEnum;
 import com.baisha.modulecommon.reponse.ResponseCode;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
-import com.baisha.modulespringcacheredis.util.RedisUtil;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -40,8 +41,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author yihui
@@ -205,6 +208,9 @@ public class DeskController {
 
 
     @ApiOperation("获取游戏赔率列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "gameCode", value = "游戏编码", required = true, dataTypeClass = String.class),
+    })
     @GetMapping(value = "gameOdds/list")
     public ResponseEntity<GameBaccOddsBO> gameOddsList(String gameCode) {
         if (StringUtils.isEmpty(gameCode)) {
@@ -237,31 +243,63 @@ public class DeskController {
         GameBaccOddsBO bo = new GameBaccOddsBO();
         for (GameOddsListBO g : list) {
             BigDecimal odds = g.getOdds();
-            String gameCode = g.getGameCode().toUpperCase();
-            if (gameCode.equals(TgBaccRuleEnum.Z.getCode())) {
+            String ruleCode = g.getRuleCode().toUpperCase();
+            if (ruleCode.equals(TgBaccRuleEnum.Z.getCode())) {
                 bo.setZ(odds);
             }
-            if (gameCode.equals(TgBaccRuleEnum.X.getCode())) {
+            if (ruleCode.equals(TgBaccRuleEnum.X.getCode())) {
                 bo.setX(odds);
             }
-            if (gameCode.equals(TgBaccRuleEnum.H.getCode())) {
+            if (ruleCode.equals(TgBaccRuleEnum.H.getCode())) {
                 bo.setH(odds);
             }
-            if (gameCode.equals(TgBaccRuleEnum.ZD.getCode())) {
+            if (ruleCode.equals(TgBaccRuleEnum.ZD.getCode())) {
                 bo.setZd(odds);
             }
-            if (gameCode.equals(TgBaccRuleEnum.XD.getCode())) {
+            if (ruleCode.equals(TgBaccRuleEnum.XD.getCode())) {
                 bo.setXd(odds);
             }
-            if (gameCode.equals(TgBaccRuleEnum.SS2.getCode())) {
+            if (ruleCode.equals(TgBaccRuleEnum.SS2.getCode())) {
                 bo.setSs2(odds);
             }
-            if (gameCode.equals(TgBaccRuleEnum.SS3.getCode())) {
+            if (ruleCode.equals(TgBaccRuleEnum.SS3.getCode())) {
                 bo.setSs3(odds);
             }
         }
 
         return bo;
+    }
+
+    @ApiOperation("设置TG百家乐游戏赔率")
+    @PostMapping(value = "setBaccOdds")
+    public ResponseEntity doSetBaccOdds(GameBaccOddsVO vo) {
+        if (StringUtils.isEmpty(vo.getGameCode())) {
+            return ResponseUtil.parameterNotNull();
+        }
+        if (null == vo.getX() || vo.getX().compareTo(BigDecimal.ZERO) <= 0
+                || null == vo.getZ() || vo.getZ().compareTo(BigDecimal.ZERO) <= 0
+                || null == vo.getH() || vo.getH().compareTo(BigDecimal.ZERO) <= 0
+                || null == vo.getZd() || vo.getZd().compareTo(BigDecimal.ZERO) <= 0
+                || null == vo.getXd() || vo.getXd().compareTo(BigDecimal.ZERO) <= 0
+                || null == vo.getSs2() || vo.getSs2().compareTo(BigDecimal.ZERO) <= 0
+                || null == vo.getSs3() || vo.getSs3().compareTo(BigDecimal.ZERO) <= 0) {
+            return new ResponseEntity("赔率不规范");
+        }
+
+        String url = gameServerUrl + GameServerConstants.GAME_SET_BACC_ODDS;
+        Map<String, Object> param = BackendServerUtil.objectToMap(vo);
+        String result = HttpClient4Util.doPost(url, param);
+        if (CommonUtil.checkNull(result)) {
+            return ResponseUtil.fail();
+        }
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
+            Admin currentUser = commonService.getCurrentUser();
+            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                    JSON.toJSONString(param), BackendConstants.BACC_ODDS_MODULE);
+        }
+        return responseEntity;
+
     }
 
 

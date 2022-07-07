@@ -15,5 +15,7 @@ public interface BsOddsRepository extends JpaRepository<BsOdds, Long> {
      */
     List<BsOdds> findAllByGameCode(String gameCode);
 
+    BsOdds findByGameCodeAndRuleCode(String gameCode, String ruleCode);
+
 
 }
