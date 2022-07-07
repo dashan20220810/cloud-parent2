@@ -151,7 +151,7 @@ public class UserController {
         SsOrder order = doCreateOrder(vo, currentUser);
         //增加余额
         ResponseEntity balanceResponseEntity = doIncomeBalance(vo, order.getId());
-        if (balanceResponseEntity.getCode() == 0) {
+        if (balanceResponseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
             log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
                     currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加余额成功", BackendConstants.USER_ASSETS_MODULE);
             //充值余额成功过后，在增加打码量
@@ -244,7 +244,7 @@ public class UserController {
             return new ResponseEntity("不能下分，打码量不足");
         }
         Admin currentUser = commonService.getCurrentUser();
-        SsOrder withdrawOrder = doCreateWithdrawOrder(vo, currentUser);
+        SsOrder order = doCreateWithdrawOrder(vo, currentUser);
         String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_BALANCE;
         Map<String, Object> param = new HashMap<>(16);
         param.put("balanceType", BackendConstants.EXPENSES);
@@ -252,15 +252,20 @@ public class UserController {
         param.put("amount", vo.getAmount());
         param.put("remark", vo.getRemark());
         param.put("changeType", BalanceChangeEnum.WITHDRAW.getCode());
-        param.put("relateId", withdrawOrder.getUserId());
+        param.put("relateId", order.getId());
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
+            //删除订单
+            ssOrderService.delete(order.getId());
             return ResponseUtil.fail();
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
         if (responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
             log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
                     currentUser.getUserName() + "为用户id={" + vo.getId() + "}下分", BackendConstants.USER_ASSETS_MODULE);
+        } else {
+            //删除订单
+            ssOrderService.delete(order.getId());
         }
         return responseEntity;
     }
