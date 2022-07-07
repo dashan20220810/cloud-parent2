@@ -72,11 +72,11 @@ public class RabbitDirectConfig {
     @Bean
     Binding openBinding() {
         return BindingBuilder.bind(settlementFinishQueue()).to(baishaDirectExchange())
-        		.with(MqConstants.WEB_OPEN +"-direct");
+        		.with(MqConstants.WEB_CLOSE_GAME +"-direct");
     }
 
     @Bean
     Queue openQueue() {
-        return new Queue(MqConstants.WEB_OPEN);
+        return new Queue(MqConstants.WEB_CLOSE_GAME);
     }
 }

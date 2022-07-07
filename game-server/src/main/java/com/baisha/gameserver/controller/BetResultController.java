@@ -54,7 +54,7 @@ public class BetResultController {
         log.info("[开牌结果-更新] ");
         BetResult betResult = request.generateBetResult();
 
-        if (betResult.checkRequest() == false 
+        if (!betResult.checkRequest()
         		|| StringUtils.isBlank(request.getAwardOption()) ) {
             log.info("[开牌结果-更新] 检核失败");
             return ResponseUtil.custom("请求错误");

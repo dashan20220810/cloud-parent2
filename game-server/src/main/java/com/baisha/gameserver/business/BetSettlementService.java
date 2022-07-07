@@ -59,8 +59,7 @@ public class BetSettlementService {
         int splitSize = 30;
         List<List<Bet>> lists = GameServerUtil.splitList(bets, splitSize);
         List<CompletableFuture<List<Bet>>> futures = lists.stream()
-                .map(item -> CompletableFuture.supplyAsync(() -> doBetSettlement(item, vo)))
-                .collect(Collectors.toList());
+                .map(item -> CompletableFuture.supplyAsync(() -> doBetSettlement(item, vo))).toList();
         lists = futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
         bets = trans(lists);
         int settleSize = bets.size();

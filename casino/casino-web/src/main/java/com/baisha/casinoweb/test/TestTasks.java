@@ -29,7 +29,7 @@ public class TestTasks {
     @Autowired
     RabbitTemplate rabbitTemplate;
 	
-	@Scheduled(initialDelay = 2000, fixedRate = 110000)
+//	@Scheduled(initialDelay = 2000, fixedRate = 110000)
 //	@Scheduled(initialDelay = 2000, fixedRate = 60000)  // TODO
 	public void openNewGame() {
 
@@ -42,7 +42,7 @@ public class TestTasks {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-        rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN_NEW_GAME, JSONObject.toJSONString(OpenNewGameVO.builder().dealerIp("127.0.0.1").gameNo(gameNo).build())  );
+//        rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN_NEW_GAME, JSONObject.toJSONString(OpenNewGameVO.builder().dealerIp("127.0.0.1").gameNo(gameNo).build())  );
         rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN_NEW_GAME, JSONObject.toJSONString(OpenNewGameVO.builder().dealerIp("192.168.26.23").gameNo(gameNo).build())  );
         gameNo++;
 //	}
@@ -70,9 +70,9 @@ public class TestTasks {
 //		dealerBusiness.open("127.0.0.1", option.toString());
 //		dealerBusiness.open("192.168.26.23", option.toString());
 
-        rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN
-        		, OpenVO.builder().dealerIp("127.0.0.1").awardOption(option.toString()).build());
-        rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN
+//        rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN
+//        		, OpenVO.builder().dealerIp("127.0.0.1").awardOption(option.toString()).build());
+        rabbitTemplate.convertAndSend(MqConstants.WEB_CLOSE_GAME
         		, OpenVO.builder().dealerIp("192.168.26.23").awardOption(option.toString()).build());
 	}
 

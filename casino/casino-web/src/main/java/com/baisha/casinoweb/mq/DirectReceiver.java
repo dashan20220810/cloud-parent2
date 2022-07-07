@@ -31,7 +31,7 @@ public class DirectReceiver {
         dealerBusiness.openNewGame(vo.getDealerIp(), vo.getGameNo());
     }
 
-    @RabbitListener(queues = MqConstants.WEB_OPEN)
+    @RabbitListener(queues = MqConstants.WEB_CLOSE_GAME)
     public void open(OpenVO vo) {
         System.out.println("==============" + JSONObject.toJSONString(vo));
         dealerBusiness.open(vo.getDealerIp(), vo.getAwardOption());

@@ -103,7 +103,7 @@ public class AsyncCommandService {
 		String result = HttpClient4Util.doGet(
 				telegramServerDomain + RequestPathEnum.TG_GET_GROUP_ID_LIST.getApiName() + "?tableId=" +deskId);
 		
-		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+		if (!ValidateUtil.checkHttpResponse(action, result)) {
     		return CompletableFuture.completedFuture(false);
 		}
 		
@@ -126,7 +126,7 @@ public class AsyncCommandService {
 				gameServerDomain + RequestPathEnum.BET_RESULT_ADD.getApiName(),
 				params);
 
-		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+		if (!ValidateUtil.checkHttpResponse(action, result)) {
     		return CompletableFuture.completedFuture(false);
 		}
     	
@@ -142,7 +142,7 @@ public class AsyncCommandService {
 				telegramServerDomain + RequestPathEnum.TG_OPEN_NEW_GAME.getApiName(),
 				params);
 
-		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+		if (!ValidateUtil.checkHttpResponse(action, result)) {
     		return CompletableFuture.completedFuture(false);
 		}
 
@@ -212,7 +212,7 @@ public class AsyncCommandService {
 				gameServerDomain + RequestPathEnum.BET_RESULT_UPDATE.getApiName(),
 				params);
 
-		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+		if (!ValidateUtil.checkHttpResponse(action, result)) {
     		return;
 		}
 
@@ -229,7 +229,7 @@ public class AsyncCommandService {
 		result = HttpClient4Util.doPost(
 				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),
 				params);
-		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+		if (!ValidateUtil.checkHttpResponse(action, result)) {
     		return;
 		}
 
