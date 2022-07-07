@@ -8,16 +8,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * @author yihui
+ */
 @Slf4j
 @Service
 public class SysPlayMoneyService {
 
     @Autowired
-    private SysPlayMoneyParameterRepository playMoneyParameterRepository;
+    private SysPlayMoneyParameterRepository sysplayMoneyParameterRepository;
 
     public SysPlayMoneyParameter getSysPlayMoney() {
-        List<SysPlayMoneyParameter> list = playMoneyParameterRepository.findAll();
+        List<SysPlayMoneyParameter> list = sysplayMoneyParameterRepository.findAll();
         if (CollectionUtils.isEmpty(list)) {
             return new SysPlayMoneyParameter();
         }
@@ -26,9 +30,19 @@ public class SysPlayMoneyService {
 
 
     public int findAllSize() {
-        List<SysPlayMoneyParameter> list = playMoneyParameterRepository.findAll();
+        List<SysPlayMoneyParameter> list = sysplayMoneyParameterRepository.findAll();
         return list.size();
     }
 
 
+    public SysPlayMoneyParameter findById(Long id) {
+        Optional<SysPlayMoneyParameter> optional = sysplayMoneyParameterRepository.findById(id);
+        return optional.orElse(null);
+    }
+
+
+    public SysPlayMoneyParameter save(SysPlayMoneyParameter stp) {
+        sysplayMoneyParameterRepository.save(stp);
+        return stp;
+    }
 }

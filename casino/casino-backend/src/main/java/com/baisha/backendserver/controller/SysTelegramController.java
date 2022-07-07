@@ -42,8 +42,6 @@ import java.util.Objects;
 public class SysTelegramController {
 
     @Autowired
-    private RedisUtil redisUtil;
-    @Autowired
     private CommonService commonService;
     @Autowired
     private SysTelegramService sysTelegramService;
