@@ -3,11 +3,9 @@ package com.baisha.handle;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.bot.MyTelegramLongPollingBot;
-import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
 import com.baisha.model.vo.ConfigInfo;
 import com.baisha.model.vo.TgBetVO;
-import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.service.TgBotService;
@@ -29,17 +27,15 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.baisha.util.constants.BotConstant.*;
 
 @Slf4j
 @Component
 public class TelegramMessageHandler {
+
     @Autowired
     TgChatService tgChatService;
 
@@ -86,10 +82,7 @@ public class TelegramMessageHandler {
         User from = message.getFrom();
 
         // 判断此群是否通过审核，未通过不处理消息。
-        TgBot tgBot = tgBotService.findByBotName(bot.getBotUsername());
-        TgChat tgChat = tgChatService.findByChatIdAndBotId(chat.getId(), tgBot.getId());
-
-        if (tgChat == null || Constants.close == tgChat.getStatus()) {
+        if (!commonHandler.checkChatIsAudit(bot, chat)) {
             return;
         }
 

@@ -2,16 +2,22 @@ package com.baisha.handle;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baisha.bot.MyTelegramLongPollingBot;
+import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
 import com.baisha.model.vo.ConfigInfo;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
+import com.baisha.service.TgBotService;
+import com.baisha.service.TgChatService;
 import com.baisha.util.TelegramBotUtil;
 import com.baisha.util.TgHttpClient4Util;
 import com.baisha.util.enums.RequestPathEnum;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -19,6 +25,23 @@ import java.util.Map;
 @Slf4j
 @Component
 public class CommonHandler {
+
+    @Autowired
+    TgChatService tgChatService;
+
+    @Autowired
+    TgBotService tgBotService;
+
+    public boolean checkChatIsAudit(MyTelegramLongPollingBot bot, Chat chat) {
+        // 判断此群是否通过审核，未通过不处理消息。
+        TgBot tgBot = tgBotService.findByBotName(bot.getBotUsername());
+        TgChat tgChat = tgChatService.findByChatIdAndBotId(chat.getId(), tgBot.getId());
+
+        if (tgChat == null || Constants.close == tgChat.getStatus()) {
+            return false;
+        }
+        return true;
+    }
 
     public String checkUserBalance(Long userId) {
         String userBalanceUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_USER_BALANCE.getApiName();

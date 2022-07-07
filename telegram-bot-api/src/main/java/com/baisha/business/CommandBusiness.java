@@ -156,7 +156,7 @@ public class CommandBusiness {
         gameRule.append(GAME_RULE2);
         gameRule.append(GAME_RULE3);
         gameRule.append(GAME_RULE4);
-        gameRule.append(GAME_RULE5);
+        gameRule.append(GAME_RULE10);
         gameRule.append(GAME_RULE6);
         gameRule.append(minAmount);
         gameRule.append(GAME_RULE7);
@@ -191,6 +191,7 @@ public class CommandBusiness {
         sealingLine.append(SEALING_BET_INFO16);
         sealingLine.append(betUserAmountVO.getTotalBetAmount());
         sealingLine.append(SEALING_BET_INFO17);
+        sealingLine.append(GAME_RULE10);
         sealingLine.append(SEALING_BET_INFO19);
 
         List<BetUserVO> top20Users = betUserAmountVO.getTop20Users();

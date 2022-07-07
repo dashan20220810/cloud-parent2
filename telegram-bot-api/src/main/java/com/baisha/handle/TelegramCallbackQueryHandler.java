@@ -1,7 +1,6 @@
 package com.baisha.handle;
 
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.bot.MyTelegramLongPollingBot;
@@ -46,6 +45,12 @@ public class TelegramCallbackQueryHandler {
         Message message = callbackQuery.getMessage();
         User user = callbackQuery.getFrom();
         Chat chat = message.getChat();
+
+        // 判断此群是否通过审核，未通过不处理消息。
+        if (!commonHandler.checkChatIsAudit(bot, chat)) {
+            return;
+        }
+
         // 按钮名字
         String data = callbackQuery.getData();
         switch (data) {
