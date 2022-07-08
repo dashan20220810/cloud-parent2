@@ -3,8 +3,8 @@ package com.baisha.backendserver.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.backendserver.business.CommonService;
-import com.baisha.backendserver.business.DeskService;
+import com.baisha.backendserver.business.CommonBusiness;
+import com.baisha.backendserver.business.DeskBusiness;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.bo.desk.DeskListBO;
 import com.baisha.backendserver.model.bo.desk.DeskPageBO;
@@ -56,9 +56,9 @@ import java.util.Objects;
 public class DeskController {
 
     @Autowired
-    private CommonService commonService;
+    private CommonBusiness commonService;
     @Autowired
-    private DeskService deskService;
+    private DeskBusiness deskService;
     @Value("${url.gameServer}")
     private String gameServerUrl;
 

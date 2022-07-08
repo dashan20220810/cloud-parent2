@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.baisha.backendserver.model.bo.desk.DeskListBO;
 import com.baisha.backendserver.util.constants.GameServerConstants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
-import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -16,14 +15,13 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author yihui
  */
 @Slf4j
 @Service
-public class DeskService {
+public class DeskBusiness {
 
     @Value("${url.gameServer}")
     private String gameServerUrl;

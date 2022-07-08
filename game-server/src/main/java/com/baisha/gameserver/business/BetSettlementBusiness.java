@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-public class BetSettlementService {
+public class BetSettlementBusiness {
 
     @Value("${project.server-url.user-server-domain}")
     private String userServerDomain;

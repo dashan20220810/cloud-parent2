@@ -3,8 +3,8 @@ package com.baisha.backendserver.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.backendserver.business.CommonService;
-import com.baisha.backendserver.business.DeskService;
+import com.baisha.backendserver.business.CommonBusiness;
+import com.baisha.backendserver.business.DeskBusiness;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.bo.desk.DeskListBO;
 import com.baisha.backendserver.model.bo.tgBot.TgBotPageBO;
@@ -16,9 +16,7 @@ import com.baisha.backendserver.model.vo.tgBot.TgBotPageVO;
 import com.baisha.backendserver.model.vo.tgBot.TgGroupPageVO;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
-import com.baisha.backendserver.util.constants.GameServerConstants;
 import com.baisha.backendserver.util.constants.TgBotServerConstants;
-import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseCode;
 import com.baisha.modulecommon.reponse.ResponseEntity;
@@ -56,9 +54,9 @@ public class TgBotController {
     @Value("${url.tgBotServer}")
     private String tgBotServerUrl;
     @Autowired
-    private CommonService commonService;
+    private CommonBusiness commonService;
     @Autowired
-    private DeskService deskService;
+    private DeskBusiness deskService;
 
     @ApiOperation("新开机器人")
     @ApiImplicitParams({

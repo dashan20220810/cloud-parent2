@@ -1,12 +1,10 @@
 package com.baisha.backendserver.controller;
 
-import cn.hutool.Hutool;
-import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.backendserver.business.CommonService;
-import com.baisha.backendserver.business.PlayMoneyService;
+import com.baisha.backendserver.business.CommonBusiness;
+import com.baisha.backendserver.business.PlayMoneyBusiness;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.SsOrder;
 import com.baisha.backendserver.model.bo.sys.SysPlayMoneyParameterBO;
@@ -59,9 +57,9 @@ public class UserController {
     @Value("${url.userServer}")
     private String userServerUrl;
     @Autowired
-    private CommonService commonService;
+    private CommonBusiness commonService;
     @Autowired
-    private PlayMoneyService playMoneyService;
+    private PlayMoneyBusiness playMoneyService;
     @Autowired
     private SsOrderService ssOrderService;
 

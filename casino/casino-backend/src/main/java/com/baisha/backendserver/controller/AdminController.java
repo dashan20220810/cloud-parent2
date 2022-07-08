@@ -1,7 +1,7 @@
 package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.baisha.backendserver.business.CommonService;
+import com.baisha.backendserver.business.CommonBusiness;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.admin.AdminAddVO;
@@ -45,7 +45,7 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
     @Autowired
-    private CommonService commonService;
+    private CommonBusiness commonService;
 
     @ApiOperation(("新增管理员"))
     @PostMapping("add")

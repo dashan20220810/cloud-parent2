@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
-public class UserAssetsService {
+public class UserAssetsBusiness {
 
     @Autowired
     private RedissonClient redisson;

@@ -1,7 +1,7 @@
 package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.baisha.backendserver.business.CommonService;
+import com.baisha.backendserver.business.CommonBusiness;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.SysPlayMoneyParameter;
 import com.baisha.backendserver.model.bo.sys.SysPlayMoneyParameterBO;
@@ -29,7 +29,7 @@ import java.util.Objects;
 public class SysPlayMoneyController {
 
     @Autowired
-    private CommonService commonService;
+    private CommonBusiness commonService;
     @Autowired
     private SysPlayMoneyService sysPlayMoneyService;
 

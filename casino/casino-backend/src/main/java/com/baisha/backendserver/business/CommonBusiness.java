@@ -21,7 +21,7 @@ import java.util.Objects;
 
 @Slf4j
 @Service
-public class CommonService {
+public class CommonBusiness {
 
     @Value("${url.fileServer}")
     private String fileServerUrl;

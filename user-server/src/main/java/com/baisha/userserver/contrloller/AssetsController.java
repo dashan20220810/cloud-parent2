@@ -2,14 +2,13 @@ package com.baisha.userserver.contrloller;
 
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
-import com.baisha.userserver.business.UserAssetsService;
+import com.baisha.userserver.business.UserAssetsBusiness;
 import com.baisha.userserver.model.Assets;
 import com.baisha.userserver.model.BalanceChange;
 import com.baisha.userserver.model.User;
 import com.baisha.userserver.model.bo.BalanceBO;
 import com.baisha.userserver.model.bo.UserAssetsBO;
 import com.baisha.userserver.model.bo.UserBO;
-import com.baisha.userserver.model.vo.IdVO;
 import com.baisha.userserver.model.vo.UserIdVO;
 import com.baisha.userserver.model.vo.balance.BalanceVO;
 import com.baisha.userserver.model.vo.balance.PlayMoneyVO;
@@ -38,7 +37,7 @@ public class AssetsController {
     @Autowired
     private UserService userService;
     @Autowired
-    private UserAssetsService userAssetsService;
+    private UserAssetsBusiness userAssetsService;
 
 
     @ApiOperation(("查询用户余额"))

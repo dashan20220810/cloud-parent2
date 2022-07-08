@@ -3,7 +3,6 @@ package com.baisha.backendserver.business;
 import com.baisha.backendserver.model.SysPlayMoneyParameter;
 import com.baisha.backendserver.model.bo.sys.SysPlayMoneyParameterBO;
 import com.baisha.backendserver.service.SysPlayMoneyService;
-import com.baisha.modulecommon.reponse.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,7 @@ import java.util.Objects;
  */
 @Slf4j
 @Service
-public class PlayMoneyService {
+public class PlayMoneyBusiness {
     
     @Autowired
     private SysPlayMoneyService sysPlayMoneyService;
