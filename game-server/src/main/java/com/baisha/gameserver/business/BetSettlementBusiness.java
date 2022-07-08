@@ -18,12 +18,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 
@@ -36,13 +36,13 @@ public class BetSettlementBusiness {
 
     @Value("${project.server-url.user-server-domain}")
     private String userServerDomain;
-
+    @Autowired
+    private Executor asyncExecutor;
     @Autowired
     private BetService betService;
     @Autowired
     private BetStatisticsService betStatisticsService;
 
-    @Transactional(rollbackFor = Exception.class)
     public void betSettlement(BetSettleVO vo) {
         log.info("==============={}开始结算=================", vo.getNoActive());
         //下注成功状态
@@ -56,10 +56,10 @@ public class BetSettlementBusiness {
         }
         int size = bets.size();
         log.info("{}====未结算注单===={}条", vo.getNoActive(), size);
-        int splitSize = 30;
+        int splitSize = 10;
         List<List<Bet>> lists = GameServerUtil.splitList(bets, splitSize);
         List<CompletableFuture<List<Bet>>> futures = lists.stream()
-                .map(item -> CompletableFuture.supplyAsync(() -> doBetSettlement(item, vo))).toList();
+                .map(item -> CompletableFuture.supplyAsync(() -> doBetSettlement(item, vo), asyncExecutor)).toList();
         lists = futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
         bets = trans(lists);
         int settleSize = bets.size();
