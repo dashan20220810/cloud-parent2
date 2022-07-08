@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -134,7 +135,7 @@ public class AdminController {
         if (StringUtils.isNotEmpty(vo.getUserName()) && Admin.checkUserName(vo.getUserName())) {
             return new ResponseEntity("用户名不规范");
         }
-        Pageable pageable = BackendServerUtil.setPageable(vo.getPageNumber() , vo.getPageSize());
+        Pageable pageable = BackendServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize());
         Specification<Admin> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             if (StringUtils.isNotBlank(vo.getUserName())) {
@@ -143,6 +144,14 @@ public class AdminController {
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };
         Page<Admin> pageList = adminService.getAdminPage(spec, pageable);
+        if (Objects.nonNull(pageList)) {
+            List<Admin> list = pageList.getContent();
+            if (!CollectionUtils.isEmpty(list)) {
+                list.forEach(item -> {
+                    item.setPassword(null);
+                });
+            }
+        }
         return ResponseUtil.success(pageList);
     }
 

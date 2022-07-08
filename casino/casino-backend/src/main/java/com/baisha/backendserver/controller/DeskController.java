@@ -207,12 +207,12 @@ public class DeskController {
     }
 
 
-    @ApiOperation("获取游戏赔率列表")
+    @ApiOperation("获取游戏赔率")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "gameCode", value = "游戏编码", required = true, dataTypeClass = String.class),
     })
-    @GetMapping(value = "gameOdds/list")
-    public ResponseEntity<GameBaccOddsBO> gameOddsList(String gameCode) {
+    @GetMapping(value = "getGameOdds")
+    public ResponseEntity<GameBaccOddsBO> getGameOdds(String gameCode) {
         if (StringUtils.isEmpty(gameCode)) {
             return ResponseUtil.parameterNotNull();
         }

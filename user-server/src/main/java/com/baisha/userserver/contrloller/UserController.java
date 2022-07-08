@@ -176,6 +176,7 @@ public class UserController {
                 for (User u : userList) {
                     UserPageBO bo = new UserPageBO();
                     BeanUtils.copyProperties(u, bo);
+                    bo.setPassword(null);
                     Long userId = u.getId();
                     Assets assets = assetsService.getAssetsByUserId(userId);
                     if (Objects.nonNull(assets)) {
@@ -189,7 +190,6 @@ public class UserController {
                         bo.setInviteTgUserId(inviteUser.getTgUserId());
                         bo.setInviteTgUserName(inviteUser.getTgUserName());
                     }
-
                     list.add(bo);
                 }
             }
