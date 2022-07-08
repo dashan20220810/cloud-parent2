@@ -3,9 +3,10 @@ package com.baisha.gameserver.controller;
 import com.baisha.gameserver.model.BsGame;
 import com.baisha.gameserver.model.BsOdds;
 import com.baisha.gameserver.model.bo.game.GameBO;
-import com.baisha.gameserver.model.bo.game.GameBaccOddsVO;
+import com.baisha.gameserver.vo.GameBaccOddsVO;
 import com.baisha.gameserver.service.BsGameService;
 import com.baisha.gameserver.service.BsOddsService;
+import com.baisha.modulecommon.enums.GameTypeEnum;
 import com.baisha.modulecommon.enums.TgBaccRuleEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -43,8 +44,8 @@ public class GameController {
         List<BsGame> list = bsGameService.findAll();
         if (CollectionUtils.isEmpty(list)) {
             //如果为空，就默认百家乐 因为目前TG投注只有百家乐
-            String gameCode = "BACC";
-            String gameName = "百家乐";
+            String gameCode = GameTypeEnum.BACC.getCode();
+            String gameName = GameTypeEnum.BACC.getName();
             BsGame bsGame = new BsGame();
             bsGame.setGameCode(gameCode);
             bsGame.setGameName(gameName);

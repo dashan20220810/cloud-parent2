@@ -1,7 +1,7 @@
 package com.baisha.gameserver.business;
 
-import com.baisha.gameserver.enums.BetOddsEnum;
 import com.baisha.gameserver.model.Bet;
+import com.baisha.gameserver.model.bo.game.GameBaccOddsBO;
 import com.baisha.gameserver.service.BetService;
 import com.baisha.gameserver.service.BetStatisticsService;
 import com.baisha.gameserver.util.GameServerUtil;
@@ -10,6 +10,7 @@ import com.baisha.gameserver.util.contants.UserServerContants;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.enums.BetStatusEnum;
 import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
+import com.baisha.modulecommon.enums.TgBaccRuleEnum;
 import com.baisha.modulecommon.util.DateUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
@@ -42,6 +43,8 @@ public class BetSettlementBusiness {
     private BetService betService;
     @Autowired
     private BetStatisticsService betStatisticsService;
+    @Autowired
+    private GameBusiness gameBusiness;
 
     public void betSettlement(BetSettleVO vo) {
         log.info("==============={}开始结算=================", vo.getNoActive());
@@ -56,10 +59,12 @@ public class BetSettlementBusiness {
         }
         int size = bets.size();
         log.info("{}====未结算注单===={}条", vo.getNoActive(), size);
+        //获取百家乐玩法赔率
+        GameBaccOddsBO gameBaccOdds = gameBusiness.getBaccOdds();
         int splitSize = 10;
         List<List<Bet>> lists = GameServerUtil.splitList(bets, splitSize);
         List<CompletableFuture<List<Bet>>> futures = lists.stream()
-                .map(item -> CompletableFuture.supplyAsync(() -> doBetSettlement(item, vo), asyncExecutor)).toList();
+                .map(item -> CompletableFuture.supplyAsync(() -> doBetSettlement(item, vo, gameBaccOdds), asyncExecutor)).toList();
         lists = futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
         bets = trans(lists);
         int settleSize = bets.size();
@@ -74,19 +79,20 @@ public class BetSettlementBusiness {
      * @param vo
      * @return
      */
-    private List<Bet> doBetSettlement(List<Bet> item, BetSettleVO vo) {
+    private List<Bet> doBetSettlement(List<Bet> item, BetSettleVO vo, GameBaccOddsBO gameBaccOdds) {
         String awardOption = vo.getAwardOption().toUpperCase();
         List<Bet> settleList = new ArrayList<>();
         for (Bet bet : item) {
-            //总下注金额
-            Long betAmount = getBetAmount(bet);
-            boolean isWinFlag = isWinBet(bet, awardOption);
             BigDecimal finalAmount;
             BigDecimal winAmount;
+            //总下注金额
+            Long betAmount = getBetAmount(bet);
+            //当前注单是否中奖
+            boolean isWinFlag = isWinBet(bet, awardOption);
             if (isWinFlag) {
                 //中奖
-                BetOddsEnum betOddsEnum = BetOddsEnum.getBetOddsByCode(awardOption);
-                BigDecimal odds = betOddsEnum.getOdds();
+                //获取中奖注单 获取对应的赔率
+                BigDecimal odds = getOdds(gameBaccOdds, bet, awardOption);
                 //中奖选项的下注金额
                 Long winBetAmount = getWinBetAmount(bet, awardOption);
                 //赢的钱
@@ -94,12 +100,11 @@ public class BetSettlementBusiness {
                 //派彩=赢得钱+ 中奖选项的下注金额
                 finalAmount = winAwardAmount.add(BigDecimal.valueOf(winBetAmount));
                 //输赢金额
-                winAmount = finalAmount.subtract(BigDecimal.valueOf(betAmount));
             } else {
                 //未中奖
                 finalAmount = BigDecimal.ZERO;
-                winAmount = finalAmount.subtract(BigDecimal.valueOf(betAmount));
             }
+            winAmount = finalAmount.subtract(BigDecimal.valueOf(betAmount));
             //修改注单数据
             int flag = betService.settleBet(bet.getId(), winAmount, finalAmount);
             if (flag > 0) {
@@ -183,40 +188,106 @@ public class BetSettlementBusiness {
     }
 
     /**
+     * 获取中奖选择的下注赔率
+     *
+     * @param gameBaccOdds
+     * @param bet
+     * @param awardOption
+     * @return
+     */
+    private BigDecimal getOdds(GameBaccOddsBO gameBaccOdds, Bet bet, String awardOption) {
+        if (awardOption.equals(TgBaccRuleEnum.Z.getCode())) {
+            if (bet.getAmountZ() > 0) {
+                return gameBaccOdds.getZ();
+            }
+        }
+        if (awardOption.equals(TgBaccRuleEnum.X.getCode())) {
+            if (bet.getAmountX() > 0) {
+                return gameBaccOdds.getX();
+            }
+        }
+        if (awardOption.equals(TgBaccRuleEnum.H.getCode())) {
+            if (bet.getAmountH() > 0) {
+                return gameBaccOdds.getH();
+            }
+        }
+        if (awardOption.equals(TgBaccRuleEnum.ZD.getCode())) {
+            if (bet.getAmountZd() > 0) {
+                return gameBaccOdds.getZd();
+            }
+        }
+        if (awardOption.equals(TgBaccRuleEnum.XD.getCode())) {
+            if (bet.getAmountXd() > 0) {
+                return gameBaccOdds.getXd();
+            }
+        }
+        //幸运6 庄也中奖
+        if (awardOption.equals(TgBaccRuleEnum.SS2.getCode())) {
+            if (bet.getAmountSs() > 0) {
+                return gameBaccOdds.getSs2();
+            }
+            if (bet.getAmountZ() > 0) {
+                return gameBaccOdds.getZ();
+            }
+        }
+        if (awardOption.equals(TgBaccRuleEnum.SS3.getCode())) {
+            if (bet.getAmountSs() > 0) {
+                return gameBaccOdds.getSs3();
+            }
+            if (bet.getAmountZ() > 0) {
+                return gameBaccOdds.getZ();
+            }
+        }
+        return BigDecimal.ZERO;
+    }
+
+    /**
      * 获取中奖选择的下注金额
      *
      * @param bet
      * @return
      */
     private Long getWinBetAmount(Bet bet, String awardOption) {
-        if (awardOption.equals(BetOddsEnum.Z.getCode())) {
+        if (awardOption.equals(TgBaccRuleEnum.Z.getCode())) {
             if (bet.getAmountZ() > 0) {
                 return bet.getAmountZ();
             }
         }
-        if (awardOption.equals(BetOddsEnum.X.getCode())) {
+        if (awardOption.equals(TgBaccRuleEnum.X.getCode())) {
             if (bet.getAmountX() > 0) {
                 return bet.getAmountX();
             }
         }
-        if (awardOption.equals(BetOddsEnum.H.getCode())) {
+        if (awardOption.equals(TgBaccRuleEnum.H.getCode())) {
             if (bet.getAmountH() > 0) {
                 return bet.getAmountH();
             }
         }
-        if (awardOption.equals(BetOddsEnum.ZD.getCode())) {
+        if (awardOption.equals(TgBaccRuleEnum.ZD.getCode())) {
             if (bet.getAmountZd() > 0) {
                 return bet.getAmountZd();
             }
         }
-        if (awardOption.equals(BetOddsEnum.XD.getCode())) {
+        if (awardOption.equals(TgBaccRuleEnum.XD.getCode())) {
             if (bet.getAmountXd() > 0) {
                 return bet.getAmountXd();
             }
         }
-        if (awardOption.equals(BetOddsEnum.SS.getCode())) {
+        //幸运6 庄也中奖
+        if (awardOption.equals(TgBaccRuleEnum.SS2.getCode())) {
             if (bet.getAmountSs() > 0) {
                 return bet.getAmountSs();
+            }
+            if (bet.getAmountZ() > 0) {
+                return bet.getAmountZ();
+            }
+        }
+        if (awardOption.equals(TgBaccRuleEnum.SS3.getCode())) {
+            if (bet.getAmountSs() > 0) {
+                return bet.getAmountSs();
+            }
+            if (bet.getAmountZ() > 0) {
+                return bet.getAmountZ();
             }
         }
         return 0L;
@@ -231,33 +302,45 @@ public class BetSettlementBusiness {
      * @return
      */
     private boolean isWinBet(Bet bet, String awardOption) {
-        if (awardOption.equals(BetOddsEnum.Z.getCode())) {
+        if (awardOption.equals(TgBaccRuleEnum.Z.getCode())) {
             if (bet.getAmountZ() > 0) {
                 return true;
             }
         }
-        if (awardOption.equals(BetOddsEnum.X.getCode())) {
+        if (awardOption.equals(TgBaccRuleEnum.X.getCode())) {
             if (bet.getAmountX() > 0) {
                 return true;
             }
         }
-        if (awardOption.equals(BetOddsEnum.H.getCode())) {
+        if (awardOption.equals(TgBaccRuleEnum.H.getCode())) {
             if (bet.getAmountH() > 0) {
                 return true;
             }
         }
-        if (awardOption.equals(BetOddsEnum.ZD.getCode())) {
+        if (awardOption.equals(TgBaccRuleEnum.ZD.getCode())) {
             if (bet.getAmountZd() > 0) {
                 return true;
             }
         }
-        if (awardOption.equals(BetOddsEnum.XD.getCode())) {
+        if (awardOption.equals(TgBaccRuleEnum.XD.getCode())) {
             if (bet.getAmountXd() > 0) {
                 return true;
             }
         }
-        if (awardOption.equals(BetOddsEnum.SS.getCode())) {
+        //幸运6 庄也中奖
+        if (awardOption.equals(TgBaccRuleEnum.SS2.getCode())) {
             if (bet.getAmountSs() > 0) {
+                return true;
+            }
+            if (bet.getAmountZ() > 0) {
+                return true;
+            }
+        }
+        if (awardOption.equals(TgBaccRuleEnum.SS3.getCode())) {
+            if (bet.getAmountSs() > 0) {
+                return true;
+            }
+            if (bet.getAmountZ() > 0) {
                 return true;
             }
         }

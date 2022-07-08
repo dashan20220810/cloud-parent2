@@ -1,4 +1,4 @@
-package com.baisha.gameserver.model.bo.game;
+package com.baisha.gameserver.vo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
