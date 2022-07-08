@@ -272,9 +272,7 @@ public class BetSettlementBusiness {
      */
     private List<Bet> trans(List<List<Bet>> lists) {
         List<Bet> list = new ArrayList<>();
-        lists.forEach(item -> {
-            list.addAll(item);
-        });
+        lists.forEach(list::addAll);
         return list;
     }
 
