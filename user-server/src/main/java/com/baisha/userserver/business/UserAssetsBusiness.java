@@ -49,24 +49,32 @@ public class UserAssetsBusiness {
      * @throws Exception
      */
     @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity doBalanceBusiness(User user, BalanceVO vo) throws Exception {
+    public ResponseEntity doBalanceBusiness(User user, BalanceVO vo) {
         //使用用户ID 使用redisson 公平锁
         RLock fairLock = redisson.getFairLock(RedisConstants.USER_ASSETS + user.getId());
-        boolean res = fairLock.tryLock(RedisConstants.WAIT_TIME, RedisConstants.UNLOCK_TIME, TimeUnit.SECONDS);
-        if (res) {
-            if (UserServerConstants.INCOME == vo.getBalanceType()) {
-                //收入
-                ResponseEntity response = doIncomeBalance(user, vo);
-                fairLock.unlock();
-                return response;
+        try {
+            boolean res = fairLock.tryLock(RedisConstants.WAIT_TIME, RedisConstants.UNLOCK_TIME, TimeUnit.SECONDS);
+            if (res) {
+                if (UserServerConstants.INCOME == vo.getBalanceType()) {
+                    //收入
+                    ResponseEntity response = doIncomeBalance(user, vo);
+                    fairLock.unlock();
+                    return response;
+                }
+                if (UserServerConstants.EXPENSES == vo.getBalanceType()) {
+                    //支出
+                    ResponseEntity response = doReduceBalance(user, vo);
+                    fairLock.unlock();
+                    return response;
+                }
             }
-            if (UserServerConstants.EXPENSES == vo.getBalanceType()) {
-                //支出
-                ResponseEntity response = doReduceBalance(user, vo);
-                fairLock.unlock();
-                return response;
-            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            fairLock.unlock();
         }
+
         return ResponseUtil.fail();
 
     }
@@ -158,24 +166,32 @@ public class UserAssetsBusiness {
      * @throws Exception
      */
     @Transactional(rollbackFor = Exception.class)
-    public ResponseEntity doPlayMoneyBusiness(User user, PlayMoneyVO vo) throws Exception {
+    public ResponseEntity doPlayMoneyBusiness(User user, PlayMoneyVO vo) {
         //使用用户ID 使用redisson 公平锁
         RLock fairLock = redisson.getFairLock(RedisConstants.USER_ASSETS + user.getId());
-        boolean res = fairLock.tryLock(RedisConstants.WAIT_TIME, RedisConstants.UNLOCK_TIME, TimeUnit.SECONDS);
-        if (res) {
-            if (UserServerConstants.INCOME == vo.getPlayMoneyType()) {
-                //收入
-                ResponseEntity response = doIncomePlayMoney(user, vo);
-                fairLock.unlock();
-                return response;
+        try {
+            boolean res = fairLock.tryLock(RedisConstants.WAIT_TIME, RedisConstants.UNLOCK_TIME, TimeUnit.SECONDS);
+            if (res) {
+                if (UserServerConstants.INCOME == vo.getPlayMoneyType()) {
+                    //收入
+                    ResponseEntity response = doIncomePlayMoney(user, vo);
+                    fairLock.unlock();
+                    return response;
+                }
+                if (UserServerConstants.EXPENSES == vo.getPlayMoneyType()) {
+                    //支出
+                    ResponseEntity response = doReducePlayMoney(user, vo);
+                    fairLock.unlock();
+                    return response;
+                }
             }
-            if (UserServerConstants.EXPENSES == vo.getPlayMoneyType()) {
-                //支出
-                ResponseEntity response = doReducePlayMoney(user, vo);
-                fairLock.unlock();
-                return response;
-            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            fairLock.unlock();
         }
+
         return ResponseUtil.fail();
     }
 
