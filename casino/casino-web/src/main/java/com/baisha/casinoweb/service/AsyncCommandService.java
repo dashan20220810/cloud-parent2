@@ -1,6 +1,5 @@
 package com.baisha.casinoweb.service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -103,7 +102,7 @@ public class AsyncCommandService {
 		String result = HttpClient4Util.doGet(
 				telegramServerDomain + RequestPathEnum.TG_GET_GROUP_ID_LIST.getApiName() + "?tableId=" +deskId);
 		
-		if (!ValidateUtil.checkHttpResponse(action, result)) {
+		if ( !ValidateUtil.checkHttpResponse(action, result) ) {
     		return CompletableFuture.completedFuture(false);
 		}
 		
@@ -126,7 +125,7 @@ public class AsyncCommandService {
 				gameServerDomain + RequestPathEnum.BET_RESULT_ADD.getApiName(),
 				params);
 
-		if (!ValidateUtil.checkHttpResponse(action, result)) {
+		if ( !ValidateUtil.checkHttpResponse(action, result) ) {
     		return CompletableFuture.completedFuture(false);
 		}
     	
@@ -142,7 +141,7 @@ public class AsyncCommandService {
 				telegramServerDomain + RequestPathEnum.TG_OPEN_NEW_GAME.getApiName(),
 				params);
 
-		if (!ValidateUtil.checkHttpResponse(action, result)) {
+		if ( !ValidateUtil.checkHttpResponse(action, result) ) {
     		return CompletableFuture.completedFuture(false);
 		}
 
@@ -212,7 +211,7 @@ public class AsyncCommandService {
 				gameServerDomain + RequestPathEnum.BET_RESULT_UPDATE.getApiName(),
 				params);
 
-		if (!ValidateUtil.checkHttpResponse(action, result)) {
+		if ( !ValidateUtil.checkHttpResponse(action, result) ) {
     		return;
 		}
 
@@ -229,7 +228,7 @@ public class AsyncCommandService {
 		result = HttpClient4Util.doPost(
 				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),
 				params);
-		if (!ValidateUtil.checkHttpResponse(action, result)) {
+		if ( !ValidateUtil.checkHttpResponse(action, result) ) {
     		return;
 		}
 
@@ -247,7 +246,7 @@ public class AsyncCommandService {
 		String result = HttpClient4Util.doPost(
 				gameServerDomain + RequestPathEnum.ORDER_SETTLEMENT.getApiName(),
 				params);
-		if ( ValidateUtil.checkHttpResponse(action, result)==false ) {
+		if ( !ValidateUtil.checkHttpResponse(action, result) ) {
     		return;
 		}
 
@@ -269,7 +268,7 @@ public class AsyncCommandService {
 		Set<Long> allGroupIdSet = gameInfo.getTgGroupMap().keySet();
 		Set<Long> groupIdSet = new HashSet<>();
 
-		Map<Long, List<Map<String, Object>>> top20WinUsers = new HashMap<>();
+		Map<Long, List<BetHistory>> top20WinUsers = new HashMap<>();
 		if ( betMap!=null ) {
 			groupIdSet = betMap.keySet();
 			for ( Long tgGroupId: betMap.keySet() ) {
@@ -281,14 +280,17 @@ public class AsyncCommandService {
 					return betHistory;
 				}).collect(Collectors.groupingBy(BetHistory::getUsername, Collectors.summingDouble(BetHistory::getWinAmount))); //.limit(20)
 
-				List<Map<String, Object>> betHistoryList = new ArrayList<>();
+				List<BetHistory> betHistoryList = new ArrayList<>();
 				for ( String nickName: sumMap.keySet() ) {
-					Map<String, Object> betHistory = new HashMap<>();
-					betHistory.put("username", nickName);
-					betHistory.put("winAmount", sumMap.get(nickName));
+					BetHistory betHistory = new BetHistory();
+					betHistory.setUsername(nickName);
+					betHistory.setWinAmount(sumMap.get(nickName));
 					betHistoryList.add(betHistory);
 				}
 				
+				betHistoryList = betHistoryList.stream().sorted(Comparator.comparingDouble(bet -> { 
+					return (-bet.getWinAmount().doubleValue());
+				})).collect(Collectors.toList());
 				top20WinUsers.put(tgGroupId, betHistoryList.subList(0, betHistoryList.size()>20 ? 20 : betHistoryList.size() ));
 			}
 		}
@@ -301,7 +303,7 @@ public class AsyncCommandService {
     }
     
     @Data
-    class BetHistory {
+    public class BetHistory {
     	
     	private String username;
     	private Double winAmount;

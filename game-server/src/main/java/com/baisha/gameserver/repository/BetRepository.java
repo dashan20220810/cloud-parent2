@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import com.baisha.gameserver.model.Bet;
+import com.baisha.gameserver.vo.BetReturnAmountVO;
 
 /**
  * @author: alvin
@@ -27,10 +28,28 @@ public interface BetRepository extends JpaRepository<Bet, Long>, JpaSpecificatio
     @Query(value = " update Bet b set b.settleTime = ?4,b.winAmount=?2,b.finalAmount=?3,b.status = 2  where b.id =?1 ")
     int updateSettleBetById(Long id, BigDecimal winAmount, BigDecimal finalAmount, Date settleTime);
     
-    @Query(value = " SELECT SUM(b.winAmount) FROM Bet b WHERE b.userId = ?1 AND b.updateTime BETWEEN ?2 AND ?3 ")
-    BigDecimal todayTotalProfit ( Long userId, Date beginTime, Date endTime );
+    /**
+     * 查询结算中未返水的流水总额
+     * @param userId
+     * @param tgChatId
+     * @param beginTime
+     * @param endTime
+     * @return
+     */
+    @Query(value = " SELECT SUM(b.amountH) +SUM(b.amountSs) +SUM(b.amountX) +SUM(b.amountXd) +SUM(b.amountZ) +SUM(b.amountZd) "
+    		+ " FROM Bet b WHERE b.status=2 AND (b.isReturned IS NULL or b.isReturned = false) "
+    		+ " 	AND b.userId = ?1 AND b.tgChatId=?2 AND b.updateTime BETWEEN ?3 AND ?4 ")
+    BigDecimal sumFlowAmount ( Long userId, Long tgChatId, Date beginTime, Date endTime );
 
-    @Query(value = " SELECT SUM(b.amountH) +SUM(b.amountSs) +SUM(b.amountX) +SUM(b.amountXd) +SUM(b.amountZ) +SUM(b.amountZd) FROM Bet b WHERE b.userId = ?1 AND b.updateTime BETWEEN ?2 AND ?3 ")
-    BigDecimal todayTotalWater ( Long userId, Date beginTime, Date endTime );
-    
+    @Query(value = " SELECT new com.baisha.gameserver.vo.BetReturnAmountVO( b.userId, b.tgChatId, "
+    		+ " (SUM(b.amountH) +SUM(b.amountSs) +SUM(b.amountX) +SUM(b.amountXd) +SUM(b.amountZ) +SUM(b.amountZd)) ) "
+    		+ " FROM Bet b WHERE b.status=2 AND (b.isReturned IS NULL or b.isReturned = false) "
+    		+ " 	AND b.updateTime BETWEEN ?1 AND ?2 "
+    		+ " 		GROUP BY b.userId, b.tgChatId ")
+    List<BetReturnAmountVO> sumFlowAmount ( Date beginTime, Date endTime );
+
+    @Modifying
+    @Query(value = " update Bet b SET  b.isReturned=?5 WHERE b.status=2 AND (b.isReturned IS NULL or b.isReturned = false) "
+    		+ " 	AND b.userId = ?1 AND b.tgChatId=?2 AND b.updateTime BETWEEN ?3 AND ?4 ")
+    int updateReturnAmount ( Long userId, Long tgChatId, Date beginTime, Date endTime, boolean isReturned );
 }

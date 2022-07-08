@@ -209,4 +209,27 @@ public class OrderBusiness {
         return json.getBigDecimal("data");
 	}
 	
+	public BigDecimal returnAmount (Long tgChatId) {
+		String action = "玩家返水";
+    	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
+    	//  user id查user
+    	String userIdOrName = CasinoWebUtil.getCurrentUserId();
+    	UserVO userVO = userBusiness.getUserVO(isTgRequest, userIdOrName);
+    	
+    	if ( userVO==null ) {
+    		log.info("{} 失败 查不到玩家资料", action);
+            return null;
+    	}
+
+        String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.ORDER_RETURN_AMOUNT.getApiName() +"?userId=" +userVO.getId() +"&tgChatId=" +tgChatId);
+        
+        if (!ValidateUtil.checkHttpResponse(action, result)) {
+        	return null;
+        }
+        
+        JSONObject json = JSONObject.parseObject(result);
+        
+        return json.getBigDecimal("data");
+	}
+	
 }

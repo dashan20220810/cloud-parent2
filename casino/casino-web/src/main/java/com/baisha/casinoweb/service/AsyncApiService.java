@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baisha.casinoweb.service.AsyncCommandService.BetHistory;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
@@ -24,7 +25,7 @@ public class AsyncApiService {
     private String telegramServerDomain;
     
     @Async
-    public void tgSettlement ( String noActive, String betDisplay, Map<Long, List<Map<String, Object>>> betHistoryList ) {
+    public void tgSettlement ( String noActive, String betDisplay, Map<Long, List<BetHistory>> betHistoryList ) {
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("bureauNum", noActive);

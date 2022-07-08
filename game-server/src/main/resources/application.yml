@@ -8,6 +8,8 @@ project:
     enable: true
   server-url:
     user-server-domain: http://192.168.26.25:9300
+  game:
+    return-amount-multiplier: 0.01
 
 logging:
   level:

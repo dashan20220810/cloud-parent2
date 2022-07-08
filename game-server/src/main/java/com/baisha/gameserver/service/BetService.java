@@ -2,12 +2,14 @@ package com.baisha.gameserver.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import com.baisha.gameserver.model.Bet;
 import com.baisha.gameserver.repository.BetRepository;
+import com.baisha.gameserver.vo.BetReturnAmountVO;
 
 /**
  * @author: alvin
@@ -66,11 +69,33 @@ public class BetService {
         return betRepository.updateSettleBetById(id, winAmount, finalAmount, new Date());
     }
 
-    public BigDecimal returnAmount ( Long userId, Long tgChatId ) {
-    	 
+    public BigDecimal returnAmount ( Long userId, Long tgChatId, BigDecimal gameReturnAmountMultiplier ) {
+
+        Date todayStartTime = DateUtils.truncate(new Date(), Calendar.DATE);
+        Date todayEndTime = DateUtils.addDays(todayStartTime, 1);
+        todayEndTime = DateUtils.addMilliseconds(todayEndTime, -1);
+    	BigDecimal totalFlowAmount = betRepository.sumFlowAmount(userId, tgChatId, todayStartTime, todayEndTime);
+    	if ( totalFlowAmount==null || totalFlowAmount.equals(BigDecimal.ZERO) ) {
+    		return BigDecimal.ZERO;
+    	}
     	
+    	betRepository.updateReturnAmount(userId, tgChatId, todayStartTime, todayEndTime, true);
+    	return totalFlowAmount.multiply(gameReturnAmountMultiplier);
+    }
+    
+    public List<BetReturnAmountVO> returnAmountByDay ( BigDecimal gameReturnAmountMultiplier ) {
+
+        Date yesterdayStartTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -1);
+        Date yesterdayEndTime = DateUtils.addMilliseconds(DateUtils.addDays(yesterdayStartTime, 1), -1);
     	
-    	//TODO
-    	return null;
+        List<BetReturnAmountVO> result = betRepository.sumFlowAmount(yesterdayStartTime, yesterdayEndTime);
+        
+        result.forEach( vo -> {
+        	betRepository.updateReturnAmount(vo.getUserId(), vo.getTgChatId(), yesterdayStartTime, yesterdayEndTime, true);
+        	if ( vo.getTotalFlowAmount()!=null && !vo.getTotalFlowAmount().equals(BigDecimal.ZERO) ) {
+        		vo.setTotalReturnAmount( gameReturnAmountMultiplier.multiply(new BigDecimal(vo.getTotalFlowAmount())) );
+        	}
+        });
+    	return result;
     }
 }

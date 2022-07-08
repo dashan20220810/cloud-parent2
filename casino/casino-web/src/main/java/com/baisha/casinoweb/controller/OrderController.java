@@ -23,6 +23,7 @@ import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.modulecommon.enums.GameStatusEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
+import com.baisha.modulecommon.util.DateUtil;
 import com.baisha.modulecommon.vo.GameInfo;
 import com.baisha.modulecommon.vo.GameTgGroupInfo;
 import com.baisha.modulecommon.vo.GameUserInfo;
@@ -160,5 +161,18 @@ public class OrderController {
             return ResponseUtil.fail();
         }
         return ResponseUtil.success(result);
+    }
+
+    @GetMapping("returnAmount")
+    @ApiOperation("返水")
+    public ResponseEntity<String> returnAmount(Long tgChatId) {
+
+        if ( tgChatId==null ) {
+            log.info("[返水] 检核失败");
+            return ResponseUtil.custom("检核失败");
+        }
+        log.info("返水 tgChatId: {}", tgChatId);
+        BigDecimal returnAmount = orderBusiness.returnAmount(tgChatId);
+        return ResponseUtil.success(returnAmount.toString());
     }
 }

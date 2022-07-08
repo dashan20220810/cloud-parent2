@@ -61,4 +61,13 @@ public class BetStatisticsService {
         return null;
     }
 
+    @Caching(put = {@CachePut(key = "#userId +'_' #tgChatId +'_' +#statisticsDate")})
+    public BetStatistics updateReturnAmount(Long userId, Long tgChatId, Integer statisticsDate, BigDecimal returnAmount) {
+        int i = betStatisticsRepository.updateReturnAmount(userId, tgChatId, statisticsDate, returnAmount);
+        if (i > 0) {
+            return betStatisticsRepository.findByUserIdAndTgChatIdAndStatisticsDate(userId, tgChatId, statisticsDate);
+        }
+        return null;
+    }
+
 }

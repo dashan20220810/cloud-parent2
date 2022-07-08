@@ -15,6 +15,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -38,6 +39,10 @@ import java.util.List;
 @RequestMapping("order")
 @Slf4j
 public class OrderController {
+
+	
+    @Value("${project.game.return-amount-multiplier}")
+    private BigDecimal gameReturnAmountMultiplier;
 
     @Autowired
     BetService betService;
@@ -184,7 +189,7 @@ public class OrderController {
     }
 
 
-    @PostMapping("returnAmount")
+    @GetMapping("returnAmount")
     @ApiOperation("返水")
     public ResponseEntity<String> returnAmount(Long userId, Long tgChatId) {
 
@@ -193,7 +198,8 @@ public class OrderController {
             return ResponseUtil.custom("检核失败");
         }
         log.info("返水 user id: {}, tgChatId: {}", userId, tgChatId);
-//        betService.delete(betId);
-        return ResponseUtil.success();
+        BigDecimal returnAmount = betService.returnAmount(userId, tgChatId, gameReturnAmountMultiplier);
+        betStatisticsService.updateReturnAmount(userId, tgChatId, Integer.parseInt(DateUtil.today(DateUtil.YYYYMMDD)), returnAmount);
+        return ResponseUtil.success(returnAmount.toString());
     }
 }

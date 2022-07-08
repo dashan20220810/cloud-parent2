@@ -20,4 +20,9 @@ public interface BetStatisticsRepository extends JpaRepository<BetStatistics, Lo
     @Modifying
     @Query(value = " update BetStatistics b set b.winAmount = b.winAmount + ?4 where b.userId =?1 AND b.tgChatId =?2 AND b.statisticsDate = ?3 ")
     int updateWinAmount(Long userId, Long tgChatId, Integer statisticsDate, BigDecimal winAmount);
+
+    @Modifying
+    @Query(value = " update BetStatistics b set b.returnAmount = b.returnAmount + ?4 "
+    		+ " where b.userId =?1 AND b.tgChatId =?2 AND b.statisticsDate = ?3 ")
+    int updateReturnAmount(Long userId, Long tgChatId, Integer statisticsDate, BigDecimal returnAmount);
 }
