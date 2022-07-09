@@ -32,9 +32,10 @@ public class DirectReceiver {
     }
 
     @RabbitListener(queues = MqConstants.WEB_CLOSE_GAME)
-    public void open(OpenVO vo) {
-        System.out.println("==============" + JSONObject.toJSONString(vo));
-        dealerBusiness.open(vo.getDealerIp(), vo.getAwardOption());
+    public void open(String jsonStr) {
+        System.out.println("==============" + jsonStr);
+        OpenVO vo = JSONObject.parseObject(jsonStr, OpenVO.class);
+        dealerBusiness.open(vo.getDealerIp(), vo.getAwardOption(), vo.getEndTime());
     }
 
     /**

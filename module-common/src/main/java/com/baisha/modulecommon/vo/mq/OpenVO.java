@@ -1,5 +1,6 @@
 package com.baisha.modulecommon.vo.mq;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import lombok.Builder;
@@ -20,5 +21,8 @@ public class OpenVO implements Serializable {
 	
 	/** 开牌结果 */
 	private String awardOption;
+
+	/** 开牌时间 */
+	private String endTime;
 	
 }

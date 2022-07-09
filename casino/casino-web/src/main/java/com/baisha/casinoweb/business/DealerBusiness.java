@@ -67,10 +67,10 @@ public class DealerBusiness {
 	}
 
     @Async
-    public void open ( String dealerIp, String awardOption ) {
+    public void open (String dealerIp, String awardOption, String openingTime) {
 
     	log.info("\r\n================= 开牌");
-    	asyncCommandService.open(dealerIp, awardOption);
+    	asyncCommandService.open(dealerIp, awardOption, openingTime);
     	log.info("开牌成功");
     }
 
