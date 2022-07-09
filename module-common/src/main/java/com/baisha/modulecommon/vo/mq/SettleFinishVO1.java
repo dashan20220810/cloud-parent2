@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -16,10 +15,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class SettleFinishVO implements Serializable {
+public class SettleFinishVO1 implements Serializable {
 
-    @Serial
-    private static final long serialVersionUID = -4470186284001035447L;
     /**
      * 局号
      */
