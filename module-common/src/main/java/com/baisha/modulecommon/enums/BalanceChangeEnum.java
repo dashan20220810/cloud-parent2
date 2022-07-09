@@ -1,7 +1,5 @@
 package com.baisha.modulecommon.enums;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,6 +12,7 @@ public enum BalanceChangeEnum {
     BET(2, "下注"),
     WIN(3, "派彩"),
     WITHDRAW(4, "提现(下分)"),
+    RETURN_AMOUNT(5, "返水"),
     ;
 
     private Integer code;

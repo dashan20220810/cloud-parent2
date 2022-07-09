@@ -28,7 +28,7 @@ public class BetStatisticsService {
     @Autowired
     BetStatisticsRepository betStatisticsRepository;
 
-    @Caching(put = {@CachePut(key = "#entity.userId +'_' #entity.tgChatId +'_' +#entity.statisticsDate")})
+    @Caching(put = {@CachePut(key = "#entity.userId +'_' +#entity.tgChatId +'_' +#entity.statisticsDate")})
     public BetStatistics save(BetStatistics entity) {
         return betStatisticsRepository.save(entity);
     }
@@ -38,12 +38,12 @@ public class BetStatisticsService {
         return findByUserIdAndTgChatIdAndStatisticsDate(userId, tgChatId, Integer.parseInt(dateStr));
     }
 
-    @Cacheable(key = "#userId +'_' #tgChatId +'_'+#statisticsDate", unless = "#result == null")
+    @Cacheable(key = "#userId +'_' +#tgChatId +'_'+#statisticsDate", unless = "#result == null")
     public BetStatistics findByUserIdAndTgChatIdAndStatisticsDate(Long userId, Long tgChatId, Integer statisticsDate) {
         return betStatisticsRepository.findByUserIdAndTgChatIdAndStatisticsDate(userId, tgChatId, statisticsDate);
     }
 
-    @Caching(put = {@CachePut(key = "#userId +'_' #tgChatId +'_' +#statisticsDate")})
+    @Caching(put = {@CachePut(key = "#userId +'_' +#tgChatId +'_' +#statisticsDate", unless = "#result == null")})
     public BetStatistics updateFlowAmount(Long userId, Long tgChatId, Integer statisticsDate, BigDecimal flowAmount) {
         int i = betStatisticsRepository.updateFlowAmount(userId, tgChatId, statisticsDate, flowAmount);
         if (i > 0) {
@@ -52,7 +52,7 @@ public class BetStatisticsService {
         return null;
     }
 
-    @CachePut(key = "#userId +'_' #tgChatId +'_' +#statisticsDate")
+    @CachePut(key = "#userId +'_' +#tgChatId +'_' +#statisticsDate", unless = "#result == null")
     public BetStatistics statisticsWinAmount(Integer statisticsDate, Long userId, Long tgChatId, BigDecimal winAmount) {
         int i = betStatisticsRepository.updateWinAmount(userId, tgChatId, statisticsDate, winAmount);
         if (i > 0) {
@@ -61,7 +61,7 @@ public class BetStatisticsService {
         return null;
     }
 
-    @Caching(put = {@CachePut(key = "#userId +'_' #tgChatId +'_' +#statisticsDate")})
+    @CachePut(key = "#userId +'_' +#tgChatId +'_' +#statisticsDate", unless = "#result == null")
     public BetStatistics updateReturnAmount(Long userId, Long tgChatId, Integer statisticsDate, BigDecimal returnAmount) {
         int i = betStatisticsRepository.updateReturnAmount(userId, tgChatId, statisticsDate, returnAmount);
         if (i > 0) {

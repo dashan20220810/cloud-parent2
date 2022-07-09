@@ -35,10 +35,10 @@ import java.util.List;
  * @author: alvin
  */
 @RestController
-@Api(tags = "订单管理")
+@Api(tags = "注单管理")
 @RequestMapping("order")
 @Slf4j
-public class OrderController {
+public class BetController {
 
 	
     @Value("${project.game.return-amount-multiplier}")
@@ -172,7 +172,7 @@ public class OrderController {
         }
         log.info("当日流水 user id: {}, tgChatId: {}", userId, tgChatId);
         BetStatistics entity = betStatisticsService.findByUserIdAndTgChatIdAndStatisticsDate(userId, tgChatId);
-        return ResponseUtil.success(entity==null||entity.getFlowAmount()==null ? "0" : entity.getFlowAmount().toString());
+        return ResponseUtil.success(entity==null||entity.getFlowAmount()==null ? "0.00" : entity.getFlowAmount().toString());
     }
 
     @GetMapping("todayTotalProfit")
@@ -185,7 +185,7 @@ public class OrderController {
         }
         log.info("当日盈利 user id: {}, tgChatId: {}", userId, tgChatId);
         BetStatistics entity = betStatisticsService.findByUserIdAndTgChatIdAndStatisticsDate(userId, tgChatId);
-        return ResponseUtil.success(entity==null||entity.getWinAmount()==null ? "0" : entity.getWinAmount().toString());
+        return ResponseUtil.success(entity==null||entity.getWinAmount()==null ? "0.00" : entity.getWinAmount());
     }
 
 
@@ -200,6 +200,6 @@ public class OrderController {
         log.info("返水 user id: {}, tgChatId: {}", userId, tgChatId);
         BigDecimal returnAmount = betService.returnAmount(userId, tgChatId, gameReturnAmountMultiplier);
         betStatisticsService.updateReturnAmount(userId, tgChatId, Integer.parseInt(DateUtil.today(DateUtil.YYYYMMDD)), returnAmount);
-        return ResponseUtil.success(returnAmount.toString());
+        return ResponseUtil.success(returnAmount);
     }
 }

@@ -52,14 +52,12 @@ public class DealerBusiness {
     	String newActive = gamblingBusiness.generateNewActive(deskCode, gameNo);
     	
     	Future<Boolean> openNewGameResult = asyncCommandService.openNewGame(deskId, deskCode, newActive);
-    	
+    	Future<Boolean> bettingResult = asyncCommandService.betting(deskCode, newActive);
+
     	if (!handleFuture(openNewGameResult)) {
 			CompletableFuture.completedFuture(false);
 			return;
     	}
-
-    	Future<Boolean> bettingResult = asyncCommandService.betting(deskCode, newActive);
-
     	if (!handleFuture(bettingResult)) {
 			CompletableFuture.completedFuture(false);
 			return;

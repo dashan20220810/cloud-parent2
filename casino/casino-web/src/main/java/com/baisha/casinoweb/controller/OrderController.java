@@ -23,7 +23,6 @@ import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.modulecommon.enums.GameStatusEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
-import com.baisha.modulecommon.util.DateUtil;
 import com.baisha.modulecommon.vo.GameInfo;
 import com.baisha.modulecommon.vo.GameTgGroupInfo;
 import com.baisha.modulecommon.vo.GameUserInfo;
@@ -141,7 +140,7 @@ public class OrderController {
 
     @GetMapping("todayTotalWater")
     @ApiOperation("当日流水")
-    public ResponseEntity<String> todayTotalWater(Long tgChatId) {
+    public ResponseEntity<BigDecimal> todayTotalWater(Long tgChatId) {
 
         log.info("当日流水");
         BigDecimal result = orderBusiness.todayTotalWater(tgChatId);
@@ -153,7 +152,7 @@ public class OrderController {
 
     @GetMapping("todayTotalProfit")
     @ApiOperation("当日盈利")
-    public ResponseEntity<String> todayTotalProfit(Long tgChatId) {
+    public ResponseEntity<BigDecimal> todayTotalProfit(Long tgChatId) {
 
         log.info("当日盈利");
         BigDecimal result = orderBusiness.todayTotalProfit(tgChatId);
@@ -165,7 +164,7 @@ public class OrderController {
 
     @GetMapping("returnAmount")
     @ApiOperation("返水")
-    public ResponseEntity<String> returnAmount(Long tgChatId) {
+    public ResponseEntity<BigDecimal> returnAmount(Long tgChatId) {
 
         if ( tgChatId==null ) {
             log.info("[返水] 检核失败");
@@ -173,6 +172,6 @@ public class OrderController {
         }
         log.info("返水 tgChatId: {}", tgChatId);
         BigDecimal returnAmount = orderBusiness.returnAmount(tgChatId);
-        return ResponseUtil.success(returnAmount.toString());
+        return ResponseUtil.success(ResponseUtil.formatOutput(returnAmount));
     }
 }

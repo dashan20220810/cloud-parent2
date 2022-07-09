@@ -1,6 +1,7 @@
 package com.baisha.casinoweb.controller;
 
-import org.apache.commons.lang3.StringUtils;
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -74,11 +75,11 @@ public class UserController {
 	 */
 	@PostMapping("balance")
 	@ApiOperation("查詢余額")
-	public ResponseEntity<String> balance () {
+	public ResponseEntity<BigDecimal> balance () {
 
 		log.info("查詢余額");
-		String balance = assetsBusiness.balance();
-		if ( StringUtils.isBlank(balance) ) {
+		BigDecimal balance = assetsBusiness.balance();
+		if ( balance==null ) {
 			log.info("查詢余額失敗");
             return ResponseUtil.fail();
 		}

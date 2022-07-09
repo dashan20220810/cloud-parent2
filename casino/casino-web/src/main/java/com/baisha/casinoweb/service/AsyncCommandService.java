@@ -10,9 +10,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.time.DateUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +28,7 @@ import com.baisha.casinoweb.business.DeskBusiness;
 import com.baisha.casinoweb.business.GameInfoBusiness;
 import com.baisha.casinoweb.model.vo.response.BetResponseVO;
 import com.baisha.casinoweb.util.ValidateUtil;
+import com.baisha.casinoweb.util.constant.RedisConstants;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.core.constants.RedisKeyConstants;
 import com.baisha.core.dto.SysTelegramDto;
@@ -61,6 +65,9 @@ public class AsyncCommandService {
     
     @Autowired
     private RedisUtil redisUtil;
+    
+    @Autowired
+    private RedissonClient redisson;
 
     @Autowired
     private TelegramService telegramService;
@@ -158,26 +165,19 @@ public class AsyncCommandService {
     @Async
     public Future<Boolean> betting ( String deskCode, String newActive) {
     	
-    	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
-    	Date beginTime = gameInfo.getBeginTime();
-    	Date endTime = gameInfo.getEndTime();
-
     	log.info("\r\n================= 下注中 倒数计时");
-    	
-    	Date now = new Date();
-    	while (endTime.after(now)) {
-    		Long timeDiff = (now.getTime() - beginTime.getTime());
-    		if ( timeDiff%10000 < 150 ) {
-    	    	log.info("下注中 计时 {}秒", timeDiff/1000);
-    		}
 
-    		try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				log.error("下注中 计时 失败", e);
-			}
-    		now = new Date();
-    	}
+        RLock fairLock = redisson.getFairLock(RedisConstants.GAME_COUNT_DOWN + newActive);
+        boolean res;
+		try {
+			res = fairLock.tryLock(RedisConstants.WAIT_TIME, gameCountDownSeconds, TimeUnit.SECONDS);
+	        if (res) {
+	            fairLock.unlock();
+	        }
+		} catch (InterruptedException e) {
+			log.error("下注中 失败", e);
+			return CompletableFuture.completedFuture(false);
+		}
 
     	gameInfoBusiness.closeGame(deskCode);
     	

@@ -1,8 +1,11 @@
 package com.baisha.modulecommon.reponse;
 
-import com.baisha.modulecommon.util.MessageUtil;
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.baisha.modulecommon.util.MessageUtil;
 
 @Component
 public class ResponseUtil {
@@ -82,5 +85,13 @@ public class ResponseUtil {
     public static ResponseEntity customBefore(Object data, String msg) {
         String translateMsg = data + " " + messageUtil.get(msg);
         return new ResponseEntity(translateMsg);
+    }
+    
+    public static BigDecimal formatOutput(BigDecimal val) {
+    	if ( val==null ) {
+    		val = BigDecimal.ZERO;
+    	}
+    	val.setScale(2, BigDecimal.ROUND_HALF_UP); // this does change bd
+        return val.setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 }

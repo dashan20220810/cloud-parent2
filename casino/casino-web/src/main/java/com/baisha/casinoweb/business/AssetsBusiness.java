@@ -1,5 +1,6 @@
 package com.baisha.casinoweb.business;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,10 +9,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baisha.casinoweb.model.vo.UserVO;
+import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.util.constant.Constants;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
-import com.baisha.casinoweb.util.CasinoWebUtil;
-import com.baisha.casinoweb.model.vo.UserVO;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
@@ -69,7 +70,7 @@ public class AssetsBusiness {
 	}
 	
 	
-	public String balance () {
+	public BigDecimal balance () {
     	String userIdOrName = CasinoWebUtil.getCurrentUserId();
     	Long userId = null;
     	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
@@ -96,6 +97,6 @@ public class AssetsBusiness {
             return null;
 		}
 		
-		return balanceJson.getJSONObject("data").getString("balance");
+		return balanceJson.getJSONObject("data").getBigDecimal("balance");
 	}
 }
