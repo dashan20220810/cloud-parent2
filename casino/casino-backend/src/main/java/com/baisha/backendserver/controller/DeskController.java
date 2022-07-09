@@ -276,14 +276,14 @@ public class DeskController {
         if (StringUtils.isEmpty(vo.getGameCode())) {
             return ResponseUtil.parameterNotNull();
         }
-        if (null == vo.getX() || vo.getX().compareTo(BigDecimal.ZERO) <= 0
-                || null == vo.getZ() || vo.getZ().compareTo(BigDecimal.ZERO) <= 0
-                || null == vo.getH() || vo.getH().compareTo(BigDecimal.ZERO) <= 0
-                || null == vo.getZd() || vo.getZd().compareTo(BigDecimal.ZERO) <= 0
-                || null == vo.getXd() || vo.getXd().compareTo(BigDecimal.ZERO) <= 0
-                || null == vo.getSs2() || vo.getSs2().compareTo(BigDecimal.ZERO) <= 0
-                || null == vo.getSs3() || vo.getSs3().compareTo(BigDecimal.ZERO) <= 0) {
-            return new ResponseEntity("赔率不规范");
+        if (checkOdds(vo.getX())
+                || checkOdds(vo.getZ())
+                || checkOdds(vo.getH())
+                || checkOdds(vo.getZd())
+                || checkOdds(vo.getXd())
+                || checkOdds(vo.getSs2())
+                || checkOdds(vo.getSs3())) {
+            return new ResponseEntity("赔率不规范(大于0小于100)");
         }
 
         String url = gameServerUrl + GameServerConstants.GAME_SET_BACC_ODDS;
@@ -302,5 +302,20 @@ public class DeskController {
 
     }
 
+
+    private boolean checkOdds(BigDecimal odds) {
+        if (null == odds) {
+            return true;
+        }
+        if (odds.compareTo(BigDecimal.ZERO) <= 0) {
+            return true;
+        }
+        BigDecimal ge = new BigDecimal("100");
+        if (odds.compareTo(ge) > 0) {
+            return true;
+        }
+
+        return false;
+    }
 
 }
