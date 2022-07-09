@@ -5,7 +5,6 @@ import com.baisha.gameserver.business.BetSettlementBusiness;
 import com.baisha.gameserver.util.contants.RedisConstants;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
-import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -41,7 +40,7 @@ public class BetSettlementDirectReceiver {
                 betSettlementService.betSettlement(vo);
 
                 //结算完毕 通知
-                SettleFinishVO fvo = SettleFinishVO.builder().noActive(vo.getNoActive()).openCardResult(vo.getAwardOption()).build();
+                BetSettleVO fvo = BetSettleVO.builder().noActive(vo.getNoActive()).awardOption(vo.getAwardOption()).build();
                 rabbitTemplate.convertAndSend(MqConstants.SETTLEMENT_FINISH, fvo);
             }
         } catch (Exception e) {

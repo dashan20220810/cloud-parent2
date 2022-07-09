@@ -1,5 +1,6 @@
 package com.baisha.casinoweb.mq;
 
+import com.baisha.modulecommon.vo.mq.BetSettleVO;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,7 +10,6 @@ import com.baisha.casinoweb.business.DealerBusiness;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.vo.mq.OpenNewGameVO;
 import com.baisha.modulecommon.vo.mq.OpenVO;
-import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 
 @Component
 public class DirectReceiver {
@@ -42,9 +42,9 @@ public class DirectReceiver {
      * @param vo
      */
     @RabbitListener(queues = MqConstants.SETTLEMENT_FINISH)
-    public void settleFinish(SettleFinishVO vo) {
+    public void settleFinish(BetSettleVO vo) {
         System.out.println("==============" + JSONObject.toJSONString(vo));
-        dealerBusiness.settlement(vo.getNoActive(), vo.getOpenCardResult());
+        dealerBusiness.settlement(vo.getNoActive(), vo.getAwardOption());
     }
     
 
