@@ -1,7 +1,5 @@
 package com.baisha.casinoweb.service;
 
-import java.net.URLEncoder;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -15,8 +13,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.date.DateUtil;
-import com.baisha.casinoweb.model.param.GameVideoParam;
-import com.baisha.casinoweb.util.constant.Constants;
+import com.baisha.modulecommon.enums.TgBaccRuleEnum;
 import com.beust.jcommander.internal.Maps;
 import org.apache.commons.lang3.time.DateUtils;
 import org.redisson.api.RedissonClient;
@@ -128,6 +125,7 @@ public class AsyncCommandService {
 			groupIdList.add(groupJson.getLong("chatId"));
 		}
 		gameInfo.initTgGRoupMap(groupIdList);
+		log.info("=======开局 gameInfo: {}", gameInfo);
     	gameInfoBusiness.setGameInfo(deskCode, gameInfo);
     	
     	// 预存开牌资料
@@ -174,6 +172,7 @@ public class AsyncCommandService {
     	log.info("\r\n================= 下注中 倒数计时");
 
     	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
+		log.info("\r\n================= gameInfo : {}", gameInfo);
     	Date beginTime = gameInfo.getBeginTime();
     	Date endTime = gameInfo.getEndTime();
 
@@ -220,20 +219,23 @@ public class AsyncCommandService {
     		log.warn("开牌 失败, 查无桌台");
     		return;
     	}
-    	
+
+		// 获取开牌结果
+		String openCardResult = getAwardOption(awardOption);
+
     	Long deskId = desk.getLong("id");
     	String deskCode = desk.getString("deskCode");
 		String closeUpVideoSteam = desk.getString("videoAddress");
     	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
     	
-		redisUtil.hset(RedisKeyConstants.SYS_GAME_RESULT, gameInfo.getCurrentActive(), awardOption);
+		redisUtil.hset(RedisKeyConstants.SYS_GAME_RESULT, gameInfo.getCurrentActive(), openCardResult);
 		redisUtil.hset(RedisKeyConstants.SYS_GAME_DESK, gameInfo.getCurrentActive(), deskCode);
 
     	// 预存开牌资料
 		Map<String, Object> params = new HashMap<>();
 		params.put("noActive", gameInfo.getCurrentActive());
 		params.put("tableId", deskId);
-		params.put("awardOption", awardOption);
+		params.put("awardOption", openCardResult);
 		String result = HttpClient4Util.doPost(
 				gameServerDomain + RequestPathEnum.BET_RESULT_UPDATE.getApiName(),
 				params);
@@ -259,13 +261,27 @@ public class AsyncCommandService {
 				params);
 		ValidateUtil.checkHttpResponse(action, result);
 
-        BetSettleVO vo = BetSettleVO.builder().noActive(gameInfo.getCurrentActive()).awardOption(awardOption).build();
+        BetSettleVO vo = BetSettleVO.builder().noActive(gameInfo.getCurrentActive()).awardOption(openCardResult).build();
         rabbitTemplate.convertAndSend(MqConstants.BET_SETTLEMENT, vo);
 
 		//发送视频地址给TG
 		// 获取荷官开始时间unix时间戳
 //		sendVideoAddressToTg(gameInfo.getCurrentActive(), closeUpVideoSteam, qTime, action, deskId);
     }
+
+	private String getAwardOption(final String awardOption) {
+		switch(awardOption){
+			case "0" : return TgBaccRuleEnum.SS2.getCode();
+			case "1" : return TgBaccRuleEnum.Z.getCode();
+			case "2" : return TgBaccRuleEnum.H.getCode();
+			case "3" : return TgBaccRuleEnum.X.getCode();
+			case "4" : return TgBaccRuleEnum.ZD.getCode();
+			case "5" : return TgBaccRuleEnum.XD.getCode();
+			case "6" : return TgBaccRuleEnum.SS3.getCode();
+			default: log.error("没有该开牌类型"); break;
+		}
+		return null;
+	}
 
 	private void sendVideoAddressToTg(
 			final String currentActive, final String closeUpVideoSteam,
@@ -301,7 +317,7 @@ public class AsyncCommandService {
 	}
 
 	@Async
-    public void settlement ( String noActive ) {
+    public void settlement (String noActive, String openCardResult) {
     	 
     	String action = "结算";
     	Map<String, Object> params = new HashMap<>();
@@ -317,9 +333,7 @@ public class AsyncCommandService {
 		JSONObject betJson = JSONObject.parseObject(result);
 		JSONArray betArray = betJson.getJSONArray("data");
 		Map<Long, List<BetResponseVO>> betMap = null;
-		String betResult = (String) redisUtil.hget(RedisKeyConstants.SYS_GAME_RESULT, noActive);
 		String deskCode = (String) redisUtil.hget(RedisKeyConstants.SYS_GAME_DESK, noActive);
-		String betDisplay = BetOption.getBetOption(betResult).getDisplay();
 		GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
 		
 		if ( betArray!=null && betArray.size()>0 ) {
@@ -363,7 +377,7 @@ public class AsyncCommandService {
 		for ( Long tgGroupId: allGroupIdSet ) {
 			top20WinUsers.put(tgGroupId, new ArrayList<>());
 		}
-		asyncApiService.tgSettlement(noActive, betDisplay, top20WinUsers);
+		asyncApiService.tgSettlement(noActive, openCardResult, top20WinUsers);
     }
     
     @Data

@@ -75,10 +75,10 @@ public class DealerBusiness {
     }
 
     @Async
-    public void settlement ( String noActive ) {
+    public void settlement (String noActive, String openCardResult) {
     	
     	log.info("\r\n================= 结算");
-    	asyncCommandService.settlement(noActive);
+    	asyncCommandService.settlement(noActive, openCardResult);
     	log.info("结算成功");
     }
     

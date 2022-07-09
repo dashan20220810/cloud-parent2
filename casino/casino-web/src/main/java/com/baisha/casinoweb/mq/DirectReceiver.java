@@ -35,7 +35,7 @@ public class DirectReceiver {
     public void open(String jsonStr) {
         System.out.println("==============" + jsonStr);
         OpenVO vo = JSONObject.parseObject(jsonStr, OpenVO.class);
-        dealerBusiness.open(vo.getDealerIp(), vo.getAwardOption(), vo.getEndTime());
+        dealerBusiness.open(vo.getDealerIp(), vo.getConsequences(), vo.getEndTime());
     }
 
     /**
@@ -44,7 +44,7 @@ public class DirectReceiver {
     @RabbitListener(queues = MqConstants.SETTLEMENT_FINISH)
     public void settleFinish(SettleFinishVO vo) {
         System.out.println("==============" + JSONObject.toJSONString(vo));
-        dealerBusiness.settlement(vo.getNoActive());
+        dealerBusiness.settlement(vo.getNoActive(), vo.getOpenCardResult());
     }
     
 

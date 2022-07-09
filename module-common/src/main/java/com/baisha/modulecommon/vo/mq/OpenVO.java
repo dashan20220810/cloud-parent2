@@ -20,7 +20,7 @@ public class OpenVO implements Serializable {
 	private String dealerIp;
 	
 	/** 开牌结果 */
-	private String awardOption;
+	private String consequences;
 
 	/** 开牌时间 */
 	private String endTime;

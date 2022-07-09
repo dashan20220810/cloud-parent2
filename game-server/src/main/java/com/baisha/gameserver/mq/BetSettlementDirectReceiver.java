@@ -41,7 +41,7 @@ public class BetSettlementDirectReceiver {
                 betSettlementService.betSettlement(vo);
 
                 //结算完毕 通知
-                SettleFinishVO fvo = SettleFinishVO.builder().noActive(vo.getNoActive()).build();
+                SettleFinishVO fvo = SettleFinishVO.builder().noActive(vo.getNoActive()).openCardResult(vo.getAwardOption()).build();
                 rabbitTemplate.convertAndSend(MqConstants.SETTLEMENT_FINISH, fvo);
             }
         } catch (Exception e) {
