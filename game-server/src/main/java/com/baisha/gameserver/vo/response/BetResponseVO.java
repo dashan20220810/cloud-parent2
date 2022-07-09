@@ -1,4 +1,4 @@
-package com.baisha.casinoweb.model.vo.response;
+package com.baisha.gameserver.vo.response;
 
 import java.math.BigDecimal;
 
@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper=false)
-@ApiModel(value = "web-Bet返回对象", description = "注单")
+@ApiModel(value = "game-Bet返回对象", description = "注单")
 public class BetResponseVO {
 
 	@ApiModelProperty("id")

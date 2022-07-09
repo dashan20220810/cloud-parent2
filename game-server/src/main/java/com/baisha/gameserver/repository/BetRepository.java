@@ -27,20 +27,24 @@ public interface BetRepository extends JpaRepository<Bet, Long>, JpaSpecificatio
     @Modifying
     @Query(value = " update Bet b set b.settleTime = ?4,b.winAmount=?2,b.finalAmount=?3,b.status = 2  where b.id =?1 ")
     int updateSettleBetById(Long id, BigDecimal winAmount, BigDecimal finalAmount, Date settleTime);
-    
+
     /**
-     * 查询结算中未返水的流水总额
+     * status=2 AND (b.isReturned IS NULL or b.isReturned = false) AND b.winAmount < 0
      * @param userId
      * @param tgChatId
      * @param beginTime
      * @param endTime
      * @return
      */
-    @Query(value = " SELECT SUM(b.amountH) +SUM(b.amountSs) +SUM(b.amountX) +SUM(b.amountXd) +SUM(b.amountZ) +SUM(b.amountZd) "
-    		+ " FROM Bet b WHERE b.status=2 AND (b.isReturned IS NULL or b.isReturned = false) "
+    @Query(value = " SELECT b FROM Bet b WHERE b.status=2 AND (b.isReturned IS NULL or b.isReturned = false) "
+    		+ "		AND b.winAmount < 0 "
     		+ " 	AND b.userId = ?1 AND b.tgChatId=?2 AND b.updateTime BETWEEN ?3 AND ?4 ")
-    BigDecimal sumFlowAmount ( Long userId, Long tgChatId, Date beginTime, Date endTime );
+    List<Bet> findAllBy( Long userId, Long tgChatId, Date beginTime, Date endTime );
 
+    @Modifying
+    @Query(value = " update Bet b SET b.isReturned=true WHERE b.id = ?1 ")
+    int updateIsReturnedById(Long id);
+    
     @Query(value = " SELECT new com.baisha.gameserver.vo.BetReturnAmountVO( b.userId, b.tgChatId, "
     		+ " (SUM(b.amountH) +SUM(b.amountSs) +SUM(b.amountX) +SUM(b.amountXd) +SUM(b.amountZ) +SUM(b.amountZd)) ) "
     		+ " FROM Bet b WHERE b.status=2 AND (b.isReturned IS NULL or b.isReturned = false) "

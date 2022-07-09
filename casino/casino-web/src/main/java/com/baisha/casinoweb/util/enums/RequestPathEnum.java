@@ -37,6 +37,8 @@ public enum RequestPathEnum {
     ORDER_WATER("/order/todayTotalWater"),
     /** 当日盈亏 */
     ORDER_PROFIT("/order/todayTotalProfit"),
+    /** 查询未返水 */
+    ORDER_QUERY_BET_IS_NOT_RETURNED("/order/queryBetIsNotReturned"),
     /** 返水 */
     ORDER_RETURN_AMOUNT("/order/returnAmount"),
     

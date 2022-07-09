@@ -16,7 +16,6 @@ import cn.hutool.core.date.DateUtil;
 import com.baisha.modulecommon.enums.TgBaccRuleEnum;
 import com.beust.jcommander.internal.Maps;
 import org.apache.commons.lang3.time.DateUtils;
-import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +39,9 @@ import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.GameInfo;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
 import com.baisha.modulespringcacheredis.util.RedisUtil;
+import com.beust.jcommander.internal.Maps;
 
+import cn.hutool.core.date.DateUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,9 +69,6 @@ public class AsyncCommandService {
     
     @Autowired
     private RedisUtil redisUtil;
-    
-    @Autowired
-    private RedissonClient redisson;
 
     @Autowired
     private TelegramService telegramService;

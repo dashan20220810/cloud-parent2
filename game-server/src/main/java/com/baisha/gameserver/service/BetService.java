@@ -69,18 +69,22 @@ public class BetService {
         return betRepository.updateSettleBetById(id, winAmount, finalAmount, new Date());
     }
 
-    public BigDecimal returnAmount ( Long userId, Long tgChatId, BigDecimal gameReturnAmountMultiplier ) {
+    /**
+     * status=2 AND (b.isReturned IS NULL or b.isReturned = false) AND b.winAmount < 0 AND updateTime BETWEEN today
+     * @param userId
+     * @param tgChatId
+     * @return
+     */
+    public List<Bet> queryBetIsNotReturned ( Long userId, Long tgChatId ) {
 
         Date todayStartTime = DateUtils.truncate(new Date(), Calendar.DATE);
         Date todayEndTime = DateUtils.addDays(todayStartTime, 1);
         todayEndTime = DateUtils.addMilliseconds(todayEndTime, -1);
-    	BigDecimal totalFlowAmount = betRepository.sumFlowAmount(userId, tgChatId, todayStartTime, todayEndTime);
-    	if ( totalFlowAmount==null || totalFlowAmount.equals(BigDecimal.ZERO) ) {
-    		return BigDecimal.ZERO;
-    	}
-    	
-    	betRepository.updateReturnAmount(userId, tgChatId, todayStartTime, todayEndTime, true);
-    	return totalFlowAmount.multiply(gameReturnAmountMultiplier);
+        return betRepository.findAllBy(userId, tgChatId, todayStartTime, todayEndTime);
+    }
+    
+    public void updateReturnAmount(Long betId) {
+    	betRepository.updateIsReturnedById(betId);
     }
     
     public List<BetReturnAmountVO> returnAmountByDay ( BigDecimal gameReturnAmountMultiplier ) {

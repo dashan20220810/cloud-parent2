@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.baisha.casinoweb.model.vo.BetVO;
 import com.baisha.casinoweb.model.vo.UserVO;
+import com.baisha.casinoweb.model.vo.response.BetResponseVO;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.util.ValidateUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
@@ -220,16 +222,38 @@ public class OrderBusiness {
     		log.info("{} 失败 查不到玩家资料", action);
             return null;
     	}
-
-        String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.ORDER_RETURN_AMOUNT.getApiName() +"?userId=" +userVO.getId() +"&tgChatId=" +tgChatId);
-        
+    	
+    	String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.ORDER_QUERY_BET_IS_NOT_RETURNED.getApiName() +"?userId=" +userVO.getId() +"&tgChatId=" +tgChatId);
         if (!ValidateUtil.checkHttpResponse(action, result)) {
         	return null;
         }
-        
+
         JSONObject json = JSONObject.parseObject(result);
+		List<BetResponseVO> responseList = JSONObject.parseObject(json.getString("data"), new TypeReference<List<BetResponseVO>>(){});
+        BigDecimal totalReturnAmount = BigDecimal.ZERO;
         
-        return json.getBigDecimal("data");
+        for ( BetResponseVO vo: responseList ) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("betId", vo.getId());
+            params.put("userId", vo.getUserId());
+            params.put("tgChatId", vo.getTgChatId());
+            params.put("winAmount", vo.getWinAmount());
+            result = HttpClient4Util.doPost(gameServerDomain + RequestPathEnum.ORDER_RETURN_AMOUNT.getApiName(), params);
+            if (!ValidateUtil.checkHttpResponse(action, result)) {
+            	return null;
+            }
+            
+            json = JSONObject.parseObject(result);
+            BigDecimal returnAmount = json.getBigDecimal("data");
+            totalReturnAmount = totalReturnAmount.add(returnAmount);
+            
+            String raResult = assetsBusiness.returnAmount(vo.getUserId(), returnAmount, vo.getId());
+            if ( StringUtils.isNotBlank(raResult) ) {
+            	return null;
+            }
+        }
+        
+        return totalReturnAmount;
 	}
 	
 }
