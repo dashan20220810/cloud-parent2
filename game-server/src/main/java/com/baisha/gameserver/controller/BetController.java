@@ -1,19 +1,15 @@
 package com.baisha.gameserver.controller;
 
-import com.baisha.gameserver.model.Bet;
-import com.baisha.gameserver.model.BetStatistics;
-import com.baisha.gameserver.service.BetService;
-import com.baisha.gameserver.service.BetStatisticsService;
-import com.baisha.gameserver.vo.BetPageVO;
-import com.baisha.gameserver.vo.BetVO;
-import com.baisha.modulecommon.reponse.ResponseEntity;
-import com.baisha.modulecommon.reponse.ResponseUtil;
-import com.baisha.modulecommon.util.DateUtil;
-import com.baisha.modulecommon.util.PageUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.persistence.criteria.Predicate;
+
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -25,11 +21,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.criteria.Predicate;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import com.baisha.gameserver.model.Bet;
+import com.baisha.gameserver.model.BetStatistics;
+import com.baisha.gameserver.service.BetService;
+import com.baisha.gameserver.service.BetStatisticsService;
+import com.baisha.gameserver.vo.BetPageVO;
+import com.baisha.gameserver.vo.BetVO;
+import com.baisha.gameserver.vo.response.BetResponseVO;
+import com.baisha.modulecommon.reponse.ResponseEntity;
+import com.baisha.modulecommon.reponse.ResponseUtil;
+import com.baisha.modulecommon.util.DateUtil;
+import com.baisha.modulecommon.util.PageUtil;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author: alvin
@@ -188,18 +194,40 @@ public class BetController {
         return ResponseUtil.success(entity==null||entity.getWinAmount()==null ? "0.00" : entity.getWinAmount());
     }
 
-
-    @GetMapping("returnAmount")
-    @ApiOperation("返水")
-    public ResponseEntity<String> returnAmount(Long userId, Long tgChatId) {
+    @GetMapping("queryBetIsNotReturned")
+    @ApiOperation("查询未返水")
+    public ResponseEntity<List<BetResponseVO>> queryBetIsNotReturned(Long userId, Long tgChatId) {
 
         if ( userId==null || tgChatId==null ) {
+            log.info("[查询未返水] 检核失败");
+            return ResponseUtil.custom("检核失败");
+        }
+        log.info("查询未返水 user id: {}, tgChatId: {}", userId, tgChatId);
+        List<Bet> betList = betService.queryBetIsNotReturned(userId, tgChatId);
+        return ResponseUtil.success(betList.stream().map(bet -> {
+        	BetResponseVO vo = new BetResponseVO();
+        	BeanUtils.copyProperties(bet, vo);
+        	vo.setId(bet.getId());
+        	return vo;
+        }).collect(Collectors.toList()));
+        
+    }
+    
+    @PostMapping("returnAmount")
+    @ApiOperation("返水")
+    public ResponseEntity<BigDecimal> returnAmount(Long betId, Long userId, Long tgChatId, BigDecimal winAmount) {
+
+        if ( betId==null || userId==null || tgChatId==null || winAmount==null ) {
             log.info("[返水] 检核失败");
             return ResponseUtil.custom("检核失败");
         }
-        log.info("返水 user id: {}, tgChatId: {}", userId, tgChatId);
-        BigDecimal returnAmount = betService.returnAmount(userId, tgChatId, gameReturnAmountMultiplier);
+        log.info("返水 betId: {}, userId: {}, tgChatId: {}, winAmount: {}", betId, userId, tgChatId, winAmount);
+        BigDecimal returnAmount = BigDecimal.ZERO;
+        returnAmount = gameReturnAmountMultiplier.multiply(winAmount).abs();
         betStatisticsService.updateReturnAmount(userId, tgChatId, Integer.parseInt(DateUtil.today(DateUtil.YYYYMMDD)), returnAmount);
+        betService.updateReturnAmount(betId);
         return ResponseUtil.success(returnAmount);
     }
+    
+    
 }
