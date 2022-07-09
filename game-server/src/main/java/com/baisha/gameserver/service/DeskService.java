@@ -41,8 +41,9 @@ public class DeskService {
     private DeskRepository deskRepository;
 
     @CachePut(value = "desk", key = "#desk.id")
-    public void save(Desk desk) {
+    public Desk save(Desk desk) {
         deskRepository.save(desk);
+        return desk;
     }
 
     public List<Desk> findAllDeskList() {
@@ -116,9 +117,13 @@ public class DeskService {
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }
 
-    @CachePut(key = "#id")
-    public int update(Long id, String localIp, String videoAddress, String gameCode, Integer status, String name) {
-        return deskRepository.update(id, localIp, videoAddress, gameCode, status, name, new Date());
+    @CachePut(key = "#id", unless = "#result == null")
+    public Desk update(Long id, String localIp, String videoAddress, String gameCode, Integer status, String name) {
+        int n = deskRepository.update(id, localIp, videoAddress, gameCode, status, name, new Date());
+        if (n>0) {
+        	return deskRepository.findById(id).get();
+        }
+        return null;
     }
 
 }
