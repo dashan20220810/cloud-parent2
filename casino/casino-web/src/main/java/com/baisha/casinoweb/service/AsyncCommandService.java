@@ -1,7 +1,5 @@
 package com.baisha.casinoweb.service;
 
-import java.net.URLEncoder;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -14,12 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-import cn.hutool.core.date.DateUtil;
-import com.baisha.casinoweb.model.param.GameVideoParam;
-import com.baisha.casinoweb.util.constant.Constants;
-import com.beust.jcommander.internal.Maps;
 import org.apache.commons.lang3.time.DateUtils;
-import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,7 +36,9 @@ import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.GameInfo;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
 import com.baisha.modulespringcacheredis.util.RedisUtil;
+import com.beust.jcommander.internal.Maps;
 
+import cn.hutool.core.date.DateUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -71,9 +66,6 @@ public class AsyncCommandService {
     
     @Autowired
     private RedisUtil redisUtil;
-    
-    @Autowired
-    private RedissonClient redisson;
 
     @Autowired
     private TelegramService telegramService;
