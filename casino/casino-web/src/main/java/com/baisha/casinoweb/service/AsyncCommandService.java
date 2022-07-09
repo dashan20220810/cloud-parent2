@@ -1,5 +1,7 @@
 package com.baisha.casinoweb.service;
 
+import java.net.URLEncoder;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -12,6 +14,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.date.DateUtil;
+import com.baisha.casinoweb.model.param.GameVideoParam;
+import com.baisha.casinoweb.util.constant.Constants;
+import com.beust.jcommander.internal.Maps;
 import org.apache.commons.lang3.time.DateUtils;
 import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -56,6 +62,9 @@ public class AsyncCommandService {
 
     @Value("${project.game.settle-buffer-time-seconds}")
     private Integer gameSettleBufferTimeSeconds;
+
+//	@Value("${project.server-url.video-server-domain}")
+//	private String videoServerDomain;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -169,14 +178,14 @@ public class AsyncCommandService {
     	Date endTime = gameInfo.getEndTime();
 
      	log.info("\r\n================= 下注中 倒数计时");
-    	
+
     	Date now = new Date();
     	while (endTime.after(now)) {
     		Long timeDiff = (now.getTime() - beginTime.getTime());
     		if ( timeDiff%10000 < 150 ) {
     	    	log.info("下注中 计时 {}秒", timeDiff/1000);
     		}
- 
+
     		try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
@@ -184,6 +193,17 @@ public class AsyncCommandService {
 			}
     		now = new Date();
     	}
+        /*RLock fairLock = redisson.getFairLock(RedisConstants.GAME_COUNT_DOWN + newActive);
+        boolean res;
+		try {
+			res = fairLock.tryLock(RedisConstants.WAIT_TIME, gameCountDownSeconds, TimeUnit.SECONDS);
+	        if (res) {
+	            fairLock.unlock();
+	        }
+		} catch (InterruptedException e) {
+			log.error("下注中 失败", e);
+			return CompletableFuture.completedFuture(false);
+		}*/
 
     	gameInfoBusiness.closeGame(deskCode);
     	
@@ -192,7 +212,7 @@ public class AsyncCommandService {
     }
     
     @Async
-    public void open ( String dealerIp, String awardOption ) {
+    public void open (String dealerIp, String awardOption, String openingTime) {
 
     	String action = "开牌";
     	JSONObject desk = deskBusiness.queryDeskByIp(dealerIp);
@@ -203,6 +223,7 @@ public class AsyncCommandService {
     	
     	Long deskId = desk.getLong("id");
     	String deskCode = desk.getString("deskCode");
+		String closeUpVideoSteam = desk.getString("videoAddress");
     	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
     	
 		redisUtil.hset(RedisKeyConstants.SYS_GAME_RESULT, gameInfo.getCurrentActive(), awardOption);
@@ -217,32 +238,69 @@ public class AsyncCommandService {
 				gameServerDomain + RequestPathEnum.BET_RESULT_UPDATE.getApiName(),
 				params);
 
-		if ( !ValidateUtil.checkHttpResponse(action, result) ) {
+		if (!ValidateUtil.checkHttpResponse(action, result)) {
     		return;
 		}
 
-    	SysTelegramDto sysTg = telegramService.getSysTelegram();
-        // 开牌 5 request parameter 
-    	params = new HashMap<>();
+		String qTime = String.valueOf(DateUtil.parse(openingTime).getTime() / 1000);
+
+		SysTelegramDto sysTg = telegramService.getSysTelegram();
+		// 开牌 5 request parameter
+		params = Maps.newHashMap();
 		params.put("openCardAddress", sysTg.getOpenCardUrl());
 		params.put("tableId", deskId);
 		params.put("frontAddress", "https://www.google.com"); // TODO for test
 		params.put("lookDownAddress", "https://tw.yahoo.com"); // TODO for test
-		params.put("resultAddress", "http://192.168.26.24:9000/user/kaipaijieguo.png"); // TODO for test
-		params.put("roadAddress", "http://192.168.26.24:9000/user/lutu.png"); // TODO for test
+		params.put("videoResultAddress", "videoServerDomain + Constants.IMAGE + qTime + Constants.FLV"); // TODO for test
+		params.put("picRoadAddress", "videoServerDomain + Constants.IMAGE + qTime + Constants.JPEG"); // TODO for test
 
 		result = HttpClient4Util.doPost(
 				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),
 				params);
-		if ( !ValidateUtil.checkHttpResponse(action, result) ) {
-    		return;
-		}
+		ValidateUtil.checkHttpResponse(action, result);
 
         BetSettleVO vo = BetSettleVO.builder().noActive(gameInfo.getCurrentActive()).awardOption(awardOption).build();
         rabbitTemplate.convertAndSend(MqConstants.BET_SETTLEMENT, vo);
+
+		//发送视频地址给TG
+		// 获取荷官开始时间unix时间戳
+//		sendVideoAddressToTg(gameInfo.getCurrentActive(), closeUpVideoSteam, qTime, action, deskId);
     }
-    
-    @Async
+
+	private void sendVideoAddressToTg(
+			final String currentActive, final String closeUpVideoSteam,
+			final String qTime, final String action,
+			final Long deskId) {
+		// 获取视频流
+//		Map<String, Object> gameVideoParam = Maps.newHashMap();
+//		gameVideoParam.put("period", currentActive);
+//		gameVideoParam.put("rtmpurl", closeUpVideoSteam);
+//		gameVideoParam.put("qtime", qTime);
+//
+//		String result = HttpClient4Util.doPost(
+//				videoServerDomain + RequestPathEnum.VIDEO_SNAP.getApiName(),
+//				gameVideoParam);
+//		if ( !ValidateUtil.checkHttpResponse(action, result) ) {
+//			return;
+//		}
+//
+//		SysTelegramDto sysTg = telegramService.getSysTelegram();
+//		// 开牌 5 request parameter
+//		Map<String, Object> params = Maps.newHashMap();
+//		params.put("openCardAddress", sysTg.getOpenCardUrl());
+//		params.put("tableId", deskId);
+//		params.put("frontAddress", "https://www.google.com"); // TODO for test
+//		params.put("lookDownAddress", "https://tw.yahoo.com"); // TODO for test
+//		params.put("videoResultAddress", videoServerDomain + Constants.IMAGE + qTime + Constants.FLV); // TODO for test
+//		params.put("picRoadAddress", videoServerDomain + Constants.IMAGE + qTime + Constants.JPEG); // TODO for test
+//
+//		result = HttpClient4Util.doPost(
+//				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),
+//				params);
+//		ValidateUtil.checkHttpResponse(action, result);
+	}
+
+	@Async
     public void settlement ( String noActive ) {
     	 
     	String action = "结算";
@@ -294,7 +352,7 @@ public class AsyncCommandService {
 					betHistoryList.add(betHistory);
 				}
 				
-				betHistoryList = betHistoryList.stream().sorted(Comparator.comparingDouble(bet -> { 
+				betHistoryList = betHistoryList.stream().sorted(Comparator.comparingDouble(bet -> {
 					return (-bet.getWinAmount().doubleValue());
 				})).collect(Collectors.toList());
 				top20WinUsers.put(tgGroupId, betHistoryList.subList(0, betHistoryList.size()>20 ? 20 : betHistoryList.size() ));

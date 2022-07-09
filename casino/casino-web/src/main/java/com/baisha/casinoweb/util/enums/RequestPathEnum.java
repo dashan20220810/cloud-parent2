@@ -69,6 +69,8 @@ public enum RequestPathEnum {
     TG_OPEN("/command/openCard"),
     /** 结算 */
     TG_SETTLEMENT("/command/settlement"),
+    /** 视频流 */
+    VIDEO_SNAP("/videosnap/"),
     ;
 
     /**
