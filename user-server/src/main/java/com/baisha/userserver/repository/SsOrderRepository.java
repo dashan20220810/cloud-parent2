@@ -1,6 +1,6 @@
-package com.baisha.gameserver.repository;
+package com.baisha.userserver.repository;
 
-import com.baisha.gameserver.model.SsOrder;
+import com.baisha.userserver.model.SsOrder;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

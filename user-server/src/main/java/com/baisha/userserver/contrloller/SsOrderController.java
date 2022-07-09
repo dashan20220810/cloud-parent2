@@ -1,12 +1,12 @@
-package com.baisha.gameserver.controller;
+package com.baisha.userserver.contrloller;
 
-import com.baisha.gameserver.model.SsOrder;
-import com.baisha.gameserver.service.SsOrderService;
-import com.baisha.gameserver.vo.IdVO;
-import com.baisha.gameserver.vo.SsOrderAddVO;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.SnowFlakeUtils;
+import com.baisha.userserver.model.SsOrder;
+import com.baisha.userserver.model.vo.IdVO;
+import com.baisha.userserver.model.vo.order.SsOrderAddVO;
+import com.baisha.userserver.service.SsOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

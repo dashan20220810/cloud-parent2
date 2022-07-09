@@ -56,14 +56,10 @@ public class UserController {
 
     @Value("${url.userServer}")
     private String userServerUrl;
-    @Value("${url.gameServer}")
-    private String gameServerUrl;
     @Autowired
     private CommonBusiness commonService;
     @Autowired
     private PlayMoneyBusiness playMoneyService;
-    //@Autowired
-    //private SsOrderService ssOrderService;
 
     @GetMapping("page")
     @ApiOperation(("用户分页"))
@@ -184,7 +180,7 @@ public class UserController {
     }
 
     private ResponseEntity doCreateOrder(SsOrderAddVO order) {
-        String url = gameServerUrl + GameServerConstants.GAME_ORDER_ADD;
+        String url = userServerUrl + GameServerConstants.GAME_ORDER_ADD;
         Map<String, Object> param = BackendServerUtil.objectToMap(order);
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
@@ -195,7 +191,7 @@ public class UserController {
     }
 
     private ResponseEntity doDeleteOrder(Long orderId) {
-        String url = gameServerUrl + GameServerConstants.GAME_ORDER_DELETE;
+        String url = userServerUrl + GameServerConstants.GAME_ORDER_DELETE;
         Map<String, Object> param = new HashMap<>(16);
         param.put("id", orderId);
         String result = HttpClient4Util.doPost(url, param);

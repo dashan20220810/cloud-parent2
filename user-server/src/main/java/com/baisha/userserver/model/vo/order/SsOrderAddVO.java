@@ -1,4 +1,4 @@
-package com.baisha.gameserver.vo;
+package com.baisha.userserver.model.vo.order;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,7 +10,7 @@ import java.math.BigDecimal;
  * @author yihui
  */
 @Data
-@ApiModel(value = "gs-订单对象请求对象")
+@ApiModel(value = "用户-订单对象请求对象")
 public class SsOrderAddVO {
 
     //@ApiModelProperty(value = "订单编号")
