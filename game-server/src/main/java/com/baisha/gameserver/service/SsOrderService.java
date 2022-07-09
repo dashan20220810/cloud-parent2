@@ -1,7 +1,7 @@
-package com.baisha.backendserver.service;
+package com.baisha.gameserver.service;
 
-import com.baisha.backendserver.model.SsOrder;
-import com.baisha.backendserver.repository.SsOrderRepository;
+import com.baisha.gameserver.model.SsOrder;
+import com.baisha.gameserver.repository.SsOrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

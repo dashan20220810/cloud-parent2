@@ -44,5 +44,6 @@ public class BackendConstants {
     public static final String SYS_PLAYMONEY_MODULE = "系统设置-打码量倍数";
     public static final String BACC_ODDS_MODULE = "百家乐赔率设置";
     public static final String DESK_MODULE = "桌台";
+    public static final String ORDER = "订单";
 
 }

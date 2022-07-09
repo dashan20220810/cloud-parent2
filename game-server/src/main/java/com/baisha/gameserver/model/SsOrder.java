@@ -1,4 +1,4 @@
-package com.baisha.backendserver.model;
+package com.baisha.gameserver.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -19,7 +19,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "SsOrder", indexes = {@Index(columnList = "userId"), @Index(columnList = "orderNum")})
 @org.hibernate.annotations.Table(appliesTo = "ss_order", comment = "订单")
-@ApiModel(value = "后台-订单对象")
+@ApiModel(value = "gs-订单对象")
 public class SsOrder extends BaseEntity {
 
     @ApiModelProperty(value = "订单编号")
