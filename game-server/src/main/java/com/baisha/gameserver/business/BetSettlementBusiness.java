@@ -50,13 +50,16 @@ public class BetSettlementBusiness {
         log.info("==============={}开始结算=================", vo.getNoActive());
         //下注成功状态
         int status = BetStatusEnum.BET.getCode();
+        Long searchBetStart = System.currentTimeMillis();
         List<Bet> bets = betService.findBetNoSettle(vo.getNoActive(), status);
+        log.info("查询局={}注单耗时{}毫秒", vo.getNoActive(), System.currentTimeMillis() - searchBetStart);
         if (CollectionUtils.isEmpty(bets)) {
             //没有注单数据，直接返回true
             log.info("noActive={}没有未结算的注单", vo.getNoActive());
             log.info("==============={}结束结算=================", vo.getNoActive());
             return;
         }
+
         int size = bets.size();
         log.info("{}====未结算注单===={}条", vo.getNoActive(), size);
         //获取百家乐玩法赔率
