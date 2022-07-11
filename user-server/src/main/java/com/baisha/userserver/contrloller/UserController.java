@@ -251,7 +251,7 @@ public class UserController {
             return new ResponseEntity("会员不存在");
         }
         return ResponseUtil.success(UserBO.builder().id(user.getId())
-                .userName(user.getUserName()).nickName(user.getNickName()).build());
+                .userName(user.getUserName()).nickName(user.getNickName()).status(user.getStatus()).build());
     }
 
     private ResponseEntity findTelegramUser(UserSearchVO vo) {
@@ -279,7 +279,7 @@ public class UserController {
             return new ResponseEntity("会员不存在");
         }
         return ResponseUtil.success(UserBO.builder().id(user.getId())
-                .userName(user.getUserName()).nickName(user.getNickName()).build());
+                .userName(user.getUserName()).nickName(user.getNickName()).status(user.getStatus()).build());
     }
 
 
