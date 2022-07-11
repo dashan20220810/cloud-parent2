@@ -102,6 +102,11 @@ public class OrderController {
             return ResponseUtil.custom("玩家资料错误");
     	}
     	
+    	if (UserVO.Status.DISABLE.getCode() == userVO.getStatus()) {
+    		log.warn("[下注] user状态停用");
+            return ResponseUtil.custom("玩家资料错误");
+    	}
+    	
     	GameUserInfo userInfo = groupInfo.getUserInfo(userVO.getId());
     	if ( userInfo.checkUserBetAmount(betVO.getTotalAmount()
     			, betVO.getMinAmount().longValue(), betVO.getMaxAmount().longValue())==false ) {
