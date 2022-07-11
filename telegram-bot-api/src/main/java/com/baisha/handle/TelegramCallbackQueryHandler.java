@@ -191,10 +191,7 @@ public class TelegramCallbackQueryHandler {
         reply.append(SEALING_BET_INFO17);
         reply.append(USER_BALANCE4);
         // 查询用户余额
-        String userBalance = commonHandler.checkUserBalance(user.getId());
-        if (StrUtil.isEmpty(userBalance)) {
-            userBalance = "0";
-        }
+        BigDecimal userBalance = commonHandler.checkUserBalance(user.getId());
         reply.append(userBalance);
         return reply.toString();
     }
@@ -209,10 +206,7 @@ public class TelegramCallbackQueryHandler {
         reply.append(SEALING_BET_INFO17);
         reply.append(USER_BALANCE4);
         // 查询用户余额
-        String userBalance = commonHandler.checkUserBalance(user.getId());
-        if (StrUtil.isEmpty(userBalance)) {
-            userBalance = "0";
-        }
+        BigDecimal userBalance = commonHandler.checkUserBalance(user.getId());
         reply.append(userBalance);
         return reply.toString();
     }

@@ -1,14 +1,12 @@
 package com.baisha.service;
 
 import com.baisha.model.TgBot;
-import com.baisha.modulecommon.Constants;
 import com.baisha.repository.TgBotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +14,6 @@ import java.util.Optional;
 
 @CacheConfig(cacheNames = "tgBot")
 @Service
-@Transactional
 public class TgBotService {
 
     @Autowired
@@ -47,7 +44,7 @@ public class TgBotService {
         tgBotRepository.deleteById(id);
     }
 
-    @Cacheable(key="#p0",unless = "#result==null")
+    @Cacheable(key = "#p0", unless = "#result==null")
     public TgBot findById(Long botId) {
         Optional<TgBot> byId = tgBotRepository.findById(botId);
         return byId.orElse(null);

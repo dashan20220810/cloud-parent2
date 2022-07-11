@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.baisha.util.constants.BotConstant.*;
+import static com.baisha.util.constants.CommonConstant.VIDEO_SUFFIX_FLV;
+import static com.baisha.util.constants.CommonConstant.VIDEO_SUFFIX_MP4;
 
 @Slf4j
 @Service
@@ -67,7 +69,7 @@ public class CommandBusiness {
         myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(imageAddress))), tgChat.getChatId()+"");
         myBot.SendMessageHtml(message, tgChat.getChatId()+"");
         // 倒计时视频
-        myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(countdownAddress))), tgChat.getChatId()+"");
+        myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(countdownAddress, VIDEO_SUFFIX_MP4))), tgChat.getChatId()+"");
     }
 
     @Async
@@ -89,7 +91,7 @@ public class CommandBusiness {
     }
 
     @Async
-    public void openCardLoop(OpenCardVO vo, URL openCardAddress, URL resultAddress, URL roadAddress, TgChat tgChat) {
+    public void openCardLoop(OpenCardVO vo, URL openCardAddress, URL videoResultAddress, URL picRoadAddress, TgChat tgChat) {
         // 群审核通过，才发消息
         if(!Constants.open.equals(tgChat.getStatus())){
             return;
@@ -100,8 +102,8 @@ public class CommandBusiness {
         }
 
         this.showOpenCardButton(vo, openCardAddress, tgChat, myBot);
-        myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(resultAddress))), tgChat.getChatId()+"");
-        myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(roadAddress))), tgChat.getChatId()+"");
+        myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(videoResultAddress, VIDEO_SUFFIX_FLV))), tgChat.getChatId()+"");
+        myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(picRoadAddress))), tgChat.getChatId()+"");
     }
 
     @Async
@@ -192,11 +194,15 @@ public class CommandBusiness {
         sealingLine.append(betUserAmountVO.getTotalBetAmount());
         sealingLine.append(SEALING_BET_INFO17);
         sealingLine.append(GAME_RULE10);
-        sealingLine.append(SEALING_BET_INFO19);
 
         List<BetUserVO> top20Users = betUserAmountVO.getTop20Users();
         if (CollUtil.isEmpty(top20Users)) {
+            sealingLine.append(SEALING_BET_INFO23);
             sealingLine.append(SEALING_BET_INFO22);
+        } else if (0 < top20Users.size() && top20Users.size() <= 20) {
+            sealingLine.append(SEALING_BET_INFO23);
+        } else {
+            sealingLine.append(SEALING_BET_INFO19);
         }
         top20Users.forEach(user -> {
             String username = user.getUsername();

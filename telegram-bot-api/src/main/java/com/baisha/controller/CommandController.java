@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import com.baisha.business.CommandBusiness;
@@ -28,11 +29,16 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Resource;
+
 @Api(tags = "游戏指令推送")
 @Slf4j
 @RestController
 @RequestMapping("command")
 public class CommandController {
+
+    @Resource(name = "asyncExecutor")
+    private Executor asyncExecutor;
 
     @Autowired
     private TgBotService tgBotService;
@@ -72,7 +78,7 @@ public class CommandController {
                 .map(tgChat -> CompletableFuture.supplyAsync(() -> {
                     commandBusiness.startNewBureauLoop(vo, imageAddress, countdownAddress, tgChat);
                     return tgChat;
-                }))
+                }, asyncExecutor))
                 .collect(Collectors.toList());
         chatList = futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
 
@@ -113,10 +119,10 @@ public class CommandController {
 
         // 循环不同的群配置，组装不同的推送消息并发送
         URL openCardAddress = new URL(vo.getOpenCardAddress());
-        URL resultAddress = new URL(vo.getResultAddress());
-        URL roadAddress = new URL(vo.getRoadAddress());
+        URL videoResultAddress = new URL(vo.getVideoResultAddress());
+        URL picRoadAddress = new URL(vo.getPicRoadAddress());
         for (TgChat tgChat : chatList) {
-            commandBusiness.openCardLoop(vo, openCardAddress, resultAddress, roadAddress, tgChat);
+            commandBusiness.openCardLoop(vo, openCardAddress, videoResultAddress, picRoadAddress, tgChat);
         }
         return ResponseUtil.success();
     }

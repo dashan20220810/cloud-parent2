@@ -32,6 +32,7 @@ public class TgBotBusiness {
     private TelegramBotsApi botsApi;
 
     public static ConcurrentMap<String, BotSession> botSerssionMap = new ConcurrentHashMap<>();
+
     public static ConcurrentMap<String, MyTelegramLongPollingBot> myBotMap = new ConcurrentHashMap<>();
 
     @Autowired

@@ -72,10 +72,6 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
             return;
         }
 
-        if (update.hasCallbackQuery()) {
-            log.info("===============hasCallbackQuery===================");
-            return;
-        }
         if (update.hasChannelPost()) {
             log.info("===============hasChannelPost===================");
             return;

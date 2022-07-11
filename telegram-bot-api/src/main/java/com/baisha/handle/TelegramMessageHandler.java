@@ -66,9 +66,7 @@ public class TelegramMessageHandler {
             return false;
         }
         ResponseEntity result = JSONObject.parseObject(forObject, ResponseEntity.class);
-        // 在telegram中提示文字
         if (result.getCode() == 0) {
-            // 注册成功欢迎语
             return true;
         }
         log.error("{}群{}用户绑定失败，原因:{}", chat.getId(), user.getId(), result.getMsg());
@@ -115,6 +113,13 @@ public class TelegramMessageHandler {
             String runningWaterMessage = checkRunningWater(from, chat);
             // 发送消息，展示按钮
             showButtonBalance(chat, bot, runningWaterMessage, message.getMessageId());
+            return;
+        }
+        if (originText.replace(" ", "").contains("返水")) {
+            // 查询返水，并拼接信息
+            String returnWaterMessage = checkReturnWater(from, chat);
+            // 发送消息，展示按钮
+            showButtonBalance(chat, bot, returnWaterMessage, message.getMessageId());
             return;
         }
         boolean isSuccess = tgUserBet(message, bot);
@@ -171,10 +176,7 @@ public class TelegramMessageHandler {
         reply.append(USER_BALANCE1);
         reply.append(USER_BALANCE4);
         // 查询用户余额
-        String userBalance = commonHandler.checkUserBalance(user.getId());
-        if (StrUtil.isEmpty(userBalance)) {
-            userBalance = "0";
-        }
+        BigDecimal userBalance = commonHandler.checkUserBalance(user.getId());
         reply.append(userBalance);
         return reply.toString();
     }
@@ -190,10 +192,7 @@ public class TelegramMessageHandler {
         reply.append(SEALING_BET_INFO17);
         reply.append(USER_BALANCE4);
         // 查询用户余额
-        String userBalance = commonHandler.checkUserBalance(user.getId());
-        if (StrUtil.isEmpty(userBalance)) {
-            userBalance = "0";
-        }
+        BigDecimal userBalance = commonHandler.checkUserBalance(user.getId());
         reply.append(userBalance);
         return reply.toString();
     }
@@ -257,10 +256,27 @@ public class TelegramMessageHandler {
         reply.append(SEALING_BET_INFO17);
         reply.append(USER_BALANCE4);
         // 查询用户余额
-        String userBalance = commonHandler.checkUserBalance(user.getId());
-        if (StrUtil.isEmpty(userBalance)) {
-            userBalance = "0";
-        }
+        BigDecimal userBalance = commonHandler.checkUserBalance(user.getId());
+        reply.append(userBalance);
+        return reply.toString();
+    }
+
+    private String checkReturnWater(User user, Chat chat) {
+        StringBuilder reply = new StringBuilder();
+        reply.append(USER_BALANCE1);
+        reply.append(RUNNING_WATER1);
+        // 当日流水
+        BigDecimal flowOfDay = commonHandler.flowOfDay(user.getId(), chat.getId());
+        reply.append(flowOfDay);
+        reply.append(SEALING_BET_INFO17);
+        reply.append(RETURN_WATER1);
+        // 返水金额
+        BigDecimal returnWaterAmount = commonHandler.returnWaterAmount(user.getId(), chat.getId());
+        reply.append(returnWaterAmount);
+        reply.append(SEALING_BET_INFO17);
+        reply.append(USER_BALANCE4);
+        // 查询用户余额
+        BigDecimal userBalance = commonHandler.checkUserBalance(user.getId());
         reply.append(userBalance);
         return reply.toString();
     }

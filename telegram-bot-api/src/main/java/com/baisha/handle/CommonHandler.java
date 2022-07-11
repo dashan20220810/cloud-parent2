@@ -43,15 +43,15 @@ public class CommonHandler {
         return true;
     }
 
-    public String checkUserBalance(Long userId) {
+    public BigDecimal checkUserBalance(Long userId) {
         String userBalanceUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_USER_BALANCE.getApiName();
         Map<String, Object> userBalanceParam = Maps.newHashMap();
         String userBalance = TgHttpClient4Util.doPost(userBalanceUrl, userBalanceParam, userId);
-        String userBalanceResult = "";
+        BigDecimal userBalanceResult = BigDecimal.ZERO;
         if (StrUtil.isNotEmpty(userBalance)) {
             ResponseEntity response = JSONObject.parseObject(userBalance, ResponseEntity.class);
             if (response.getCode() == 0) {
-                userBalanceResult = (String) response.getData();
+                userBalanceResult = (BigDecimal) response.getData();
             }
         }
         return userBalanceResult;
@@ -81,6 +81,19 @@ public class CommonHandler {
             }
         }
         return profitOfDayResult;
+    }
+
+    public BigDecimal returnWaterAmount(Long userId, Long chatId) {
+        String returnWaterUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_ORDER_RETURN_AMOUNT.getApiName();
+        String returnWater = TgHttpClient4Util.doGet(returnWaterUrl+"?tgChatId="+chatId, userId);
+        BigDecimal returnWaterResult = BigDecimal.ZERO;
+        if (StrUtil.isNotEmpty(returnWater)) {
+            ResponseEntity response = JSONObject.parseObject(returnWater, ResponseEntity.class);
+            if (response.getCode() == 0) {
+                returnWaterResult = (BigDecimal) response.getData();
+            }
+        }
+        return returnWaterResult;
     }
 
     public ConfigInfo getConfigInfo(Long userId) {

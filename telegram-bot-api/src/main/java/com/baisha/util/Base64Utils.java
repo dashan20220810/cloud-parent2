@@ -50,12 +50,12 @@ public class Base64Utils {
      * @param url
      * @return File
      */
-    public static File videoToFile(URL url) {
+    public static File videoToFile(URL url, String suffix) {
         InputStream is = null;
         File file = null;
         FileOutputStream fos = null;
         try {
-            file = File.createTempFile("tmp", ".mp4");
+            file = File.createTempFile("tmp", suffix);
             URLConnection urlConn = null;
             urlConn = url.openConnection();
             is = urlConn.getInputStream();

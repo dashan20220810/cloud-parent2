@@ -25,11 +25,11 @@ public class OpenCardVO {
     @ApiModelProperty(value = "实时开牌正面地址", required = true)
     private String frontAddress;
 
-    @ApiModelProperty(value = "牌面-图片地址", required = true)
-    private String resultAddress;
+    @ApiModelProperty(value = "牌面-视频地址", required = true)
+    private String videoResultAddress;
 
     @ApiModelProperty(value = "路图-图片地址", required = true)
-    private String roadAddress;
+    private String picRoadAddress;
 
     @ApiModelProperty(value = "桌子id", required = true)
     private Long tableId;

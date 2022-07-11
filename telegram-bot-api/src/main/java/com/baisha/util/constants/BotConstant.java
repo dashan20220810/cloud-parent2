@@ -43,6 +43,7 @@ public class BotConstant {
     public static final String SEALING_BET_INFO20 = "【";
     public static final String SEALING_BET_INFO21 = "】";
     public static final String SEALING_BET_INFO22 = "无";
+    public static final String SEALING_BET_INFO23 = "全部当局投注的用户：\n";
 
     public static final String SETTLEMENT1 = "局号：";
     public static final String SETTLEMENT2 = "结算：";
@@ -56,6 +57,8 @@ public class BotConstant {
 
     public static final String RUNNING_WATER1 = "当日流水：";
     public static final String RUNNING_WATER2 = "当日盈利：";
+
+    public static final String RETURN_WATER1 = "返水金额：";
 
     public static final String RECENT_BET1 = "订单编号\t";
     public static final String RECENT_BET2 = "下注\t\t";
