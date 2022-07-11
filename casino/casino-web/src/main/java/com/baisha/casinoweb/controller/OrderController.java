@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baisha.casinoweb.business.DeskBusiness;
 import com.baisha.casinoweb.business.GameInfoBusiness;
 import com.baisha.casinoweb.business.OrderBusiness;
@@ -19,6 +18,7 @@ import com.baisha.casinoweb.business.UserBusiness;
 import com.baisha.casinoweb.model.vo.BetVO;
 import com.baisha.casinoweb.model.vo.UserVO;
 import com.baisha.casinoweb.model.vo.response.BetResponseVO;
+import com.baisha.casinoweb.model.vo.response.DeskVO;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.modulecommon.enums.GameStatusEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
@@ -75,12 +75,12 @@ public class OrderController {
     	}
     	
     	// 桌台资料
-    	JSONObject deskJson = deskBusiness.queryDeskById(betVO.getTableId());
+    	DeskVO deskJson = deskBusiness.queryDeskById(betVO.getTableId());
     	if ( deskJson==null ) {
     		log.warn("[下注] 桌台号查无资料, table id: {}", betVO.getTableId());
             return ResponseUtil.custom("桌台资料错误");
     	}
-    	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskJson.getString("deskCode"));
+    	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskJson.getDeskCode());
 		
 		if ( gameInfo.getStatus()!=GameStatusEnum.Betting || (gameInfo.getEndTime()!=null && now.after(gameInfo.getEndTime())) ) {
     		log.warn("下注 失败 非下注状态, {}", gameInfo.getStatus().toString());
@@ -131,11 +131,7 @@ public class OrderController {
     @ApiOperation(("近期订单"))
     public ResponseEntity<List<BetResponseVO>> currentList(Long tgChatId, Integer queryAmount) {
 		log.info("近期订单");
-		JSONObject result = orderBusiness.currentOrderList(tgChatId, queryAmount);
-        if ( result==null ) {
-            return ResponseUtil.fail();
-        }
-        return ResponseUtil.success(result.getJSONArray("data"));
+        return ResponseUtil.success(orderBusiness.currentOrderList(tgChatId, queryAmount));
     }
 
     @GetMapping("todayTotalWater")

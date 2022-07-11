@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import com.alibaba.fastjson.JSONObject;
+import com.baisha.casinoweb.model.vo.response.DeskVO;
 import com.baisha.casinoweb.service.AsyncCommandService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,15 +40,15 @@ public class DealerBusiness {
 
     	log.info("开新局");
 
-    	JSONObject desk = deskBusiness.queryDeskByIp(dealerIp);
+    	DeskVO desk = deskBusiness.queryDeskByIp(dealerIp);
     	if ( desk==null ) {
     		log.warn("开新局 失败, 查无桌台");
 			CompletableFuture.completedFuture(false);
 			return;
     	}
     	
-    	Long deskId = desk.getLong("id");
-    	String deskCode = desk.getString("deskCode");
+    	Long deskId = desk.getId();
+    	String deskCode = desk.getDeskCode();
     	String newActive = gamblingBusiness.generateNewActive(deskCode, gameNo);
     	
     	Future<Boolean> openNewGameResult = asyncCommandService.openNewGame(deskId, deskCode, newActive);

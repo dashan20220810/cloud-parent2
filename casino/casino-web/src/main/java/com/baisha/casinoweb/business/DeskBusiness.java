@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
+import com.baisha.casinoweb.model.vo.response.DeskVO;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -27,7 +29,7 @@ public class DeskBusiness {
      * game server查桌台号
      * @return
      */
-    public JSONObject queryDeskByIp() {
+    public DeskVO queryDeskByIp() {
 		String localIp = IpUtil.getIp(CasinoWebUtil.getRequest());
 		return queryDeskByIp(localIp);
     }
@@ -36,7 +38,7 @@ public class DeskBusiness {
      * game server查桌台号
      * @return
      */
-    public JSONObject queryDeskByIp(String localIp) {
+    public DeskVO queryDeskByIp(String localIp) {
 
     	log.info("查桌台号");
 		log.info("ip: {}", localIp);
@@ -55,7 +57,7 @@ public class DeskBusiness {
      * game server查桌台号
      * @return
      */
-    public JSONObject queryDeskByDeskCode( String deskCode ) {
+    public DeskVO queryDeskByDeskCode( String deskCode ) {
 
     	log.info("查桌台号");
 		log.info("deskCode: {}", deskCode);
@@ -73,7 +75,7 @@ public class DeskBusiness {
      * game server查桌台号
      * @return
      */
-	public JSONObject queryDeskById ( Long tableId ) {
+	public DeskVO queryDeskById ( Long tableId ) {
 
     	log.info("查桌台号");
 		log.info("tableId: {}", tableId);
@@ -88,7 +90,7 @@ public class DeskBusiness {
     }
 	
 	
-	private JSONObject queryDesk ( String api, String urlParam )  {
+	private DeskVO queryDesk ( String api, String urlParam )  {
 		String result = HttpClient4Util.doGet(gameServerDomain + api +urlParam);
 
         if (CommonUtil.checkNull(result)) {
@@ -105,7 +107,7 @@ public class DeskBusiness {
 		}
 
     	log.info("查桌台号 成功");
-		return json.getJSONObject("data");
+
+    	return JSONObject.parseObject(json.getString("data"), new TypeReference<DeskVO>(){});
 	}
-    
 }

@@ -12,9 +12,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-import cn.hutool.core.date.DateUtil;
-import com.baisha.modulecommon.enums.TgBaccRuleEnum;
-import com.beust.jcommander.internal.Maps;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,17 +21,20 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.baisha.casinoweb.business.DeskBusiness;
 import com.baisha.casinoweb.business.GameInfoBusiness;
 import com.baisha.casinoweb.model.vo.response.BetResponseVO;
+import com.baisha.casinoweb.model.vo.response.DeskVO;
+import com.baisha.casinoweb.model.vo.response.TgChatVO;
 import com.baisha.casinoweb.util.ValidateUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.core.constants.RedisKeyConstants;
 import com.baisha.core.dto.SysTelegramDto;
 import com.baisha.core.service.TelegramService;
 import com.baisha.modulecommon.MqConstants;
-import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.enums.GameStatusEnum;
+import com.baisha.modulecommon.enums.TgBaccRuleEnum;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.GameInfo;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
@@ -115,12 +115,11 @@ public class AsyncCommandService {
 		}
 		
 		JSONObject groupListJson = JSONObject.parseObject(result);
-		JSONArray groupJsonList = groupListJson.getJSONArray("data");
+		List<TgChatVO> groupJsonList = JSONObject.parseObject(groupListJson.getString("data"), new TypeReference<List<TgChatVO>>(){});
 		List<Long> groupIdList = new ArrayList<>();
 		
-		for ( int index=0; index<groupJsonList.size(); index++ ) {
-			JSONObject groupJson = groupJsonList.getJSONObject(index);
-			groupIdList.add(groupJson.getLong("chatId"));
+		for ( TgChatVO vo : groupJsonList ) {
+			groupIdList.add(vo.getChatId());
 		}
 		gameInfo.initTgGRoupMap(groupIdList);
 		log.info("=======开局 gameInfo: {}", gameInfo);
@@ -212,7 +211,7 @@ public class AsyncCommandService {
     public void open (String dealerIp, String awardOption, String openingTime) {
 
     	String action = "开牌";
-    	JSONObject desk = deskBusiness.queryDeskByIp(dealerIp);
+    	DeskVO desk = deskBusiness.queryDeskByIp(dealerIp);
     	if ( desk==null ) {
     		log.warn("开牌 失败, 查无桌台");
     		return;
@@ -221,9 +220,9 @@ public class AsyncCommandService {
 		// 获取开牌结果
 		String openCardResult = getAwardOption(awardOption);
 
-    	Long deskId = desk.getLong("id");
-    	String deskCode = desk.getString("deskCode");
-		String closeUpVideoSteam = desk.getString("videoAddress");
+    	Long deskId = desk.getId();
+    	String deskCode = desk.getDeskCode();
+		String closeUpVideoSteam = desk.getVideoAddress();
     	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
     	
 		redisUtil.hset(RedisKeyConstants.SYS_GAME_RESULT, gameInfo.getCurrentActive(), openCardResult);
@@ -385,4 +384,5 @@ public class AsyncCommandService {
     	private String username;
     	private Double winAmount;
     }
+    
 }

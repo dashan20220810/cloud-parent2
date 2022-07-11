@@ -1,4 +1,4 @@
-package com.baisha.gameserver;
+package com.baisha.gameserver.task;
 
 import java.math.BigDecimal;
 import java.util.Date;

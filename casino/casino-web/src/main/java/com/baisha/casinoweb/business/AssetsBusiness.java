@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baisha.casinoweb.model.bo.BalanceBO;
 import com.baisha.casinoweb.model.vo.UserVO;
+import com.baisha.casinoweb.model.vo.response.DeskVO;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
@@ -55,8 +57,8 @@ public class AssetsBusiness {
 		String remark = "";
 		
 		if ( tableId!=null ) {
-			JSONObject desk = deskBusiness.queryDeskById(tableId);
-			String deskCode = desk.getString("deskCode");
+			DeskVO desk = deskBusiness.queryDeskById(tableId);
+			String deskCode = desk.getDeskCode();
 			GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
 			remark = String.format("user:%d ,局号:%s %s", userId, gameInfo.getCurrentActive(), remarkComment);
 		} else {
@@ -121,6 +123,6 @@ public class AssetsBusiness {
             return null;
 		}
 		
-		return balanceJson.getJSONObject("data").getBigDecimal("balance");
+		return new BigDecimal(JSONObject.parseObject(balanceJson.getString("data"), BalanceBO.class).getBalance());
 	}
 }

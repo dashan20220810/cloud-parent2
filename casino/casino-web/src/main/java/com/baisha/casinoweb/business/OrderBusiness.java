@@ -15,6 +15,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.baisha.casinoweb.model.vo.BetVO;
 import com.baisha.casinoweb.model.vo.UserVO;
 import com.baisha.casinoweb.model.vo.response.BetResponseVO;
+import com.baisha.casinoweb.model.vo.response.DeskVO;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.util.ValidateUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
@@ -59,8 +60,8 @@ public class OrderBusiness {
 		
 		String action = "下注";
 		log.info(action);
-		JSONObject desk = deskBusiness.queryDeskById(tableId);
-		String deskCode = desk.getString("deskCode");
+		DeskVO desk = deskBusiness.queryDeskById(tableId);
+		String deskCode = desk.getDeskCode();
 		GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
 		Long totalAmount = 0L;
 		
@@ -143,7 +144,7 @@ public class OrderBusiness {
 		return null;
 	}
 	
-	public JSONObject currentOrderList (Long tgChatId, Integer queryAmount) {
+	public List<BetResponseVO> currentOrderList (Long tgChatId, Integer queryAmount) {
     	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
     	//  user id查user
     	String userIdOrName = CasinoWebUtil.getCurrentUserId();
@@ -162,7 +163,8 @@ public class OrderBusiness {
         if (CommonUtil.checkNull(result)) {
             return null;
         }
-        return JSONObject.parseObject(result);
+        JSONObject json = JSONObject.parseObject(result);
+		return JSONObject.parseObject(json.getString("data"), new TypeReference<List<BetResponseVO>>(){});
 	}
 	
 	public BigDecimal todayTotalWater (Long tgChatId) {
