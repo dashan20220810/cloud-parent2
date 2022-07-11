@@ -18,6 +18,7 @@
         <module>file-upload-download</module>
         <module>sms</module>
         <module>authentication-server</module>
+        <module>telegram-bet-bot-api</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

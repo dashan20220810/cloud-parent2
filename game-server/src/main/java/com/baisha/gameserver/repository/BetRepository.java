@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import com.baisha.gameserver.model.Bet;
-import com.baisha.gameserver.vo.BetReturnAmountVO;
 
 /**
  * @author: alvin
@@ -55,13 +54,6 @@ public interface BetRepository extends JpaRepository<Bet, Long>, JpaSpecificatio
     @Modifying
     @Query(value = " update Bet b SET b.isReturned=true WHERE b.id = ?1 ")
     int updateIsReturnedById(Long id);
-    
-    @Query(value = " SELECT new com.baisha.gameserver.vo.BetReturnAmountVO( b.userId, b.tgChatId, "
-    		+ " (SUM(b.amountH) +SUM(b.amountSs) +SUM(b.amountX) +SUM(b.amountXd) +SUM(b.amountZ) +SUM(b.amountZd)) ) "
-    		+ " FROM Bet b WHERE b.status=2 AND (b.isReturned IS NULL or b.isReturned = false) "
-    		+ " 	AND b.updateTime BETWEEN ?1 AND ?2 "
-    		+ " 		GROUP BY b.userId, b.tgChatId ")
-    List<BetReturnAmountVO> sumFlowAmount ( Date beginTime, Date endTime );
 
     @Modifying
     @Query(value = " update Bet b SET  b.isReturned=?5 WHERE b.status=2 AND (b.isReturned IS NULL or b.isReturned = false) "

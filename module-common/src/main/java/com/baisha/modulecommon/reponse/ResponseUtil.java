@@ -17,21 +17,21 @@ public class ResponseUtil {
         this.messageUtil = messageUtil;
     }
 
-    public static ResponseEntity fail() {
-        return new ResponseEntity(ResponseCode.FAIL);
-    }
+//    public static ResponseEntity fail() {
+//        return new ResponseEntity(ResponseCode.FAIL);
+//    }
 
     public static ResponseEntity error() {
         return new ResponseEntity(ResponseCode.ERROR);
     }
 
-    public static ResponseEntity success() {
-        return new ResponseEntity(ResponseCode.SUCCESS);
+    public static <T> ResponseEntity<T> success() {
+        return new ResponseEntity<T>(ResponseCode.SUCCESS);
     }
 
-    public static ResponseEntity success(Object data) {
-        return new ResponseEntity(ResponseCode.SUCCESS, data);
-    }
+//    public static ResponseEntity success(Object data) {
+//        return new ResponseEntity(ResponseCode.SUCCESS, data);
+//    }
 
     public static ResponseEntity success(String msg, Object data) {
         return new ResponseEntity(ResponseCode.SUCCESS,messageUtil.get(msg) + " " + data);
@@ -49,8 +49,8 @@ public class ResponseUtil {
         return new ResponseEntity(ResponseCode.REQUEST_LIMIT,messageUtil.get(ResponseCode.REQUEST_LIMIT.getMsg()));
     }
 
-    public static ResponseEntity parameterNotNull() {
-        return new ResponseEntity(ResponseCode.PARAMETER_NOTNULLL,messageUtil.get(ResponseCode.PARAMETER_NOTNULLL.getMsg()));
+    public static <T> ResponseEntity<T> parameterNotNull() {
+        return new ResponseEntity<T>(ResponseCode.PARAMETER_NOTNULLL,messageUtil.get(ResponseCode.PARAMETER_NOTNULLL.getMsg()));
     }
 
     public static ResponseEntity risk() {
@@ -73,8 +73,8 @@ public class ResponseUtil {
         return new ResponseEntity(ResponseCode.PLATFORM_MAINTAIN,messageUtil.get(ResponseCode.PLATFORM_MAINTAIN.getMsg()));
     }
 
-    public static ResponseEntity custom(String msg) {
-        return new ResponseEntity(messageUtil.get(msg));
+    public static <T> ResponseEntity<T> custom(String msg) {
+        return new ResponseEntity<T>(messageUtil.get(msg));
     }
 
     public static ResponseEntity custom(String msg, Object data) {
@@ -82,9 +82,17 @@ public class ResponseUtil {
         return new ResponseEntity(translateMsg);
     }
 
-    public static ResponseEntity customBefore(Object data, String msg) {
+    public static <T> ResponseEntity<T> customBefore(T data, String msg) {
         String translateMsg = data + " " + messageUtil.get(msg);
-        return new ResponseEntity(translateMsg);
+        return new ResponseEntity<T>(translateMsg);
+    }
+
+    public static <T> ResponseEntity<T> success(T data) {
+        return new ResponseEntity<T>(ResponseCode.SUCCESS, data);
+    }
+
+    public static <T> ResponseEntity<T> fail() {
+        return new ResponseEntity<T>(ResponseCode.FAIL);
     }
     
     public static BigDecimal formatOutput(BigDecimal val) {

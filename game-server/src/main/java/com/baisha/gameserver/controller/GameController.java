@@ -1,18 +1,10 @@
 package com.baisha.gameserver.controller;
 
-import com.baisha.gameserver.model.BsGame;
-import com.baisha.gameserver.model.BsOdds;
-import com.baisha.gameserver.model.bo.game.GameBO;
-import com.baisha.gameserver.vo.GameBaccOddsVO;
-import com.baisha.gameserver.service.BsGameService;
-import com.baisha.gameserver.service.BsOddsService;
-import com.baisha.modulecommon.enums.GameTypeEnum;
-import com.baisha.modulecommon.enums.TgBaccRuleEnum;
-import com.baisha.modulecommon.reponse.ResponseEntity;
-import com.baisha.modulecommon.reponse.ResponseUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -21,12 +13,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import com.baisha.gameserver.model.BsGame;
+import com.baisha.gameserver.model.BsOdds;
+import com.baisha.gameserver.model.bo.game.GameBO;
+import com.baisha.gameserver.service.BsGameService;
+import com.baisha.gameserver.service.BsOddsService;
+import com.baisha.gameserver.vo.GameBaccOddsVO;
+import com.baisha.modulecommon.enums.GameTypeEnum;
+import com.baisha.modulecommon.enums.TgBaccRuleEnum;
+import com.baisha.modulecommon.reponse.ResponseEntity;
+import com.baisha.modulecommon.reponse.ResponseUtil;
 
-@Slf4j
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+//@Slf4j
 @RestController
 @RequestMapping("game")
 @Api(tags = {"游戏"})
@@ -78,7 +79,7 @@ public class GameController {
 
     @PostMapping(value = "bacc/odds")
     @ApiOperation(value = "设置游戏百家乐赔率")
-    public ResponseEntity setBaccOdds(GameBaccOddsVO vo) {
+    public ResponseEntity<String> setBaccOdds(GameBaccOddsVO vo) {
         if (StringUtils.isEmpty(vo.getGameCode())) {
             return ResponseUtil.parameterNotNull();
         }
@@ -89,7 +90,7 @@ public class GameController {
                 || null == vo.getXd() || vo.getXd().compareTo(BigDecimal.ZERO) <= 0
                 || null == vo.getSs2() || vo.getSs2().compareTo(BigDecimal.ZERO) <= 0
                 || null == vo.getSs3() || vo.getSs3().compareTo(BigDecimal.ZERO) <= 0) {
-            return new ResponseEntity("赔率不规范");
+            return ResponseUtil.custom("赔率不规范");
         }
         synchronized (vo.getGameCode()) {
             doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.X.getCode(), vo.getX());

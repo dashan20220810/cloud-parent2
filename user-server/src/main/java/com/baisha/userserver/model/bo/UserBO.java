@@ -15,7 +15,7 @@ import java.io.Serializable;
 @ApiModel(value = "注册返回对象")
 public class UserBO implements Serializable {
 
-    @ApiModelProperty(value = "ID")
+    @ApiModelProperty(value = "用户ID")
     private Long id;
 
     @ApiModelProperty(value = "用户名")
@@ -24,7 +24,7 @@ public class UserBO implements Serializable {
     @ApiModelProperty(value = "昵称")
     private String nickName;
 
-    /*@ApiModelProperty(value = "余额")
-    private String balance;*/
+    @ApiModelProperty(value = "状态 1 正常 ，0禁用")
+    private Integer status;
 
 }

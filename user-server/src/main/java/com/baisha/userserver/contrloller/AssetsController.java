@@ -58,7 +58,7 @@ public class AssetsController {
 
     @ApiOperation(("根据会员id查询个人资产"))
     @GetMapping("findAssetsById")
-    public ResponseEntity<UserBO> findAssetsById(UserIdVO vo) {
+    public ResponseEntity<UserAssetsBO> findAssetsById(UserIdVO vo) {
         if (Objects.isNull(vo.getUserId())) {
             return ResponseUtil.parameterNotNull();
         }

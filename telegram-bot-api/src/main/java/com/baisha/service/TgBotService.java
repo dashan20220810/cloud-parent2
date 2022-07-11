@@ -7,6 +7,7 @@ import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Optional;
 
 @CacheConfig(cacheNames = "tgBot")
 @Service
+@Transactional
 public class TgBotService {
 
     @Autowired
