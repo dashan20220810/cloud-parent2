@@ -49,8 +49,8 @@ public class ResponseUtil {
         return new ResponseEntity(ResponseCode.REQUEST_LIMIT,messageUtil.get(ResponseCode.REQUEST_LIMIT.getMsg()));
     }
 
-    public static ResponseEntity parameterNotNull() {
-        return new ResponseEntity(ResponseCode.PARAMETER_NOTNULLL,messageUtil.get(ResponseCode.PARAMETER_NOTNULLL.getMsg()));
+    public static <T> ResponseEntity<T> parameterNotNull() {
+        return new ResponseEntity<T>(ResponseCode.PARAMETER_NOTNULLL,messageUtil.get(ResponseCode.PARAMETER_NOTNULLL.getMsg()));
     }
 
     public static ResponseEntity risk() {

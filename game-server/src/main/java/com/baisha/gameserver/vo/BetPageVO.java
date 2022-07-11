@@ -1,7 +1,6 @@
 package com.baisha.gameserver.vo;
 
 import com.baisha.modulecommon.PageVO;
-import com.baisha.modulecommon.enums.BetOption;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

@@ -1,27 +1,31 @@
 package com.baisha.gameserver.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import java.math.BigDecimal;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
-import java.math.BigDecimal;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author yihui
  */
 @Data
+@EqualsAndHashCode(callSuper=false)
 @Entity
 @org.hibernate.annotations.Table(appliesTo = "bs_odds", comment = "游戏玩法赔率")
 @Table(name = "BsOdds", indexes = {@Index(columnList = "gameCode"), @Index(columnList = "ruleCode")})
 @ApiModel(value = "游戏玩法赔率对象", description = "游戏玩法赔率")
 public class BsOdds extends BaseEntity {
 
-    @ApiModelProperty(value = "游戏编码")
+    private static final long serialVersionUID = 8497677317292208992L;
+
+	@ApiModelProperty(value = "游戏编码")
     @Column(columnDefinition = "varchar(20) comment '游戏编码'")
     private String gameCode;
 
