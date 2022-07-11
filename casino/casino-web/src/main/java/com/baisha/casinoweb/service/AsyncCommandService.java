@@ -259,8 +259,9 @@ public class AsyncCommandService {
 				params);
 		ValidateUtil.checkHttpResponse(action, result);
 
-        BetSettleVO vo = BetSettleVO.builder().noActive(gameInfo.getCurrentActive()).awardOption(openCardResult).build();
-        rabbitTemplate.convertAndSend(MqConstants.BET_SETTLEMENT, vo);
+        String settlement = JSONObject.toJSONString(BetSettleVO.builder().noActive(gameInfo.getCurrentActive())
+				.awardOption(openCardResult).build());
+        rabbitTemplate.convertAndSend(MqConstants.BET_SETTLEMENT, settlement);
 
 		//发送视频地址给TG
 		// 获取荷官开始时间unix时间戳

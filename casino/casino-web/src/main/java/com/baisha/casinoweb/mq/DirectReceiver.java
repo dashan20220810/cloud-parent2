@@ -39,11 +39,12 @@ public class DirectReceiver {
     }
 
     /**
-     * @param vo
+     * @param jsonStr
      */
     @RabbitListener(queues = MqConstants.SETTLEMENT_FINISH)
-    public void settleFinish(BetSettleVO vo) {
-        System.out.println("==============" + JSONObject.toJSONString(vo));
+    public void settleFinish(String jsonStr) {
+        System.out.println("==============" + jsonStr);
+        BetSettleVO vo = JSONObject.parseObject(jsonStr, BetSettleVO.class);
         dealerBusiness.settlement(vo.getNoActive(), vo.getAwardOption());
     }
     
