@@ -12,7 +12,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import com.baisha.modulecommon.vo.NewGameInfo;
+import com.baisha.modulecommon.vo.mq.OpenVO;
+import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 import org.apache.commons.lang3.time.DateUtils;
+import org.redisson.api.RMap;
+import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,6 +74,9 @@ public class AsyncCommandService {
     
     @Autowired
     private RedisUtil redisUtil;
+
+	@Autowired
+	private RedissonClient redissonClient;
 
     @Autowired
     private TelegramService telegramService;
@@ -160,18 +168,21 @@ public class AsyncCommandService {
     /**
      * TODO 切成两个thread，一个倒数，另一个封盘(stopping status在此set)
      * @param deskCode
-     * @param newActive
+     * @param noActive
+	 * @param gameNo
      * @return
      */
     @Async
-    public Future<Boolean> betting ( String deskCode, String newActive) {
+    public Future<Boolean> betting ( final String deskCode, final Integer gameNo, final String noActive) {
     	
     	log.info("\r\n================= 下注中 倒数计时");
 
-    	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
-		log.info("\r\n================= gameInfo : {}", gameInfo);
-    	Date beginTime = gameInfo.getBeginTime();
-    	Date endTime = gameInfo.getEndTime();
+		RMap<String, NewGameInfo> map = redissonClient.getMap(RedisKeyConstants.SYS_GAME_TIME);
+		NewGameInfo newGameInfo = map.get(deskCode + "_" + gameNo);
+//    	GameInfo gameInfo = gameInfoBusiness.getGameInfo(endTime);
+		log.info("\r\n================= gameInfo : {}", newGameInfo);
+    	Date beginTime = newGameInfo.getBeginTime();
+    	Date endTime = newGameInfo.getEndTime();
 
      	log.info("\r\n================= 下注中 倒数计时");
 
@@ -208,8 +219,11 @@ public class AsyncCommandService {
     }
     
     @Async
-    public void open (String dealerIp, String awardOption, String openingTime) {
+    public void open (final OpenVO openVO) {
 
+		final String dealerIp = openVO.getDealerIp();
+		final String consequences = openVO.getConsequences();
+		final String openingTime = openVO.getEndTime();
     	String action = "开牌";
     	DeskVO desk = deskBusiness.queryDeskByIp(dealerIp);
     	if ( desk==null ) {
@@ -218,7 +232,7 @@ public class AsyncCommandService {
     	}
 
 		// 获取开牌结果
-		String openCardResult = getAwardOption(awardOption);
+		String openCardResult = getAwardOption(consequences);
 
     	Long deskId = desk.getId();
     	String deskCode = desk.getDeskCode();
@@ -241,7 +255,7 @@ public class AsyncCommandService {
     		return;
 		}
 
-		String qTime = String.valueOf(DateUtil.parse(openingTime).getTime() / 1000);
+//		String qTime = String.valueOf(DateUtil.parse(openingTime).getTime() / 1000);
 
 		SysTelegramDto sysTg = telegramService.getSysTelegram();
 		// 开牌 5 request parameter
@@ -315,8 +329,10 @@ public class AsyncCommandService {
 	}
 
 	@Async
-    public void settlement (String noActive, String openCardResult) {
-    	 
+    public void settlement (final SettleFinishVO settleFinishVO) {
+
+    	final String noActive = settleFinishVO.getNoActive();
+		final String openCardResult = settleFinishVO.getAwardOption();
     	String action = "结算";
     	Map<String, Object> params = new HashMap<>();
 		params.put("noActive", noActive);

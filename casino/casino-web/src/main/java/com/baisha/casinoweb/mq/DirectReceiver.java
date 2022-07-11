@@ -1,6 +1,7 @@
 package com.baisha.casinoweb.mq;
 
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
+import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,20 +33,20 @@ public class DirectReceiver {
     }
 
     @RabbitListener(queues = MqConstants.WEB_CLOSE_GAME)
-    public void open(String jsonStr) {
+    public void open(final String jsonStr) {
         System.out.println("==============" + jsonStr);
-        OpenVO vo = JSONObject.parseObject(jsonStr, OpenVO.class);
-        dealerBusiness.open(vo.getDealerIp(), vo.getConsequences(), vo.getEndTime());
+        final OpenVO openVO = JSONObject.parseObject(jsonStr, OpenVO.class);
+        dealerBusiness.open(openVO);
     }
 
     /**
      * @param jsonStr
      */
     @RabbitListener(queues = MqConstants.SETTLEMENT_FINISH)
-    public void settleFinish(String jsonStr) {
+    public void settleFinish(final String jsonStr) {
         System.out.println("==============" + jsonStr);
-        BetSettleVO vo = JSONObject.parseObject(jsonStr, BetSettleVO.class);
-        dealerBusiness.settlement(vo.getNoActive(), vo.getAwardOption());
+        final SettleFinishVO settleFinishVO = JSONObject.parseObject(jsonStr, SettleFinishVO.class);
+        dealerBusiness.settlement(settleFinishVO);
     }
     
 

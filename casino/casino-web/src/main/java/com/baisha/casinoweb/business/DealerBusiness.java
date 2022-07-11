@@ -1,9 +1,18 @@
 package com.baisha.casinoweb.business;
 
+import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import com.baisha.core.constants.RedisKeyConstants;
+import com.baisha.modulecommon.vo.GameInfo;
+import com.baisha.modulecommon.vo.NewGameInfo;
+import com.baisha.modulecommon.vo.mq.OpenVO;
+import com.baisha.modulecommon.vo.mq.SettleFinishVO;
+import org.apache.commons.lang3.time.DateUtils;
+import org.redisson.api.RMap;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -20,20 +29,27 @@ public class DealerBusiness {
 	
     @Value("${project.server-url.telegram-server-domain}")
     private String telegramServerDomain;
+
+	@Value("${project.game.count-down-seconds}")
+	private Integer gameCountDownSeconds;
     
     @Autowired
     private GamblingBusiness gamblingBusiness;
-    
+
     @Autowired
     private DeskBusiness deskBusiness;
-    
+
+	@Autowired
+	private RedissonClient redisUtil;
+
     @Autowired
     private AsyncCommandService asyncCommandService;
 
     /**
 	 * 开新局
 	 *
-	 * @param deskCode 桌台号
+	 * @param dealerIp 桌台ip
+	 * @param gameNo 荷官端游戏号
 	 */
     @Async
     public void openNewGame (String dealerIp, Integer gameNo) {
@@ -50,9 +66,19 @@ public class DealerBusiness {
     	Long deskId = desk.getId();
     	String deskCode = desk.getDeskCode();
     	String newActive = gamblingBusiness.generateNewActive(deskCode, gameNo);
+		Date beginTime = new Date();
+		// 预计这次gameInfo开牌结束时间
+		Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
+		RMap<String, NewGameInfo> map = redisUtil.getMap(RedisKeyConstants.SYS_GAME_TIME);
+		NewGameInfo newGameInfo = new NewGameInfo();
+		newGameInfo.setDeskCode(deskCode);
+		newGameInfo.setNoActive(newActive);
+		newGameInfo.setBeginTime(beginTime);
+		newGameInfo.setEndTime(endTime);
+		map.put(deskCode + "_" + gameNo, newGameInfo);
     	
     	Future<Boolean> openNewGameResult = asyncCommandService.openNewGame(deskId, deskCode, newActive);
-    	Future<Boolean> bettingResult = asyncCommandService.betting(deskCode, newActive);
+    	Future<Boolean> bettingResult = asyncCommandService.betting(deskCode, gameNo, newActive);
 
     	if (!handleFuture(openNewGameResult)) {
 			CompletableFuture.completedFuture(false);
@@ -67,18 +93,18 @@ public class DealerBusiness {
 	}
 
     @Async
-    public void open (String dealerIp, String awardOption, String openingTime) {
+    public void open (final OpenVO openVO) {
 
     	log.info("\r\n================= 开牌");
-    	asyncCommandService.open(dealerIp, awardOption, openingTime);
+    	asyncCommandService.open(openVO);
     	log.info("开牌成功");
     }
 
     @Async
-    public void settlement (String noActive, String openCardResult) {
+    public void settlement (final SettleFinishVO settleFinishVO) {
     	
     	log.info("\r\n================= 结算");
-    	asyncCommandService.settlement(noActive, openCardResult);
+    	asyncCommandService.settlement(settleFinishVO);
     	log.info("结算成功");
     }
     

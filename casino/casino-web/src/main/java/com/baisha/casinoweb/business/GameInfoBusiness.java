@@ -1,10 +1,15 @@
 package com.baisha.casinoweb.business;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import org.redisson.api.RMap;
+import org.redisson.api.RMapCache;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,7 +23,6 @@ import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.GameInfo;
 import com.baisha.modulecommon.vo.GameTgGroupInfo;
 import com.baisha.modulecommon.vo.GameUserInfo;
-import com.baisha.modulespringcacheredis.util.RedisUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,20 +37,16 @@ public class GameInfoBusiness {
     private Integer gameSettleBufferTimeSeconds;
 
     @Autowired
-    private RedisUtil redisUtil;
+    private RedissonClient redisUtil;
 
-    public synchronized GameInfo getGameInfo( String deskCode ) {
-    	GameInfo result = (GameInfo) redisUtil.hget(RedisKeyConstants.SYS_GAME_INFO, deskCode);
-		if ( result==null ) {
-			result = new GameInfo();
-			redisUtil.hset(RedisKeyConstants.SYS_GAME_INFO, deskCode, result);
-		}
-		
-		return result;
+    public synchronized GameInfo getGameInfo( final String deskCode) {
+		RMap<String, GameInfo> map = redisUtil.getMap(RedisKeyConstants.SYS_GAME_INFO);
+		return map.get(deskCode);
     }
 
-    public synchronized void setGameInfo( String deskCode, GameInfo gameInfo ) {
-		redisUtil.hset(RedisKeyConstants.SYS_GAME_INFO, deskCode, gameInfo);
+    public synchronized void setGameInfo( final String deskCode, final GameInfo gameInfo ) {
+		RMap<String, GameInfo> map = redisUtil.getMap(RedisKeyConstants.SYS_GAME_INFO);
+		map.put(deskCode, gameInfo);
     }
     
     /**

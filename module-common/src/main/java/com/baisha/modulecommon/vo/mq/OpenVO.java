@@ -24,5 +24,8 @@ public class OpenVO implements Serializable {
 
 	/** 开牌时间 */
 	private String endTime;
+
+	/** 荷官端游戏局号 */
+	private Integer gameNo;
 	
 }
