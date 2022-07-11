@@ -27,7 +27,7 @@ public class SsOrderController {
 
     @PostMapping(value = "save")
     @ApiOperation(value = "新增订单")
-    public ResponseEntity<Long> save(SsOrderAddVO vo) {
+    public ResponseEntity<String> save(SsOrderAddVO vo) {
         if (null == vo.getOrderStatus() || null == vo.getOrderType() || null == vo.getUserId() || null == vo.getAmount()) {
             return ResponseUtil.parameterNotNull();
         }
@@ -40,7 +40,7 @@ public class SsOrderController {
 
     @PostMapping(value = "deleteById")
     @ApiOperation(value = "删除订单")
-    public ResponseEntity<Long> save(IdVO vo) {
+    public ResponseEntity<String> save(IdVO vo) {
         if (null == vo.getId()) {
             return ResponseUtil.parameterNotNull();
         }

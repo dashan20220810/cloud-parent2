@@ -90,7 +90,7 @@ public class BetController {
 //		log.info("[下注] 成功! 押{} 共{}", betVO.getBetOption().getDisplay(), betVO.getAmount());
         log.info("[下注] 成功! 庄{} 闲{} 和{} 庄对{} 闲对{} 超级六{}", betVO.getAmountZ(), betVO.getAmountX(), betVO.getAmountH()
                 , betVO.getAmountZd(), betVO.getAmountXd(), betVO.getAmountSs());
-        return ResponseUtil.success(newBet.getId());
+        return ResponseUtil.success(newBet.getId().toString());
     }
 
     @PostMapping("page")
@@ -191,7 +191,7 @@ public class BetController {
         }
         log.info("当日盈利 user id: {}, tgChatId: {}", userId, tgChatId);
         BetStatistics entity = betStatisticsService.findByUserIdAndTgChatIdAndStatisticsDate(userId, tgChatId);
-        return ResponseUtil.success(entity==null||entity.getWinAmount()==null ? "0.00" : entity.getWinAmount());
+        return ResponseUtil.success(entity==null||entity.getWinAmount()==null ? "0.00" : entity.getWinAmount().toString());
     }
 
     @GetMapping("queryBetIsNotReturned")
