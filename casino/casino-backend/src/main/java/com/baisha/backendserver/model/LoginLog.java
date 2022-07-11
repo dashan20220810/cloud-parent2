@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.Table;
 
 /**
  * @author yihui
@@ -13,6 +15,7 @@ import javax.persistence.Entity;
 @Data
 @Entity
 @org.hibernate.annotations.Table(appliesTo = "login_log", comment = "管理员登陆日志")
+@Table(name = "LoginLog", indexes = {@Index(columnList = "userName")})
 public class LoginLog extends BaseEntity {
 
     @Column(columnDefinition = "varchar(30) comment '用户名'")

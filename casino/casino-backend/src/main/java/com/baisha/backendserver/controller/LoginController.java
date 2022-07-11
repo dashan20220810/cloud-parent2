@@ -1,9 +1,11 @@
 package com.baisha.backendserver.controller;
 
 
+import com.baisha.backendserver.model.LoginLog;
 import com.baisha.backendserver.model.bo.admin.LoginBO;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.service.AdminService;
+import com.baisha.backendserver.service.LoginLogService;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.model.vo.login.LoginVO;
 import com.baisha.modulecommon.Constants;
@@ -31,7 +33,8 @@ public class LoginController {
 
     @Autowired
     private RedisUtil redisUtil;
-
+    @Autowired
+    private LoginLogService loginLogService;
     @Autowired
     private AdminService adminService;
 
@@ -69,7 +72,16 @@ public class LoginController {
         subject.setBcryptPassword(user.getPassword());
         String token = JjwtUtil.generic(subject, Constants.CASINO_ADMIN);
         setUserTokenToRedis(user.getId(), token);
+        doLoginLog(user);
         return ResponseUtil.success(LoginBO.builder().id(user.getId()).userName(user.getUserName()).nickName(user.getNickName()).token(token).build());
+    }
+
+    private void doLoginLog(Admin user) {
+        LoginLog loginLog = new LoginLog();
+        loginLog.setUserName(user.getUserName());
+        loginLog.setNickName(user.getNickName());
+        loginLog.setContent(user.getUserName() + "登陆成功");
+        loginLogService.save(loginLog);
     }
 
     private void setUserTokenToRedis(Long userId, String token) {
