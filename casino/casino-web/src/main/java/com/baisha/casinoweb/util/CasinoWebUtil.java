@@ -13,8 +13,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baisha.casinoweb.util.enums.RequestPathEnum;
+import com.alibaba.fastjson.TypeReference;
 import com.baisha.casinoweb.model.vo.UserVO;
+import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.enums.UserOriginEnum;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -124,11 +125,6 @@ public class CasinoWebUtil {
 			return null;
 		}
 
-		JSONObject data = json.getJSONObject("data");
-		UserVO vo = new UserVO();
-		vo.setId(data.getLong("id"));
-		vo.setNickName(data.getString("nickName"));
-		vo.setUserName(data.getString("userName"));
-		return vo;
+		return JSONObject.parseObject(json.getString("data"), new TypeReference<UserVO>(){});
     }
 }
