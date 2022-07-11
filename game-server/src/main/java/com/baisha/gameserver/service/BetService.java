@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import com.baisha.gameserver.model.Bet;
 import com.baisha.gameserver.repository.BetRepository;
-import com.baisha.gameserver.vo.BetReturnAmountVO;
 
 /**
  * @author: alvin
@@ -82,24 +81,21 @@ public class BetService {
         todayEndTime = DateUtils.addMilliseconds(todayEndTime, -1);
         return betRepository.findAllBy(userId, tgChatId, todayStartTime, todayEndTime);
     }
+
+    /**
+     * status=2 AND (b.isReturned IS NULL or b.isReturned = false) AND b.winAmount < 0 AND updateTime BETWEEN today
+     * @return
+     */
+    public List<Bet> queryBetIsNotReturnedYesterday ( Integer queryAmount ) {
+
+        Date yesterdayStartTime = DateUtils.truncate(new Date(), Calendar.DATE);
+        Date yesterdayEndTime = DateUtils.addDays(yesterdayStartTime, 1);
+        yesterdayEndTime = DateUtils.addMilliseconds(yesterdayEndTime, -1);
+        return betRepository.findAllBy(yesterdayStartTime, yesterdayEndTime, PageRequest.of(0, queryAmount));
+    }
     
     public void updateReturnAmount(Long betId) {
     	betRepository.updateIsReturnedById(betId);
     }
     
-    public List<BetReturnAmountVO> returnAmountByDay ( BigDecimal gameReturnAmountMultiplier ) {
-
-        Date yesterdayStartTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -1);
-        Date yesterdayEndTime = DateUtils.addMilliseconds(DateUtils.addDays(yesterdayStartTime, 1), -1);
-    	
-        List<BetReturnAmountVO> result = betRepository.sumFlowAmount(yesterdayStartTime, yesterdayEndTime);
-        
-        result.forEach( vo -> {
-        	betRepository.updateReturnAmount(vo.getUserId(), vo.getTgChatId(), yesterdayStartTime, yesterdayEndTime, true);
-        	if ( vo.getTotalFlowAmount()!=null && !vo.getTotalFlowAmount().equals(BigDecimal.ZERO) ) {
-        		vo.setTotalReturnAmount( gameReturnAmountMultiplier.multiply(new BigDecimal(vo.getTotalFlowAmount())) );
-        	}
-        });
-    	return result;
-    }
 }
