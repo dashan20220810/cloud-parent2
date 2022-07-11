@@ -87,45 +87,5 @@ public class UserController {
 		log.info("查詢余額成功");
         return ResponseUtil.success(balance);
 	}
-
-	/**
-	 * 用户登入
-	 * @param userName
-	 * @param password
-	 * @return
-	 */
-//	@ApiImplicitParams({
-//		@ApiImplicitParam(name = "userName", value = "用户名", dataType = "string", required = true, paramType = "query"),
-//		@ApiImplicitParam(name = "password", value = "密码", dataType = "string", required = true, paramType = "query")
-//	})
-//	@ApiOperation("用户登入")
-//	@NoAuthentication
-//	@PostMapping("login")
-//	public ResponseEntity<?> login( String userName, String password ) {
-//		
-//		log.info("[用户登入]");
-//		if (CommonUtil.checkNull(userName, password)) {
-//			log.info("[用户登入] 检核失败");
-//			return ResponseUtil.parameterNotNull();
-//		}
-//		
-//		
-//		//USER_LOGIN
-//		Map<String, Object> params = new HashMap<>();
-//		params.put("userName", userName);
-//		params.put("password", password);
-//
-//		String result = HttpClient4Util.doPost(
-//				userServerDomain + RequestPathEnum.USER_LOGIN.getApiName(),
-//				params);
-//		
-//        if (CommonUtil.checkNull(result)) {
-//            return ResponseUtil.fail();
-//        }
-//
-//		//TODO
-//		log.info("[用户登入] 成功");
-//        return ResponseUtil.success();
-//	}
 	
 }
