@@ -6,10 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.math.BigDecimal;
 
 /**
@@ -18,7 +15,9 @@ import java.math.BigDecimal;
 @Slf4j
 @Data
 @Entity
-@Table(name = "PlayMoneyChange", indexes = {@Index(columnList = "userId")})
+@Table(name = "PlayMoneyChange", indexes = {@Index(columnList = "userId")},
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"changeType", "relateId", "userId"})}
+)
 @org.hibernate.annotations.Table(appliesTo = "play_money_change", comment = "会员打码量变动记录")
 @ApiModel(value = "用户-会员打码量变动记录")
 public class PlayMoneyChange extends BaseEntity {
