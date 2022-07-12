@@ -24,11 +24,12 @@ public interface BetRepository extends JpaRepository<Bet, Long>, JpaSpecificatio
     List<Bet> findByNoActiveAndStatus(String noActive, Integer status);
 
     @Modifying
-    @Query(value = " update Bet b set b.settleTime = ?4,b.winAmount=?2,b.finalAmount=?3,b.status = 2  where b.id =?1 ")
-    int updateSettleBetById(Long id, BigDecimal winAmount, BigDecimal finalAmount, Date settleTime);
+    @Query(value = " update Bet b set b.settleTime = ?4,b.winAmount=?2,b.finalAmount=?3,b.status = 2,b.settleRemark=?5  where b.id =?1 ")
+    int updateSettleBetById(Long id, BigDecimal winAmount, BigDecimal finalAmount, Date settleTime, String settleRemark);
 
     /**
      * status=2 AND (b.isReturned IS NULL or b.isReturned = false) AND b.winAmount < 0
+     *
      * @param userId
      * @param tgChatId
      * @param beginTime
@@ -36,20 +37,21 @@ public interface BetRepository extends JpaRepository<Bet, Long>, JpaSpecificatio
      * @return
      */
     @Query(value = " SELECT b FROM Bet b WHERE b.status=2 AND (b.isReturned IS NULL or b.isReturned = false) "
-    		+ "		AND b.winAmount < 0 "
-    		+ " 	AND b.userId = ?1 AND b.tgChatId=?2 AND b.updateTime BETWEEN ?3 AND ?4 ")
-    List<Bet> findAllBy( Long userId, Long tgChatId, Date beginTime, Date endTime );
+            + "		AND b.winAmount < 0 "
+            + " 	AND b.userId = ?1 AND b.tgChatId=?2 AND b.updateTime BETWEEN ?3 AND ?4 ")
+    List<Bet> findAllBy(Long userId, Long tgChatId, Date beginTime, Date endTime);
 
     /**
      * status=2 AND (b.isReturned IS NULL or b.isReturned = false) AND b.winAmount < 0
+     *
      * @param beginTime
      * @param endTime
      * @return
      */
     @Query(value = " SELECT b FROM Bet b WHERE b.status=2 AND (b.isReturned IS NULL or b.isReturned = false) "
-    		+ "		AND b.winAmount < 0 "
-    		+ " 	AND b.updateTime BETWEEN ?1 AND ?2 ")
-    List<Bet> findAllBy( Date beginTime, Date endTime, Pageable pageable );
+            + "		AND b.winAmount < 0 "
+            + " 	AND b.updateTime BETWEEN ?1 AND ?2 ")
+    List<Bet> findAllBy(Date beginTime, Date endTime, Pageable pageable);
 
     @Modifying
     @Query(value = " update Bet b SET b.isReturned=true WHERE b.id = ?1 ")
@@ -57,6 +59,6 @@ public interface BetRepository extends JpaRepository<Bet, Long>, JpaSpecificatio
 
     @Modifying
     @Query(value = " update Bet b SET  b.isReturned=?5 WHERE b.status=2 AND (b.isReturned IS NULL or b.isReturned = false) "
-    		+ " 	AND b.userId = ?1 AND b.tgChatId=?2 AND b.updateTime BETWEEN ?3 AND ?4 ")
-    int updateReturnAmount ( Long userId, Long tgChatId, Date beginTime, Date endTime, boolean isReturned );
+            + " 	AND b.userId = ?1 AND b.tgChatId=?2 AND b.updateTime BETWEEN ?3 AND ?4 ")
+    int updateReturnAmount(Long userId, Long tgChatId, Date beginTime, Date endTime, boolean isReturned);
 }

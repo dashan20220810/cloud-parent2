@@ -64,17 +64,18 @@ public class BetService {
         return betRepository.findByNoActiveAndStatus(noActive, status);
     }
 
-    public int settleBet(Long id, BigDecimal winAmount, BigDecimal finalAmount) {
-        return betRepository.updateSettleBetById(id, winAmount, finalAmount, new Date());
+    public int settleBet(Long id, BigDecimal winAmount, BigDecimal finalAmount, String settleRemark) {
+        return betRepository.updateSettleBetById(id, winAmount, finalAmount, new Date(), settleRemark);
     }
 
     /**
      * status=2 AND (b.isReturned IS NULL or b.isReturned = false) AND b.winAmount < 0 AND updateTime BETWEEN today
+     *
      * @param userId
      * @param tgChatId
      * @return
      */
-    public List<Bet> queryBetIsNotReturned ( Long userId, Long tgChatId ) {
+    public List<Bet> queryBetIsNotReturned(Long userId, Long tgChatId) {
 
         Date todayStartTime = DateUtils.truncate(new Date(), Calendar.DATE);
         Date todayEndTime = DateUtils.addDays(todayStartTime, 1);
@@ -84,18 +85,19 @@ public class BetService {
 
     /**
      * status=2 AND (b.isReturned IS NULL or b.isReturned = false) AND b.winAmount < 0 AND updateTime BETWEEN today
+     *
      * @return
      */
-    public List<Bet> queryBetIsNotReturnedYesterday ( Integer queryAmount ) {
+    public List<Bet> queryBetIsNotReturnedYesterday(Integer queryAmount) {
 
         Date yesterdayStartTime = DateUtils.truncate(new Date(), Calendar.DATE);
         Date yesterdayEndTime = DateUtils.addDays(yesterdayStartTime, 1);
         yesterdayEndTime = DateUtils.addMilliseconds(yesterdayEndTime, -1);
         return betRepository.findAllBy(yesterdayStartTime, yesterdayEndTime, PageRequest.of(0, queryAmount));
     }
-    
+
     public void updateReturnAmount(Long betId) {
-    	betRepository.updateIsReturnedById(betId);
+        betRepository.updateIsReturnedById(betId);
     }
-    
+
 }

@@ -49,6 +49,7 @@ public class BaccNoCommissionUtil {
         if (awardOption.equals(TgBaccRuleEnum.SS2.getCode())) {
             return winBetSs2(bet, gameBaccOdds);
         }
+        //幸运六(ss3)
         if (awardOption.equals(TgBaccRuleEnum.SS3.getCode())) {
             return winBetSs3(bet, gameBaccOdds);
         }
@@ -84,6 +85,7 @@ public class BaccNoCommissionUtil {
                 bo.setRemark("(幸运六(三张牌)-庄-中奖 下注金额:" + betAmount + "赔率:" + odds + "派彩:" + finalAmount + ")");
             }
         }
+        bo.setId(bet.getId());
         bo.setBetAmount(betAmount);
         bo.setFinalAmount(finalAmount);
         return bo;
@@ -118,6 +120,7 @@ public class BaccNoCommissionUtil {
                 bo.setRemark("(幸运六(两张牌)-庄-中奖 下注金额:" + betAmount + "赔率:" + odds + "派彩:" + finalAmount + ")");
             }
         }
+        bo.setId(bet.getId());
         bo.setBetAmount(betAmount);
         bo.setFinalAmount(finalAmount);
         return bo;
@@ -139,6 +142,7 @@ public class BaccNoCommissionUtil {
             finalAmount = betAmount.add(winAmount);
             bo.setRemark("(闲对-中奖 下注金额:" + betAmount + "赔率:" + odds + "派彩:" + finalAmount + ")");
         }
+        bo.setId(bet.getId());
         bo.setBetAmount(betAmount);
         bo.setFinalAmount(finalAmount);
         return bo;
@@ -160,6 +164,7 @@ public class BaccNoCommissionUtil {
             finalAmount = betAmount.add(winAmount);
             bo.setRemark("(庄对-中奖 下注金额:" + betAmount + "赔率:" + odds + "派彩:" + finalAmount + ")");
         }
+        bo.setId(bet.getId());
         bo.setBetAmount(betAmount);
         bo.setFinalAmount(finalAmount);
         return bo;
@@ -189,6 +194,7 @@ public class BaccNoCommissionUtil {
                 bo.setRemark("(和-开和局时退回下注金额 :" + betAmount + ")");
             }
         }
+        bo.setId(bet.getId());
         bo.setBetAmount(betAmount);
         bo.setFinalAmount(finalAmount);
         return bo;
@@ -212,6 +218,7 @@ public class BaccNoCommissionUtil {
             finalAmount = betAmount.add(winAmount);
             bo.setRemark("(闲-中奖 下注金额:" + betAmount + "赔率:" + odds + "派彩:" + finalAmount + ")");
         }
+        bo.setId(bet.getId());
         bo.setBetAmount(betAmount);
         bo.setFinalAmount(finalAmount);
         return bo;
@@ -232,122 +239,15 @@ public class BaccNoCommissionUtil {
             BigDecimal odds = gameBaccOdds.getZ();
             //赢的钱
             BigDecimal winAmount = odds.multiply(betAmount);
-            //该派彩的钱
+            //该派彩的钱 派彩=赢得钱+ 中奖选项的下注金额
             finalAmount = betAmount.add(winAmount);
             bo.setRemark("(庄-中奖 下注金额:" + betAmount + "赔率:" + odds + "派彩:" + finalAmount + ")");
         }
+        bo.setId(bet.getId());
         bo.setBetAmount(betAmount);
         bo.setFinalAmount(finalAmount);
         return bo;
     }
-
-
-    /**
-     * 获取中奖选择的下注赔率
-     *
-     * @param gameBaccOdds
-     * @param bet
-     * @param awardOption
-     * @return
-     *//*
-    private BigDecimal getOdds(GameBaccOddsBO gameBaccOdds, Bet bet, String awardOption) {
-        if (awardOption.equals(TgBaccRuleEnum.Z.getCode())) {
-            if (bet.getAmountZ() > 0) {
-                return gameBaccOdds.getZ();
-            }
-        }
-        if (awardOption.equals(TgBaccRuleEnum.X.getCode())) {
-            if (bet.getAmountX() > 0) {
-                return gameBaccOdds.getX();
-            }
-        }
-        if (awardOption.equals(TgBaccRuleEnum.H.getCode())) {
-            if (bet.getAmountH() > 0) {
-                return gameBaccOdds.getH();
-            }
-        }
-        if (awardOption.equals(TgBaccRuleEnum.ZD.getCode())) {
-            if (bet.getAmountZd() > 0) {
-                return gameBaccOdds.getZd();
-            }
-        }
-        if (awardOption.equals(TgBaccRuleEnum.XD.getCode())) {
-            if (bet.getAmountXd() > 0) {
-                return gameBaccOdds.getXd();
-            }
-        }
-        //幸运6 庄也中奖
-        if (awardOption.equals(TgBaccRuleEnum.SS2.getCode())) {
-            if (bet.getAmountSs() > 0) {
-                return gameBaccOdds.getSs2();
-            }
-            if (bet.getAmountZ() > 0) {
-                return gameBaccOdds.getZ();
-            }
-        }
-        if (awardOption.equals(TgBaccRuleEnum.SS3.getCode())) {
-            if (bet.getAmountSs() > 0) {
-                return gameBaccOdds.getSs3();
-            }
-            if (bet.getAmountZ() > 0) {
-                return gameBaccOdds.getZ();
-            }
-        }
-        return BigDecimal.ZERO;
-    }
-
-    *//**
-     * 注单 是否中奖
-     *
-     * @param bet
-     * @param awardOption
-     * @return
-     *//*
-    private boolean isWinBet(Bet bet, String awardOption) {
-        if (awardOption.equals(TgBaccRuleEnum.Z.getCode())) {
-            if (bet.getAmountZ() > 0) {
-                return true;
-            }
-        }
-        if (awardOption.equals(TgBaccRuleEnum.X.getCode())) {
-            if (bet.getAmountX() > 0) {
-                return true;
-            }
-        }
-        if (awardOption.equals(TgBaccRuleEnum.H.getCode())) {
-            if (bet.getAmountH() > 0) {
-                return true;
-            }
-        }
-        if (awardOption.equals(TgBaccRuleEnum.ZD.getCode())) {
-            if (bet.getAmountZd() > 0) {
-                return true;
-            }
-        }
-        if (awardOption.equals(TgBaccRuleEnum.XD.getCode())) {
-            if (bet.getAmountXd() > 0) {
-                return true;
-            }
-        }
-        //幸运6 庄也中奖
-        if (awardOption.equals(TgBaccRuleEnum.SS2.getCode())) {
-            if (bet.getAmountSs() > 0) {
-                return true;
-            }
-            if (bet.getAmountZ() > 0) {
-                return true;
-            }
-        }
-        if (awardOption.equals(TgBaccRuleEnum.SS3.getCode())) {
-            if (bet.getAmountSs() > 0) {
-                return true;
-            }
-            if (bet.getAmountZ() > 0) {
-                return true;
-            }
-        }
-        return false;
-    }*/
 
 
 }

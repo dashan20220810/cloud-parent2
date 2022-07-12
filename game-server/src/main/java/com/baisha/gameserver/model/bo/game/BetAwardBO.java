@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  */
 @Data
 public class BetAwardBO {
-
+    private Long id;
     /**
      * 下注金额
      */
@@ -20,11 +20,6 @@ public class BetAwardBO {
      * 最后派彩
      */
     private BigDecimal finalAmount;
-    /**
-     * 输赢金额
-     */
-    //private BigDecimal winAmount;
-
     /**
      * 备注
      */

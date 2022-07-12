@@ -109,6 +109,10 @@ public class Bet extends BaseEntity {
     @Column(columnDefinition = "VARCHAR(6) comment '已返水'")
     private Boolean isReturned = false;
 
+    @ApiModelProperty("备注(结算)")
+    @Column(name = "settle_remark", columnDefinition = "VARCHAR(100) COMMENT '备注(结算)'")
+    private String settleRemark;
+
 
     /**
      * 检核下注请求
@@ -175,13 +179,14 @@ public class Bet extends BaseEntity {
 
         return true;
     }
-    
+
     /**
      * 返回流水 6个下注金额加总
+     *
      * @return
      */
     public Long getFlowAmount() {
-    	return amountH +amountSs +amountX +amountXd +amountZ +amountZd;
+        return amountH + amountSs + amountX + amountXd + amountZ + amountZd;
     }
 
 }
