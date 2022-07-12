@@ -54,5 +54,10 @@ spring:
         max-idle: 32
         # 连接池中的最小空闲连接 默认 0
         min-idle: 2
+  rabbitmq:
+    host: 192.168.26.24
+    port: 5672
+    username: admin
+    password: 12qw!@QW
 
 

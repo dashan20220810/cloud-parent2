@@ -1,4 +1,4 @@
-package com.baisha.gameserver.mq;
+package com.baisha.userserver.mq;
 
 import com.baisha.modulecommon.MqConstants;
 import org.springframework.amqp.core.Binding;
@@ -13,27 +13,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class RabbitDirectConfig {
-
-    @Bean
-    DirectExchange baishaDirectExchange() {
-        return new DirectExchange("baisha-direct", true, false);
-    }
-
-
-    @Bean
-    Binding betSettlementBinding() {
-        return BindingBuilder.bind(betSettlementQueue()).to(baishaDirectExchange())
-                .with(MqConstants.BET_SETTLEMENT + "-direct");
-    }
-
-    /**
-     * @return
-     */
-    @Bean
-    Queue betSettlementQueue() {
-        return new Queue(MqConstants.BET_SETTLEMENT);
-    }
-
 
     //*****************************************gameServer - userServer *******************************************************************************
     @Bean

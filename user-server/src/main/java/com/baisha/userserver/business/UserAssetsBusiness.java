@@ -69,10 +69,9 @@ public class UserAssetsBusiness {
                 }
             }
         } catch (Exception e) {
+            fairLock.unlock();
             log.error(e.getMessage());
             e.printStackTrace();
-        } finally {
-            fairLock.unlock();
         }
 
         return ResponseUtil.fail();
@@ -186,10 +185,9 @@ public class UserAssetsBusiness {
                 }
             }
         } catch (Exception e) {
+            fairLock.unlock();
             log.error(e.getMessage());
             e.printStackTrace();
-        } finally {
-            fairLock.unlock();
         }
 
         return ResponseUtil.fail();

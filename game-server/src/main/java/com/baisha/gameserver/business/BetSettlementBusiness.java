@@ -10,6 +10,7 @@ import com.baisha.gameserver.util.BaccNoCommissionUtil;
 import com.baisha.gameserver.util.GameServerUtil;
 import com.baisha.gameserver.util.contants.GameServerContants;
 import com.baisha.gameserver.util.contants.UserServerContants;
+import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.enums.BetStatusEnum;
 import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
@@ -17,8 +18,10 @@ import com.baisha.modulecommon.enums.TgBaccRuleEnum;
 import com.baisha.modulecommon.util.DateUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
+import com.baisha.modulecommon.vo.mq.userServer.BetSettleUserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -38,8 +41,10 @@ import java.util.stream.Collectors;
 @Service
 public class BetSettlementBusiness {
 
-    @Value("${project.server-url.user-server-domain}")
+    //@Value("${project.server-url.user-server-domain}")
     private String userServerDomain;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
     @Autowired
     private Executor asyncExecutor;
     @Autowired
@@ -110,15 +115,23 @@ public class BetSettlementBusiness {
             //修改注单数据
             int flag = betService.settleBet(bet.getId(), winAmount, finalAmount, settleRemarkBuffer.toString());
             if (flag > 0) {
-                //打码量
+                //用户统计今日数据(输赢结果)
+                statisticsWinAmount(bet, winAmount);
+                /*//打码量
                 doReducePlayMoney(bet, BigDecimal.valueOf(betAmount));
                 if (finalAmount.compareTo(BigDecimal.ZERO) > 0) {
                     //派奖
                     doAddBalance(bet, bet.getNoActive(), finalAmount);
-                }
+                }*/
+                log.info("通知用户中心更新余额{}和打码量{}", finalAmount, betAmount);
+                BetSettleUserVO betSettleUserVO = BetSettleUserVO.builder().betId(bet.getId()).noActive(bet.getNoActive())
+                        .userId(bet.getUserId()).finalAmount(finalAmount).playMoney(BigDecimal.valueOf(betAmount))
+                        .remark(settleRemarkBuffer.toString()).build();
+                String betSettleUserJsonStr = JSONObject.toJSONString(betSettleUserVO);
+                log.info("发送给用户中心MQ消息：{}", betSettleUserJsonStr);
+                rabbitTemplate.convertAndSend(MqConstants.USER_SETTLEMENT_ASSETS, betSettleUserJsonStr);
             }
-            //用户统计今日数据(输赢结果)
-            statisticsWinAmount(bet, winAmount);
+
             settleList.add(bet);
         }
         return settleList;
