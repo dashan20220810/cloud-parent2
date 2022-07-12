@@ -3,6 +3,8 @@ package com.baisha.modulespringcacheredis.config;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.codec.Codec;
+import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.Config;
 import org.redisson.config.SingleServerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +44,9 @@ public class RedissonConfig {
             log.info("redis password : [{}]", password);
             serverConfig.setPassword(password);
         }
-
+        //使用json序列化方式
+        Codec codec = new JsonJacksonCodec();
+        config.setCodec(codec);
         RedissonClient redissonClient = Redisson.create(config);
         log.info(" redisson success ");
         return redissonClient;

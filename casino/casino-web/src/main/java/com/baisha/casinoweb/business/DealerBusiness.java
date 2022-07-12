@@ -1,9 +1,11 @@
 package com.baisha.casinoweb.business;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import com.baisha.core.constants.RedisKeyConstants;
 import com.baisha.modulecommon.vo.GameInfo;
@@ -12,7 +14,9 @@ import com.baisha.modulecommon.vo.mq.OpenVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 import org.apache.commons.lang3.time.DateUtils;
 import org.redisson.api.RMap;
+import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
+import org.redisson.codec.JsonJacksonCodec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -75,6 +79,7 @@ public class DealerBusiness {
 		newGameInfo.setNoActive(newActive);
 		newGameInfo.setBeginTime(beginTime);
 		newGameInfo.setEndTime(endTime);
+		map.expire(BigDecimal.TEN.longValue(), TimeUnit.MINUTES);
 		map.put(deskCode + "_" + gameNo, newGameInfo);
     	
     	Future<Boolean> openNewGameResult = asyncCommandService.openNewGame(deskId, deskCode, newActive);

@@ -8,9 +8,13 @@ import java.util.Map;
 
 import com.baisha.modulecommon.enums.GameStatusEnum;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class GameInfo implements Serializable {
 
 	private static final long serialVersionUID = -1722371455986219844L;

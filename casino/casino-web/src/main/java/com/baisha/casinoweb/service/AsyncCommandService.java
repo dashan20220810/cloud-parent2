@@ -12,9 +12,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import com.baisha.casinoweb.util.constant.Constants;
 import com.baisha.modulecommon.vo.NewGameInfo;
 import com.baisha.modulecommon.vo.mq.OpenVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
@@ -59,6 +61,9 @@ public class AsyncCommandService {
 	
     @Value("${project.server-url.game-server-domain}")
     private String gameServerDomain;
+
+	@Value("${project.server-url.video-server-domain}")
+	private String videoServerDomain;
 
     @Value("${project.game.count-down-seconds}")
     private Integer gameCountDownSeconds;
@@ -105,14 +110,14 @@ public class AsyncCommandService {
     	
     	// 准备桌台、tg群资料，用来初始game info
     	Map<String, Object> params = new HashMap<>();
-    	Date beginTime = new Date();
-    	Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
+//    	Date beginTime = new Date();
+//    	Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
 //    	Date endTime = DateUtils.addSeconds(beginTime, 30); // TODO
     	GameInfo gameInfo = new GameInfo();
     	gameInfo.setCurrentActive(newActive);
     	gameInfo.setStatus(GameStatusEnum.Betting);		// 状态: 下注中
-    	gameInfo.setBeginTime(beginTime);
-    	gameInfo.setEndTime(endTime);
+//    	gameInfo.setBeginTime(beginTime);
+//    	gameInfo.setEndTime(endTime);
 
 		log.info("局号、桌台id、新局图片url: {}, {}, {}", newActive, deskId, openNewGameUrl);
 		String result = HttpClient4Util.doGet(
@@ -255,30 +260,14 @@ public class AsyncCommandService {
     		return;
 		}
 
-//		String qTime = String.valueOf(DateUtil.parse(openingTime).getTime() / 1000);
-
-		SysTelegramDto sysTg = telegramService.getSysTelegram();
-		// 开牌 5 request parameter
-		params = Maps.newHashMap();
-		params.put("openCardAddress", sysTg.getOpenCardUrl());
-		params.put("tableId", deskId);
-		params.put("frontAddress", "https://www.google.com"); // TODO for test
-		params.put("lookDownAddress", "https://tw.yahoo.com"); // TODO for test
-		params.put("videoResultAddress", "videoServerDomain + Constants.IMAGE + qTime + Constants.FLV"); // TODO for test
-		params.put("picRoadAddress", "videoServerDomain + Constants.IMAGE + qTime + Constants.JPEG"); // TODO for test
-
-		result = HttpClient4Util.doPost(
-				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),
-				params);
-		ValidateUtil.checkHttpResponse(action, result);
-
         String settlement = JSONObject.toJSONString(BetSettleVO.builder().noActive(gameInfo.getCurrentActive())
 				.awardOption(openCardResult).build());
         rabbitTemplate.convertAndSend(MqConstants.BET_SETTLEMENT, settlement);
 
-		//发送视频地址给TG
 		// 获取荷官开始时间unix时间戳
-//		sendVideoAddressToTg(gameInfo.getCurrentActive(), closeUpVideoSteam, qTime, action, deskId);
+		String qTime = String.valueOf(DateUtil.parse(openingTime).getTime() / 1000);
+		//发送视频地址给TG
+		sendVideoAddressToTg(gameInfo.getCurrentActive(), closeUpVideoSteam, qTime, action, deskId);
     }
 
 	private String getAwardOption(final String awardOption) {
@@ -300,32 +289,32 @@ public class AsyncCommandService {
 			final String qTime, final String action,
 			final Long deskId) {
 		// 获取视频流
-//		Map<String, Object> gameVideoParam = Maps.newHashMap();
-//		gameVideoParam.put("period", currentActive);
-//		gameVideoParam.put("rtmpurl", closeUpVideoSteam);
-//		gameVideoParam.put("qtime", qTime);
-//
-//		String result = HttpClient4Util.doPost(
-//				videoServerDomain + RequestPathEnum.VIDEO_SNAP.getApiName(),
-//				gameVideoParam);
-//		if ( !ValidateUtil.checkHttpResponse(action, result) ) {
-//			return;
-//		}
-//
-//		SysTelegramDto sysTg = telegramService.getSysTelegram();
-//		// 开牌 5 request parameter
-//		Map<String, Object> params = Maps.newHashMap();
-//		params.put("openCardAddress", sysTg.getOpenCardUrl());
-//		params.put("tableId", deskId);
-//		params.put("frontAddress", "https://www.google.com"); // TODO for test
-//		params.put("lookDownAddress", "https://tw.yahoo.com"); // TODO for test
-//		params.put("videoResultAddress", videoServerDomain + Constants.IMAGE + qTime + Constants.FLV); // TODO for test
-//		params.put("picRoadAddress", videoServerDomain + Constants.IMAGE + qTime + Constants.JPEG); // TODO for test
-//
-//		result = HttpClient4Util.doPost(
-//				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),
-//				params);
-//		ValidateUtil.checkHttpResponse(action, result);
+		Map<String, Object> gameVideoParam = Maps.newHashMap();
+		gameVideoParam.put("period", currentActive);
+		gameVideoParam.put("rtmpurl", closeUpVideoSteam);
+		gameVideoParam.put("qtime", qTime);
+
+		String result = HttpClient4Util.doPost(
+				videoServerDomain + RequestPathEnum.VIDEO_SNAP.getApiName(),
+				gameVideoParam);
+		if (StringUtils.isEmpty((String)JSONObject.parseObject(result).get("model"))) {
+			return;
+		}
+
+		SysTelegramDto sysTg = telegramService.getSysTelegram();
+		// 开牌 5 request parameter
+		Map<String, Object> params = Maps.newHashMap();
+		params.put("openCardAddress", sysTg.getOpenCardUrl());
+		params.put("tableId", deskId);
+		params.put("frontAddress", "https://www.google.com"); // TODO for test
+		params.put("lookDownAddress", "https://tw.yahoo.com"); // TODO for test
+		params.put("videoResultAddress", videoServerDomain + Constants.IMAGE + qTime + Constants.FLV); // TODO for test
+		params.put("picRoadAddress", videoServerDomain + Constants.IMAGE + qTime + Constants.JPEG); // TODO for test
+
+		result = HttpClient4Util.doPost(
+				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),
+				params);
+		ValidateUtil.checkHttpResponse(action, result);
 	}
 
 	@Async
