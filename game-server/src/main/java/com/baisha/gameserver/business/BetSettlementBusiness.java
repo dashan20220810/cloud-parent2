@@ -102,7 +102,7 @@ public class BetSettlementBusiness {
                 if (Objects.isNull(betAwardBO)) {
                     log.error("没有对应中奖选项awardOption={}", awardOption);
                 }
-                log.info("局{} 中奖选项{} 注单Id{} 中奖结果{}", vo.getNoActive(), awardOption, betAwardBO.getId(), JSONObject.parseObject(betAwardOption));
+                log.info("局{} 中奖选项{} 注单Id{} 中奖结果{}", vo.getNoActive(), awardOption, betAwardBO.getId(), JSONObject.toJSONString(betAwardBO));
                 finalAmount = finalAmount.add(betAwardBO.getFinalAmount());
                 settleRemarkBuffer.append(StringUtils.isNotEmpty(betAwardBO.getRemark()) ? betAwardBO.getRemark() : "");
             }
