@@ -25,7 +25,7 @@ public class RabbitDirectConfig {
         return BindingBuilder.bind(betSettlementQueue()).to(baishaDirectExchange())
         		.with(MqConstants.BET_SETTLEMENT +"-direct");
     }
-    
+
     /**
      *
      * @return
@@ -34,15 +34,15 @@ public class RabbitDirectConfig {
     Queue betSettlementQueue() {
         return new Queue(MqConstants.BET_SETTLEMENT);
     }
-
-    @Bean
-    Binding settlementFinishBinding() {
-        return BindingBuilder.bind(settlementFinishQueue()).to(baishaDirectExchange())
-        		.with(MqConstants.SETTLEMENT_FINISH +"-direct");
-    }
-
-    @Bean
-    Queue settlementFinishQueue() {
-        return new Queue(MqConstants.SETTLEMENT_FINISH);
-    }
+//
+//    @Bean
+//    Binding settlementFinishBinding() {
+//        return BindingBuilder.bind(settlementFinishQueue()).to(baishaDirectExchange())
+//        		.with(MqConstants.SETTLEMENT_FINISH +"-direct");
+//    }
+//
+//    @Bean
+//    Queue settlementFinishQueue() {
+//        return new Queue(MqConstants.SETTLEMENT_FINISH);
+//    }
 }

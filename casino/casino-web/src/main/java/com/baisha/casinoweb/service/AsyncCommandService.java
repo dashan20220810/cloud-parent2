@@ -331,8 +331,14 @@ public class AsyncCommandService {
 	@Async
     public void settlement (final SettleFinishVO settleFinishVO) {
 
-    	final String noActive = settleFinishVO.getNoActive();
-		final String openCardResult = settleFinishVO.getAwardOption();
+		final String dealerIp = settleFinishVO.getDealerIp();
+		final String consequences = settleFinishVO.getConsequences();
+		final Integer gameNo = settleFinishVO.getGameNo();
+		DeskVO desk = deskBusiness.queryDeskByIp(dealerIp);
+
+		final String deskCode = desk.getDeskCode();
+		RMap<String, NewGameInfo> map = redissonClient.getMap(RedisKeyConstants.SYS_GAME_TIME);
+		String noActive = map.get(deskCode + "_" + gameNo).getNoActive();
     	String action = "结算";
     	Map<String, Object> params = new HashMap<>();
 		params.put("noActive", noActive);
@@ -344,10 +350,12 @@ public class AsyncCommandService {
     		return;
 		}
 
+		// 获取开牌结果
+		String openCardResult = getAwardOption(consequences);
+
 		JSONObject betJson = JSONObject.parseObject(result);
 		JSONArray betArray = betJson.getJSONArray("data");
 		Map<Long, List<BetResponseVO>> betMap = null;
-		String deskCode = (String) redisUtil.hget(RedisKeyConstants.SYS_GAME_DESK, noActive);
 		GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
 		
 		if ( betArray!=null && betArray.size()>0 ) {
@@ -381,9 +389,9 @@ public class AsyncCommandService {
 				}
 				
 				betHistoryList = betHistoryList.stream().sorted(Comparator.comparingDouble(bet -> {
-					return (-bet.getWinAmount().doubleValue());
+					return (-bet.getWinAmount());
 				})).collect(Collectors.toList());
-				top20WinUsers.put(tgGroupId, betHistoryList.subList(0, betHistoryList.size()>20 ? 20 : betHistoryList.size() ));
+				top20WinUsers.put(tgGroupId, betHistoryList.subList(0, Math.min(betHistoryList.size(), 20)));
 			}
 		}
     	

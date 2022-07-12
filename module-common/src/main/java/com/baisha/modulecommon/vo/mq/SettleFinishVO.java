@@ -18,15 +18,20 @@ import java.io.Serializable;
 public class SettleFinishVO implements Serializable {
 
     /**
-     * 局号
+     * 桌台IP
      */
-    private String noActive;
+    private String dealerIp;
+
+    /**
+     * 荷官端局号
+     */
+    private Integer gameNo;
 
 
     /**
      * 开奖选择 字母
      * Z（庄）  X（闲）  H（和） ZD（庄对） XD（闲对） SS（幸运6）
      */
-    private String awardOption;
+    private String consequences;
 
 }

@@ -15,8 +15,8 @@ public class MqConstants {
     public final static String WEB_OPEN_NEW_GAME = "web_open_new_game";
     /** 结束 */
     public final static String WEB_CLOSE_GAME = "web_close_game";
-    /** 结算完成 */
-    public final static String SETTLEMENT_FINISH = "web_settlement_finish";
+    /** 结算完成通知 */
+    public final static String SETTLEMENT_FINISH = "web_settlement_game";
 
 
 }

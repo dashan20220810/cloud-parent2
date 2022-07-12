@@ -50,8 +50,8 @@ public class BetSettlementDirectReceiver {
                 betSettlementService.betSettlement(vo);
 
                 //结算完毕 通知
-                BetSettleVO fvo = BetSettleVO.builder().noActive(vo.getNoActive()).awardOption(vo.getAwardOption()).build();
-                rabbitTemplate.convertAndSend(MqConstants.SETTLEMENT_FINISH, JSONObject.toJSONString(fvo));
+//                BetSettleVO fvo = BetSettleVO.builder().noActive(vo.getNoActive()).awardOption(vo.getAwardOption()).build();
+//                rabbitTemplate.convertAndSend(MqConstants.SETTLEMENT_FINISH, JSONObject.toJSONString(fvo));
             }
         } catch (Exception e) {
             log.error(e.getMessage());
