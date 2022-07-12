@@ -388,9 +388,8 @@ public class AsyncCommandService {
 					betHistoryList.add(betHistory);
 				}
 				
-				betHistoryList = betHistoryList.stream().sorted(Comparator.comparingDouble(bet -> {
-					return (-bet.getWinAmount());
-				})).collect(Collectors.toList());
+				betHistoryList = betHistoryList.stream().sorted(Comparator
+						.comparingDouble(bet -> (-bet.getWinAmount()))).collect(Collectors.toList());
 				top20WinUsers.put(tgGroupId, betHistoryList.subList(0, Math.min(betHistoryList.size(), 20)));
 			}
 		}
