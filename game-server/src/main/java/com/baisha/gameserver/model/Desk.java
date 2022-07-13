@@ -40,6 +40,10 @@ public class Desk extends BaseEntity {
     @Column(columnDefinition = "varchar(100) comment '游戏视频地址'")
     private String videoAddress;
 
+    @ApiModelProperty(value = "游戏视频地址(近景)")
+    @Column(columnDefinition = "varchar(100) comment '游戏视频地址(近景)'")
+    private String nearVideoAddress;
+
     @ApiModelProperty(value = "状态 1 正常 ，0禁用")
     @Column(columnDefinition = "tinyint(2) comment '状态 1 正常 ，0禁用'")
     private Integer status = 1;

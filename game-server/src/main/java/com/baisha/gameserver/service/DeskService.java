@@ -118,8 +118,8 @@ public class DeskService {
     }
 
     @CachePut(key = "#id", unless = "#result == null")
-    public Desk update(Long id, String localIp, String videoAddress, String gameCode, Integer status, String name) {
-        int n = deskRepository.update(id, localIp, videoAddress, gameCode, status, name, new Date());
+    public Desk update(Long id, String localIp, String videoAddress, String nearVideoAddress, String gameCode, Integer status, String name) {
+        int n = deskRepository.update(id, localIp, videoAddress, nearVideoAddress, gameCode, status, name, new Date());
         if (n>0) {
         	return deskRepository.findById(id).get();
         }

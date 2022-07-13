@@ -28,7 +28,7 @@ public interface DeskRepository extends JpaRepository<Desk, Long>, JpaSpecificat
     @Modifying
     int updateStatusById(Integer status, Long id);
 
-    @Query(value = "update Desk  d set d.localIp=?2, d.videoAddress=?3, d.gameCode=?4, d.status = ?5, d.name=?6, d.updateTime=?7 where d.id=?1")
+    @Query(value = "update Desk  d set d.localIp=?2, d.videoAddress=?3, d.nearVideoAddress=?4, d.gameCode=?5, d.status = ?6, d.name=?7, d.updateTime=?8 where d.id=?1")
     @Modifying
-    int update(Long id, String localIp, String videoAddress, String gameCode, Integer status, String name, Date now);
+    int update(Long id, String localIp, String videoAddress, String nearVideoAddress, String gameCode, Integer status, String name, Date now);
 }
