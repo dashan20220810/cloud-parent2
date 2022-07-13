@@ -10,13 +10,14 @@ import java.math.BigDecimal;
  */
 @Getter
 public enum TgBaccRuleEnum {
+    
     Z("Z", "庄"),
     X("X", "闲"),
     H("H", "和"),
     ZD("ZD", "庄对"),
     XD("XD", "闲对"),
-    SS2("SS2", "幸运六(ss2)"),
-    SS3("SS3", "幸运六(ss3)"),
+    SS2("SS2", "幸运六(二张牌)"),
+    SS3("SS3", "幸运六(三张牌)"),
     ;
 
     private String code;
