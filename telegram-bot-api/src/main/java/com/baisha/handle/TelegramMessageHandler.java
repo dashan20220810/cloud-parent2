@@ -79,6 +79,13 @@ public class TelegramMessageHandler {
         Chat chat = message.getChat();
         User from = message.getFrom();
 
+        // 如果当前时间秒数 - 消息时间秒数 > 70，那么不再处理消息事件。
+        long messageTime = message.getDate();
+        long currentTime = System.currentTimeMillis() / 1000;
+        if (currentTime - messageTime > 70) {
+            return;
+        }
+
         // 判断此群是否通过审核，未通过不处理消息。
         if (!commonHandler.checkChatIsAudit(bot, chat)) {
             return;
