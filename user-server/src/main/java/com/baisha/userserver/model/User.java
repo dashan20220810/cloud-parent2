@@ -68,6 +68,14 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "bigint(11) comment '邀请人会员ID'")
     private Long inviteUserId;
 
+    @ApiModelProperty(value = "用户类型")
+    @Column(columnDefinition = "tinyint(2) comment '用户类型 1正式 2测试 3机器人'")
+    private Integer userType = 1;
+
+    @ApiModelProperty(value = "渠道")
+    @Column(columnDefinition = "varchar(20) comment '渠道'")
+    private String channelCode;
+
 
     /**
      * 用户名(长度3-20,只能输入字母和数字和_)

@@ -1,7 +1,5 @@
 package com.baisha.userserver.model.vo.user;
 
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -42,5 +40,11 @@ public class UserAddVO {
 
     @ApiModelProperty(value = "TG群名称")
     private String tgGroupName;
+
+    @ApiModelProperty(value = "用户类型 1正式 2测试 3机器人")
+    private Integer userType;
+
+    @ApiModelProperty(value = "渠道")
+    private String channelCode;
 
 }

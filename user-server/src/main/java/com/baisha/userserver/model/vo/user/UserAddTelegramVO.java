@@ -4,8 +4,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.persistence.Column;
-
 /**
  * @author yihui
  */
@@ -36,6 +34,12 @@ public class UserAddTelegramVO {
 
     @ApiModelProperty(value = "TG群名称")
     private String tgGroupName;
+
+    @ApiModelProperty(value = "用户类型 1正式 2测试 3机器人")
+    private Integer userType = 1;
+
+    @ApiModelProperty(value = "渠道")
+    private String channelCode;
 
 
 }

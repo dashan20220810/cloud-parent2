@@ -120,11 +120,16 @@ public class UserController {
         user.setInviteCode(UserServerUtil.randomCode());
         user.setCreateBy(vo.getUserName());
         user.setUpdateBy(vo.getUserName());
+        user.setUserType(vo.getUserType());
+        user.setChannelCode(vo.getChannelCode());
         //是否有tg的邀请人 先用邀请人的tgUserId查询是否存在
         if (StringUtils.isNotEmpty(vo.getInviteTgUserId())) {
             User inviteUser = userService.findByUserName(vo.getInviteTgUserId());
             if (Objects.nonNull(inviteUser)) {
                 user.setInviteUserId(inviteUser.getId());
+                if (StringUtils.isNotEmpty(inviteUser.getChannelCode())) {
+                    user.setChannelCode(inviteUser.getChannelCode());
+                }
             }
         }
         return user;
