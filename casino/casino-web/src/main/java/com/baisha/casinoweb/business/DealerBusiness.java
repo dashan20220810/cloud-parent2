@@ -8,15 +8,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.baisha.core.constants.RedisKeyConstants;
-import com.baisha.modulecommon.vo.GameInfo;
+import com.baisha.modulecommon.BigDecimalConstants;
 import com.baisha.modulecommon.vo.NewGameInfo;
 import com.baisha.modulecommon.vo.mq.OpenVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 import org.apache.commons.lang3.time.DateUtils;
-import org.redisson.api.RMap;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
-import org.redisson.codec.JsonJacksonCodec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -73,14 +71,13 @@ public class DealerBusiness {
 		Date beginTime = new Date();
 		// 预计这次gameInfo开牌结束时间
 		Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
-		RMap<String, NewGameInfo> map = redisUtil.getMap(RedisKeyConstants.SYS_GAME_TIME);
+		RMapCache<String, NewGameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
 		NewGameInfo newGameInfo = new NewGameInfo();
 		newGameInfo.setDeskCode(deskCode);
 		newGameInfo.setNoActive(newActive);
 		newGameInfo.setBeginTime(beginTime);
 		newGameInfo.setEndTime(endTime);
-		map.expire(BigDecimal.TEN.longValue(), TimeUnit.MINUTES);
-		map.put(deskCode + "_" + gameNo, newGameInfo);
+		map.put(deskCode + "_" + gameNo, newGameInfo, BigDecimalConstants.TEN.longValue(), TimeUnit.MINUTES);
     	
     	Future<Boolean> openNewGameResult = asyncCommandService.openNewGame(deskId, deskCode, newActive);
     	Future<Boolean> bettingResult = asyncCommandService.betting(deskCode, gameNo, newActive);

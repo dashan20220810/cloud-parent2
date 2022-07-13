@@ -152,7 +152,6 @@ public class Constants {
     public final static Integer USER_TYPE = 1;//会员
     public final static Integer PROXY_TYPE = 2;//代理
 
-
-
-
+    /** , */
+    public static final String COMMA_SEPARATED = ",";
 }

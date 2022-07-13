@@ -1,5 +1,6 @@
 package com.baisha.casinoweb.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -10,15 +11,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.baisha.casinoweb.util.constant.Constants;
+import com.baisha.modulecommon.BigDecimalConstants;
+import com.baisha.modulecommon.enums.OpenCardConvertEnum;
 import com.baisha.modulecommon.vo.NewGameInfo;
 import com.baisha.modulecommon.vo.mq.OpenVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.redisson.api.RMap;
+import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +45,6 @@ import com.baisha.core.dto.SysTelegramDto;
 import com.baisha.core.service.TelegramService;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.enums.GameStatusEnum;
-import com.baisha.modulecommon.enums.TgBaccRuleEnum;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.GameInfo;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
@@ -70,9 +73,6 @@ public class AsyncCommandService {
 
     @Value("${project.game.settle-buffer-time-seconds}")
     private Integer gameSettleBufferTimeSeconds;
-
-//	@Value("${project.server-url.video-server-domain}")
-//	private String videoServerDomain;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -126,7 +126,7 @@ public class AsyncCommandService {
 		if ( !ValidateUtil.checkHttpResponse(action, result) ) {
     		return CompletableFuture.completedFuture(false);
 		}
-		
+
 		JSONObject groupListJson = JSONObject.parseObject(result);
 		List<TgChatVO> groupJsonList = JSONObject.parseObject(groupListJson.getString("data"), new TypeReference<List<TgChatVO>>(){});
 		List<Long> groupIdList = new ArrayList<>();
@@ -172,56 +172,65 @@ public class AsyncCommandService {
     
     /**
      * TODO 切成两个thread，一个倒数，另一个封盘(stopping status在此set)
-     * @param deskCode
-     * @param noActive
-	 * @param gameNo
-     * @return
+     * @param deskCode 桌台code
+     * @param noActive 游戏局号
+	 * @param gameNo 荷官端游戏局号
+     * @return 下注倒计时结果
      */
     @Async
     public Future<Boolean> betting ( final String deskCode, final Integer gameNo, final String noActive) {
     	
     	log.info("\r\n================= 下注中 倒数计时");
 
-		RMap<String, NewGameInfo> map = redissonClient.getMap(RedisKeyConstants.SYS_GAME_TIME);
+		RMapCache<String, NewGameInfo> map = redissonClient.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
 		NewGameInfo newGameInfo = map.get(deskCode + "_" + gameNo);
-//    	GameInfo gameInfo = gameInfoBusiness.getGameInfo(endTime);
-		log.info("\r\n================= gameInfo : {}", newGameInfo);
-    	Date beginTime = newGameInfo.getBeginTime();
+		log.info("\r\n================= newGameInfo : {}", newGameInfo);
+//    	Date beginTime = newGameInfo.getBeginTime();
     	Date endTime = newGameInfo.getEndTime();
 
-     	log.info("\r\n================= 下注中 倒数计时");
-
     	Date now = new Date();
-    	while (endTime.after(now)) {
-    		Long timeDiff = (now.getTime() - beginTime.getTime());
-    		if ( timeDiff%10000 < 150 ) {
-    	    	log.info("下注中 计时 {}秒", timeDiff/1000);
-    		}
-
-    		try {
-				Thread.sleep(100);
+		if(endTime.after(now)){
+			int timeDiff = Integer.parseInt(String.valueOf((endTime.getTime()
+					- now.getTime()) / BigDecimalConstants.THOUSAND.intValue()));
+			try {
+				CountDown(noActive, timeDiff);
 			} catch (InterruptedException e) {
-				log.error("下注中 计时 失败", e);
+				log.error("倒计时计算发生异常", e);
 			}
-    		now = new Date();
-    	}
-        /*RLock fairLock = redisson.getFairLock(RedisConstants.GAME_COUNT_DOWN + newActive);
-        boolean res;
-		try {
-			res = fairLock.tryLock(RedisConstants.WAIT_TIME, gameCountDownSeconds, TimeUnit.SECONDS);
-	        if (res) {
-	            fairLock.unlock();
-	        }
-		} catch (InterruptedException e) {
-			log.error("下注中 失败", e);
-			return CompletableFuture.completedFuture(false);
-		}*/
+		}
 
+//		while (endTime.after(now)) {
+//			Long timeDiff = (now.getTime() - beginTime.getTime());
+//			if ( timeDiff%10000 < 150 ) {
+//				log.info("下注中 计时 {}秒", timeDiff/1000);
+//			}
+//
+//			try {
+//				Thread.sleep(100);
+//			} catch (InterruptedException e) {
+//				log.error("下注中 计时 失败", e);
+//			}
+//			now = new Date();
+//		}
     	gameInfoBusiness.closeGame(deskCode);
     	
-    	log.info("下注中 倒数计时 结束");
 		return CompletableFuture.completedFuture(true);
     }
+
+	public void CountDown(String noActive, int limitSec) throws InterruptedException{
+		log.info("游戏号:{}, 起始剩余秒数: {}", noActive, limitSec);
+		while(limitSec > BigDecimal.ZERO.intValue()){
+			--limitSec;
+			if(limitSec % BigDecimal.TEN.intValue() == BigDecimal.ZERO.intValue()){
+				log.info("游戏号:{}, 剩余秒数: {}", noActive, limitSec);
+			}
+			if(limitSec == BigDecimal.ZERO.intValue()){
+				log.info("游戏号:{} 倒计时完成", noActive);
+				break;
+			}
+			TimeUnit.SECONDS.sleep(BigDecimalConstants.ONE.intValue());
+		}
+	}
     
     @Async
     public void open (final OpenVO openVO) {
@@ -237,7 +246,7 @@ public class AsyncCommandService {
     	}
 
 		// 获取开牌结果
-		String openCardResult = getAwardOption(consequences);
+		String openCardResult = OpenCardConvertEnum.getAllOpenCardResult(consequences);
 
     	Long deskId = desk.getId();
     	String deskCode = desk.getDeskCode();
@@ -267,31 +276,31 @@ public class AsyncCommandService {
 		// 获取荷官开始时间unix时间戳
 		String qTime = String.valueOf(DateUtil.parse(openingTime).getTime() / 1000);
 		//发送视频地址给TG
-		sendVideoAddressToTg(gameInfo.getCurrentActive(), closeUpVideoSteam, qTime, action, deskId);
+		sendVideoAddressToTg(gameInfo.getCurrentActive(), closeUpVideoSteam, qTime, action, desk);
     }
 
-	private String getAwardOption(final String awardOption) {
-		switch(awardOption){
-			case "0" : return TgBaccRuleEnum.SS2.getCode();
-			case "1" : return TgBaccRuleEnum.Z.getCode();
-			case "2" : return TgBaccRuleEnum.H.getCode();
-			case "3" : return TgBaccRuleEnum.X.getCode();
-			case "4" : return TgBaccRuleEnum.ZD.getCode();
-			case "5" : return TgBaccRuleEnum.XD.getCode();
-			case "6" : return TgBaccRuleEnum.SS3.getCode();
-			default: log.error("没有该开牌类型"); break;
-		}
-		return null;
-	}
+//	private String getAwardOption(final String[] awardOption) {
+//		switch(awardOption){
+//			case "0" : return TgBaccRuleEnum.SS2.getCode();
+//			case "1" : return TgBaccRuleEnum.Z.getCode();
+//			case "2" : return TgBaccRuleEnum.H.getCode();
+//			case "3" : return TgBaccRuleEnum.X.getCode();
+//			case "4" : return TgBaccRuleEnum.ZD.getCode();
+//			case "5" : return TgBaccRuleEnum.XD.getCode();
+//			case "6" : return TgBaccRuleEnum.SS3.getCode();
+//			default: log.error("没有该开牌类型"); break;
+//		}
+//		return null;
+//	}
 
 	private void sendVideoAddressToTg(
 			final String currentActive, final String closeUpVideoSteam,
 			final String qTime, final String action,
-			final Long deskId) {
+			final DeskVO deskVO) {
 		// 获取视频流
 		Map<String, Object> gameVideoParam = Maps.newHashMap();
 		gameVideoParam.put("period", currentActive);
-		gameVideoParam.put("rtmpurl", closeUpVideoSteam);
+		gameVideoParam.put("rtmpurl", BigDecimalConstants.ONE.toString());
 		gameVideoParam.put("qtime", qTime);
 
 		String result = HttpClient4Util.doPost(
@@ -305,9 +314,9 @@ public class AsyncCommandService {
 		// 开牌 5 request parameter
 		Map<String, Object> params = Maps.newHashMap();
 		params.put("openCardAddress", sysTg.getOpenCardUrl());
-		params.put("tableId", deskId);
-		params.put("frontAddress", "https://www.google.com"); // TODO for test
-		params.put("lookDownAddress", "https://tw.yahoo.com"); // TODO for test
+		params.put("tableId", deskVO.getId());
+		params.put("frontAddress", deskVO.getVideoAddress()); // TODO for test
+		params.put("lookDownAddress", deskVO.getNearVideoAddress()); // TODO for test
 		params.put("videoResultAddress", videoServerDomain + Constants.IMAGE + qTime + Constants.FLV); // TODO for test
 		params.put("picRoadAddress", videoServerDomain + Constants.IMAGE + qTime + Constants.JPEG); // TODO for test
 
@@ -340,7 +349,7 @@ public class AsyncCommandService {
 		}
 
 		// 获取开牌结果
-		String openCardResult = getAwardOption(consequences);
+		String openCardResult = OpenCardConvertEnum.getAllOpenCardResult(consequences);
 
 		JSONObject betJson = JSONObject.parseObject(result);
 		JSONArray betArray = betJson.getJSONArray("data");
@@ -349,9 +358,8 @@ public class AsyncCommandService {
 		
 		if ( betArray!=null && betArray.size()>0 ) {
 			List<BetResponseVO> betList = betArray.toJavaList(BetResponseVO.class);
-			betMap = betList.stream().sorted(Comparator.comparingDouble(bet -> { 
-				return (-bet.getWinAmount().doubleValue());
-			})).collect(Collectors.groupingBy(BetResponseVO::getTgChatId));
+			betMap = betList.stream().sorted(Comparator.comparingDouble(bet ->
+					(-bet.getWinAmount().doubleValue()))).collect(Collectors.groupingBy(BetResponseVO::getTgChatId));
 		}
 		
 		Set<Long> allGroupIdSet = gameInfo.getTgGroupMap().keySet();
