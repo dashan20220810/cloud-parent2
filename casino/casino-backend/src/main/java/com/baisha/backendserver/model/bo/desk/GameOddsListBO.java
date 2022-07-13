@@ -19,4 +19,12 @@ public class GameOddsListBO extends BaseBO {
 
     // "赔率"
     private BigDecimal odds;
+
+    // 最大限红
+    private Integer maxAmount;
+
+    // 最小限红
+    private Integer minAmount;
+
+
 }

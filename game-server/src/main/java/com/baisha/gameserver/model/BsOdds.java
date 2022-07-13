@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
  * @author yihui
  */
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @org.hibernate.annotations.Table(appliesTo = "bs_odds", comment = "游戏玩法赔率")
 @Table(name = "BsOdds", indexes = {@Index(columnList = "gameCode"), @Index(columnList = "ruleCode")})
@@ -25,7 +25,7 @@ public class BsOdds extends BaseEntity {
 
     private static final long serialVersionUID = 8497677317292208992L;
 
-	@ApiModelProperty(value = "游戏编码")
+    @ApiModelProperty(value = "游戏编码")
     @Column(columnDefinition = "varchar(20) comment '游戏编码'")
     private String gameCode;
 
@@ -40,6 +40,16 @@ public class BsOdds extends BaseEntity {
     @ApiModelProperty(value = "赔率")
     @Column(columnDefinition = "decimal(10,2) comment '赔率(支持2位小数)' ")
     private BigDecimal odds;
+
+    // 最大限红
+    @ApiModelProperty(value = "最大限红")
+    @Column(columnDefinition = "varchar(20) comment '最大限红'")
+    private Integer maxAmount;
+
+    // 最小限红
+    @ApiModelProperty(value = "最小限红")
+    @Column(columnDefinition = "varchar(20) comment '最小限红'")
+    private Integer minAmount;
 
 
 }

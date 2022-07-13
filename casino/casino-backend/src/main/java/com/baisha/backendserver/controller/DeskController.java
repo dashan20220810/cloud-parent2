@@ -232,6 +232,7 @@ public class DeskController {
                 List<GameOddsListBO> list = JSONArray.parseArray(JSONObject.toJSONString(jsonArray), GameOddsListBO.class);
                 //转换
                 GameBaccOddsBO bo = transOddsBo(list);
+                bo.setGameCode(gameCode);
                 return ResponseUtil.success(bo);
             }
         }
@@ -246,21 +247,33 @@ public class DeskController {
             String ruleCode = g.getRuleCode().toUpperCase();
             if (ruleCode.equals(TgBaccRuleEnum.Z.getCode())) {
                 bo.setZ(odds);
+                bo.setZMinAmount(g.getMinAmount());
+                bo.setZMaxAmount(g.getMaxAmount());
             }
             if (ruleCode.equals(TgBaccRuleEnum.X.getCode())) {
                 bo.setX(odds);
+                bo.setXMinAmount(g.getMinAmount());
+                bo.setXMaxAmount(g.getMaxAmount());
             }
             if (ruleCode.equals(TgBaccRuleEnum.H.getCode())) {
                 bo.setH(odds);
+                bo.setHMinAmount(g.getMinAmount());
+                bo.setHMaxAmount(g.getMaxAmount());
             }
             if (ruleCode.equals(TgBaccRuleEnum.ZD.getCode())) {
                 bo.setZd(odds);
+                bo.setZdMinAmount(g.getMinAmount());
+                bo.setZdMaxAmount(g.getMaxAmount());
             }
             if (ruleCode.equals(TgBaccRuleEnum.XD.getCode())) {
                 bo.setXd(odds);
+                bo.setXdMinAmount(g.getMinAmount());
+                bo.setXdMaxAmount(g.getMaxAmount());
             }
             if (ruleCode.equals(TgBaccRuleEnum.SS2.getCode())) {
                 bo.setSs2(odds);
+                bo.setSsMinAmount(g.getMinAmount());
+                bo.setSsMaxAmount(g.getMaxAmount());
             }
             if (ruleCode.equals(TgBaccRuleEnum.SS3.getCode())) {
                 bo.setSs3(odds);
@@ -276,14 +289,14 @@ public class DeskController {
         if (StringUtils.isEmpty(vo.getGameCode())) {
             return ResponseUtil.parameterNotNull();
         }
-        if (checkOdds(vo.getX())
-                || checkOdds(vo.getZ())
-                || checkOdds(vo.getH())
-                || checkOdds(vo.getZd())
-                || checkOdds(vo.getXd())
-                || checkOdds(vo.getSs2())
-                || checkOdds(vo.getSs3())) {
-            return new ResponseEntity("赔率不规范(大于0小于100)");
+        if (checkOdds(vo.getX(), vo.getXMinAmount(), vo.getXMaxAmount())
+                || checkOdds(vo.getZ(), vo.getZMinAmount(), vo.getZMaxAmount())
+                || checkOdds(vo.getH(), vo.getHMinAmount(), vo.getHMaxAmount())
+                || checkOdds(vo.getZd(), vo.getZdMinAmount(), vo.getZdMaxAmount())
+                || checkOdds(vo.getXd(), vo.getXdMinAmount(), vo.getXdMaxAmount())
+                || checkOdds(vo.getSs2(), vo.getSsMinAmount(), vo.getSsMaxAmount())
+                || checkOdds(vo.getSs3(), vo.getSsMinAmount(), vo.getSsMaxAmount())) {
+            return new ResponseEntity("数据不规范(赔率0-100 限红为大于0整数且大小正确)");
         }
 
         String url = gameServerUrl + GameServerConstants.GAME_SET_BACC_ODDS;
@@ -303,8 +316,8 @@ public class DeskController {
     }
 
 
-    private boolean checkOdds(BigDecimal odds) {
-        if (null == odds) {
+    private boolean checkOdds(BigDecimal odds, Integer min, Integer max) {
+        if (null == odds || null == min || null == max) {
             return true;
         }
         if (odds.compareTo(BigDecimal.ZERO) <= 0) {
@@ -314,7 +327,13 @@ public class DeskController {
         if (odds.compareTo(ge) > 0) {
             return true;
         }
-
+        Integer ZERO = 0;
+        if (max.compareTo(ZERO) < 0 || min.compareTo(min) < 0) {
+            return true;
+        }
+        if (min.compareTo(max) >= 0) {
+            return true;
+        }
         return false;
     }
 

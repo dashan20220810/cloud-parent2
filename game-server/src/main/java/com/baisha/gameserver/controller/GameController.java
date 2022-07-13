@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -65,10 +67,13 @@ public class GameController {
 
 
     @GetMapping(value = "oddsList")
-    @ApiOperation(value = "获取游戏倍率列表")
+    @ApiOperation(value = "获取游戏倍率限制列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "gameCode", value = "游戏编码 默认BACC", dataTypeClass = String.class)
+    })
     public ResponseEntity<List<BsOdds>> findAllOddsList(String gameCode) {
         if (StringUtils.isEmpty(gameCode)) {
-            return ResponseUtil.parameterNotNull();
+            gameCode = GameTypeEnum.BACC.getCode();
         }
         List<BsOdds> result = bsOddsService.findAllByGameCode(gameCode);
         if (CollectionUtils.isEmpty(result)) {
@@ -83,28 +88,49 @@ public class GameController {
         if (StringUtils.isEmpty(vo.getGameCode())) {
             return ResponseUtil.parameterNotNull();
         }
-        if (null == vo.getX() || vo.getX().compareTo(BigDecimal.ZERO) <= 0
-                || null == vo.getZ() || vo.getZ().compareTo(BigDecimal.ZERO) <= 0
-                || null == vo.getH() || vo.getH().compareTo(BigDecimal.ZERO) <= 0
-                || null == vo.getZd() || vo.getZd().compareTo(BigDecimal.ZERO) <= 0
-                || null == vo.getXd() || vo.getXd().compareTo(BigDecimal.ZERO) <= 0
-                || null == vo.getSs2() || vo.getSs2().compareTo(BigDecimal.ZERO) <= 0
-                || null == vo.getSs3() || vo.getSs3().compareTo(BigDecimal.ZERO) <= 0) {
-            return ResponseUtil.custom("赔率不规范");
+        if (checkOdds(vo.getX(), vo.getXMinAmount(), vo.getXMaxAmount())
+                || checkOdds(vo.getZ(), vo.getZMinAmount(), vo.getZMaxAmount())
+                || checkOdds(vo.getH(), vo.getHMinAmount(), vo.getHMaxAmount())
+                || checkOdds(vo.getZd(), vo.getZdMinAmount(), vo.getZdMaxAmount())
+                || checkOdds(vo.getXd(), vo.getXdMinAmount(), vo.getXdMaxAmount())
+                || checkOdds(vo.getSs2(), vo.getSsMinAmount(), vo.getSsMaxAmount())
+                || checkOdds(vo.getSs3(), vo.getSsMinAmount(), vo.getSsMaxAmount())) {
+            return new ResponseEntity("数据不规范(赔率0-100 限红为整数且大小正确)");
         }
         synchronized (vo.getGameCode()) {
-            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.X.getCode(), vo.getX());
-            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.Z.getCode(), vo.getZ());
-            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.H.getCode(), vo.getH());
-            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.XD.getCode(), vo.getXd());
-            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.ZD.getCode(), vo.getZd());
-            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.SS2.getCode(), vo.getSs2());
-            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.SS3.getCode(), vo.getSs3());
+            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.X.getCode(), vo.getX(), vo.getXMinAmount(), vo.getXMaxAmount());
+            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.Z.getCode(), vo.getZ(), vo.getZMinAmount(), vo.getZMaxAmount());
+            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.H.getCode(), vo.getH(), vo.getHMinAmount(), vo.getHMaxAmount());
+            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.XD.getCode(), vo.getXd(), vo.getXdMinAmount(), vo.getXdMaxAmount());
+            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.ZD.getCode(), vo.getZd(), vo.getZdMinAmount(), vo.getZdMaxAmount());
+            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.SS2.getCode(), vo.getSs2(), vo.getSsMinAmount(), vo.getSsMaxAmount());
+            doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.SS3.getCode(), vo.getSs3(), vo.getSsMinAmount(), vo.getSsMaxAmount());
         }
         return ResponseUtil.success();
     }
 
-    private void doSetBaccOdds(String gameCode, String ruleCode, BigDecimal odds) {
+    private boolean checkOdds(BigDecimal odds, Integer min, Integer max) {
+        if (null == odds || null == min || null == max) {
+            return true;
+        }
+        if (odds.compareTo(BigDecimal.ZERO) <= 0) {
+            return true;
+        }
+        BigDecimal ge = new BigDecimal("100");
+        if (odds.compareTo(ge) > 0) {
+            return true;
+        }
+        Integer ZERO = 0;
+        if (max.compareTo(ZERO) < 0 || min.compareTo(min) < 0) {
+            return true;
+        }
+        if (min.compareTo(max) >= 0) {
+            return true;
+        }
+        return false;
+    }
+
+    private void doSetBaccOdds(String gameCode, String ruleCode, BigDecimal odds, Integer min, Integer max) {
         BsOdds bsOdds = bsOddsService.findByGameCodeAndRuleCode(gameCode, ruleCode);
         if (Objects.isNull(bsOdds)) {
             bsOdds = new BsOdds();
@@ -112,9 +138,13 @@ public class GameController {
             bsOdds.setOdds(odds);
             bsOdds.setRuleCode(ruleCode);
             bsOdds.setRuleName(TgBaccRuleEnum.nameOfCode(ruleCode).getName());
+            bsOdds.setMinAmount(min);
+            bsOdds.setMaxAmount(max);
         } else {
             //更新
             bsOdds.setOdds(odds);
+            bsOdds.setMinAmount(min);
+            bsOdds.setMaxAmount(max);
         }
         bsOddsService.save(bsOdds);
     }
