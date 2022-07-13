@@ -39,6 +39,10 @@ public class UserService {
         return userRepository.findByUserName(userName);
     }
 
+    public User findByTgUserId(String tgUserId) {
+        return userRepository.findByTgUserId(tgUserId);
+    }
+
     public Page<User> getUserPage(Specification<User> spec, Pageable pageable) {
         Page<User> page = userRepository.findAll(spec, pageable);
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
@@ -63,6 +67,7 @@ public class UserService {
         }
         return null;
     }
+
 
 
 }

@@ -52,16 +52,7 @@ public class GameServerConstants {
      */
     public static final String GAME_SET_BACC_ODDS = "/game/bacc/odds";
 
-    /**
-     * 订单新增
-     */
-    public static final String GAME_ORDER_ADD = "/order/save";
 
-
-    /**
-     * 订单删除
-     */
-    public static final String GAME_ORDER_DELETE = "/order/deleteById";
 
 
 }

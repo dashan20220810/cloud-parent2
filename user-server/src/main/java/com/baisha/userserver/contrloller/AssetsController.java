@@ -12,10 +12,12 @@ import com.baisha.userserver.model.bo.UserBO;
 import com.baisha.userserver.model.vo.UserIdVO;
 import com.baisha.userserver.model.vo.balance.BalanceVO;
 import com.baisha.userserver.model.vo.balance.PlayMoneyVO;
+import com.baisha.userserver.model.vo.user.UserTgIdVO;
 import com.baisha.userserver.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -72,6 +74,27 @@ public class AssetsController {
         BeanUtils.copyProperties(assets, userAssetsBO);
         userAssetsBO.setUserName(user.getUserName());
         userAssetsBO.setNickName(user.getNickName());
+        userAssetsBO.setTgUserId(user.getTgUserId());
+        return ResponseUtil.success(userAssetsBO);
+    }
+
+    @ApiOperation(("根据会员TgUserId查询个人资产"))
+    @GetMapping("findAssetsByTgUserId")
+    public ResponseEntity<UserAssetsBO> findAssetsByTgUserId(UserTgIdVO vo) {
+        if (StringUtils.isEmpty(vo.getTgUserId())) {
+            return ResponseUtil.parameterNotNull();
+        }
+        User user = userService.findByTgUserId(vo.getTgUserId());
+        if (Objects.isNull(user)) {
+            return new ResponseEntity("会员不存在");
+        }
+        //资产
+        Assets assets = userAssetsService.findAssetsByUserId(user.getId());
+        UserAssetsBO userAssetsBO = new UserAssetsBO();
+        BeanUtils.copyProperties(assets, userAssetsBO);
+        userAssetsBO.setUserName(user.getUserName());
+        userAssetsBO.setNickName(user.getNickName());
+        userAssetsBO.setTgUserId(user.getTgUserId());
         return ResponseUtil.success(userAssetsBO);
     }
 

@@ -14,22 +14,6 @@ public class BackendConstants {
     public static int EXPENSES = 2;
 
 
-    //订单类型
-    //充值
-    public final static Integer CHARGEORDER = 1;
-    //提现
-    public final static Integer WITHDRAWORDER = 2;
-
-    //订单状态
-    //等待确认
-    public final static Integer ORDER_WAIT = 1;
-    //成功
-    public final static Integer ORDER_SUCCESS = 2;
-    //失败
-    public final static Integer ORDER_FAIL = 3;
-    //取消
-    public final static Integer ORDER_CANCLE = 4;
-
 
     public static final String INSERT = "insert";
     public static final String DELETE = "delete";

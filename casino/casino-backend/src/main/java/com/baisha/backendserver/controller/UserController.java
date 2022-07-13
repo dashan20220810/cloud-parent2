@@ -6,20 +6,22 @@ import com.alibaba.fastjson.JSONObject;
 import com.baisha.backendserver.business.CommonBusiness;
 import com.baisha.backendserver.business.PlayMoneyBusiness;
 import com.baisha.backendserver.model.Admin;
-import com.baisha.backendserver.model.vo.order.SsOrderAddVO;
+import com.baisha.backendserver.model.bo.order.SsOrderAddBO;
 import com.baisha.backendserver.model.bo.sys.SysPlayMoneyParameterBO;
 import com.baisha.backendserver.model.bo.user.UserAssetsBO;
 import com.baisha.backendserver.model.bo.user.UserBalanceChangePageBO;
 import com.baisha.backendserver.model.bo.user.UserPageBO;
 import com.baisha.backendserver.model.bo.user.UserPlayMoneyChangePageBO;
 import com.baisha.backendserver.model.vo.IdVO;
+import com.baisha.backendserver.model.vo.order.SsOrderAddVO;
 import com.baisha.backendserver.model.vo.user.*;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
-import com.baisha.backendserver.util.constants.GameServerConstants;
 import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
+import com.baisha.modulecommon.enums.order.OrderStatusEnum;
+import com.baisha.modulecommon.enums.order.OrderTypeEnum;
 import com.baisha.modulecommon.reponse.ResponseCode;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -149,7 +151,8 @@ public class UserController {
         if (orderResponseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
             return ResponseUtil.fail();
         }
-        Long orderId = Long.parseLong((String) orderResponseEntity.getData());
+        SsOrderAddBO ssOrderAddBO = JSONObject.parseObject(JSONObject.toJSONString(orderResponseEntity.getData()), SsOrderAddBO.class);
+        Long orderId = ssOrderAddBO.getId();
         log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
                 currentUser.getUserName() + "为用户id={" + vo.getId() + "}新增充值订单成功", BackendConstants.ORDER);
         //增加余额
@@ -180,7 +183,7 @@ public class UserController {
     }
 
     private ResponseEntity doCreateOrder(SsOrderAddVO order) {
-        String url = userServerUrl + GameServerConstants.GAME_ORDER_ADD;
+        String url = userServerUrl + UserServerConstants.USER_ORDER_ADD;
         Map<String, Object> param = BackendServerUtil.objectToMap(order);
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
@@ -191,7 +194,7 @@ public class UserController {
     }
 
     private ResponseEntity doDeleteOrder(Long orderId) {
-        String url = userServerUrl + GameServerConstants.GAME_ORDER_DELETE;
+        String url = userServerUrl + UserServerConstants.USER_ORDER_DELETE;
         Map<String, Object> param = new HashMap<>(16);
         param.put("id", orderId);
         String result = HttpClient4Util.doPost(url, param);
@@ -205,8 +208,8 @@ public class UserController {
     private SsOrderAddVO chargeOrder(BalanceVO vo, Admin currentUser) {
         SsOrderAddVO ssOrder = new SsOrderAddVO();
         ssOrder.setUserId(vo.getId());
-        ssOrder.setOrderType(BackendConstants.CHARGEORDER);
-        ssOrder.setOrderStatus(BackendConstants.ORDER_SUCCESS);
+        ssOrder.setOrderType(OrderTypeEnum.CHARGE_ORDER.getCode());
+        ssOrder.setOrderStatus(OrderStatusEnum.ORDER_SUCCESS.getCode());
         ssOrder.setAmount(new BigDecimal(vo.getAmount().intValue()));
         ssOrder.setRemark(currentUser.getUserName() + "为用户userId=" + vo.getId() + "充值" + vo.getAmount());
         return ssOrder;
@@ -271,7 +274,8 @@ public class UserController {
         if (orderResponseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
             return ResponseUtil.fail();
         }
-        Long orderId = Long.parseLong((String) orderResponseEntity.getData());
+        SsOrderAddBO ssOrderAddBO = JSONObject.parseObject(JSONObject.toJSONString(orderResponseEntity.getData()),SsOrderAddBO.class);
+        Long orderId = ssOrderAddBO.getId();
         log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
                 currentUser.getUserName() + "为用户id={" + vo.getId() + "}新增提现(下分)订单成功", BackendConstants.ORDER);
 
@@ -304,16 +308,16 @@ public class UserController {
     private SsOrderAddVO createWithdrawOrder(BalanceVO vo, Admin currentUser) {
         SsOrderAddVO ssOrder = new SsOrderAddVO();
         ssOrder.setUserId(vo.getId());
-        ssOrder.setOrderType(BackendConstants.WITHDRAWORDER);
-        ssOrder.setOrderStatus(BackendConstants.ORDER_SUCCESS);
+        ssOrder.setOrderType(OrderTypeEnum.WITHDRAW_ORDER.getCode());
+        ssOrder.setOrderStatus(OrderStatusEnum.ORDER_SUCCESS.getCode());
         ssOrder.setAmount(new BigDecimal(vo.getAmount().intValue()));
         ssOrder.setRemark(currentUser.getUserName() + "为用户userId=" + vo.getId() + "提现" + vo.getAmount());
         return ssOrder;
     }
 
 
-    @ApiOperation(value = "用户个人资产")
-    @GetMapping("findAssetsById")
+    //@ApiOperation(value = "用户个人资产")
+    //@GetMapping("findAssetsById")
     public ResponseEntity<UserAssetsBO> getAssetsById(IdVO vo) {
         if (null == vo.getId() || vo.getId() < 0) {
             return ResponseUtil.parameterNotNull();

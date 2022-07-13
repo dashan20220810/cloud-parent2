@@ -7,8 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import javax.persistence.*;
 
 /**
  * @author yihui
@@ -17,7 +16,7 @@ import javax.persistence.Entity;
 @Data
 @Entity
 @org.hibernate.annotations.Table(appliesTo = "user", comment = "会员")
-//@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userName"}))
+@Table(name = "User", indexes = {@Index(columnList = "tgUserId"), @Index(columnList = "inviteUserId")})
 @ApiModel(value = "用户中心-用户对象")
 public class User extends BaseEntity {
 

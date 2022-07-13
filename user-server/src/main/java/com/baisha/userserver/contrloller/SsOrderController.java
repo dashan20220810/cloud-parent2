@@ -4,6 +4,7 @@ import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.SnowFlakeUtils;
 import com.baisha.userserver.model.SsOrder;
+import com.baisha.userserver.model.bo.order.SsOrderAddBO;
 import com.baisha.userserver.model.vo.IdVO;
 import com.baisha.userserver.model.vo.order.SsOrderAddVO;
 import com.baisha.userserver.service.SsOrderService;
@@ -27,7 +28,7 @@ public class SsOrderController {
 
     @PostMapping(value = "save")
     @ApiOperation(value = "新增订单")
-    public ResponseEntity<String> save(SsOrderAddVO vo) {
+    public ResponseEntity<SsOrderAddBO> save(SsOrderAddVO vo) {
         if (null == vo.getOrderStatus() || null == vo.getOrderType() || null == vo.getUserId() || null == vo.getAmount()) {
             return ResponseUtil.parameterNotNull();
         }
@@ -35,7 +36,7 @@ public class SsOrderController {
         BeanUtils.copyProperties(vo, ssOrder);
         ssOrder.setOrderNum(SnowFlakeUtils.getSnowId());
         ssOrderService.save(ssOrder);
-        return ResponseUtil.success(String.valueOf(ssOrder.getId()));
+        return ResponseUtil.success(SsOrderAddBO.builder().id(ssOrder.getId()).orderNum(ssOrder.getOrderNum()).build());
     }
 
     @PostMapping(value = "deleteById")

@@ -29,6 +29,21 @@ public class UserServerConstants {
      */
     public static final String USERSERVER_ASSETS_BYID = "/assets/findAssetsById";
 
+    /**
+     * 用户资产
+     */
+    public static final String USERSERVER_ASSETS_BYTGUSERID = "/assets/findAssetsByTgUserId";
+
+    /**
+     * 订单新增
+     */
+    public static final String USER_ORDER_ADD = "/order/save";
+
+
+    /**
+     * 订单删除
+     */
+    public static final String USER_ORDER_DELETE = "/order/deleteById";
 
     /**
      * 用户增加/减少余额

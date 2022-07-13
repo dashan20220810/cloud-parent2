@@ -30,6 +30,10 @@ public class SsOrder extends BaseEntity {
     @Column(columnDefinition = "bigint(20) comment '会员ID'")
     private Long userId;
 
+    @ApiModelProperty(value = "TG用户ID")
+    @Column(columnDefinition = "varchar(64) comment 'TG用户ID'")
+    private String tgUserId;
+
     @ApiModelProperty(value = "金额")
     @Column(columnDefinition = "decimal(16,2) comment '金额'")
     private BigDecimal amount;
@@ -41,6 +45,18 @@ public class SsOrder extends BaseEntity {
     @ApiModelProperty(value = "订单状态")
     @Column(columnDefinition = "tinyint(2) comment '订单状态 （ 1等待 2成功 3失败 4取消）'")
     private Integer orderStatus;
+
+    @ApiModelProperty(value = "调整类型")
+    @Column(columnDefinition = "tinyint(2) comment '调整类型'")
+    private Integer adjustmentType;
+
+    @ApiModelProperty(value = "流水倍数 >=0 整数(1-3位)")
+    @Column(columnDefinition = "tinyint(4) comment '流水倍数'")
+    private Integer flowMultiple;
+
+    @ApiModelProperty(value = "附件key")
+    @Column(columnDefinition = "varchar(100) comment '附件key'")
+    private String fileKey;
 
     @ApiModelProperty(value = "备注信息")
     @Column(columnDefinition = "varchar(100) comment '备注信息'")

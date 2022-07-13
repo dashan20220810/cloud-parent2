@@ -21,11 +21,14 @@ public class UserAssetsBO extends BaseBO {
     @ApiModelProperty(value = "会员ID")
     private Long userId;
 
+    @ApiModelProperty(value = "TG用户ID")
+    private String tgUserId;
+
     @ApiModelProperty(value = "余额")
     private BigDecimal balance;
 
-    @ApiModelProperty(value = "冻结余额")
-    private BigDecimal freezeAmount;
+    //@ApiModelProperty(value = "冻结余额")
+    //private BigDecimal freezeAmount;
 
     @ApiModelProperty(value = "打码量")
     private BigDecimal playMoney;

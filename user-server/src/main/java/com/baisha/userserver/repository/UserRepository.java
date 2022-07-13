@@ -25,8 +25,17 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
      *
      * @param status
      * @param id
+     * @return
      */
     @Query(value = "update User  u set u.status = ?1 where u.id=?2")
     @Modifying
     int updateUserStatusById(Integer status, Long id);
+
+    /**
+     * 根据tgUserId查询
+     *
+     * @param tgUserId
+     * @return
+     */
+    User findByTgUserId(String tgUserId);
 }
