@@ -60,4 +60,13 @@ public class UserPageBO extends BaseBO {
     @ApiModelProperty(value = "邀请人TG用户名")
     private String inviteTgUserName;
 
+    @ApiModelProperty(value = "用户类型")
+    private Long userType;
+
+    @ApiModelProperty(value = "用户类型名称")
+    private Long userTypeName;
+
+    @ApiModelProperty(value = "渠道")
+    private String channelCode;
+
 }
