@@ -6,8 +6,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.baisha.backendserver.business.CommonBusiness;
 import com.baisha.backendserver.business.PlayMoneyBusiness;
 import com.baisha.backendserver.model.Admin;
+import com.baisha.backendserver.model.bo.desk.DeskListBO;
 import com.baisha.backendserver.model.bo.order.SsOrderAddBO;
 import com.baisha.backendserver.model.bo.sys.SysPlayMoneyParameterBO;
+import com.baisha.backendserver.model.bo.tgBot.TgGroupPageBO;
 import com.baisha.backendserver.model.bo.user.UserAssetsBO;
 import com.baisha.backendserver.model.bo.user.UserBalanceChangePageBO;
 import com.baisha.backendserver.model.bo.user.UserPageBO;
@@ -22,6 +24,7 @@ import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
 import com.baisha.modulecommon.enums.order.OrderStatusEnum;
 import com.baisha.modulecommon.enums.order.OrderTypeEnum;
+import com.baisha.modulecommon.enums.user.UserTypeEnum;
 import com.baisha.modulecommon.reponse.ResponseCode;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -86,7 +89,37 @@ public class UserController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        return JSON.parseObject(result, ResponseEntity.class);
+
+        ResponseEntity userResponse = JSONObject.parseObject(result, ResponseEntity.class);
+        //用户其他信息
+        if (Objects.nonNull(userResponse) && userResponse.getCode() == ResponseCode.SUCCESS.getCode()) {
+            JSONObject page = (JSONObject) userResponse.getData();
+            List<UserPageBO> list = JSONArray.parseArray(page.getString("content"), UserPageBO.class);
+            if (!CollectionUtils.isEmpty(list)) {
+                for (UserPageBO u : list) {
+                    if (StringUtils.isEmpty(u.getInviteTgUserName()) && StringUtils.isNotEmpty(u.getInviteTgUserId())) {
+                        u.setInviteTgUserName(u.getInviteTgUserId());
+                    }
+                    if (null == u.getUserType()) {
+                        u.setUserTypeName(UserTypeEnum.NORMAL.getName());
+                    } else {
+                        UserTypeEnum userTypeEnum = UserTypeEnum.nameOfCode(u.getUserType());
+                        u.setUserTypeName(userTypeEnum.getName());
+                    }
+                    if (StringUtils.isEmpty(u.getChannelCode())) {
+                        //先默认直营
+                        u.setChannelName("直营");
+                    }
+                    //去拿统计数据
+
+
+                }
+                page.put("content", list);
+                userResponse.setData(page);
+            }
+        }
+
+        return userResponse;
     }
 
 
@@ -274,7 +307,7 @@ public class UserController {
         if (orderResponseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
             return ResponseUtil.fail();
         }
-        SsOrderAddBO ssOrderAddBO = JSONObject.parseObject(JSONObject.toJSONString(orderResponseEntity.getData()),SsOrderAddBO.class);
+        SsOrderAddBO ssOrderAddBO = JSONObject.parseObject(JSONObject.toJSONString(orderResponseEntity.getData()), SsOrderAddBO.class);
         Long orderId = ssOrderAddBO.getId();
         log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
                 currentUser.getUserName() + "为用户id={" + vo.getId() + "}新增提现(下分)订单成功", BackendConstants.ORDER);
