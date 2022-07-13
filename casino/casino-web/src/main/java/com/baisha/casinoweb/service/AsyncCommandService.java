@@ -329,7 +329,7 @@ public class AsyncCommandService {
 		DeskVO desk = deskBusiness.queryDeskByIp(dealerIp);
 
 		final String deskCode = desk.getDeskCode();
-		RMap<String, NewGameInfo> map = redissonClient.getMap(RedisKeyConstants.SYS_GAME_TIME);
+		RMapCache<String, NewGameInfo> map = redissonClient.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
 		String noActive = map.get(deskCode + "_" + gameNo).getNoActive();
     	String action = "结算";
     	Map<String, Object> params = new HashMap<>();
