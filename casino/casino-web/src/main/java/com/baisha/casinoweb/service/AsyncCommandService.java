@@ -16,12 +16,11 @@ import java.util.stream.Collectors;
 
 import com.baisha.casinoweb.util.constant.Constants;
 import com.baisha.modulecommon.BigDecimalConstants;
-import com.baisha.modulecommon.enums.OpenCardConvertEnum;
+import com.baisha.modulecommon.enums.OpenCardConvertSettleEnum;
+import com.baisha.modulecommon.enums.OpenCardConvertTgEnum;
 import com.baisha.modulecommon.vo.NewGameInfo;
 import com.baisha.modulecommon.vo.mq.OpenVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
-import org.apache.commons.lang3.StringUtils;
-import org.redisson.api.RMap;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -240,7 +239,7 @@ public class AsyncCommandService {
     	}
 
 		// 获取开牌结果
-		String openCardResult = OpenCardConvertEnum.getAllOpenCardResult(consequences);
+		String openCardResult = OpenCardConvertSettleEnum.getAllOpenCardResult(consequences);
 
     	Long deskId = desk.getId();
     	String deskCode = desk.getDeskCode();
@@ -342,8 +341,8 @@ public class AsyncCommandService {
     		return;
 		}
 
-		// 获取开牌结果
-		String openCardResult = OpenCardConvertEnum.getAllOpenCardResult(consequences);
+		// 获取开牌结果(转换成tg端结果)
+		String openCardResult = OpenCardConvertTgEnum.getAllOpenCardTgResult(consequences);
 
 		JSONObject betJson = JSONObject.parseObject(result);
 		JSONArray betArray = betJson.getJSONArray("data");

@@ -13,7 +13,7 @@ import java.util.List;
  * @Version 1.0
  */
 @Getter
-public enum OpenCardConvertEnum {
+public enum OpenCardConvertSettleEnum {
 
     ZERO("0", TgBaccRuleEnum.SS2.getCode()),
 
@@ -34,7 +34,7 @@ public enum OpenCardConvertEnum {
 
     private String openCard;
 
-    OpenCardConvertEnum(String code, String openCard) {
+    OpenCardConvertSettleEnum(String code, String openCard) {
         this.code = code;
         this.openCard = openCard;
     }
@@ -68,7 +68,7 @@ public enum OpenCardConvertEnum {
     }
 
     public static String getCode(final String openCard){
-        for(OpenCardConvertEnum openCardConvertEnum : OpenCardConvertEnum.values()){
+        for(OpenCardConvertSettleEnum openCardConvertEnum : OpenCardConvertSettleEnum.values()){
             if(openCard.contains(openCardConvertEnum.getCode())){
                 return openCardConvertEnum.getOpenCard() + Constants.COMMA_SEPARATED;
             }
