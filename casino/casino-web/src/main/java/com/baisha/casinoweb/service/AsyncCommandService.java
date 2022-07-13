@@ -106,20 +106,14 @@ public class AsyncCommandService {
     	log.info("\r\n================= 开新局");
     	String action = "开新局";
     	SysTelegramDto sysTg = telegramService.getSysTelegram();
-    	String openNewGameUrl = sysTg.getStartBetPicUrl();
+		// 开始新局图片
+//    	String openNewGameUrl = sysTg.getStartBetPicUrl();
     	
-    	// 准备桌台、tg群资料，用来初始game info
-    	Map<String, Object> params = new HashMap<>();
-//    	Date beginTime = new Date();
-//    	Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
-//    	Date endTime = DateUtils.addSeconds(beginTime, 30); // TODO
     	GameInfo gameInfo = new GameInfo();
     	gameInfo.setCurrentActive(newActive);
     	gameInfo.setStatus(GameStatusEnum.Betting);		// 状态: 下注中
-//    	gameInfo.setBeginTime(beginTime);
-//    	gameInfo.setEndTime(endTime);
 
-		log.info("局号、桌台id、新局图片url: {}, {}, {}", newActive, deskId, openNewGameUrl);
+		log.info("局号、桌台id、{}, {}", newActive, deskId);
 		String result = HttpClient4Util.doGet(
 				telegramServerDomain + RequestPathEnum.TG_GET_GROUP_ID_LIST.getApiName() + "?tableId=" +deskId);
 		
@@ -139,7 +133,8 @@ public class AsyncCommandService {
     	gameInfoBusiness.setGameInfo(deskCode, gameInfo);
     	
     	// 预存开牌资料
-    	params = new HashMap<>();
+		// 准备桌台、tg群资料，用来初始game info
+		Map<String, Object> params = new HashMap<>();
 		params.put("noActive", newActive);
 		params.put("tableId", deskId);
 		result = HttpClient4Util.doPost(
@@ -154,10 +149,9 @@ public class AsyncCommandService {
     	params = new HashMap<>();
 		params.put("bureauNum", newActive);
 		params.put("tableId", deskId);
-		params.put("imageAddress", openNewGameUrl);
 		params.put("countdownAddress", sysTg.getSeventySecondsUrl());
 
-		log.info("局号、桌台id、新局图片url: {}, {}, {}", newActive, deskId, openNewGameUrl);
+		log.info("局号、桌台id {}, {}", newActive, deskId);
 		result = HttpClient4Util.doPost(
 				telegramServerDomain + RequestPathEnum.TG_OPEN_NEW_GAME.getApiName(),
 				params);
