@@ -23,8 +23,11 @@ public class DeskUpdateVO {
     @ApiModelProperty(value = "内网IP(1-20位)", required = true)
     private String localIp;
 
-    @ApiModelProperty(value = "游戏视频地址")
+    @ApiModelProperty(value = "游戏视频地址(远景)", required = true)
     private String videoAddress;
+
+    @ApiModelProperty(value = "游戏视频地址(近景)", required = true)
+    private String nearVideoAddress;
 
     @ApiModelProperty(value = "状态 1 正常 ，0禁用", required = true)
     private Integer status;
