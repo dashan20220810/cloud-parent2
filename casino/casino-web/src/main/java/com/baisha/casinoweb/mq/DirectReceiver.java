@@ -1,7 +1,5 @@
 package com.baisha.casinoweb.mq;
 
-import com.baisha.modulecommon.vo.mq.BetSettleVO;
-import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,6 +9,7 @@ import com.baisha.casinoweb.business.DealerBusiness;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.vo.mq.OpenNewGameVO;
 import com.baisha.modulecommon.vo.mq.OpenVO;
+import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 
 @Component
 public class DirectReceiver {
@@ -28,7 +27,6 @@ public class DirectReceiver {
         System.out.println("==============" + jsonStr);
         
         OpenNewGameVO vo = JSONObject.parseObject(jsonStr, OpenNewGameVO.class);
-        //TODO
         dealerBusiness.openNewGame(vo.getDealerIp(), vo.getGameNo());
     }
 

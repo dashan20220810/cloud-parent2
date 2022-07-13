@@ -9,9 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @NoArgsConstructor
@@ -24,7 +27,9 @@ public class GameTgGroupInfo implements Serializable {
 	
 	/** 当局下注累计 */
 	private Long totalBetAmount;
-	
+
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
 	private Map<Long, GameUserInfo> userMap;
 
 	public GameTgGroupInfo(Long tgGroupId) {

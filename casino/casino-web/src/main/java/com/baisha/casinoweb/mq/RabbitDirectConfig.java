@@ -79,4 +79,23 @@ public class RabbitDirectConfig {
     Queue openQueue() {
         return new Queue(MqConstants.WEB_CLOSE_GAME);
     }
+
+
+    //*****************************************gameServer - userServer *******************************************************************************
+    @Bean
+    DirectExchange webAndBackendDirectExchange() {
+        return new DirectExchange("web-backend-direct", true, false);
+    }
+
+    //通知用户中心  打码量和余额变化
+    @Bean
+    Binding userBetStatisticsBinding() {
+        return BindingBuilder.bind(userBetStatisticsQueue()).to(webAndBackendDirectExchange())
+                .with(MqConstants.USER_BET_STATISTICS + "-direct");
+    }
+
+    @Bean
+    Queue userBetStatisticsQueue() {
+        return new Queue(MqConstants.USER_BET_STATISTICS);
+    }
 }

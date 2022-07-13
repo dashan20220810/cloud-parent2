@@ -6,11 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.util.CollectionUtils;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @NoArgsConstructor
@@ -23,7 +26,19 @@ public class GameUserInfo implements Serializable {
 	
 	private String nickName;
 	
+	/**
+	 * 玩家下注记录
+	 */
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
 	private List<Map<String, Object>> betHistory = new ArrayList<>();
+
+	/**
+	 * 各玩法下注金额累计
+	 */
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	private Map<String, Long> optionAmountMap = new HashMap<>();
 	
 	private Long totalBetAmount = 0L;
 
@@ -43,6 +58,23 @@ public class GameUserInfo implements Serializable {
 		totalBetAmount += amount;
 	}
 	
+	public void addOptionAmount ( String option, Long plusAmount ) {
+		Long optionAmount = optionAmountMap.get(option);
+		if ( optionAmount==null ) {
+			optionAmount = 0L;
+		}
+		
+		optionAmountMap.put(option, optionAmount+plusAmount);
+	}
+	
+	public Long getOptionAmount ( String option ) {
+		Long optionAmount = optionAmountMap.get(option);
+		if ( optionAmount==null ) {
+			return 0L;
+		}
+		return optionAmount;
+	}
+	
 	/**
 	 * 检核玩家限红
 	 * @param plusAmount
@@ -50,8 +82,10 @@ public class GameUserInfo implements Serializable {
 	 * @param limitStakeMaxAmount
 	 * @return
 	 */
-	public boolean checkUserBetAmount ( Long plusAmount, Long limitStakeMinAmount, Long limitStakeMaxAmount) {
-		return (limitStakeMinAmount <= (totalBetAmount+plusAmount)) && (limitStakeMaxAmount >= (totalBetAmount+plusAmount));
+	public boolean checkUserBetAmount ( String option, Long plusAmount, Long limitStakeMinAmount, Long limitStakeMaxAmount) {
+		Long optionAmount = getOptionAmount(option);
+//		return (limitStakeMinAmount <= (totalBetAmount+plusAmount)) && (limitStakeMaxAmount >= (totalBetAmount+plusAmount));
+		return (limitStakeMinAmount <= (optionAmount+plusAmount)) && (limitStakeMaxAmount >= (optionAmount+plusAmount));
 	}
 	
 	public String getBetHistoryString() { 

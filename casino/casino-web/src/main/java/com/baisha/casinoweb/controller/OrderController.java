@@ -69,7 +69,8 @@ public class OrderController {
             return ResponseUtil.custom("命令错误，请参考下注规则");
     	}
     	
-    	if ( betVO.getMinAmount()==null || betVO.getMaxAmount()==null || betVO.getMaxShoeAmount()==null ) {
+//    	if ( betVO.getMinAmount()==null || betVO.getMaxAmount()==null || betVO.getMaxShoeAmount()==null ) {
+    	if ( betVO.getMinAmount()==null || betVO.getMaxAmount()==null ) {
     		log.info("[下注] 检核失败");
             return ResponseUtil.custom("命令错误，请参考下注规则");
     	}
@@ -89,9 +90,10 @@ public class OrderController {
     	
     	// 检核限红
     	GameTgGroupInfo groupInfo = gameInfo.getTgGroupInfo(betVO.getTgChatId());
-    	if ( groupInfo.checkTotalBetAmount(betVO.getTotalAmount(), betVO.getMaxShoeAmount().longValue())==false ) {
-            return ResponseUtil.custom(String.format("下注失败 达到当局最大投注 %s", betVO.getMaxShoeAmount()));
-    	}
+    	/// 20220713 调整为玩法限红
+//    	if ( groupInfo.checkTotalBetAmount(betVO.getTotalAmount(), betVO.getMaxShoeAmount().longValue())==false ) {
+//            return ResponseUtil.custom(String.format("下注失败 达到当局最大投注 %s", betVO.getMaxShoeAmount()));
+//    	}
     	
     	//  user id查user
     	String userIdOrName = CasinoWebUtil.getCurrentUserId();
@@ -108,9 +110,11 @@ public class OrderController {
     	}
     	
     	GameUserInfo userInfo = groupInfo.getUserInfo(userVO.getId());
-    	if ( userInfo.checkUserBetAmount(betVO.getTotalAmount()
-    			, betVO.getMinAmount().longValue(), betVO.getMaxAmount().longValue())==false ) {
-            return ResponseUtil.custom(String.format("下注失败 限红单注 %s-%s", betVO.getMinAmount(), betVO.getMaxAmount()));
+    	for (String betOption: betVO.getBetOptionList()) {
+        	if ( userInfo.checkUserBetAmount(betOption, betVO.getAmount()
+        			, betVO.getMinAmount().longValue(), betVO.getMaxAmount().longValue())==false ) {
+                return ResponseUtil.custom(String.format("下注失败 限红单注 %s-%s", betVO.getMinAmount(), betVO.getMaxAmount()));
+        	}
     	}
 
     	//  呼叫

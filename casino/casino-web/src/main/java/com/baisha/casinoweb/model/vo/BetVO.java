@@ -36,8 +36,8 @@ public class BetVO implements Serializable {
     @ApiModelProperty(required=true, value="单注最高")
     private Integer maxAmount;
 
-    @ApiModelProperty(required=true, value="当局最高")
-    private Integer maxShoeAmount;
+//    @ApiModelProperty(required=true, value="当局最高")
+//    private Integer maxShoeAmount;
 
     @ApiModelProperty(value="telegram chat id")
     private Long tgChatId;

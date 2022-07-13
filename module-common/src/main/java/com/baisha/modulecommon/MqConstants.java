@@ -19,6 +19,9 @@ public class MqConstants {
     public final static String SETTLEMENT_FINISH = "web_settlement_game";
     /** 结算完成通知用户端余额和打码量变化 */
     public final static String USER_SETTLEMENT_ASSETS = "user_settlement_assets";
+    
+    /** 下注後用戶總計 */
+    public final static String USER_BET_STATISTICS = "user_bet_statistics";
 
 
 }

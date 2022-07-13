@@ -1,11 +1,13 @@
 package com.baisha.casinoweb.business;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,7 @@ import com.baisha.casinoweb.model.vo.response.DeskVO;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.util.ValidateUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
+import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.enums.BetStatusEnum;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -35,6 +38,9 @@ public class OrderBusiness {
 	
     @Value("${project.server-url.game-server-domain}")
     private String gameServerDomain;
+    
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
 	@Autowired
 	private GameInfoBusiness gameInfoBusiness;
@@ -139,6 +145,13 @@ public class OrderBusiness {
     	}
     	
 		gameInfo = gameInfoBusiness.calculateBetAmount(deskCode, tgChatId, userId, nickName, betOptionList, amount);
+		
+		Date now = new Date();
+		params = new HashMap<>();
+		params.put("userName", userName);
+		params.put("amount", totalAmount);
+		params.put("betTime", now);
+		rabbitTemplate.convertAndSend(MqConstants.USER_BET_STATISTICS, JSONObject.toJSONString(params));
 		
 		log.info("下注 成功");
 		return null;
