@@ -300,7 +300,7 @@ public class AsyncCommandService {
 		String result = HttpClient4Util.doPost(
 				videoServerDomain + RequestPathEnum.VIDEO_SNAP.getApiName(),
 				gameVideoParam);
-		if (StringUtils.isEmpty((String)JSONObject.parseObject(result).get("model"))) {
+		if (!"OK".equals(result)) {
 			return;
 		}
 
