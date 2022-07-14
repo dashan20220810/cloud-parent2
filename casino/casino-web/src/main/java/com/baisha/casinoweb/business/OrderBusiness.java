@@ -26,6 +26,7 @@ import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.enums.BetStatusEnum;
+import com.baisha.modulecommon.enums.GameStatusEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.DateUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
