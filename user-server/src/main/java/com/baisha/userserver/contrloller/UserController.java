@@ -192,8 +192,10 @@ public class UserController {
                     Long inviteUserId = bo.getInviteUserId();
                     if (null != inviteUserId) {
                         User inviteUser = userService.findById(inviteUserId);
-                        bo.setInviteTgUserId(inviteUser.getTgUserId());
-                        bo.setInviteTgUserName(inviteUser.getTgUserName());
+                        if (Objects.nonNull(inviteUser)) {
+                            bo.setInviteTgUserId(inviteUser.getTgUserId());
+                            bo.setInviteTgUserName(inviteUser.getTgUserName());
+                        }
                     }
                     list.add(bo);
                 }
