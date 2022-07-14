@@ -192,6 +192,9 @@ public class AsyncCommandService {
 			}
 		}
 
+		String streamAddress = "1";
+		sendVideoStartScreenRecording(noActive, streamAddress);
+
 //		while (endTime.after(now)) {
 //			Long timeDiff = (now.getTime() - beginTime.getTime());
 //			if ( timeDiff%10000 < 150 ) {
@@ -209,6 +212,25 @@ public class AsyncCommandService {
     	
 		return CompletableFuture.completedFuture(true);
     }
+
+	/**
+	 * 视频流开始录屏
+	 * @param noActive 局号
+	 * @param streamAddress 流地址
+	 */
+	private void sendVideoStartScreenRecording(final String noActive, final String streamAddress) {
+
+		String qTime = String.valueOf(new Date().getTime() / 1000);
+		// 获取视频流
+		Map<String, Object> gameVideoParam = Maps.newHashMap();
+		gameVideoParam.put("period", noActive);
+		gameVideoParam.put("rtmpurl", streamAddress);
+		gameVideoParam.put("qtime", qTime);
+
+		HttpClient4Util.doPost(
+				videoServerDomain + RequestPathEnum.VIDEO_SNAP.getApiName(),
+				gameVideoParam);
+	}
 
 	public void CountDown(String noActive, int limitSec) throws InterruptedException{
 		log.info("游戏号:{}, 起始剩余秒数: {}", noActive, limitSec);
@@ -230,7 +252,7 @@ public class AsyncCommandService {
 
 		final String dealerIp = openVO.getDealerIp();
 		final String consequences = openVO.getConsequences();
-		final String openingTime = openVO.getEndTime();
+//		final String openingTime = openVO.getEndTime();
     	String action = "开牌";
     	DeskVO desk = deskBusiness.queryDeskByIp(dealerIp);
     	if ( desk==null ) {
@@ -266,10 +288,8 @@ public class AsyncCommandService {
 				.awardOption(openCardResult).build());
         rabbitTemplate.convertAndSend(MqConstants.BET_SETTLEMENT, settlement);
 
-		// 获取荷官开始时间unix时间戳
-		String qTime = String.valueOf(DateUtil.parse(openingTime).getTime() / 1000);
 		//发送视频地址给TG
-		sendVideoAddressToTg(gameInfo.getCurrentActive(), closeUpVideoSteam, qTime, action, desk);
+		sendVideoAddressToTg(gameInfo.getCurrentActive(), action, desk);
     }
 
 //	private String getAwardOption(final String[] awardOption) {
@@ -286,18 +306,22 @@ public class AsyncCommandService {
 //		return null;
 //	}
 
+	/**
+	 * 视频流截屏结束并发送TG端
+	 * @param currentActive 当前局号
+	 * @param action 功能标识
+	 * @param deskVO 当前桌子
+	 */
 	private void sendVideoAddressToTg(
-			final String currentActive, final String closeUpVideoSteam,
-			final String qTime, final String action,
-			final DeskVO deskVO) {
+			final String currentActive, final String action, final DeskVO deskVO) {
 		// 获取视频流
 		Map<String, Object> gameVideoParam = Maps.newHashMap();
 		gameVideoParam.put("period", currentActive);
 		gameVideoParam.put("rtmpurl", BigDecimalConstants.ONE.toString());
-		gameVideoParam.put("qtime", qTime);
+//		gameVideoParam.put("qtime", qTime);
 
 		String result = HttpClient4Util.doPost(
-				videoServerDomain + RequestPathEnum.VIDEO_SNAP.getApiName(),
+				videoServerDomain + RequestPathEnum.VIDEO_STOP.getApiName(),
 				gameVideoParam);
 		if (!"OK".equals(result)) {
 			return;
@@ -310,8 +334,10 @@ public class AsyncCommandService {
 		params.put("tableId", deskVO.getId());
 		params.put("frontAddress", deskVO.getVideoAddress()); // TODO for test
 		params.put("lookDownAddress", deskVO.getNearVideoAddress()); // TODO for test
-		params.put("videoResultAddress", videoServerDomain + Constants.IMAGE + qTime + Constants.FLV); // TODO for test
-		params.put("picRoadAddress", videoServerDomain + Constants.IMAGE + qTime + Constants.JPEG); // TODO for test
+		params.put("videoResultAddress", videoServerDomain + Constants.IMAGE + "1/" +
+				currentActive + "/1" +Constants.FLV); // TODO for test
+		params.put("picRoadAddress", videoServerDomain + Constants.IMAGE + "1/" +
+				currentActive + "/1" + Constants.JPEG); // TODO for test
 
 		result = HttpClient4Util.doPost(
 				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),
