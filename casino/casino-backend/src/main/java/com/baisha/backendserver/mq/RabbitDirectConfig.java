@@ -20,7 +20,6 @@ public class RabbitDirectConfig {
         return new DirectExchange("web-backend-direct", true, false);
     }
 
-    //通知用户中心  打码量和余额变化
     @Bean
     Binding userBetStatisticsBinding() {
         return BindingBuilder.bind(userBetStatisticsQueue()).to(webAndBackendDirectExchange())
@@ -31,4 +30,25 @@ public class RabbitDirectConfig {
     Queue userBetStatisticsQueue() {
         return new Queue(MqConstants.USER_BET_STATISTICS);
     }
+
+
+    //*****************************************gameServer - adminServer *******************************************************************************
+    @Bean
+    DirectExchange gameAndBackendDirectExchange() {
+        return new DirectExchange("game-backend-direct", true, false);
+    }
+
+    //通知后台 统计用户注单
+    @Bean
+    Binding userBackendBetStatisticsBinding() {
+        return BindingBuilder.bind(userBackendBetStatisticsQueue()).to(gameAndBackendDirectExchange())
+                .with(MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS + "-direct");
+    }
+
+    @Bean
+    Queue userBackendBetStatisticsQueue() {
+        return new Queue(MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS);
+    }
+
+
 }

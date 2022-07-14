@@ -221,20 +221,11 @@ public class BackendServerUtil {
     }
 
 
-    /*public static void main(String[] args) {
-     *//*   TgGroupPageVO vo = new TgGroupPageVO();
-        vo.setBotName("1");
-        System.out.println(JSON.toJSONString(vo));
-        System.out.println(objectToMap(vo));*//*
+    public static void main(String[] args) {
+        String t = "2022-07-13 16:12:55";
+        System.out.println(Integer.parseInt(t.substring(0, 10).replaceAll("-", "")));
 
-        //TgGroupBoundVO v = new TgGroupBoundVO();
-        //v.setTgGroupId("1111");
-        //System.out.println(objectToMap(v));
-
-        //System.out.println(randomIds());
-
-
-    }*/
+    }
 
 
 }
