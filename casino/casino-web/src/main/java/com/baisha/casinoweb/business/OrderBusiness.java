@@ -136,7 +136,7 @@ public class OrderBusiness {
             return String.format("查询限红 失败, %s", StringUtils.defaultString(result));
 		}
 
-		List<BsOddsBO> limitList = JSONObject.parseObject(result, new TypeReference<List<BsOddsBO>>(){});
+		List<BsOddsBO> limitList = JSONObject.parseObject(JSONObject.parseObject(result).getString("data"), new TypeReference<List<BsOddsBO>>(){});
     	
     	for (String betOption: betOptionList) {
     		Optional<BsOddsBO> oddsBoOpt = limitList.stream().filter( 
