@@ -11,6 +11,9 @@ public class Constants {
 	/** FLV */
 	public static final String FLV = ".flv";
 
+	/** MP4 */
+	public static final String MP4 = ".mp4";
+
 	/** , */
 	public static final String COMMA_SEPARATED = ",";
 }

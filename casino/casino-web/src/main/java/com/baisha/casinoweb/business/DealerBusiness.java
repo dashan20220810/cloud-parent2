@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import com.baisha.core.constants.RedisKeyConstants;
 import com.baisha.modulecommon.BigDecimalConstants;
 import com.baisha.modulecommon.vo.NewGameInfo;
+import com.baisha.modulecommon.vo.mq.OpenNewGameVO;
 import com.baisha.modulecommon.vo.mq.OpenVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 import org.apache.commons.lang3.time.DateUtils;
@@ -50,14 +51,15 @@ public class DealerBusiness {
     /**
 	 * 开新局
 	 *
-	 * @param dealerIp 桌台ip
-	 * @param gameNo 荷官端游戏号
+	 * @param openNewGameVO 开局对象
 	 */
     @Async
-    public void openNewGame (String dealerIp, Integer gameNo) {
+    public void openNewGame (final OpenNewGameVO openNewGameVO) {
 
     	log.info("开新局");
 
+		String dealerIp = openNewGameVO.getDealerIp();
+		Integer gameNo = openNewGameVO.getGameNo();
     	DeskVO desk = deskBusiness.queryDeskByIp(dealerIp);
     	if ( desk==null ) {
     		log.warn("开新局 失败, 查无桌台");

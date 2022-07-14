@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.baisha.modulecommon.enums.GameStatusEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,7 +96,7 @@ public class OrderBusiness {
 		
 		Date now = new Date();
 		
-		if ( gameInfo.getStatus()!=GameStatusEnum.Betting || (gameInfo.getEndTime()!=null && now.after(gameInfo.getEndTime())) ) {
+		if ( gameInfo.getStatus()!= GameStatusEnum.Betting || (gameInfo.getEndTime()!=null && now.after(gameInfo.getEndTime())) ) {
     		log.warn("下注 失败 非下注状态, {}", gameInfo.getStatus().toString());
             return "下注 失败 非下注状态";
 		}

@@ -27,7 +27,7 @@ public class DirectReceiver {
         System.out.println("==============" + jsonStr);
         
         OpenNewGameVO vo = JSONObject.parseObject(jsonStr, OpenNewGameVO.class);
-        dealerBusiness.openNewGame(vo.getDealerIp(), vo.getGameNo());
+        dealerBusiness.openNewGame(vo);
     }
 
     @RabbitListener(queues = MqConstants.WEB_CLOSE_GAME)

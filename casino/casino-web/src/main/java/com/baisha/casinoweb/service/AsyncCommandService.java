@@ -292,20 +292,6 @@ public class AsyncCommandService {
 		sendVideoAddressToTg(gameInfo.getCurrentActive(), action, desk);
     }
 
-//	private String getAwardOption(final String[] awardOption) {
-//		switch(awardOption){
-//			case "0" : return TgBaccRuleEnum.SS2.getCode();
-//			case "1" : return TgBaccRuleEnum.Z.getCode();
-//			case "2" : return TgBaccRuleEnum.H.getCode();
-//			case "3" : return TgBaccRuleEnum.X.getCode();
-//			case "4" : return TgBaccRuleEnum.ZD.getCode();
-//			case "5" : return TgBaccRuleEnum.XD.getCode();
-//			case "6" : return TgBaccRuleEnum.SS3.getCode();
-//			default: log.error("没有该开牌类型"); break;
-//		}
-//		return null;
-//	}
-
 	/**
 	 * 视频流截屏结束并发送TG端
 	 * @param currentActive 当前局号
@@ -332,10 +318,10 @@ public class AsyncCommandService {
 		Map<String, Object> params = Maps.newHashMap();
 		params.put("openCardAddress", sysTg.getOpenCardUrl());
 		params.put("tableId", deskVO.getId());
-		params.put("frontAddress", deskVO.getVideoAddress()); // TODO for test
-		params.put("lookDownAddress", deskVO.getNearVideoAddress()); // TODO for test
+		params.put("frontAddress", deskVO.getNearVideoAddress()); // TODO for test
+		params.put("lookDownAddress", deskVO.getVideoAddress()); // TODO for test
 		params.put("videoResultAddress", videoServerDomain + Constants.IMAGE + "1/" +
-				currentActive + "/1" +Constants.FLV); // TODO for test
+				currentActive + "/1" +Constants.MP4); // TODO for test
 		params.put("picRoadAddress", videoServerDomain + Constants.IMAGE + "1/" +
 				currentActive + "/1" + Constants.JPEG); // TODO for test
 

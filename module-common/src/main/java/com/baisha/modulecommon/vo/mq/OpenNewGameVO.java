@@ -19,4 +19,7 @@ public class OpenNewGameVO implements Serializable {
 	private Integer gameNo;
 	
 	private String dealerIp;
+
+	/** 牌局开始时间 */
+	private String startTime;
 }
