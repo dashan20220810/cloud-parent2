@@ -4,13 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.baisha.backendserver.business.CommonBusiness;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.vo.IdVO;
-import com.baisha.backendserver.model.vo.admin.AdminAddVO;
-import com.baisha.backendserver.model.vo.admin.AdminPageVO;
-import com.baisha.backendserver.model.vo.admin.AdminResetPasswordVO;
-import com.baisha.backendserver.model.vo.admin.AdminUpdatePasswordVO;
+import com.baisha.backendserver.model.vo.admin.*;
 import com.baisha.backendserver.service.AdminService;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
+import com.baisha.moduleauthenticator.GoogleAuthUtil;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -71,6 +69,9 @@ public class AdminController {
         }
         //获取当前登陆用户
         Admin currentUser = commonService.getCurrentUser();
+        if (GoogleAuthUtil.check_code(currentUser.getGoogleAuthKey(), vo.getAuthCode())){
+            return new ResponseEntity("谷歌验证失敗");
+        }
         Admin admin = createAdmin(vo, currentUser);
         admin = adminService.save(admin);
         if (Objects.isNull(admin)) {
@@ -210,5 +211,52 @@ public class AdminController {
     public ResponseEntity<Admin> query(IdVO vo) {
         return ResponseUtil.success(adminService.findAdminById(vo.getId()));
     }
+
+    @ApiOperation(("编辑管理员账户"))
+    @PostMapping("edit")
+    public ResponseEntity mangeAccount(AdminUpdateVO vo) {
+
+        //获取当前登陆用户
+        Admin currentUser = commonService.getCurrentUser();
+        String msg = validateMangeAccount(vo, currentUser);
+        if (StringUtils.isAllEmpty(msg)){
+            return new ResponseEntity(msg);
+        }
+        Admin admin = new Admin();
+        BeanUtils.copyProperties(vo, admin);
+        admin.setPassword(BackendServerUtil.bcrypt(vo.getPassword()));
+        admin.setCreateBy(currentUser.getUserName());
+        admin.setUpdateBy(currentUser.getUserName());
+        admin = adminService.save(admin);
+        if (Objects.isNull(admin)) {
+            return ResponseUtil.fail();
+        }
+        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT, JSON.toJSONString(admin), BackendConstants.ADMIN_MODULE);
+        return ResponseUtil.success();
+    }
+
+    private String validateMangeAccount(AdminAddVO vo, Admin currentUser) {
+        StringBuffer sb = new StringBuffer();
+        if (Admin.checkUserName(vo.getUserName())) {
+            sb.append("用户名不规范 ");
+        }
+        if (Admin.checkNickName(vo.getNickName())) {
+            sb.append("昵称不规范");
+        }
+        if (Admin.checkPassword(vo.getPassword())) {
+            sb.append("密码不规范");
+        }
+        if (Admin.checkPhone(vo.getPhone())) {
+            sb.append("手机号不规范");
+        }
+        if (Admin.validateIP(vo.getAllowIps())) {
+            sb.append("IP白名单不规范");
+        }
+        if (GoogleAuthUtil.check_code(currentUser.getGoogleAuthKey(), vo.getAuthCode())){
+            sb.append("谷歌验证失敗");
+        }
+        return sb.toString();
+    }
+
 
 }

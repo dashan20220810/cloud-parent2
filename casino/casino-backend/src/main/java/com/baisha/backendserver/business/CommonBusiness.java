@@ -33,6 +33,7 @@ public class CommonBusiness {
 
     public Admin getCurrentUser() {
         Long authId = BackendServerUtil.getCurrentUserId();
+        System.out.println("authId ="+authId);
         try {
             Admin admin = adminService.findAdminById(authId);
             if (Objects.nonNull(admin)) {
