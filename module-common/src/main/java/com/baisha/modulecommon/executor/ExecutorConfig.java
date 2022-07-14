@@ -22,7 +22,6 @@ public class ExecutorConfig implements AsyncConfigurer {
         int cpuNum = Runtime.getRuntime().availableProcessors();
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-
 //        核心线程数
         executor.setCorePoolSize(cpuNum + 1);
         //最大线程数

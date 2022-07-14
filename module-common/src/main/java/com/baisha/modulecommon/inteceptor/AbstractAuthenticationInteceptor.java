@@ -1,5 +1,6 @@
 package com.baisha.modulecommon.inteceptor;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baisha.modulecommon.util.IpUtil;
 import com.baisha.modulecommon.annotation.NoAuthentication;
 import lombok.Data;
@@ -36,29 +37,31 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         Method method = handlerMethod.getMethod();
         NoAuthentication annotation = method.getAnnotation(NoAuthentication.class);
-        if (annotation == null) {
-            if (hasPermission(request,response)) {
-                //帐号封号拦截
-                if(hasBan()){
-                    if(url.contains("authenticationBan")){
-                        return true;
-                    }
-                    response.sendRedirect(request.getContextPath()+"/authenticationBan");
-                    return false;
-                }
-                //多设备登录拦截
-                if(multiDeviceCheck()){
-                    return true;
-                }
-                response.sendRedirect(request.getContextPath()+"/authenticationMultiDevice");
-                return false;
-            }
-            response.sendRedirect(request.getContextPath()+"/authenticationNopass");
-            return false;
+        //不需要认证直接通过
+        if (annotation != null) {
+            return true;
         }
 
-        return true;
+        //有权限通过
+        if (hasPermission(request, response)) {
+            //帐号封号拦截
+            if (hasBan()) {
+                if (url.contains("authenticationBan")) {
+                    return true;
+                }
+                response.sendRedirect(request.getContextPath() + "/authenticationBan");
+                return false;
+            }
+//            //多设备登录拦截
+//            if (!multiDeviceCheck()) {
+//                response.sendRedirect(request.getContextPath() + "/authenticationMultiDevice");
+//                return false;
+//            }
 
+            return true;
+        }
+        response.sendRedirect(request.getContextPath() + "/authenticationNopass");
+        return false;
 
     }
 
@@ -68,9 +71,11 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
 
     protected abstract boolean multiDeviceCheck();
 
-    protected PlatformMaintenanceSwitch platformMaintainCheck(){
+    protected PlatformMaintenanceSwitch platformMaintainCheck() {
         return new PlatformMaintenanceSwitch();
-    };
+    }
+
+    ;
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
@@ -94,6 +99,7 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
 
     /**
      * 打印请求信息
+     *
      * @param request
      */
     private void printRequestlog(HttpServletRequest request) {
@@ -121,7 +127,7 @@ public abstract class AbstractAuthenticationInteceptor implements HandlerInterce
 //            while ((line = reader.readLine()) != null) {
 //                body.append(line);
 //            }
-            log.info("请求IP:{},请求方法:{},请求类型:{},请求路径参数:{},请求头:{}", ip, path, requestMethod, queryString, map.toString());
+            log.info("请求IP:{},请求方法:{},请求类型:{},请求路径参数:{},请求头:{}", ip, path, requestMethod, queryString, JSONObject.toJSONString(map));
         } catch (Exception e) {
             e.printStackTrace();
         }
