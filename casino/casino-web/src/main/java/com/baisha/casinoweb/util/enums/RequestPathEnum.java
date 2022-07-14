@@ -46,6 +46,8 @@ public enum RequestPathEnum {
     BET_RESULT_ADD("/betResult/add"),
     /** 开牌结果更新 */
     BET_RESULT_UPDATE("/betResult/update"),
+    /** 开牌结果分页 */
+    BET_RESULT_PAGE("/betResult/page"),
     
     /** 查询桌台 by ip */
     DESK_QUERY_BY_LOCAL_IP("/desk/queryByLocalIp"),
@@ -53,6 +55,9 @@ public enum RequestPathEnum {
     DESK_QUERY_BY_DESK_CODE("/desk/queryByDeskCode"),
     /** 查询桌台 by id */
     DESK_QUERY_BY_ID("/desk/queryById"),
+
+    /** 下注限紅及賠率 */
+    GAME_ODDS_LIST("/game/oddsList"),
     
     /*
      * 後台

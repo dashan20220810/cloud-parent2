@@ -1,21 +1,15 @@
 package com.baisha.gameserver.controller;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.persistence.criteria.Predicate;
-
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -98,34 +92,7 @@ public class BetController {
     public ResponseEntity<Page<Bet>> page(BetPageVO vo) {
         log.info("订单查询");
         Pageable pageable = PageUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
-        Specification<Bet> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new LinkedList<>();
-            if (StringUtils.isNotBlank(vo.getUserName())) {
-                predicates.add(cb.or(
-                        cb.like(root.get("userName"), "%" + vo.getUserName().trim() + "%"),
-                        cb.like(root.get("nickName"), "%" + vo.getUserName().trim() + "%"))
-                );
-            }
-            if (StringUtils.isNotBlank(vo.getNoActive())) {
-                predicates.add(cb.like(root.get("noActive"), "%" + vo.getNoActive() + "%"));
-            }
-            if (vo.getStatus() != null) {
-                predicates.add(cb.equal(root.get("status"), vo.getStatus()));
-            }
-            try {
-                if (StringUtils.isNotEmpty(vo.getStartTime())) {
-                    predicates.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), DateUtil.getSimpleDateFormat().parse(vo.getStartTime().trim())));
-                }
-                if (StringUtils.isNotEmpty(vo.getEndTime())) {
-                    predicates.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), DateUtil.getSimpleDateFormat().parse(vo.getEndTime().trim())));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
-        };
-        Page<Bet> pageList = betService.getBetPage(spec, pageable);
+        Page<Bet> pageList = betService.getBetPage(vo, pageable);
         return ResponseUtil.success(pageList);
     }
 

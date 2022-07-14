@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import com.baisha.casinoweb.model.bo.BsOddsBO;
 import com.baisha.casinoweb.model.vo.BetVO;
 import com.baisha.casinoweb.model.vo.UserVO;
 import com.baisha.casinoweb.model.vo.response.BetResponseVO;
@@ -24,11 +26,16 @@ import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.enums.BetStatusEnum;
+import com.baisha.modulecommon.enums.GameStatusEnum;
 import com.baisha.modulecommon.util.CommonUtil;
+import com.baisha.modulecommon.util.DateUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.util.IpUtil;
 import com.baisha.modulecommon.util.SnowFlakeUtils;
 import com.baisha.modulecommon.vo.GameInfo;
+import com.baisha.modulecommon.vo.GameTgGroupInfo;
+import com.baisha.modulecommon.vo.GameUserInfo;
+import com.baisha.modulecommon.vo.mq.webServer.UserBetVO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,21 +63,27 @@ public class OrderBusiness {
 	
 
 	
-	public String bet ( boolean isTgRequest, BetVO betVO, UserVO userVO, String noRun ) {
+	public String bet ( boolean isTgRequest, BetVO betVO, String noRun ) {
 		return bet(isTgRequest, betVO.getTableId(), betVO.getTgChatId(), betVO.getBetOptionList(), betVO.getAmount()
-				, noRun, userVO.getId(), userVO.getUserName(), userVO.getNickName());
+				, noRun);
 	}
 	
 	public String bet ( boolean isTgRequest, Long tableId, Long tgChatId, List<String> betOptionList, 
-			Long amount, String noRun, Long userId, String userName, String nickName ) {
+			Long amount, String noRun ) {
 		
 		String action = "下注";
 		log.info(action);
-		DeskVO desk = deskBusiness.queryDeskById(tableId);
-		String deskCode = desk.getDeskCode();
-		GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
 		Long totalAmount = 0L;
-		
+
+    	// 桌台资料
+    	DeskVO deskVO = deskBusiness.queryDeskById(tableId);
+    	if ( deskVO==null ) {
+    		log.warn("[下注] 桌台号查无资料, table id: {}", tableId);
+            return "桌台资料错误";
+    	}
+		String deskCode = deskVO.getDeskCode();
+		GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
+    	
 		if ( gameInfo==null ) {
     		log.warn("下注 失败 无游戏资讯");
 			return "下注 失败 无游戏资讯";
@@ -80,9 +93,72 @@ public class OrderBusiness {
     		log.warn("下注 失败 局号不符, {}");
 			return "下注 失败 局号不符";
 		}
+		
+		Date now = new Date();
+		
+		if ( gameInfo.getStatus()!=GameStatusEnum.Betting || (gameInfo.getEndTime()!=null && now.after(gameInfo.getEndTime())) ) {
+    		log.warn("下注 失败 非下注状态, {}", gameInfo.getStatus().toString());
+            return "下注 失败 非下注状态";
+		}
+    	
+    	// 检核限红
+    	GameTgGroupInfo groupInfo = gameInfo.getTgGroupInfo(tgChatId);
+    	/// 20220713 调整为玩法限红
+//    	if ( groupInfo.checkTotalBetAmount(betVO.getTotalAmount(), betVO.getMaxShoeAmount().longValue())==false ) {
+//            return ResponseUtil.custom(String.format("下注失败 达到当局最大投注 %s", betVO.getMaxShoeAmount()));
+//    	}
+    	
+    	//  user id查user
+    	String userIdOrName = CasinoWebUtil.getCurrentUserId();
+    	UserVO userVO = userBusiness.getUserVO(isTgRequest, userIdOrName);
+    	
+    	if ( userVO==null ) {
+    		log.warn("[下注] user查无资料, id: {}", userIdOrName);
+            return "玩家资料错误";
+    	}
+    	
+    	if (UserVO.Status.DISABLE.getCode() == userVO.getStatus()) {
+    		log.warn("[下注] user状态停用");
+            return "玩家资料错误";
+    	}
+
+    	Long userId = userVO.getId();
+    	String userName = userVO.getUserName();
+    	String nickName = userVO.getNickName();
+    	GameUserInfo userInfo = groupInfo.getUserInfo(userVO.getId());
+
+    	Map<String, Object> params = new HashMap<>();
+		
+		String result = HttpClient4Util.doGet(
+				gameServerDomain + RequestPathEnum.ORDER_BET.getApiName() +"?gameCode=BACC"); 
+
+		if (!ValidateUtil.checkHttpResponse(action, result)) {
+            return String.format("查询限红 失败, %s", StringUtils.defaultString(result));
+		}
+
+		List<BsOddsBO> limitList = JSONObject.parseObject(result, new TypeReference<List<BsOddsBO>>(){});
+    	
+    	for (String betOption: betOptionList) {
+    		Optional<BsOddsBO> oddsBoOpt = limitList.stream().filter( 
+    				odds -> StringUtils.equalsIgnoreCase(betOption, odds.getRuleCode()) ).findFirst();
+    		
+    		BsOddsBO oddsBO = null;
+    		if (!oddsBoOpt.isPresent()) {
+    			oddsBO = oddsBoOpt.get();
+    		} else {
+    			return String.format("查无限红 下注选项:%s", betOption);
+    		}
+    		
+        	if ( userInfo.checkUserBetAmount(betOption, amount
+        			, oddsBO.getMinAmount().longValue(), oddsBO.getMaxAmount().longValue())==false ) {
+                return String.format("下注失败 限红单注 %s-%s", oddsBO.getMinAmount(), oddsBO.getMaxAmount());
+        	}
+    	}
+    	
+    	gameInfoBusiness.setGameInfo(deskCode, gameInfo);
 
 		// 记录IP
-    	Map<String, Object> params = new HashMap<>();
+    	params = new HashMap<>();
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
 
 		params.put("isTgRequest", isTgRequest);
@@ -115,7 +191,7 @@ public class OrderBusiness {
 		}
 
 		
-		String result = HttpClient4Util.doPost(
+		result = HttpClient4Util.doPost(
 				gameServerDomain + RequestPathEnum.ORDER_BET.getApiName(),
 				params);
 
@@ -146,12 +222,10 @@ public class OrderBusiness {
     	
 		gameInfo = gameInfoBusiness.calculateBetAmount(deskCode, tgChatId, userId, nickName, betOptionList, amount);
 		
-		Date now = new Date();
-		params = new HashMap<>();
-		params.put("userName", userName);
-		params.put("amount", totalAmount);
-		params.put("betTime", now);
-		rabbitTemplate.convertAndSend(MqConstants.USER_BET_STATISTICS, JSONObject.toJSONString(params));
+		UserBetVO userBetVO = UserBetVO.builder().amount(BigDecimal.valueOf(totalAmount))
+				.userId(userId).betTime(DateUtil.dateToPatten(now))
+				.tgUserId(userName).build();
+		rabbitTemplate.convertAndSend(MqConstants.USER_BET_STATISTICS, JSONObject.toJSONString(userBetVO));
 		
 		log.info("下注 成功");
 		return null;

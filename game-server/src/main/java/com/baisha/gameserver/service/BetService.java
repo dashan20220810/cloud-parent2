@@ -4,11 +4,14 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,6 +24,8 @@ import org.springframework.stereotype.Service;
 
 import com.baisha.gameserver.model.Bet;
 import com.baisha.gameserver.repository.BetRepository;
+import com.baisha.gameserver.vo.BetPageVO;
+import com.baisha.modulecommon.util.DateUtil;
 
 /**
  * @author: alvin
@@ -41,7 +46,34 @@ public class BetService {
         betRepository.deleteById(id);
     }
 
-    public Page<Bet> getBetPage(Specification<Bet> spec, Pageable pageable) {
+    public Page<Bet> getBetPage(BetPageVO vo, Pageable pageable) {
+        Specification<Bet> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new LinkedList<>();
+            if (StringUtils.isNotBlank(vo.getUserName())) {
+                predicates.add(cb.or(
+                        cb.like(root.get("userName"), "%" + vo.getUserName().trim() + "%"),
+                        cb.like(root.get("nickName"), "%" + vo.getUserName().trim() + "%"))
+                );
+            }
+            if (StringUtils.isNotBlank(vo.getNoActive())) {
+                predicates.add(cb.like(root.get("noActive"), "%" + vo.getNoActive() + "%"));
+            }
+            if (vo.getStatus() != null) {
+                predicates.add(cb.equal(root.get("status"), vo.getStatus()));
+            }
+            try {
+                if (StringUtils.isNotEmpty(vo.getStartTime())) {
+                    predicates.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), DateUtil.getSimpleDateFormat().parse(vo.getStartTime().trim())));
+                }
+                if (StringUtils.isNotEmpty(vo.getEndTime())) {
+                    predicates.add(cb.lessThanOrEqualTo(root.get("createTime").as(Date.class), DateUtil.getSimpleDateFormat().parse(vo.getEndTime().trim())));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return cb.and(predicates.toArray(new Predicate[predicates.size()]));
+        };
         Page<Bet> page = betRepository.findAll(spec, pageable);
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }
