@@ -203,15 +203,15 @@ public class UserController {
             log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
                     currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加余额成功", BackendConstants.USER_ASSETS_MODULE);
             //充值余额成功过后，在增加打码量
-            //获取充值打码量倍率 充值增加打码量
-            PlayMoneyVO playMoneyVO = new PlayMoneyVO();
-            playMoneyVO.setPlayMoneyType(BackendConstants.INCOME);
-            playMoneyVO.setId(vo.getId());
-            playMoneyVO.setRemark(vo.getRemark());
             SysPlayMoneyParameterBO sysPlayMoneyParameterBO = playMoneyService.getSysPlayMoney();
             BigDecimal recharge = sysPlayMoneyParameterBO.getRecharge();
-            playMoneyVO.setAmount(BigDecimal.valueOf(vo.getAmount().longValue()).multiply(recharge));
-            if (playMoneyVO.getAmount().compareTo(BigDecimal.ZERO) > 0) {
+            if (recharge.compareTo(BigDecimal.ZERO) > 0) {
+                //获取充值打码量倍率 充值增加打码量
+                PlayMoneyVO playMoneyVO = new PlayMoneyVO();
+                playMoneyVO.setPlayMoneyType(BackendConstants.INCOME);
+                playMoneyVO.setId(vo.getId());
+                playMoneyVO.setRemark(vo.getRemark());
+                playMoneyVO.setAmount(BigDecimal.valueOf(vo.getAmount().longValue()).multiply(recharge));
                 ResponseEntity playMoneyResponseEntity = doIncomePlayMoney(playMoneyVO, orderId);
                 if (playMoneyResponseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
                     log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
