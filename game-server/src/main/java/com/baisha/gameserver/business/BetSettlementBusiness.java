@@ -8,27 +8,24 @@ import com.baisha.gameserver.service.BetService;
 import com.baisha.gameserver.service.BetStatisticsService;
 import com.baisha.gameserver.util.BaccNoCommissionUtil;
 import com.baisha.gameserver.util.GameServerUtil;
-import com.baisha.gameserver.util.contants.GameServerContants;
-import com.baisha.gameserver.util.contants.UserServerContants;
 import com.baisha.modulecommon.MqConstants;
-import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.enums.BetStatusEnum;
-import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
-import com.baisha.modulecommon.enums.TgBaccRuleEnum;
 import com.baisha.modulecommon.util.DateUtil;
-import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
+import com.baisha.modulecommon.vo.mq.gameServer.UserBetStatisticsVO;
 import com.baisha.modulecommon.vo.mq.userServer.BetSettleUserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
@@ -117,12 +114,17 @@ public class BetSettlementBusiness {
             if (flag > 0) {
                 //用户统计今日数据(输赢结果)
                 statisticsWinAmount(bet, winAmount);
-                /*//打码量
-                doReducePlayMoney(bet, BigDecimal.valueOf(betAmount));
-                if (finalAmount.compareTo(BigDecimal.ZERO) > 0) {
-                    //派奖
-                    doAddBalance(bet, bet.getNoActive(), finalAmount);
-                }*/
+
+                log.info("通知后台更新输赢{}和打码量{}", winAmount, betAmount);
+                UserBetStatisticsVO userBetStatisticsVO = UserBetStatisticsVO.builder().userId(bet.getUserId())
+                        .betTime(DateUtil.getSimpleDateFormat().format(bet.getCreateTime()))
+                        .playMoney(BigDecimal.valueOf(betAmount)).winAmount(winAmount).build();
+                String userBetStatisticsJsonStr = JSONObject.toJSONString(userBetStatisticsVO);
+                log.info("发送给后台MQ消息：{}", userBetStatisticsJsonStr);
+                rabbitTemplate.convertAndSend(MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS, userBetStatisticsJsonStr);
+
+                log.info("=======================================================================================");
+
                 log.info("通知用户中心更新余额{}和打码量{}", finalAmount, betAmount);
                 BetSettleUserVO betSettleUserVO = BetSettleUserVO.builder().betId(bet.getId()).noActive(bet.getNoActive())
                         .userId(bet.getUserId()).finalAmount(finalAmount).playMoney(BigDecimal.valueOf(betAmount))
@@ -143,52 +145,6 @@ public class BetSettlementBusiness {
         Integer day = Integer.parseInt(time);
         betStatisticsService.statisticsWinAmount(day, bet.getUserId(), bet.getTgChatId(), winAmount);
     }
-
-    /**
-     * 结算成功后，减去用户打码量
-     *
-     * @param bet
-     * @param betAmount
-     */
-    private void doReducePlayMoney(Bet bet, BigDecimal betAmount) {
-        Long userId = bet.getUserId();
-        String url = userServerDomain + UserServerContants.ASSETS_PLAY_MONEY;
-        Map<String, Object> param = new HashMap<>(16);
-        param.put("userId", userId);
-        param.put("playMoneyType", GameServerContants.EXPENSES);
-        param.put("amount", betAmount);
-        param.put("remark", "会员结算打码量，注单ID为" + bet.getId());
-        param.put("relateId", bet.getId());
-        param.put("changeType", PlayMoneyChangeEnum.SETTLEMENT.getCode());
-        String result = HttpClient4Util.doPost(url, param);
-        if (StringUtils.isEmpty(result)) {
-            log.error("增加会员userId=" + userId + "的减少打码量" + betAmount + "失败,注单ID=" + bet.getId());
-        }
-    }
-
-    /**
-     * 派奖
-     *
-     * @param bet
-     * @param noActive
-     * @param finalAmount
-     */
-    private void doAddBalance(Bet bet, String noActive, BigDecimal finalAmount) {
-        Long userId = bet.getUserId();
-        String url = userServerDomain + UserServerContants.ASSETS_BALANCE;
-        Map<String, Object> param = new HashMap<>(16);
-        param.put("userId", userId);
-        param.put("balanceType", GameServerContants.INCOME);
-        param.put("amount", finalAmount);
-        param.put("remark", "会员" + "在局号为" + noActive + "中奖");
-        param.put("relateId", bet.getId());
-        param.put("changeType", BalanceChangeEnum.WIN.getCode());
-        String result = HttpClient4Util.doPost(url, param);
-        if (StringUtils.isEmpty(result)) {
-            log.error("增加会员userId=" + userId + "的彩金" + finalAmount + "失败,注单ID=" + bet.getId());
-        }
-    }
-
 
     /**
      * 下注金额

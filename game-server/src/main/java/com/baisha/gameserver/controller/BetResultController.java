@@ -2,15 +2,20 @@ package com.baisha.gameserver.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.baisha.gameserver.model.BetResult;
 import com.baisha.gameserver.service.BetResultService;
+import com.baisha.gameserver.vo.BetResultPageVO;
 import com.baisha.gameserver.vo.BetResultVO;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
+import com.baisha.modulecommon.util.PageUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -62,5 +67,14 @@ public class BetResultController {
 
         betResultService.update( betResult.getTableId(), betResult.getNoActive(), betResult.getAwardOption() );
         return ResponseUtil.success();
+    }
+
+    @PostMapping("page")
+    @ApiOperation("开牌结果查询")
+    public ResponseEntity<Page<BetResult>> page(BetResultPageVO vo) {
+        log.info("开牌结果查询");
+        Pageable pageable = PageUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
+        Page<BetResult> pageList = betResultService.getBetResultPage(vo, pageable);
+        return ResponseUtil.success(pageList);
     }
 }

@@ -52,4 +52,24 @@ public class RabbitDirectConfig {
     Queue userSettlementAssetsQueue() {
         return new Queue(MqConstants.USER_SETTLEMENT_ASSETS);
     }
+
+
+    //*****************************************gameServer - adminServer *******************************************************************************
+    @Bean
+    DirectExchange gameAndBackendDirectExchange() {
+        return new DirectExchange("game-backend-direct", true, false);
+    }
+
+    //通知后台 统计用户注单
+    @Bean
+    Binding userBackendBetStatisticsBinding() {
+        return BindingBuilder.bind(userBackendBetStatisticsQueue()).to(gameAndBackendDirectExchange())
+                .with(MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS + "-direct");
+    }
+
+    @Bean
+    Queue userBackendBetStatisticsQueue() {
+        return new Queue(MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS);
+    }
+
 }
