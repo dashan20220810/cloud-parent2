@@ -154,7 +154,7 @@ public class DeskController {
         }
 
         deskService.update(deskId, deskVO.getLocalIp(), deskVO.getVideoAddress(), deskVO.getNearVideoAddress()
-                , deskVO.getGameCode(), deskVO.getStatus(), deskVO.getName());
+                , deskVO.getCloseVideoAddress(), deskVO.getGameCode(), deskVO.getStatus(), deskVO.getName());
 
         log.info("[桌台更新] 成功!");
         return ResponseUtil.success();

@@ -7,8 +7,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.persistence.Column;
-
 
 @Data
 @EqualsAndHashCode(callSuper=false)
@@ -34,6 +32,9 @@ public class DeskVO implements Serializable {
 
     @ApiModelProperty(value = "游戏视频地址(近景)")
     private String nearVideoAddress;
+
+    @ApiModelProperty(value = "游戏视频地址(开牌结果)")
+    private String closeVideoAddress;
 
     @ApiModelProperty(value = "状态 1 正常 ，0禁用")
     private Integer status = 1;
