@@ -12,7 +12,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>casino-core</name>
     <description>casino-core</description>
-    
+
     <dependencies>
         <dependency>
             <groupId>com.baisha</groupId>
@@ -35,6 +35,12 @@
         <dependency>
             <groupId>com.baisha</groupId>
             <artifactId>module-springcache-redis</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baisha</groupId>
+            <artifactId>module-authenticator</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
