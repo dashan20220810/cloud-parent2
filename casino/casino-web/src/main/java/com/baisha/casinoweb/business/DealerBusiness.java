@@ -12,6 +12,7 @@ import com.baisha.modulecommon.BigDecimalConstants;
 import com.baisha.modulecommon.vo.NewGameInfo;
 import com.baisha.modulecommon.vo.mq.OpenNewGameVO;
 import com.baisha.modulecommon.vo.mq.OpenVO;
+import com.baisha.modulecommon.vo.mq.PairImageVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 import org.apache.commons.lang3.time.DateUtils;
 import org.redisson.api.RMapCache;
@@ -82,7 +83,7 @@ public class DealerBusiness {
 		map.put(deskCode + "_" + gameNo, newGameInfo, BigDecimalConstants.TEN.longValue(), TimeUnit.MINUTES);
     	
     	Future<Boolean> openNewGameResult = asyncCommandService.openNewGame(deskId, deskCode, newActive);
-    	Future<Boolean> bettingResult = asyncCommandService.betting(deskCode, gameNo, newActive);
+    	Future<Boolean> bettingResult = asyncCommandService.betting(desk, gameNo, newActive);
 
     	if (!handleFuture(openNewGameResult)) {
 			CompletableFuture.completedFuture(false);
@@ -135,5 +136,10 @@ public class DealerBusiness {
     	
     	return true;
     }
-    
+	@Async
+	public void pairImage(PairImageVO pairImageVO) {
+		log.info("\r\n================= 截屏");
+		asyncCommandService.pairImage(pairImageVO);
+		log.info("截屏成功");
+	}
 }

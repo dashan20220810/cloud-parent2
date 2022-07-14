@@ -14,12 +14,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.baisha.casinoweb.model.OpenCardVideo;
 import com.baisha.casinoweb.util.constant.Constants;
 import com.baisha.modulecommon.BigDecimalConstants;
 import com.baisha.modulecommon.enums.OpenCardConvertSettleEnum;
 import com.baisha.modulecommon.enums.OpenCardConvertTgEnum;
 import com.baisha.modulecommon.vo.NewGameInfo;
 import com.baisha.modulecommon.vo.mq.OpenVO;
+import com.baisha.modulecommon.vo.mq.PairImageVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
@@ -94,6 +96,9 @@ public class AsyncCommandService {
     @Autowired
     private AsyncApiService asyncApiService;
 
+	@Autowired
+	private OpenCardVideoService openCardVideoService;
+
     /**
      * 开新局
      * @param deskCode	桌台号
@@ -165,16 +170,16 @@ public class AsyncCommandService {
     
     /**
      * TODO 切成两个thread，一个倒数，另一个封盘(stopping status在此set)
-     * @param deskCode 桌台code
+     * @param desk 桌台对象
      * @param noActive 游戏局号
 	 * @param gameNo 荷官端游戏局号
      * @return 下注倒计时结果
      */
     @Async
-    public Future<Boolean> betting ( final String deskCode, final Integer gameNo, final String noActive) {
+    public Future<Boolean> betting ( final DeskVO desk, final Integer gameNo, final String noActive) {
     	
     	log.info("\r\n================= 下注中 倒数计时");
-
+		String deskCode = desk.getDeskCode();
 		RMapCache<String, NewGameInfo> map = redissonClient.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
 		NewGameInfo newGameInfo = map.get(deskCode + "_" + gameNo);
 		log.info("\r\n================= newGameInfo : {}", newGameInfo);
@@ -193,6 +198,7 @@ public class AsyncCommandService {
 		}
 
 		String streamAddress = "1";
+		//开始发送截屏数据流
 		sendVideoStartScreenRecording(noActive, streamAddress);
 
 //		while (endTime.after(now)) {
@@ -209,7 +215,10 @@ public class AsyncCommandService {
 //			now = new Date();
 //		}
     	gameInfoBusiness.closeGame(deskCode);
-    	
+		SysTelegramDto sysTg = telegramService.getSysTelegram();
+		sendVideoAddressToTg("开牌结果", sysTg.getOpenCardUrl(),
+				String.valueOf(desk.getId()), desk.getNearVideoAddress(),
+				desk.getVideoAddress(), null, null);
 		return CompletableFuture.completedFuture(true);
     }
 
@@ -287,49 +296,54 @@ public class AsyncCommandService {
         String settlement = JSONObject.toJSONString(BetSettleVO.builder().noActive(gameInfo.getCurrentActive())
 				.awardOption(openCardResult).build());
         rabbitTemplate.convertAndSend(MqConstants.BET_SETTLEMENT, settlement);
-
-		//发送视频地址给TG
-		sendVideoAddressToTg(gameInfo.getCurrentActive(), action, desk);
     }
 
 	/**
 	 * 视频流截屏结束并发送TG端
-	 * @param currentActive 当前局号
 	 * @param action 功能标识
-	 * @param deskVO 当前桌子
+	 * @param deskId 当前桌子
+	 * @param nearVideoAddress 近景视频地址
+	 * @param videoAddress 远景视频地址
+	 * @param videoResultAddress 视频截图地址
+	 * @param picRoadAddress 图片截图地址
 	 */
 	private void sendVideoAddressToTg(
-			final String currentActive, final String action, final DeskVO deskVO) {
-		// 获取视频流
-		Map<String, Object> gameVideoParam = Maps.newHashMap();
-		gameVideoParam.put("period", currentActive);
-		gameVideoParam.put("rtmpurl", BigDecimalConstants.ONE.toString());
-//		gameVideoParam.put("qtime", qTime);
+			final String action, final String getOpenCardUrl,
+			final String deskId, final String nearVideoAddress,
+			final String videoAddress, final String videoResultAddress,
+			final String picRoadAddress) {
 
-		String result = HttpClient4Util.doPost(
-				videoServerDomain + RequestPathEnum.VIDEO_STOP.getApiName(),
-				gameVideoParam);
-		if (!"OK".equals(result)) {
-			return;
-		}
 
-		SysTelegramDto sysTg = telegramService.getSysTelegram();
 		// 开牌 5 request parameter
 		Map<String, Object> params = Maps.newHashMap();
-		params.put("openCardAddress", sysTg.getOpenCardUrl());
-		params.put("tableId", deskVO.getId());
-		params.put("frontAddress", deskVO.getNearVideoAddress()); // TODO for test
-		params.put("lookDownAddress", deskVO.getVideoAddress()); // TODO for test
-		params.put("videoResultAddress", videoServerDomain + Constants.IMAGE + "1/" +
-				currentActive + "/1" +Constants.MP4); // TODO for test
-		params.put("picRoadAddress", videoServerDomain + Constants.IMAGE + "1/" +
-				currentActive + "/1" + Constants.JPEG); // TODO for test
+		params.put("openCardAddress", getOpenCardUrl);
+		params.put("tableId", deskId);
+		params.put("frontAddress", nearVideoAddress); // TODO for test
+		params.put("lookDownAddress", videoAddress); // TODO for test
+		params.put("videoResultAddress", videoResultAddress); // TODO for test
+		params.put("picRoadAddress", picRoadAddress); // TODO for test
 
-		result = HttpClient4Util.doPost(
+		String result = HttpClient4Util.doPost(
 				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),
 				params);
 		ValidateUtil.checkHttpResponse(action, result);
 	}
+
+	/**
+	 * 获取视频流地址
+	 * @param currentActive
+	 */
+	public void sendVideoEndScreenRecording(final String currentActive){
+		// 获取视频流
+		Map<String, Object> gameVideoParam = Maps.newHashMap();
+		gameVideoParam.put("period", currentActive);
+		gameVideoParam.put("rtmpurl", BigDecimalConstants.ONE.toString());
+
+		HttpClient4Util.doPost(
+				videoServerDomain + RequestPathEnum.VIDEO_STOP.getApiName(),
+				gameVideoParam);
+	}
+
 
 	@Async
     public void settlement (final SettleFinishVO settleFinishVO) {
@@ -400,10 +414,33 @@ public class AsyncCommandService {
 		for ( Long tgGroupId: allGroupIdSet ) {
 			top20WinUsers.put(tgGroupId, new ArrayList<>());
 		}
+		sendVideoEndScreenRecording(noActive);
+		OpenCardVideo openCardVideo = openCardVideoService.findByNoActive(noActive);
+		//发送视频地址给TG
+		sendVideoAddressToTg(action, null, String.valueOf(desk.getId()), null, null,
+				openCardVideo.getVideoAddress(), openCardVideo.getPicAddress());
 		asyncApiService.tgSettlement(noActive, openCardResult, top20WinUsers);
     }
-    
-    @Data
+
+	public void pairImage(PairImageVO pairImageVO) {
+		final String dealerIp = pairImageVO.getDealerIp();
+		final Integer gameNo = pairImageVO.getGameNo();
+		DeskVO desk = deskBusiness.queryDeskByIp(dealerIp);
+
+		final String deskCode = desk.getDeskCode();
+		RMapCache<String, NewGameInfo> map = redissonClient.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
+		String noActive = map.get(deskCode + "_" + gameNo).getNoActive();
+		//开牌结果
+		String openCardVideoAddress = videoServerDomain + Constants.IMAGE + "1/" +
+				noActive + "/1" +Constants.MP4;
+		OpenCardVideo openCardVideo = new OpenCardVideo();
+		openCardVideo.setNoActive(noActive);
+		openCardVideo.setPicAddress(pairImageVO.getImageContent());
+		openCardVideo.setVideoAddress(openCardVideoAddress);
+		openCardVideoService.save(openCardVideo);
+	}
+
+	@Data
     public class BetHistory {
     	
     	private String username;

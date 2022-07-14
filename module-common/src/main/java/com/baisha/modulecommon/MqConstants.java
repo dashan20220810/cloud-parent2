@@ -24,6 +24,8 @@ public class MqConstants {
     public final static String USER_BET_STATISTICS = "user_bet_statistics";
     /** 结算后告诉admin统计注单信息 */
     public final static String BACKEND_BET_SETTLEMENT_STATISTICS = "backend_bet_settlement_statistics";
+    /** 荷官端截屏通知 */
+    public final static String WEB_PAIR_IMAGE = "web_pair_image";
 
 
 }

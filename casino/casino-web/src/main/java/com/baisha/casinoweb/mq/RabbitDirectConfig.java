@@ -81,6 +81,18 @@ public class RabbitDirectConfig {
     }
 
 
+    @Bean
+    Binding pairImageBinding() {
+        return BindingBuilder.bind(settlementFinishQueue()).to(baishaDirectExchange())
+                .with(MqConstants.WEB_PAIR_IMAGE +"-direct");
+    }
+
+    @Bean
+    Queue pairImageQueue() {
+        return new Queue(MqConstants.WEB_PAIR_IMAGE);
+    }
+
+
     //*****************************************gameServer - userServer *******************************************************************************
     @Bean
     DirectExchange webAndBackendDirectExchange() {
