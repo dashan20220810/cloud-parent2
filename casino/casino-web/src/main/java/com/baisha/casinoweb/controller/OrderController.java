@@ -59,10 +59,10 @@ public class OrderController {
     	}
     	
 //    	if ( betVO.getMinAmount()==null || betVO.getMaxAmount()==null || betVO.getMaxShoeAmount()==null ) {
-    	if ( betVO.getMinAmount()==null || betVO.getMaxAmount()==null ) {
-    		log.info("[下注] 检核失败");
-            return ResponseUtil.custom("命令错误，请参考下注规则");
-    	}
+//    	if ( betVO.getMinAmount()==null || betVO.getMaxAmount()==null ) {
+//    		log.info("[下注] 检核失败");
+//            return ResponseUtil.custom("命令错误，请参考下注规则");
+//    	}
 
 		//	TODO 輪/局號 應來自荷官端，不得從請求中代入
     	String betResult = orderBusiness.bet(isTgRequest, betVO, "00001");
