@@ -2,8 +2,6 @@ package com.baisha.casinoweb.model.bo;
 
 import java.io.Serializable;
 
-import javax.persistence.Entity;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -12,7 +10,6 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Entity
 @ApiModel(value = "web-游戏玩法赔率对象", description = "游戏玩法赔率")
 public class BsOddsBO implements Serializable {
 
