@@ -130,7 +130,7 @@ public class OrderBusiness {
     	Map<String, Object> params = new HashMap<>();
 		
 		String result = HttpClient4Util.doGet(
-				gameServerDomain + RequestPathEnum.ORDER_BET.getApiName() +"?gameCode=BACC"); 
+				gameServerDomain + RequestPathEnum.GAME_ODDS_LIST.getApiName() +"?gameCode=BACC"); 
 
 		if (!ValidateUtil.checkHttpResponse(action, result)) {
             return String.format("查询限红 失败, %s", StringUtils.defaultString(result));
