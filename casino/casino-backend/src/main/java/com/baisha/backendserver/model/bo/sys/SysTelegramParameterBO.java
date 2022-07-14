@@ -46,4 +46,10 @@ public class SysTelegramParameterBO {
     @ApiModelProperty(value = "显示开牌图片路径 ")
     private String openCardUrlShow;
 
+    @ApiModelProperty(value = "唯一财务TG用户ID")
+    private String onlyFinanceTgId;
+
+    @ApiModelProperty(value = "唯一客服TG用户ID")
+    private String onlyCustomerServiceTgId;
+
 }
