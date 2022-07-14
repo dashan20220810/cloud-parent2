@@ -105,9 +105,6 @@ public class SysTelegramController {
         if (StringUtils.isNotEmpty(vo.getStartBetPicUrl())) {
             stp.setStartBetPicUrl(vo.getStartBetPicUrl());
         }
-//        if (null != vo.getStartBetSeventySeconds()) {
-//            stp.setStartBetSeventySeconds(vo.getStartBetSeventySeconds());
-//        }
         if (StringUtils.isNotEmpty(vo.getSeventySecondsUrl())) {
             stp.setSeventySecondsUrl(vo.getSeventySecondsUrl());
         }
@@ -117,6 +114,13 @@ public class SysTelegramController {
         if (StringUtils.isNotEmpty(vo.getOpenCardUrl())) {
             stp.setOpenCardUrl(vo.getOpenCardUrl());
         }
+        if (StringUtils.isNotEmpty(vo.getOnlyFinanceTgId())) {
+            stp.setOnlyFinanceTgId(vo.getOnlyFinanceTgId());
+        }
+        if (StringUtils.isNotEmpty(vo.getOnlyCustomerServiceTgId())) {
+            stp.setOnlyCustomerServiceTgId(vo.getOnlyCustomerServiceTgId());
+        }
+
     }
 
     private void doSetRedis(SysTelegramParameter stp) {
@@ -127,6 +131,8 @@ public class SysTelegramController {
                 .officialGamingChannel(stp.getOfficialGamingChannel())
                 .seventySecondsUrl(StringUtils.isEmpty(stp.getSeventySecondsUrl()) ? "" : commonService.getFileServerUrl(stp.getSeventySecondsUrl()))
                 .openCardUrl(StringUtils.isEmpty(stp.getOpenCardUrl()) ? "" : commonService.getFileServerUrl(stp.getOpenCardUrl()))
+                .onlyFinanceTgId(stp.getOnlyFinanceTgId())
+                .onlyCustomerServiceTgId(stp.getOnlyCustomerServiceTgId())
                 .build();
         telegramService.setSysTelegram(sysTelegramDto);
     }
