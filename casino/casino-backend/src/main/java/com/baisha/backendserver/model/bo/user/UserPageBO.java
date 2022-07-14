@@ -1,12 +1,13 @@
 package com.baisha.backendserver.model.bo.user;
 
 import com.baisha.backendserver.model.bo.BaseBO;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.persistence.Column;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * @author yihui
@@ -71,5 +72,18 @@ public class UserPageBO extends BaseBO {
 
     @ApiModelProperty(value = "渠道名称")
     private String channelName;
+
+    @ApiModelProperty(value = "注单数")
+    private Integer betNum = 0;
+
+    @ApiModelProperty(value = "累计投注额")
+    private BigDecimal betAmount = BigDecimal.ZERO;
+
+    @ApiModelProperty(value = "累计盈亏")
+    private BigDecimal winAmount = BigDecimal.ZERO;
+
+    @ApiModelProperty(value = "最后投注时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date lastBetTime;
 
 }

@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baisha.backendserver.business.CommonBusiness;
 import com.baisha.backendserver.business.PlayMoneyBusiness;
 import com.baisha.backendserver.model.Admin;
+import com.baisha.backendserver.model.BetStatistics;
 import com.baisha.backendserver.model.bo.desk.DeskListBO;
 import com.baisha.backendserver.model.bo.order.SsOrderAddBO;
 import com.baisha.backendserver.model.bo.sys.SysPlayMoneyParameterBO;
@@ -17,6 +18,7 @@ import com.baisha.backendserver.model.bo.user.UserPlayMoneyChangePageBO;
 import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.order.SsOrderAddVO;
 import com.baisha.backendserver.model.vo.user.*;
+import com.baisha.backendserver.service.BetStatisticsService;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.UserServerConstants;
@@ -65,6 +67,8 @@ public class UserController {
     private CommonBusiness commonService;
     @Autowired
     private PlayMoneyBusiness playMoneyService;
+    @Autowired
+    private BetStatisticsService betStatisticsService;
 
     @GetMapping("page")
     @ApiOperation(("用户分页"))
@@ -111,8 +115,13 @@ public class UserController {
                         u.setChannelName("直营");
                     }
                     //去拿统计数据
-
-
+                    BetStatistics betStatistics = betStatisticsService.findByUserId(u.getId());
+                    if (Objects.nonNull(betStatistics)) {
+                        u.setBetNum(betStatistics.getBetNum());
+                        u.setBetAmount(betStatistics.getBetAmount());
+                        u.setWinAmount(betStatistics.getWinAmount());
+                        u.setLastBetTime(betStatistics.getLastBetTime());
+                    }
                 }
                 page.put("content", list);
                 userResponse.setData(page);
