@@ -22,9 +22,6 @@ public class UserBetStatisticsVO {
     // 累计盈亏
     private BigDecimal winAmount;
 
-    //打码量
-    private BigDecimal playMoney;
-
     //下注天 yyyy-MM-dd HH:mm:ss
     private String betTime;
 

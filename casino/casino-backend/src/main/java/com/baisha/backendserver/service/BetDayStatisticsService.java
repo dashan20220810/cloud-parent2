@@ -34,4 +34,10 @@ public class BetDayStatisticsService {
     public int updateBetDayStatisticsById(Long id, BigDecimal amount) {
         return betDayStatisticsRepository.updateBetDayStatisticsById(id, amount);
     }
+
+    public int updateWinAmountById(Long id, BigDecimal winAmount) {
+        return betDayStatisticsRepository.updateWinAmountById(id, winAmount);
+    }
+    
+
 }

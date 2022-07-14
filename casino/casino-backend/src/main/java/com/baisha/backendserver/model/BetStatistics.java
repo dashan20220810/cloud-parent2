@@ -40,10 +40,6 @@ public class BetStatistics extends BaseEntity {
     @Column(columnDefinition = "decimal(16,2) comment '累计盈亏'")
     private BigDecimal winAmount = BigDecimal.ZERO;
 
-    @ApiModelProperty(value = "打码量")
-    @Column(columnDefinition = "decimal(16,2) comment '打码量'")
-    private BigDecimal playMoney = BigDecimal.ZERO;
-
     @ApiModelProperty(value = "最后投注时间")
     @Column(columnDefinition = "datetime comment '最后投注时间'")
     private Date lastBetTime;

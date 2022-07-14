@@ -206,7 +206,7 @@ public class UserController {
         return new PageImpl<>(new ArrayList<>());
     }
 
-    @ApiOperation(("删除用户"))
+    /*@ApiOperation(("删除用户"))
     @PostMapping("delete")
     public ResponseEntity delete(IdVO vo) {
         if (Objects.isNull(vo)) {
@@ -214,7 +214,7 @@ public class UserController {
         }
         userService.deleteById(vo.getId());
         return ResponseUtil.success();
-    }
+    }*/
 
     @ApiOperation(("启用/禁用用户"))
     @PostMapping("status")

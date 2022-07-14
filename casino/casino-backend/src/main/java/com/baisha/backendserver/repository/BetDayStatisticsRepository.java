@@ -16,4 +16,8 @@ public interface BetDayStatisticsRepository extends JpaRepository<BetDayStatisti
     @Modifying
     int updateBetDayStatisticsById(Long id, BigDecimal amount);
 
+    @Query(value = "update BetDayStatistics a set a.winAmount = a.winAmount + ?2  where a.id=?1 ")
+    @Modifying
+    int updateWinAmountById(Long id, BigDecimal winAmount);
+
 }

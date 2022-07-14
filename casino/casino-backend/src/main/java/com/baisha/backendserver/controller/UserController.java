@@ -123,7 +123,7 @@ public class UserController {
     }
 
 
-    @ApiOperation(("删除用户"))
+    /*@ApiOperation(("删除用户"))
     @PostMapping("delete")
     public ResponseEntity delete(IdVO vo) {
         if (Objects.isNull(vo.getId())) {
@@ -142,7 +142,7 @@ public class UserController {
                     currentUser.getUserName() + "删除用户id={" + vo.getId() + "}", BackendConstants.USER_MODULE);
         }
         return responseEntity;
-    }
+    }*/
 
     @ApiOperation(("启用/禁用用户"))
     @PostMapping("status")

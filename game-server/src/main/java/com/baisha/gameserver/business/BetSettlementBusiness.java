@@ -88,7 +88,8 @@ public class BetSettlementBusiness {
      * @return
      */
     private List<Bet> doBetSettlement(List<Bet> item, BetSettleVO vo, GameBaccOddsBO gameBaccOdds) {
-        String betAwardOption = vo.getAwardOption().toUpperCase();
+        //强制大写
+        vo.setAwardOption(vo.getAwardOption().toUpperCase());
         List<Bet> settleList = new ArrayList<>();
         for (Bet bet : item) {
             //派奖
@@ -115,10 +116,10 @@ public class BetSettlementBusiness {
                 //用户统计今日数据(输赢结果)
                 statisticsWinAmount(bet, winAmount);
 
-                log.info("通知后台更新输赢{}和打码量{}", winAmount, betAmount);
+                log.info("通知后台更新输赢{}", winAmount);
                 UserBetStatisticsVO userBetStatisticsVO = UserBetStatisticsVO.builder().userId(bet.getUserId())
                         .betTime(DateUtil.getSimpleDateFormat().format(bet.getCreateTime()))
-                        .playMoney(BigDecimal.valueOf(betAmount)).winAmount(winAmount).build();
+                        .winAmount(winAmount).build();
                 String userBetStatisticsJsonStr = JSONObject.toJSONString(userBetStatisticsVO);
                 log.info("发送给后台MQ消息：{}", userBetStatisticsJsonStr);
                 rabbitTemplate.convertAndSend(MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS, userBetStatisticsJsonStr);

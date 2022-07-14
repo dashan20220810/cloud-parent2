@@ -5,6 +5,7 @@ import com.baisha.backendserver.model.BetStatistics;
 import com.baisha.backendserver.service.BetDayStatisticsService;
 import com.baisha.backendserver.service.BetStatisticsService;
 import com.baisha.modulecommon.util.DateUtil;
+import com.baisha.modulecommon.vo.mq.gameServer.UserBetStatisticsVO;
 import com.baisha.modulecommon.vo.mq.webServer.UserBetVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,6 @@ public class UserBetStatisticsBusiness {
     private BetDayStatisticsService betDayStatisticsService;
 
 
-    @Async
     public void doUserBetStatistics(UserBetVO userBetVO) {
         //下注天 yyyy-MM-dd HH:mm:ss
         String betTime = userBetVO.getBetTime();
@@ -72,11 +72,39 @@ public class UserBetStatisticsBusiness {
                 betDayStatisticsService.save(betDayStatistics);
             } else {
                 //更新
-                betDayStatisticsService.updateBetDayStatisticsById(betStatistics.getId(), amount);
+                betDayStatisticsService.updateBetDayStatisticsById(betDayStatistics.getId(), amount);
             }
-
         } catch (Exception e) {
             log.error("doUserBetStatistics error : {}", e.toString());
+            e.printStackTrace();
+        }
+    }
+
+    public void doUserSettleBetStatistics(UserBetStatisticsVO userBetStatisticsVO) {
+        //下注天 yyyy-MM-dd HH:mm:ss
+        String betTime = userBetStatisticsVO.getBetTime();
+        //用户ID
+        Long userId = userBetStatisticsVO.getUserId();
+        //金额
+        BigDecimal winAmount = userBetStatisticsVO.getWinAmount();
+        try {
+            BetStatistics betStatistics = betStatisticsService.findByUserId(userId);
+            if (Objects.nonNull(betStatistics)) {
+                log.info("更新总统计的输赢");
+                betStatisticsService.updateWinAmountById(betStatistics.getId(), winAmount);
+            }
+
+            //每天统计
+            Date betDate = (DateUtil.getSimpleDateFormat()).parse(betTime);
+            String time = DateUtil.dateToyyyyMMdd(betDate);
+            Integer day = Integer.parseInt(time);
+            BetDayStatistics betDayStatistics = betDayStatisticsService.findByUserIdAndDay(userId, day);
+            if (Objects.nonNull(betDayStatistics)) {
+                log.info("更新每日统计的输赢");
+                betDayStatisticsService.updateWinAmountById(betDayStatistics.getId(), winAmount);
+            }
+        } catch (Exception e) {
+            log.error("error {}", e.getMessage());
             e.printStackTrace();
         }
     }

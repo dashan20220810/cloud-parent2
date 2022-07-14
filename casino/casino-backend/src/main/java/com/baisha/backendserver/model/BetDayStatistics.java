@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Slf4j
 @Data
 @Entity
-@Table(name = "UserBetDayStatistics", indexes = {@Index(columnList = "userId"), @Index(columnList = "tgUserId"), @Index(columnList = "day")})
+@Table(name = "BetDayStatistics", indexes = {@Index(columnList = "userId"), @Index(columnList = "tgUserId"), @Index(columnList = "day")})
 @org.hibernate.annotations.Table(appliesTo = "bet_day_statistics", comment = "会员每日注单统计")
 @ApiModel(value = "后台-会员每日注单统计")
 public class BetDayStatistics extends BaseEntity {
@@ -42,8 +42,5 @@ public class BetDayStatistics extends BaseEntity {
     @Column(columnDefinition = "decimal(16,2) comment '累计盈亏'")
     private BigDecimal winAmount = BigDecimal.ZERO;
 
-    @ApiModelProperty(value = "打码量")
-    @Column(columnDefinition = "decimal(16,2) comment '打码量'")
-    private BigDecimal playMoney = BigDecimal.ZERO;
 
 }
