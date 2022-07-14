@@ -26,7 +26,6 @@ import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.enums.BetStatusEnum;
-import com.baisha.modulecommon.enums.GameStatusEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.DateUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
@@ -143,15 +142,19 @@ public class OrderBusiness {
     				odds -> StringUtils.equalsIgnoreCase(betOption, odds.getRuleCode()) ).findFirst();
     		
     		BsOddsBO oddsBO = null;
-    		if (!oddsBoOpt.isPresent()) {
+    		if (oddsBoOpt.isPresent()) {
     			oddsBO = oddsBoOpt.get();
     		} else {
     			return String.format("查无限红 下注选项:%s", betOption);
     		}
     		
+    		if ( oddsBO.getMinAmount()==null || oddsBO.getMinAmount()==null ) {
+    			return "下注失败 限红配置有误";
+    		}
+    		
         	if ( userInfo.checkUserBetAmount(betOption, amount
         			, oddsBO.getMinAmount().longValue(), oddsBO.getMaxAmount().longValue())==false ) {
-                return String.format("下注失败 限红单注 %s-%s", oddsBO.getMinAmount(), oddsBO.getMaxAmount());
+                return String.format("下注失败 限红单注 %s %s-%s", betOption, oddsBO.getMinAmount(), oddsBO.getMaxAmount());
         	}
     	}
     	
