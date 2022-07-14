@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.baisha.modulecommon.enums.GameStatusEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,8 +139,11 @@ public class OrderBusiness {
 		List<BsOddsBO> limitList = JSONObject.parseObject(JSONObject.parseObject(result).getString("data"), new TypeReference<List<BsOddsBO>>(){});
     	
     	for (String betOption: betOptionList) {
+    		// BsOdds里 幸运6有两笔配置，只比对ss2
     		Optional<BsOddsBO> oddsBoOpt = limitList.stream().filter( 
-    				odds -> StringUtils.equalsIgnoreCase(betOption, odds.getRuleCode()) ).findFirst();
+    				odds -> (StringUtils.equalsIgnoreCase(betOption, odds.getRuleCode()) 
+    					|| ("SS".equalsIgnoreCase(betOption) && "SS2".equalsIgnoreCase(odds.getRuleCode())))
+    		).findFirst();
     		
     		BsOddsBO oddsBO = null;
     		if (oddsBoOpt.isPresent()) {
