@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
+
 /**
  * @author yihui
  */
@@ -20,8 +22,15 @@ public class SysTelegramDto {
     @ApiModelProperty(value = "唯一财务")
     private String onlyFinance;
 
+    @ApiModelProperty(value = "唯一财务TG用户ID")
+    private String onlyFinanceTgId;
+
+    @ApiModelProperty(value = "唯一客服TG用户ID")
+    private String onlyCustomerServiceTgId;
+
     @ApiModelProperty(value = "唯一客服")
     private String onlyCustomerService;
+
 
     @ApiModelProperty(value = "开始下注图片路径 ")
     private String startBetPicUrl;

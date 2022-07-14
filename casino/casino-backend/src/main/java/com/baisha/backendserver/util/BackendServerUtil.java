@@ -201,7 +201,7 @@ public class BackendServerUtil {
             return true;
         }
         int min = 1;
-        int max = 10;
+        int max = 7;
         int length = String.valueOf(amount.intValue()).length();
         if (length < min || length > max) {
             //长度不规范

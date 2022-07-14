@@ -18,8 +18,14 @@ public class SysTelegramParameter extends BaseEntity {
     @Column(columnDefinition = "varchar(30) comment '唯一财务'")
     private String onlyFinance;
 
+    @Column(columnDefinition = "varchar(30) comment '唯一财务TG用户ID'")
+    private String onlyFinanceTgId;
+
     @Column(columnDefinition = "varchar(30) comment '唯一客服'")
     private String onlyCustomerService;
+
+    @Column(columnDefinition = "varchar(30) comment '唯一客服TG用户ID'")
+    private String onlyCustomerServiceTgId;
 
     @Column(columnDefinition = "varchar(150) comment '开始下注图片路径' ")
     private String startBetPicUrl;

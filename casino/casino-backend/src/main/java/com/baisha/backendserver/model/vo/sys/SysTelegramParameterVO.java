@@ -19,6 +19,12 @@ public class SysTelegramParameterVO {
     @ApiModelProperty(value = "唯一财务", required = true)
     private String onlyFinance;
 
+    @ApiModelProperty(value = "唯一财务TG用户ID", required = true)
+    private String onlyFinanceTgId;
+
+    @ApiModelProperty(value = "唯一客服TG用户ID", required = true)
+    private String onlyCustomerServiceTgId;
+
     @ApiModelProperty(value = "唯一客服", required = true)
     private String onlyCustomerService;
 

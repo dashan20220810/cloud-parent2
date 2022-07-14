@@ -14,42 +14,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitDirectConfig {
 
+    //*****************************************webServer - adminServer *******************************************************************************
     @Bean
-    DirectExchange baishaDirectExchange() {
-        return new DirectExchange("baisha-direct", true, false);
-    }
-
-
-    @Bean
-    Binding betSettlementBinding() {
-        return BindingBuilder.bind(betSettlementQueue()).to(baishaDirectExchange())
-                .with(MqConstants.BET_SETTLEMENT + "-direct");
-    }
-
-    /**
-     * @return
-     */
-    @Bean
-    Queue betSettlementQueue() {
-        return new Queue(MqConstants.BET_SETTLEMENT);
-    }
-
-
-    //*****************************************gameServer - userServer *******************************************************************************
-    @Bean
-    DirectExchange gameAndUserDirectExchange() {
-        return new DirectExchange("game-user-direct", true, false);
+    DirectExchange webAndBackendDirectExchange() {
+        return new DirectExchange("web-backend-direct", true, false);
     }
 
     //通知用户中心  打码量和余额变化
     @Bean
-    Binding userSettlementAssetsBinding() {
-        return BindingBuilder.bind(userSettlementAssetsQueue()).to(gameAndUserDirectExchange())
-                .with(MqConstants.USER_SETTLEMENT_ASSETS + "-direct");
+    Binding userBetStatisticsBinding() {
+        return BindingBuilder.bind(userBetStatisticsQueue()).to(webAndBackendDirectExchange())
+                .with(MqConstants.USER_BET_STATISTICS + "-direct");
     }
 
     @Bean
-    Queue userSettlementAssetsQueue() {
-        return new Queue(MqConstants.USER_SETTLEMENT_ASSETS);
+    Queue userBetStatisticsQueue() {
+        return new Queue(MqConstants.USER_BET_STATISTICS);
     }
 }

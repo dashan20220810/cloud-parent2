@@ -298,6 +298,9 @@ public class UserController {
             return assetsResponse;
         }
         UserAssetsBO userAssetsBO = JSONObject.parseObject(assetsResponse.getData().toString(), UserAssetsBO.class);
+        if (userAssetsBO.getBalance().compareTo(BigDecimal.valueOf(vo.getAmount())) < 0) {
+            return new ResponseEntity("下分金额不足 余额:" + userAssetsBO.getBalance());
+        }
         if (userAssetsBO.getPlayMoney().compareTo(BigDecimal.ONE) >= 0) {
             return new ResponseEntity("不能下分，打码量不足");
         }
