@@ -93,4 +93,7 @@ public class BetPageBO extends BaseBO {
     @ApiModelProperty("下注金额幸运六")
     private Long amountSs = 0L;
 
+    @ApiModelProperty("备注(结算)")
+    private String settleRemark;
+
 }

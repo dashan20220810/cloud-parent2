@@ -29,6 +29,9 @@ public class DeskUpdateVO {
     @ApiModelProperty(value = "游戏视频地址(近景)", required = true)
     private String nearVideoAddress;
 
+    @ApiModelProperty(value = "游戏视频地址(开牌结果)", required = true)
+    private String closeVideoAddress;
+
     @ApiModelProperty(value = "状态 1 正常 ，0禁用", required = true)
     private Integer status;
 

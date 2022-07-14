@@ -152,7 +152,8 @@ public class DeskController {
     @PostMapping(value = "add")
     public ResponseEntity add(DeskAddVO vo) {
         if (CommonUtil.checkNull(vo.getDeskCode(), vo.getGameCode(), vo.getLocalIp(),
-                vo.getVideoAddress(), vo.getNearVideoAddress()) || null == vo.getStatus()) {
+                vo.getVideoAddress(), vo.getNearVideoAddress(), vo.getCloseVideoAddress())
+                || null == vo.getStatus()) {
             return ResponseUtil.parameterNotNull();
         }
         String url = gameServerUrl + GameServerConstants.DESK_ADD;
@@ -174,7 +175,7 @@ public class DeskController {
     @PostMapping(value = "update")
     public ResponseEntity update(DeskUpdateVO vo) {
         if (CommonUtil.checkNull(vo.getGameCode(), vo.getLocalIp(),
-                vo.getVideoAddress(), vo.getNearVideoAddress())
+                vo.getVideoAddress(), vo.getNearVideoAddress(), vo.getCloseVideoAddress())
                 || null == vo.getStatus()
                 || null == vo.getId()) {
             return ResponseUtil.parameterNotNull();
