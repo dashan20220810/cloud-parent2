@@ -202,12 +202,15 @@ public class UserController {
             SysPlayMoneyParameterBO sysPlayMoneyParameterBO = playMoneyService.getSysPlayMoney();
             BigDecimal recharge = sysPlayMoneyParameterBO.getRecharge();
             playMoneyVO.setAmount(BigDecimal.valueOf(vo.getAmount().longValue()).multiply(recharge));
-            ResponseEntity playMoneyResponseEntity = doIncomePlayMoney(playMoneyVO, orderId);
-            if (playMoneyResponseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
-                log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
-                        currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加打码量成功", BackendConstants.USER_ASSETS_MODULE);
-                return ResponseUtil.success();
+            if (playMoneyVO.getAmount().compareTo(BigDecimal.ZERO) > 0) {
+                ResponseEntity playMoneyResponseEntity = doIncomePlayMoney(playMoneyVO, orderId);
+                if (playMoneyResponseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
+                    log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                            currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加打码量成功", BackendConstants.USER_ASSETS_MODULE);
+                    return ResponseUtil.success();
+                }
             }
+
         } else {
             //删除订单
             doDeleteOrder(orderId);
