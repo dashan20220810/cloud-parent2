@@ -3,7 +3,8 @@ package com.baisha.modulecommon.enums;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
-import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 电报百家乐玩法
@@ -57,5 +58,8 @@ public enum TgBaccRuleEnum {
         return null;
     }
 
+    public static List<TgBaccRuleEnum> getList() {
+        return Arrays.asList(values());
+    }
 
 }

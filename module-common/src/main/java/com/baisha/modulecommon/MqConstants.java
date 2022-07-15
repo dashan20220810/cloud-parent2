@@ -28,4 +28,13 @@ public class MqConstants {
     public final static String WEB_PAIR_IMAGE = "web_pair_image";
 
 
+
+
+    //=========================backend告诉其他服务=======================================================
+    /** admin告诉gs补单 结算 */
+    public final static String GS_REPAIR_BET_RESULT = "gs_repair_bet_result";
+    /** admin告诉gs重开 结算 */
+    public final static String GS_REOPEN_BET_RESULT = "gs_reopen_bet_result";
+
+
 }
