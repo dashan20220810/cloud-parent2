@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.baisha.modulecommon.vo.mq.webServer.BsOddsVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -362,5 +363,10 @@ public class OrderBusiness {
         
         return totalReturnAmount;
 	}
-	
+
+	public List<BsOddsVO> redLimit() {
+		String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.GAME_ODDS_LIST);
+		JSONObject json = JSONObject.parseObject(result);
+		return JSONObject.parseObject(json.getString("data"), new TypeReference<List<BsOddsVO>>(){});
+	}
 }
