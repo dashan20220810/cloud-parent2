@@ -1,6 +1,9 @@
 package com.baisha.gameserver.util;
 
+import com.alibaba.fastjson.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,6 +47,24 @@ public class GameServerUtil {
             result.add(subList);
         }
         return result;
+    }
+
+
+    public static void main(String[] args) {
+        String yiAwardOption = "Z,X,SS,XD,ZD";
+        String[] yiAwardOptionArr = yiAwardOption.split(",");
+        Arrays.sort(yiAwardOptionArr);
+        String yiJsonStr = JSONObject.toJSONString(yiAwardOptionArr);
+        System.out.println(yiJsonStr);
+
+        String awardOption = "X,ZD,XD,Z,SS";
+        String[] awardOptionArr = awardOption.split(",");
+        Arrays.sort(awardOptionArr);
+        String awardJsonStr = JSONObject.toJSONString(awardOptionArr);
+        System.out.println(awardJsonStr);
+
+        System.out.println(yiJsonStr.equals(awardJsonStr));
+
     }
 
 

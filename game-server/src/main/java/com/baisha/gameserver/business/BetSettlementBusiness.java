@@ -171,4 +171,16 @@ public class BetSettlementBusiness {
         return list;
     }
 
+    /**
+     * 重新开牌 - 重新结算
+     *
+     * @param vo
+     */
+    public void betReopenSettlement(BetSettleVO vo) {
+        log.info("==============={}重新开牌 - 重新结算 - 开始=================", vo.getNoActive());
+
+        log.info("==============={}重新开牌 - 重新结算 - 结束=================", vo.getNoActive());
+    }
+
+
 }
