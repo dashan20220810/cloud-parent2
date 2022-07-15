@@ -25,9 +25,9 @@ public enum OpenCardConvertSettleEnum {
 
     FOUR("4", TgBaccRuleEnum.ZD.getCode()),
 
-    FIVE("5", TgBaccRuleEnum.XD.getCode()),
+    FIVE("6", TgBaccRuleEnum.XD.getCode()),
 
-    SIX("6", TgBaccRuleEnum.SS3.getCode());
+    SIX("7", TgBaccRuleEnum.SS3.getCode());
 
 
     private String code;
