@@ -196,7 +196,7 @@ public class UserController {
         SsOrderAddBO ssOrderAddBO = JSONObject.parseObject(JSONObject.toJSONString(orderResponseEntity.getData()), SsOrderAddBO.class);
         Long orderId = ssOrderAddBO.getId();
         log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
-                currentUser.getUserName() + "为用户id={" + vo.getId() + "}新增充值订单成功", BackendConstants.ORDER);
+                currentUser.getUserName() + "为用户id={" + vo.getId() + "}新增充值订单成功", BackendConstants.ORDER_MODULE);
         //增加余额
         ResponseEntity balanceResponseEntity = doIncomeBalance(vo, orderId);
         if (balanceResponseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
@@ -325,7 +325,7 @@ public class UserController {
         SsOrderAddBO ssOrderAddBO = JSONObject.parseObject(JSONObject.toJSONString(orderResponseEntity.getData()), SsOrderAddBO.class);
         Long orderId = ssOrderAddBO.getId();
         log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
-                currentUser.getUserName() + "为用户id={" + vo.getId() + "}新增提现(下分)订单成功", BackendConstants.ORDER);
+                currentUser.getUserName() + "为用户id={" + vo.getId() + "}新增提现(下分)订单成功", BackendConstants.ORDER_MODULE);
 
         //下分减去
         String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_BALANCE;

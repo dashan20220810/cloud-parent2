@@ -51,4 +51,29 @@ public class RabbitDirectConfig {
     }
 
 
+    //通知gs 补单
+    @Bean
+    Binding gsRepairBetResultBinding() {
+        return BindingBuilder.bind(gsRepairBetResultQueue()).to(gameAndBackendDirectExchange())
+                .with(MqConstants.GS_REPAIR_BET_RESULT + "-direct");
+    }
+
+    @Bean
+    Queue gsRepairBetResultQueue() {
+        return new Queue(MqConstants.GS_REPAIR_BET_RESULT);
+    }
+
+    //通知gs 重新开牌
+    @Bean
+    Binding gsReopenBetResultBinding() {
+        return BindingBuilder.bind(gsRepairBetResultQueue()).to(gameAndBackendDirectExchange())
+                .with(MqConstants.GS_REOPEN_BET_RESULT + "-direct");
+    }
+
+    @Bean
+    Queue gsReopenBetResultQueue() {
+        return new Queue(MqConstants.GS_REOPEN_BET_RESULT);
+    }
+
+
 }

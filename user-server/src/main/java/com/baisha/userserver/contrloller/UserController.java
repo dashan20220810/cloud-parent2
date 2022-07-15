@@ -52,12 +52,13 @@ public class UserController {
     @Autowired
     private AssetsService assetsService;
 
-    @ApiOperation(("新增用户(Telegram注册)"))
+    @ApiOperation(("新增用户"))
     @PostMapping("save")
     public ResponseEntity saveUser(UserAddTelegramVO vo) {
         try {
             UserAddVO userAddVO = new UserAddVO();
             BeanUtils.copyProperties(vo, userAddVO);
+            //先默认(Telegram注册)
             userAddVO.setOrigin(UserOriginEnum.TG_ORIGIN.getOrigin());
             return saveTelegramUser(userAddVO);
         } catch (Exception e) {

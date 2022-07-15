@@ -118,7 +118,7 @@ public class UserAssetsController {
         ResponseEntity orderResponse = JSON.parseObject(result, ResponseEntity.class);
         if (orderResponse.getCode() == ResponseCode.SUCCESS.getCode()) {
             log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
-                    currentUser.getUserName() + "为用户id={" + vo.getUserId() + "}新增充值订单成功", BackendConstants.ORDER);
+                    currentUser.getUserName() + "为用户id={" + vo.getUserId() + "}新增充值订单成功", BackendConstants.ORDER_MODULE);
 
             //提交申请记录 做审核用
             //SsOrderAddBO SsOrderAddBO = JSONObject.parseObject(orderResponse.getData().toString(), SsOrderAddBO.class);
@@ -165,7 +165,7 @@ public class UserAssetsController {
         ResponseEntity orderResponse = JSON.parseObject(result, ResponseEntity.class);
         if (orderResponse.getCode() == ResponseCode.SUCCESS.getCode()) {
             log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
-                    currentUser.getUserName() + "为用户id={" + vo.getUserId() + "}新增提现(下分)订单成功", BackendConstants.ORDER);
+                    currentUser.getUserName() + "为用户id={" + vo.getUserId() + "}新增提现(下分)订单成功", BackendConstants.ORDER_MODULE);
 
             //提交申请记录 做审核用
             //SsOrderAddBO SsOrderAddBO = JSONObject.parseObject(orderResponse.getData().toString(), SsOrderAddBO.class);
