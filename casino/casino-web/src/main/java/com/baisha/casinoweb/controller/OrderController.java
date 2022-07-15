@@ -52,7 +52,7 @@ public class OrderController {
 		log.info("[下注]");
     	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
     	
-    	if ( BetVO.checkRequest(betVO)==false 
+    	if ( !BetVO.checkRequest(betVO)
     			|| (isTgRequest && betVO.getTgChatId()==null) ) {
     		log.info("[下注] 检核失败");
             return ResponseUtil.custom("命令错误，请参考下注规则");

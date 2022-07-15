@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GameInfo implements Serializable {
+public class  GameInfo implements Serializable {
 
 	private static final long serialVersionUID = -1722371455986219844L;
 

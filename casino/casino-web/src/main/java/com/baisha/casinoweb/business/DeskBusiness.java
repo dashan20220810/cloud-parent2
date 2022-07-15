@@ -2,7 +2,14 @@ package com.baisha.casinoweb.business;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.concurrent.TimeUnit;
 
+import com.baisha.core.constants.RedisKeyConstants;
+import com.baisha.modulecommon.BigDecimalConstants;
+import com.baisha.modulecommon.vo.GameDesk;
+import org.redisson.api.RMapCache;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +31,8 @@ public class DeskBusiness {
 	
     @Value("${project.server-url.game-server-domain}")
     private String gameServerDomain;
+	@Autowired
+	private RedissonClient redisUtil;
 
     /**
      * game server查桌台号
@@ -109,5 +118,15 @@ public class DeskBusiness {
     	log.info("查桌台号 成功");
 
     	return JSONObject.parseObject(json.getString("data"), new TypeReference<DeskVO>(){});
+	}
+
+	public synchronized void setGameDesk(final String deskKey, final GameDesk gameDesk) {
+		RMapCache<String, GameDesk> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_DESK);
+		map.put(deskKey, gameDesk, BigDecimalConstants.TEN.longValue(), TimeUnit.MINUTES);
+	}
+
+	public synchronized GameDesk getGameDesk(final String deskKey) {
+		RMapCache<String, GameDesk> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_DESK);
+		return map.get(deskKey);
 	}
 }

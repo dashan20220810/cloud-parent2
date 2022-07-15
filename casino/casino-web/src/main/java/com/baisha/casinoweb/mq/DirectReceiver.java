@@ -1,6 +1,7 @@
 package com.baisha.casinoweb.mq;
 
 import com.baisha.modulecommon.vo.mq.PairImageVO;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,12 @@ import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.vo.mq.OpenNewGameVO;
 import com.baisha.modulecommon.vo.mq.OpenVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
+
+import javax.servlet.ServletOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 @Component
 public class DirectReceiver {
@@ -57,6 +64,5 @@ public class DirectReceiver {
         final PairImageVO pairImageVO = JSONObject.parseObject(jsonStr, PairImageVO.class);
         dealerBusiness.pairImage(pairImageVO);
     }
-    
 
 }

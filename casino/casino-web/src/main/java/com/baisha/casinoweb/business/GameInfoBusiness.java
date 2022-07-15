@@ -4,8 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import com.baisha.modulecommon.BigDecimalConstants;
+import com.baisha.modulecommon.vo.*;
 import org.redisson.api.RMap;
+import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,9 +21,6 @@ import com.baisha.core.constants.RedisKeyConstants;
 import com.baisha.modulecommon.enums.GameStatusEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
-import com.baisha.modulecommon.vo.GameInfo;
-import com.baisha.modulecommon.vo.GameTgGroupInfo;
-import com.baisha.modulecommon.vo.GameUserInfo;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,14 +37,14 @@ public class GameInfoBusiness {
     @Autowired
     private RedissonClient redisUtil;
 
-    public synchronized GameInfo getGameInfo( final String deskCode) {
+    public synchronized GameInfo getGameInfo( final String gameKey) {
 		RMap<String, GameInfo> map = redisUtil.getMap(RedisKeyConstants.SYS_GAME_INFO);
-		return map.get(deskCode);
+		return map.get(gameKey);
     }
 
-    public synchronized void setGameInfo( final String deskCode, final GameInfo gameInfo ) {
+    public synchronized void setGameInfo( final String gameKey, final GameInfo gameInfo ) {
 		RMap<String, GameInfo> map = redisUtil.getMap(RedisKeyConstants.SYS_GAME_INFO);
-		map.put(deskCode, gameInfo);
+		map.put(gameKey, gameInfo);
     }
     
     /**
@@ -115,5 +116,24 @@ public class GameInfoBusiness {
         	log.warn("封盘 失败, {}", response);
 		}
     }
-    
+
+	public void setGameResult(final String currentActive, final String openCardResult) {
+		RMapCache<String, String> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_RESULT);
+		map.put(currentActive, openCardResult, BigDecimalConstants.TEN.longValue(), TimeUnit.MINUTES);
+	}
+
+	public void getGameResult(final String currentActive) {
+		RMapCache<String, String> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_RESULT);
+		map.get(currentActive);
+	}
+
+	public void setGameTime(String gameTimeKey, NewGameInfo newGameInfo) {
+		RMapCache<String, NewGameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
+		map.put(gameTimeKey, newGameInfo, BigDecimalConstants.TEN.longValue(), TimeUnit.MINUTES);
+	}
+
+	public NewGameInfo getGameTime(String gameTimeKey) {
+		RMapCache<String, NewGameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
+		return map.get(gameTimeKey);
+	}
 }

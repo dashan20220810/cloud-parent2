@@ -1,14 +1,25 @@
 package com.baisha.casinoweb.business;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
+import com.baisha.casinoweb.model.vo.response.TgChatVO;
+import com.baisha.casinoweb.util.ValidateUtil;
+import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.core.constants.RedisKeyConstants;
 import com.baisha.modulecommon.BigDecimalConstants;
+import com.baisha.modulecommon.enums.GameStatusEnum;
+import com.baisha.modulecommon.util.HttpClient4Util;
+import com.baisha.modulecommon.vo.GameDesk;
+import com.baisha.modulecommon.vo.GameInfo;
 import com.baisha.modulecommon.vo.NewGameInfo;
 import com.baisha.modulecommon.vo.mq.OpenNewGameVO;
 import com.baisha.modulecommon.vo.mq.OpenVO;
@@ -44,6 +55,9 @@ public class DealerBusiness {
     private DeskBusiness deskBusiness;
 
 	@Autowired
+	private GameInfoBusiness gameInfoBusiness;
+
+	@Autowired
 	private RedissonClient redisUtil;
 
     @Autowired
@@ -57,7 +71,8 @@ public class DealerBusiness {
     @Async
     public void openNewGame (final OpenNewGameVO openNewGameVO) {
 
-    	log.info("开新局");
+		String action = "开新局";
+    	log.info(action);
 
 		String dealerIp = openNewGameVO.getDealerIp();
 		Integer gameNo = openNewGameVO.getGameNo();
@@ -70,18 +85,45 @@ public class DealerBusiness {
     	
     	Long deskId = desk.getId();
     	String deskCode = desk.getDeskCode();
+		GameDesk gameDesk = new GameDesk();
     	String newActive = gamblingBusiness.generateNewActive(deskCode, gameNo);
+		gameDesk.setDeskId(deskId);
+		gameDesk.setDeskCode(deskCode);
+		gameDesk.setCurrentActive(newActive);
+		gameDesk.setStreamVideoCode(desk.getCloseVideoAddress());
+		deskBusiness.setGameDesk(dealerIp + "_" + gameNo, gameDesk);
 		Date beginTime = new Date();
 		// 预计这次gameInfo开牌结束时间
 		Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
-		RMapCache<String, NewGameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
 		NewGameInfo newGameInfo = new NewGameInfo();
 		newGameInfo.setDeskCode(deskCode);
 		newGameInfo.setNoActive(newActive);
 		newGameInfo.setBeginTime(beginTime);
 		newGameInfo.setEndTime(endTime);
-		map.put(deskCode + "_" + gameNo, newGameInfo, BigDecimalConstants.TEN.longValue(), TimeUnit.MINUTES);
-    	
+		gameInfoBusiness.setGameTime(deskCode + "_" + gameNo ,newGameInfo);
+		GameInfo gameInfo = new GameInfo();
+		gameInfo.setCurrentActive(newActive);
+		gameInfo.setStatus(GameStatusEnum.Betting);		// 状态: 下注中
+
+		log.info("局号、桌台id、{}, {}", newActive, deskId);
+		String result = HttpClient4Util.doGet(
+				telegramServerDomain + RequestPathEnum.TG_GET_GROUP_ID_LIST.getApiName() + "?tableId=" +deskId);
+
+		if ( !ValidateUtil.checkHttpResponse(action, result) ) {
+			CompletableFuture.completedFuture(false);
+		}
+
+		JSONObject groupListJson = JSONObject.parseObject(result);
+		List<TgChatVO> groupJsonList = JSONObject.parseObject(groupListJson.getString("data"), new TypeReference<List<TgChatVO>>(){});
+		List<Long> groupIdList = new ArrayList<>();
+
+		for ( TgChatVO vo : groupJsonList ) {
+			groupIdList.add(vo.getChatId());
+		}
+		gameInfo.initTgGRoupMap(groupIdList);
+		log.info("=======开局 gameInfo: {}", gameInfo);
+		gameInfoBusiness.setGameInfo(deskCode, gameInfo);
+
     	Future<Boolean> openNewGameResult = asyncCommandService.openNewGame(deskId, deskCode, newActive);
     	Future<Boolean> bettingResult = asyncCommandService.betting(desk, gameNo, newActive);
 

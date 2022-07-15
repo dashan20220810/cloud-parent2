@@ -28,4 +28,13 @@ public class OpenCardVideoService {
     public OpenCardVideo findByNoActive(String noActive) {
         return openCardVideoRepository.findByNoActive(noActive);
     }
+
+    public void saveOpenCardVideoAndPic(
+            final String openCardVideoAddress, final String picAddress, final String noActive) {
+        OpenCardVideo openCardVideo = new OpenCardVideo();
+        openCardVideo.setNoActive(noActive);
+        openCardVideo.setPicAddress(picAddress);
+        openCardVideo.setVideoAddress(openCardVideoAddress);
+        save(openCardVideo);
+    }
 }
