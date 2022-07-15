@@ -53,6 +53,15 @@ public class GameServerConstants {
     public static final String GAME_SET_BACC_ODDS = "/game/bacc/odds";
 
 
+    /**
+     * 桌台游戏百家乐开奖分页列表
+     */
+    public static final String GAME_BET_RESULT_PAGE = "/betResult/page";
+
+    /**
+     * 桌台游戏百家乐开奖单查询
+     */
+    public static final String GAME_BET_RESULT_NOACTIVE = "/betResult/queryByNoActive";
 
 
 }
