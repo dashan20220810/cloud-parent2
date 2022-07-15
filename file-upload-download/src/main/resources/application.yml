@@ -4,8 +4,8 @@ server:
 spring:
   servlet:
     multipart:
-      max-file-size: 20MB
-      max-request-size: 20MB
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 project:
   title: 文件服务中心
@@ -13,7 +13,7 @@ project:
     enable: true
 
 minio:
-  endpoint: http://192.168.26.24:9000  #服务器链接
-  accessKey: minioadmin
-  secretKey: minioadmin
+  endpoint: http://192.168.26.24:9000  #minio服务器链接 内网
+  accessKey: minioadmin  #账号
+  secretKey: minioadmin  #密码
   domain: http://192.168.26.24:9000  #对外访问的域名  比如 http://www.xxx.com
