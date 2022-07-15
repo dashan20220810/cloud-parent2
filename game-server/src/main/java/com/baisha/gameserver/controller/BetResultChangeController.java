@@ -69,9 +69,9 @@ public class BetResultChangeController {
     }
 
     @PostMapping("page")
-    @ApiOperation("订单查询")
+    @ApiOperation("重开牌结果分页")
     public ResponseEntity<Page<BetResultChange>> page(BetResultChangePageVO vo) {
-        log.info("订单查询");
+        log.info("重开牌结果分页");
         Pageable pageable = PageUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), Sort.by(Sort.Direction.DESC, "createTime"));
         Page<BetResultChange> pageList = betResultChangeService.getBetResultChangePage(vo, pageable);
         return ResponseUtil.success(pageList);

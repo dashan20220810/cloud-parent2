@@ -164,7 +164,7 @@ public class OrderBusiness {
     	
     	gameInfoBusiness.setGameInfo(deskCode, gameInfo);
 
-		// 记录IP
+		// gs下注
     	params = new HashMap<>();
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
 
@@ -203,6 +203,7 @@ public class OrderBusiness {
 				params);
 
 		if (!ValidateUtil.checkHttpResponse(action, result)) {
+			log.warn("\r\n===== 下注 失败, 下注api报错, 玩家id:{}, 局号:{}, 错误原因:{}", userId, gameInfo.getCurrentActive(), result);
             return String.format("下注 失败, %s", StringUtils.defaultString(result));
 		}
 
@@ -222,6 +223,7 @@ public class OrderBusiness {
     				params);
 
     		if (!ValidateUtil.checkHttpResponse(action, result)) {
+    			log.warn("\r\n===== 下注 失败, 下分api报错, betId:{}, 玩家id:{}, 局号:{}, 错误原因:{}", betId.toString(), userId, gameInfo.getCurrentActive(), result);
                 return String.format("下注 失败, 必须人工删除bet, id:%s, %s", betId.toString(), StringUtils.defaultString(result));
     		}
             return withdrawResult;
@@ -319,6 +321,7 @@ public class OrderBusiness {
             return null;
     	}
     	
+    	// 查询未返水注单
     	String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.ORDER_QUERY_BET_IS_NOT_RETURNED.getApiName() +"?userId=" +userVO.getId() +"&tgChatId=" +tgChatId);
         if (!ValidateUtil.checkHttpResponse(action, result)) {
         	return null;
@@ -329,6 +332,10 @@ public class OrderBusiness {
         BigDecimal totalReturnAmount = BigDecimal.ZERO;
         
         for ( BetResponseVO vo: responseList ) {
+        	
+        	// TODO 返水逻辑
+        	
+        	// 注单返水
             Map<String, Object> params = new HashMap<>();
             params.put("betId", vo.getId());
             params.put("userId", vo.getUserId());
@@ -336,6 +343,7 @@ public class OrderBusiness {
             params.put("winAmount", vo.getWinAmount());
             result = HttpClient4Util.doPost(gameServerDomain + RequestPathEnum.ORDER_RETURN_AMOUNT.getApiName(), params);
             if (!ValidateUtil.checkHttpResponse(action, result)) {
+                log.info("\r\n==== 返水失败, 注单id: {}, 返水api报错: {}", vo.getId(), result);
             	return null;
             }
             
@@ -343,10 +351,13 @@ public class OrderBusiness {
             BigDecimal returnAmount = json.getBigDecimal("data");
             totalReturnAmount = totalReturnAmount.add(returnAmount);
             
+            // 下分(返水)
             String raResult = assetsBusiness.returnAmount(vo.getUserId(), returnAmount, vo.getId());
             if ( StringUtils.isNotBlank(raResult) ) {
+                log.info("\r\n==== 返水失败, 注单id: {}, 下分api报错: {}", vo.getId(), raResult);
             	return null;
             }
+            log.info("返水成功, 注单id: {}", vo.getId());
         }
         
         return totalReturnAmount;
