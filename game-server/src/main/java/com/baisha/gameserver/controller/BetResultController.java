@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -59,22 +60,36 @@ public class BetResultController {
         log.info("[开牌结果-更新] ");
         BetResult betResult = request.generateBetResult();
 
-        if (!betResult.checkRequest()
+        if ( StringUtils.isBlank(request.getNoActive())
         		|| StringUtils.isBlank(request.getAwardOption()) ) {
             log.info("[开牌结果-更新] 检核失败");
             return ResponseUtil.custom("请求错误");
         }
 
-        betResultService.update( betResult.getTableId(), betResult.getNoActive(), betResult.getAwardOption() );
+        betResultService.update( betResult.getNoActive(), betResult.getAwardOption() );
         return ResponseUtil.success();
     }
 
     @PostMapping("page")
-    @ApiOperation("开牌结果查询")
+    @ApiOperation("开牌结果分页")
     public ResponseEntity<Page<BetResult>> page(BetResultPageVO vo) {
-        log.info("开牌结果查询");
+        log.info("开牌结果分页");
         Pageable pageable = PageUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
         Page<BetResult> pageList = betResultService.getBetResultPage(vo, pageable);
         return ResponseUtil.success(pageList);
+    }
+
+    @GetMapping("queryByNoActive")
+    @ApiOperation("开牌结果查询")
+    public ResponseEntity<BetResult> queryByNoActive(String noActive) {
+
+        log.info("开牌结果查询");
+        BetResult result = betResultService.findByNoActive(noActive);
+        if (result == null) {
+            log.warn("开牌结果查询 失敗");
+            return ResponseUtil.fail();
+        }
+
+        return ResponseUtil.success(result);
     }
 }

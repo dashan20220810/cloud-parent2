@@ -7,14 +7,15 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel(value = "web-开牌结果分页对象")
-public class BetResultPageVO extends PageVO {
+@ApiModel(value = "web-重开牌分页对象")
+public class BetResultChangePageVO extends PageVO {
 
-    @ApiModelProperty("no_active")
+    @ApiModelProperty("桌台id")
+	private Long tableId;
+
+    @ApiModelProperty("游戏局号")
     private String noActive;
-
-    @ApiModelProperty("table_id")
-    private Long tableId;
 }

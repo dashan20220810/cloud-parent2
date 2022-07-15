@@ -122,7 +122,7 @@ public class BetService {
      */
     public List<Bet> queryBetIsNotReturnedYesterday(Integer queryAmount) {
 
-        Date yesterdayStartTime = DateUtils.truncate(new Date(), Calendar.DATE);
+        Date yesterdayStartTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -1);
         Date yesterdayEndTime = DateUtils.addDays(yesterdayStartTime, 1);
         yesterdayEndTime = DateUtils.addMilliseconds(yesterdayEndTime, -1);
         return betRepository.findAllBy(yesterdayStartTime, yesterdayEndTime, PageRequest.of(0, queryAmount));

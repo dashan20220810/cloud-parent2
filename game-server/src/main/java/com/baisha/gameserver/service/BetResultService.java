@@ -34,21 +34,26 @@ public class BetResultService {
         betResultRepository.save(betResult);
     }
     
-    public void update ( Long tableId, String noActive, String awardOption ) {
-    	betResultRepository.UpdateAwardOptionByTableIdAndNoActive(awardOption, tableId, noActive);
+    public void update ( String noActive, String awardOption ) {
+    	betResultRepository.UpdateAwardOptionByTableIdAndNoActive(awardOption, noActive);
+    }
+    
+    public void updateReopenByNoActive (String noActive ) {
+    	betResultRepository.updateReopenByNoActive(noActive);
+    }
+    
+    public BetResult findByNoActive (String noActive) {
+    	return betResultRepository.findByNoActive(noActive);
     }
     
     public Page<BetResult> getBetResultPage(BetResultPageVO vo, Pageable pageable) {
         Specification<BetResult> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
-            if (vo.getUserId() != null) {
-                predicates.add(cb.equal(root.get("userId"), vo.getUserId()));
+            if (vo.getNoActive() != null) {
+                predicates.add(cb.equal(root.get("noActive"), vo.getNoActive()));
             }
-            if (vo.getStatisticsDate() != null) {
-                predicates.add(cb.equal(root.get("statisticsDate"), vo.getStatisticsDate()));
-            }
-            if (vo.getTgChatId() != null) {
-                predicates.add(cb.equal(root.get("tgChatId"), vo.getTgChatId()));
+            if (vo.getTableId() != null) {
+                predicates.add(cb.equal(root.get("tableId"), vo.getTableId()));
             }
 
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));

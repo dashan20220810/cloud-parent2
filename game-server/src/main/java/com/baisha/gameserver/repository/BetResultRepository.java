@@ -13,8 +13,13 @@ import com.baisha.gameserver.model.BetResult;
 public interface BetResultRepository extends JpaRepository<BetResult, Long>, JpaSpecificationExecutor<BetResult> {
 
 
-    @Query(value = "update BetResult  u set u.awardOption = ?1 where u.tableId=?2 and u.noActive=?3")
+    @Query(value = "update BetResult  u set u.awardOption = ?1 where u.noActive=?2")
     @Modifying
-    void UpdateAwardOptionByTableIdAndNoActive ( String awardOption, Long tableId, String noActive );
+    void UpdateAwardOptionByTableIdAndNoActive ( String awardOption, String noActive );
 	
+    BetResult findByNoActive(String noActive);
+
+    @Query(value = "update BetResult  u set u.reopen=1 where u.noActive=?1")
+    @Modifying
+    void updateReopenByNoActive (String noActive);
 }
