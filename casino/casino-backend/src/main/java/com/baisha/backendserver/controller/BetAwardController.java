@@ -1,5 +1,6 @@
 package com.baisha.backendserver.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -13,6 +14,7 @@ import com.baisha.backendserver.model.bo.award.BetResultBO;
 import com.baisha.backendserver.model.bo.award.BetResultPageBO;
 import com.baisha.backendserver.model.bo.desk.DeskListBO;
 import com.baisha.backendserver.model.vo.award.BetResultPageVO;
+import com.baisha.backendserver.model.vo.award.BetResultReopenVO;
 import com.baisha.backendserver.model.vo.award.BetResultRepairVO;
 import com.baisha.backendserver.service.BetResultChangeService;
 import com.baisha.backendserver.util.BackendServerUtil;
@@ -37,9 +39,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author yihui
@@ -125,24 +125,22 @@ public class BetAwardController {
             return ResponseUtil.parameterNotNull();
         }
         log.info("补单--(web)传入参数 ：{}", JSONObject.toJSONString(vo));
-        //先查询开奖结果是否 与原来一样
         BetResultBO resultBO = getBetResultBO(vo.getNoActive());
         if (Objects.isNull(resultBO)) {
-            return null;
+            return new ResponseEntity("未查询到局");
         }
         //检查传入的开奖结果是否规范
         BetResultRepairVO repairVO = doCheckAwardOption(resultBO, vo.getAwardOption(), vo.getNoActive());
         if (Objects.isNull(repairVO)) {
-            return new ResponseEntity("未查询到局或开奖选项不正确(已开的不能修改选项)");
+            return new ResponseEntity("开奖选项不正确(已开的不能修改选项)");
         }
         log.info("补单--参数 ：{}", JSONObject.toJSONString(repairVO));
-
         //获取当前登陆用户
         Admin currentUser = commonService.getCurrentUser();
         openAwardBusiness.repairBetResult(repairVO);
         //日志记录
         doSaveChang(currentUser, repairVO, resultBO);
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
                 JSON.toJSONString(vo), BackendConstants.BET_RESULT_MODULE);
         return ResponseUtil.success();
     }
@@ -165,11 +163,14 @@ public class BetAwardController {
         //已开的 不能修改 开奖结果  ，未开 就用
         String yiAwardOption = resultBO.getAwardOption();
         if (StringUtils.isNotEmpty(yiAwardOption)) {
+            //对比2个开奖结果是否一样
+            boolean flag = compareOption(yiAwardOption, awardOption);
             //检查是否一样
-            if (!yiAwardOption.equals(awardOption)) {
+            if (!flag) {
                 log.error("补单----已开的 不能修改 开奖结果");
                 return null;
             }
+            repairVO.setAwardOption(yiAwardOption);
         } else {
             //未开 就用
             repairVO.setAwardOption(awardOption);
@@ -188,6 +189,20 @@ public class BetAwardController {
         return repairVO;
     }
 
+    private boolean compareOption(String yiAwardOption, String awardOption) {
+        String[] yiAwardOptionArr = yiAwardOption.split(",");
+        Arrays.sort(yiAwardOptionArr);
+        String yiJsonStr = JSONObject.toJSONString(yiAwardOptionArr);
+        log.info("旧的开奖选项 {}", yiJsonStr);
+
+        String[] awardOptionArr = awardOption.split(",");
+        Arrays.sort(awardOptionArr);
+        String awardJsonStr = JSONObject.toJSONString(awardOptionArr);
+        log.info("参数的开奖选项 {}", awardJsonStr);
+
+        return yiJsonStr.equals(awardJsonStr);
+    }
+
     private BetResultBO getBetResultBO(String noActive) {
         String url = gameServerUrl + GameServerConstants.GAME_BET_RESULT_NOACTIVE;
         url = url + "?noActive=" + noActive;
@@ -203,5 +218,72 @@ public class BetAwardController {
         return null;
     }
 
+
+    @ApiOperation(value = "重新开牌(影响该局的会员)", notes = "重新结算-(1输的加 赢得减 2 再次结算)")
+    @PostMapping(value = "reopen")
+    public ResponseEntity reopenBetResult(BetResultReopenVO vo) {
+        if (CommonUtil.checkNull(vo.getNoActive(), vo.getAwardOption())) {
+            return ResponseUtil.parameterNotNull();
+        }
+        log.info("重新开牌--(web)传入参数 ：{}", JSONObject.toJSONString(vo));
+        //先查询开奖结果是否 与原来一样
+        BetResultBO resultBO = getBetResultBO(vo.getNoActive());
+        if (Objects.isNull(resultBO) && StringUtils.isEmpty(resultBO.getAwardOption())) {
+            return new ResponseEntity("未查询到局/未开奖");
+        }
+        //检查传入的开奖结果是否规范
+        BetResultReopenVO reopenVO = doCheckReopenAwardOption(resultBO, vo.getAwardOption(), vo.getNoActive());
+        if (Objects.isNull(reopenVO)) {
+            return new ResponseEntity("开奖选项不正确(选项不能和之前一样)");
+        }
+        log.info("重新开牌--参数 ：{}", JSONObject.toJSONString(reopenVO));
+
+        //获取当前登陆用户
+        Admin currentUser = commonService.getCurrentUser();
+        openAwardBusiness.reopenBetResult(reopenVO);
+        //日志记录
+        doSaveChangReopen(currentUser, reopenVO, resultBO);
+        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
+                "重新开牌：" + JSON.toJSONString(vo), BackendConstants.BET_RESULT_MODULE);
+        return ResponseUtil.success();
+    }
+
+    private BetResultReopenVO doCheckReopenAwardOption(BetResultBO resultBO, String awardOption, String noActive) {
+        //先查询开奖结果是否 与原来一样
+        BetResultReopenVO reopenVO = new BetResultReopenVO();
+        reopenVO.setNoActive(noActive);
+        //已开的 选项不能和之前一样 开奖结果
+        String yiAwardOption = resultBO.getAwardOption();
+        //对比2个开奖结果是否一样
+        boolean flag = compareOption(yiAwardOption, awardOption);
+        //检查是否一样
+        if (flag) {
+            log.error("重新开牌----已开的 选项不能和之前一样 开奖结果");
+            return null;
+        }
+        reopenVO.setAwardOption(awardOption);
+        //检查是否规范
+        List<TgBaccRuleEnum> list = TgBaccRuleEnum.getList();
+        List<String> rules = list.stream().map(item -> item.getCode()).toList();
+        String[] awardOptionArr = awardOption.toUpperCase().split(",");
+        for (String option : awardOptionArr) {
+            if (!rules.contains(option)) {
+                log.error("重新开牌----传入了其他玩法");
+                return null;
+            }
+        }
+        return reopenVO;
+    }
+
+    private void doSaveChangReopen(Admin currentUser, BetResultReopenVO reopenVO, BetResultBO resultBO) {
+        BetResultChange change = new BetResultChange();
+        change.setTableId(resultBO.getTableId());
+        change.setNoActive(resultBO.getNoActive());
+        change.setAwardOption(resultBO.getAwardOption());
+        change.setFinalAwardOption(reopenVO.getAwardOption());
+        change.setCreateBy(currentUser.getUserName());
+        change.setUpdateBy(currentUser.getUserName());
+        betResultChangeService.save(change);
+    }
 
 }

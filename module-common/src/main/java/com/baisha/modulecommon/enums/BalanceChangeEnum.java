@@ -13,6 +13,7 @@ public enum BalanceChangeEnum {
     WIN(3, "派彩"),
     WITHDRAW(4, "提现(下分)"),
     RETURN_AMOUNT(5, "返水"),
+    BET_REOPEN(6, "重新开奖"),
     ;
 
     private Integer code;
