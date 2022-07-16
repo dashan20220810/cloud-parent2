@@ -32,4 +32,8 @@ public class BalanceChangeService {
         Page<BalanceChange> pageList = balanceChangeRepository.findAll(spec, pageable);
         return Optional.ofNullable(pageList).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }
+
+    public BalanceChange findByUserIdAndChangeTypeAndRelateId(Long userId, Integer changeType, Long relateId) {
+        return balanceChangeRepository.findByUserIdAndChangeTypeAndRelateId(userId, changeType, relateId);
+    }
 }

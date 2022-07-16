@@ -120,6 +120,7 @@ public class BetSettlementDirectReceiver {
 
     /**
      * 重新开牌-结算
+     * 先减去已经派过彩(返水+中奖)，然后在派奖
      *
      * @param jsonStr
      */

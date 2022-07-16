@@ -28,6 +28,8 @@ import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -113,11 +115,29 @@ public class BetAwardController {
 
 
     @ApiOperation(value = "获取开奖选项")
-    @GetMapping(value = "")
+    @GetMapping(value = "getAwardOption")
     public ResponseEntity getAwardOption() {
         return ResponseUtil.success(TgBaccRuleEnum.getList().stream()
                 .map(item -> CodeNameBO.builder().code(item.getCode()).name(item.getName()).build()).toList());
     }
+
+
+    @ApiOperation(value = "获取当前局信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "noActive", value = "游戏局号", required = true, dataTypeClass = String.class)
+    })
+    @GetMapping(value = "getResultInfo")
+    public ResponseEntity<BetResultBO> getBetResult(String noActive) {
+        if (StringUtils.isEmpty(noActive)) {
+            return ResponseUtil.parameterNotNull();
+        }
+        BetResultBO resultBO = getBetResultBO(noActive);
+        if (Objects.isNull(resultBO)) {
+            return new ResponseEntity("未查询到局");
+        }
+        return ResponseUtil.success(resultBO);
+    }
+
 
     @ApiOperation(value = "补单(不影响已结算的该局的会员)", notes = "未开奖 或 开奖后部分注单没结算 ")
     @PostMapping(value = "repair")
@@ -130,6 +150,15 @@ public class BetAwardController {
         if (Objects.isNull(resultBO)) {
             return new ResponseEntity("未查询到局");
         }
+
+        //时间对比
+        Date betResultCreateTime = resultBO.getCreateTime();
+        //要大于2分钟 才能
+        Long time_gap = 1200000L;
+        if ((new Date()).getTime() - betResultCreateTime.getTime() < time_gap) {
+            return new ResponseEntity("不能开最近局");
+        }
+
         //检查传入的开奖结果是否规范
         BetResultRepairVO repairVO = doCheckAwardOption(resultBO, vo.getAwardOption(), vo.getNoActive());
         if (Objects.isNull(repairVO)) {
@@ -214,13 +243,26 @@ public class BetAwardController {
         ResponseEntity response = JSONObject.parseObject(result, ResponseEntity.class);
         if (Objects.nonNull(response) && response.getCode() == ResponseCode.SUCCESS.getCode()) {
             JSONObject jsonObject = (JSONObject) response.getData();
-            return JSONObject.parseObject(JSONObject.toJSONString(jsonObject), BetResultBO.class);
+            BetResultBO betResultBO = JSONObject.parseObject(JSONObject.toJSONString(jsonObject), BetResultBO.class);
+            String awardOption = betResultBO.getAwardOption();
+            if (StringUtils.isNotEmpty(awardOption)) {
+                String[] awardOptionArr = awardOption.split(",");
+                String name = "";
+                for (String option : awardOptionArr) {
+                    name = TgBaccRuleEnum.valueOf(option).getName() + ",";
+                }
+                if (StringUtils.isNotEmpty(name)) {
+                    name = name.substring(0, name.length() - 1);
+                }
+                betResultBO.setAwardOptionName(name);
+            }
+            return betResultBO;
         }
         return null;
     }
 
 
-    @ApiOperation(value = "重新开牌(影响该局的会员)", notes = "重新结算-(1输的加 赢得减 2 再次结算)")
+    @ApiOperation(value = "重新开牌(影响该局的会员)", notes = "重新结算-(1加了钱的都得减 2 再次结算)")
     @PostMapping(value = "reopen")
     public ResponseEntity reopenBetResult(BetResultReopenVO vo) {
         if (CommonUtil.checkNull(vo.getNoActive(), vo.getAwardOption())) {
@@ -231,8 +273,14 @@ public class BetAwardController {
         BetResultBO resultBO = getBetResultBO(vo.getNoActive());
         if (Objects.isNull(resultBO)
                 || StringUtils.isEmpty(resultBO.getAwardOption())
-                || resultBO.getReopen().equals(Constants.open)) {
-            return new ResponseEntity("未查询到局/未开奖/已重新开牌");
+            // || resultBO.getReopen().equals(Constants.open)
+        ) {
+            return new ResponseEntity("未查询到局/未开奖");
+        }
+        //要大于2分钟 才能
+        Long time_gap = 1200000L;
+        if ((new Date()).getTime() - resultBO.getCreateTime().getTime() < time_gap) {
+            return new ResponseEntity("不能开最近局");
         }
         //检查传入的开奖结果是否规范
         BetResultReopenVO reopenVO = doCheckReopenAwardOption(resultBO, vo.getAwardOption(), vo.getNoActive());

@@ -79,7 +79,7 @@ public class DirectReceiver {
             balanceVO.setAmount(vo.getFinalAmount());
             balanceVO.setRelateId(vo.getBetId());
             if (vo.getIsReopen().equals(Constants.open)) {
-                balanceVO.setChangeType(BalanceChangeEnum.BET_REOPEN.getCode());
+                balanceVO.setChangeType(BalanceChangeEnum.BET_REWIN.getCode());
             } else {
                 balanceVO.setChangeType(BalanceChangeEnum.WIN.getCode());
             }
@@ -91,7 +91,7 @@ public class DirectReceiver {
 
 
     /**
-     * 重新开牌 减去用去 资产
+     * 重新开牌 减去 会员 资产
      *
      * @param jsonStr
      */

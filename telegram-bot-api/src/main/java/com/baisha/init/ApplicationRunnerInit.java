@@ -1,6 +1,6 @@
 package com.baisha.init;
 
-import com.baisha.business.TgBotBusiness;
+import com.baisha.business.ControlBotBusiness;
 import com.baisha.handle.TelegramCallbackQueryHandler;
 import com.baisha.handle.TelegramMessageHandler;
 import com.baisha.handle.TelegramMyChatMemberHandler;
@@ -29,7 +29,7 @@ public class ApplicationRunnerInit implements ApplicationRunner {
     private String casinoWebDomain;
 
     @Autowired
-    private TgBotBusiness tgBotBusiness;
+    private ControlBotBusiness controlBotBusiness;
 
     @Autowired
     TgBotService tgBotService;
@@ -53,12 +53,11 @@ public class ApplicationRunnerInit implements ApplicationRunner {
         tgBots.forEach(tgBot -> {
             try {
                 // 实例化机器人
-                boolean isSuccess = tgBotBusiness.startupBot(tgBot.getBotName(), tgBot.getBotToken());
+                boolean isSuccess = controlBotBusiness.startupBot(tgBot.getBotName(), tgBot.getBotToken());
                 if (!isSuccess) {
                     tgBot.setStatus(Constants.close);
                     tgBotService.save(tgBot);
                 }
-
             } catch (Throwable e) {
                 log.error("初始化-注册机器人失败", e);
             }

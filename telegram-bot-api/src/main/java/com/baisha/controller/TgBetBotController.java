@@ -1,17 +1,17 @@
 package com.baisha.controller;
 
+import com.baisha.business.ControlBotBusiness;
 import com.baisha.business.TgBetBotBusiness;
 import com.baisha.model.TgBetBot;
 import com.baisha.model.vo.StatusVO;
 import com.baisha.model.vo.TgBetBotPageVO;
+import com.baisha.model.vo.TgBetBotVO;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.service.TgBetBotService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -30,38 +30,43 @@ import org.telegram.telegrambots.meta.generics.BotSession;
 public class TgBetBotController {
 
     @Autowired
-    private TgBetBotService tgBetBotService;
+    private ControlBotBusiness controlBotBusiness;
 
     @Autowired
     private TgBetBotBusiness tgBetBotBusiness;
 
-    @ApiOperation("新开机器人")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", value = "机器人名称", required = true),
-            @ApiImplicitParam(name = "token", value = "机器人token", required = true),
-    })
-    @PostMapping("open")
-    public ResponseEntity open(String username, String token) {
+    @Autowired
+    private TgBetBotService tgBetBotService;
+
+    @ApiOperation("新增投注机器人")
+    @PostMapping("addBetBot")
+    public ResponseEntity addBetBot(TgBetBotVO vo) throws Exception {
         // 参数校验
-        if (CommonUtil.checkNull(username, token)) {
+        if (!TgBetBotVO.check(vo)) {
             return ResponseUtil.parameterNotNull();
         }
 
-        //啟動機器人
-        boolean isSuccess = tgBetBotBusiness.startupBot(username, token);
+        // 启动机器人
+        boolean isSuccess = controlBotBusiness.startupBot(vo.getBetBotName(), vo.getBetBotToken());
         if (!isSuccess) {
             return ResponseUtil.custom("机器人启动失败，请联系技术处理");
         }
 
-        //启动机器人成功更新机器人资料
-        TgBetBot tgBetBot = tgBetBotService.findByBetBotName(username);
+        // 启动机器人成功，更新机器人资料
+        TgBetBot tgBetBot = tgBetBotService.findByBetBotName(vo.getBetBotName());
         if (ObjectUtils.isEmpty(tgBetBot) || StringUtils.isEmpty(tgBetBot.getBetBotName())) {
-            //新增
+            // 新增
             tgBetBot = new TgBetBot();
-            tgBetBot.setBetBotName(username)
-                    .setBetBotToken(token);
         }
-        tgBetBot.setStatus(Constants.open);
+        tgBetBot.setBetBotName(vo.getBetBotName())
+                .setBetBotToken(vo.getBetBotToken())
+                .setBetStartTime(vo.getBetStartTime())
+                .setBetEndTime(vo.getBetEndTime())
+                .setBetFrequency(vo.getBetFrequency())
+                .setBetContents(vo.getBetContents())
+                .setMinMultiple(vo.getMinMultiple())
+                .setMaxMultiple(vo.getMaxMultiple())
+                .setStatus(Constants.open);
         tgBetBotService.save(tgBetBot);
 
         return ResponseUtil.success();
@@ -99,12 +104,17 @@ public class TgBetBotController {
         }
         TgBetBot tgBetBot = tgBetBotService.findById(id);
         // 停止机器人
-        BotSession botSession = tgBetBotBusiness.getBotSession(tgBetBot.getBetBotName());
+        BotSession botSession = controlBotBusiness.getBotSession(tgBetBot.getBetBotName());
         if (botSession != null && botSession.isRunning()) {
             botSession.stop();
         }
         // 删除MAP
-        tgBetBotBusiness.botSerssionMap.remove(tgBetBot.getBetBotName());
+        controlBotBusiness.botSessionMap.remove(tgBetBot.getBetBotName());
+
+
+
+
+
         // 删除机器人
         tgBetBotService.delBot(id);
         return ResponseUtil.success();

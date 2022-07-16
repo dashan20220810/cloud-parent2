@@ -46,7 +46,7 @@ import java.util.Objects;
  * @author kimi
  */
 @Slf4j
-@Api(tags = "机器人管理")
+@Api(tags = "机器人管理(群管理)")
 @RestController
 @RequestMapping("tgBot")
 public class TgBotController {

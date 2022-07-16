@@ -86,7 +86,7 @@ public class CommandController {
         log.info("桌台ID:{},局号:{}===已发送的群数量{}个", vo.getTableId(), vo.getBureauNum(), chatList.size());
 
         // 机器人-异步投注
-//        betCommandBusiness.botStartBet(chatList);
+        betCommandBusiness.botStartBet(chatList);
 
         return ResponseUtil.success();
     }
@@ -127,8 +127,12 @@ public class CommandController {
         if (StrUtil.isNotEmpty(vo.getVideoResultAddress())) {
             videoResultAddress = new URL(vo.getVideoResultAddress());
         }
+        URL picRoadAddress = null;
+        if (StrUtil.isNotEmpty(vo.getPicRoadAddress())) {
+            picRoadAddress = new URL(vo.getPicRoadAddress());
+        }
         for (TgChat tgChat : chatList) {
-            commandBusiness.openCardLoop(vo, openCardAddress, videoResultAddress, vo.getPicRoadAddress(), tgChat);
+            commandBusiness.openCardLoop(vo, openCardAddress, videoResultAddress, picRoadAddress, tgChat);
         }
         return ResponseUtil.success();
     }

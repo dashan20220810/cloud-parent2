@@ -11,4 +11,8 @@ public interface BalanceChangeRepository extends JpaRepository<BalanceChange, Lo
         JpaSpecificationExecutor<BalanceChange> {
 
 
+    BalanceChange findByUserIdAndChangeTypeAndRelateId(Long userId, Integer changeType, Long relateId);
+
+
+
 }

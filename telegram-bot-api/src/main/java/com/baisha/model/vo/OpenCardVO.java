@@ -29,7 +29,7 @@ public class OpenCardVO {
     private String videoResultAddress;
 
     @ApiModelProperty(value = "路图-图片地址")
-    private byte[] picRoadAddress;
+    private String picRoadAddress;
 
     @ApiModelProperty(value = "桌子id", required = true)
     private Long tableId;

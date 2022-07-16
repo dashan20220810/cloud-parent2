@@ -29,12 +29,12 @@ public class BetResultChange extends BaseEntity {
     @Column(nullable = false, columnDefinition = "VARCHAR(50) COMMENT '游戏局号'")
     private String noActive;
 
-    @ApiModelProperty("开牌类型: ZD庄对,XD闲对,Z庄,X闲,H和,SS幸运六")
-    @Column(columnDefinition = "VARCHAR(20) COMMENT '开牌类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,SS幸运六'")
+    @ApiModelProperty("开牌类型: ZD庄对,XD闲对,Z庄,X闲,H和,SS2.SS3幸运六")
+    @Column(columnDefinition = "VARCHAR(20) COMMENT '开牌类型: ZD庄对,XD闲对,Z庄,X闲,H和,SS2.SS3幸运六'")
     private String awardOption;
 
-    @ApiModelProperty("重开牌类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,SS幸运六")
-    @Column(columnDefinition = "VARCHAR(20) COMMENT '重开牌类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,SS幸运六'")
+    @ApiModelProperty("重开牌类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,SS2.SS3幸运六")
+    @Column(columnDefinition = "VARCHAR(20) COMMENT '重开牌类型: ZD庄对,XD闲对,Z庄,X闲,H和,SS2.SS3幸运六'")
     private String finalAwardOption;
 
 
