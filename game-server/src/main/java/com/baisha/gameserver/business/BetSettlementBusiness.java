@@ -134,7 +134,8 @@ public class BetSettlementBusiness {
                 }
                 log.info("通知用户中心更新余额{}和打码量{}", finalAmount, betAmount);
                 BetSettleUserVO betSettleUserVO = BetSettleUserVO.builder().betId(bet.getId()).noActive(bet.getNoActive())
-                        .userId(bet.getUserId()).finalAmount(finalAmount).playMoney(playMoney).remark(settleRemarkBuffer.toString()).build();
+                        .userId(bet.getUserId()).finalAmount(finalAmount).playMoney(playMoney)
+                        .remark(settleRemarkBuffer.toString()).build();
                 String betSettleUserJsonStr = JSONObject.toJSONString(betSettleUserVO);
                 log.info("派奖-发送给用户中心MQ消息：{}", betSettleUserJsonStr);
                 rabbitTemplate.convertAndSend(MqConstants.USER_SETTLEMENT_ASSETS, betSettleUserJsonStr);
@@ -212,7 +213,7 @@ public class BetSettlementBusiness {
      * @param vo
      */
     private void doOperate(Bet bet, BetSettleVO vo, GameBaccOddsBO gameBaccOdds) {
-        if (null != bet.getWinAmount() && null != bet.getSettleTime()) {
+        if (null != bet.getSettleTime()) {
             //输赢不为空 就表示 已经结算了
             BigDecimal return_winAmount = BigDecimal.ZERO.subtract(bet.getWinAmount());
             //返回-用户统计今日数据(输赢结果)
@@ -246,7 +247,7 @@ public class BetSettlementBusiness {
                     rabbitTemplate.convertAndSend(MqConstants.USER_SUBTRACT_ASSETS, betAmountVOJsonStr);
                 }
                 // 还原数据
-               // betService.returnBet(bet.getId());
+                // betService.returnBet(bet.getId());
 
 
             }
@@ -256,7 +257,7 @@ public class BetSettlementBusiness {
             //就去派彩
             List<Bet> item = new ArrayList<>();
             item.add(bet);
-            doBetSettlement(item, vo, gameBaccOdds);
+            doBetSettlement(item, vo, gameBaccOdds, false);
         }
     }
 
