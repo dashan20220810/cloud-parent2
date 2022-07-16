@@ -109,7 +109,7 @@ public class CommandController {
 
     @ApiOperation("开牌")
     @PostMapping("openCard")
-    public ResponseEntity openCard(@RequestBody OpenCardVO vo) throws Exception {
+    public ResponseEntity openCard(OpenCardVO vo) throws Exception {
         log.info("开牌:{}", vo);
 
         // 根据参数中的桌台ID，找到绑定该桌台的有效群
