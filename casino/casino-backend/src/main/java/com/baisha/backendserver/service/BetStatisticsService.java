@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -30,10 +31,18 @@ public class BetStatisticsService {
 
 
     public int updateBetStatisticsById(Long id, BigDecimal amount, Date betDate) {
+        if (Objects.isNull(amount)){
+            log.error("updateBetStatisticsById amount is null ");
+            amount = BigDecimal.ZERO;
+        }
         return betStatisticsRepository.updateBetStatisticsById(id, amount, betDate);
     }
 
-    public int updateWinAmountById(Long id, BigDecimal winAmount) {
-        return betStatisticsRepository.updateWinAmountById(id, winAmount);
+    public int updateWinAmountById(Long id, BigDecimal amount) {
+        if (Objects.isNull(amount)){
+            log.error("updateWinAmountById amount is null ");
+            amount = BigDecimal.ZERO;
+        }
+        return betStatisticsRepository.updateWinAmountById(id, amount);
     }
 }

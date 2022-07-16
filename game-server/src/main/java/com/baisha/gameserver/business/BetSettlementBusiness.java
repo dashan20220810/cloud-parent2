@@ -241,7 +241,7 @@ public class BetSettlementBusiness {
                 log.info("重新开牌-通知用户中心-扣除之前派彩-更新余额{}", finalAmount);
                 String remark = bet.getNoActive() + "重新开牌,扣除派彩金额";
                 BetAmountVO betAmountVO = BetAmountVO.builder().betId(bet.getId()).noActive(bet.getNoActive())
-                        .userId(bet.getUserId()).amount(returnAmount).remark(remark).build();
+                        .userId(bet.getUserId()).amount(finalAmount).remark(remark).build();
                 String betAmountVOJsonStr = JSONObject.toJSONString(betAmountVO);
                 log.info("重新开牌-派彩-发送给用户中心MQ消息：{}", betAmountVOJsonStr);
                 rabbitTemplate.convertAndSend(MqConstants.USER_SUBTRACT_ASSETS, betAmountVOJsonStr);

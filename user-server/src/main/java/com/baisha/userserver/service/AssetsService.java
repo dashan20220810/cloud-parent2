@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * @author yihui
@@ -31,22 +32,42 @@ public class AssetsService {
 
 
     public int doIncreaseBalanceById(BigDecimal amount, Long id) {
+        if (Objects.isNull(amount)) {
+            log.error("doIncreaseBalanceById amount is null");
+            amount = BigDecimal.ZERO;
+        }
         return assetsRepository.increaseBalanceById(amount, id);
     }
 
     public int doReduceBalanceById(BigDecimal amount, Long id) {
+        if (Objects.isNull(amount)) {
+            log.error("doReduceBalanceById amount is null");
+            amount = BigDecimal.ZERO;
+        }
         return assetsRepository.reduceBalanceById(amount, id);
     }
 
     public int doIncreasePlayMoneyById(BigDecimal amount, Long id) {
+        if (Objects.isNull(amount)) {
+            log.error("doIncreasePlayMoneyById amount is null");
+            amount = BigDecimal.ZERO;
+        }
         return assetsRepository.increasePlayMoneyById(amount, id);
     }
 
     public int doReducePlayMoneyById(BigDecimal amount, Long id) {
+        if (Objects.isNull(amount)) {
+            log.error("doReducePlayMoneyById amount is null");
+            amount = BigDecimal.ZERO;
+        }
         return assetsRepository.reducePlayMoneyById(amount, id);
     }
 
     public int doSubtractBalanceById(BigDecimal amount, Long id) {
+        if (Objects.isNull(amount)) {
+            log.error("doSubtractBalanceById amount is null");
+            amount = BigDecimal.ZERO;
+        }
         return assetsRepository.doSubtractBalanceById(amount, id);
     }
 

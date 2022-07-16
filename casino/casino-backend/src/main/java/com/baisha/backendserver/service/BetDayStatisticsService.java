@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * @author yihui
@@ -32,11 +33,19 @@ public class BetDayStatisticsService {
     }
 
     public int updateBetDayStatisticsById(Long id, BigDecimal amount) {
+        if (Objects.isNull(amount)){
+            log.error("updateBetDayStatisticsById amount is null ");
+            amount = BigDecimal.ZERO;
+        }
         return betDayStatisticsRepository.updateBetDayStatisticsById(id, amount);
     }
 
-    public int updateWinAmountById(Long id, BigDecimal winAmount) {
-        return betDayStatisticsRepository.updateWinAmountById(id, winAmount);
+    public int updateWinAmountById(Long id, BigDecimal amount) {
+        if (Objects.isNull(amount)){
+            log.error("updateWinAmountById amount is null ");
+            amount = BigDecimal.ZERO;
+        }
+        return betDayStatisticsRepository.updateWinAmountById(id, amount);
     }
     
 
