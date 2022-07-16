@@ -396,12 +396,14 @@ public class AsyncCommandService {
 		// 存储视频截屏地址和录单图地址
 		String openCardVideoAddress = videoServerDomain + Constants.IMAGE +  gameDesk.getStreamVideoCode() + "/" +
 				noActive + "/1" +Constants.MP4;
+		newGameInfo.setVideoAddress(openCardVideoAddress);
+		gameInfoBusiness.setGameTime(deskCode + "_" + gameNo, newGameInfo);
 		//发送视频地址给TG
 		sendVideoAddressToTg(action, null, String.valueOf(gameDesk.getDeskId()), null, null,
 				openCardVideoAddress, newGameInfo.getPicAddress());
 
 		asyncApiService.tgSettlement(noActive, openCardResult, top20WinUsers);
-		openCardVideoService.saveOpenCardVideoAndPic(openCardVideoAddress, newGameInfo.getPicAddress(), noActive);
+//		openCardVideoService.saveOpenCardVideoAndPic(openCardVideoAddress, newGameInfo.getPicAddress(), noActive);
     }
 
 	public void pairImage(PairImageVO pairImageVO) {

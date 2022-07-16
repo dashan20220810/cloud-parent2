@@ -29,4 +29,7 @@ public class NewGameInfo implements Serializable {
 
     /** 游戏录单图地址 */
     private byte[] picAddress;
+
+    /** 游戏视频地址 */
+    private String videoAddress;
 }
