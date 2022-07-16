@@ -286,7 +286,7 @@ public class AsyncCommandService {
 			final String action, final String getOpenCardUrl,
 			final String deskId, final String nearVideoAddress,
 			final String videoAddress, final String videoResultAddress,
-			final String picRoadAddress) {
+			final byte[] picRoadAddress) {
 
 
 		// 开牌 5 request parameter

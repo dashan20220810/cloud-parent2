@@ -28,5 +28,5 @@ public class NewGameInfo implements Serializable {
     private Date endTime;
 
     /** 游戏录单图地址 */
-    private String picAddress;
+    private byte[] picAddress;
 }

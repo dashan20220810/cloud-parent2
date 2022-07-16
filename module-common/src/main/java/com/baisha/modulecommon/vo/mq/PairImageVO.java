@@ -33,5 +33,5 @@ public class PairImageVO implements Serializable {
     /**
      * 截屏图片流
      */
-    private String imageContent;
+    private byte[] imageContent;
 }
