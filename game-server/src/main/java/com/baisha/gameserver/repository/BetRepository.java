@@ -61,4 +61,9 @@ public interface BetRepository extends JpaRepository<Bet, Long>, JpaSpecificatio
     @Query(value = " update Bet b SET  b.isReturned=?5 WHERE b.status=2 AND (b.isReturned IS NULL or b.isReturned = false) "
             + " 	AND b.userId = ?1 AND b.tgChatId=?2 AND b.updateTime BETWEEN ?3 AND ?4 ")
     int updateReturnAmount(Long userId, Long tgChatId, Date beginTime, Date endTime, boolean isReturned);
+
+    List<Bet> findByNoActive(String noActive);
+
+
+
 }

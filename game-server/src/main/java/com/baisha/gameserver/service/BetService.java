@@ -121,7 +121,6 @@ public class BetService {
      * @return
      */
     public List<Bet> queryBetIsNotReturnedYesterday(Integer queryAmount) {
-
         Date yesterdayStartTime = DateUtils.addDays(DateUtils.truncate(new Date(), Calendar.DATE), -1);
         Date yesterdayEndTime = DateUtils.addDays(yesterdayStartTime, 1);
         yesterdayEndTime = DateUtils.addMilliseconds(yesterdayEndTime, -1);
@@ -132,4 +131,7 @@ public class BetService {
         betRepository.updateIsReturnedById(betId);
     }
 
+    public List<Bet> findByNoActive(String noActive) {
+        return betRepository.findByNoActive(noActive);
+    }
 }

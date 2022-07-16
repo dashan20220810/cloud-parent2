@@ -64,5 +64,16 @@ public interface AssetsRepository extends JpaRepository<Assets, Long>, JpaSpecif
     @Modifying
     int reducePlayMoneyById(BigDecimal amount, Long id);
 
+    /**
+     * 减少余额 可为负
+     *
+     * @param amount
+     * @param id
+     * @return
+     */
+    @Query(value = "update Assets a set a.balance = a.balance - ?1 where a.id=?2  ")
+    @Modifying
+    int doSubtractBalanceById(BigDecimal amount, Long id);
+
 
 }

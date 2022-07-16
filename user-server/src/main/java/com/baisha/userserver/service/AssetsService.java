@@ -45,4 +45,9 @@ public class AssetsService {
     public int doReducePlayMoneyById(BigDecimal amount, Long id) {
         return assetsRepository.reducePlayMoneyById(amount, id);
     }
+
+    public int doSubtractBalanceById(BigDecimal amount, Long id) {
+        return assetsRepository.doSubtractBalanceById(amount, id);
+    }
+
 }
