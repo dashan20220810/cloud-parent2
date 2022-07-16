@@ -91,7 +91,7 @@ public class DirectReceiver {
 
 
     /**
-     * 重新开牌 减去用去 资产
+     * 重新开牌 减去 会员 资产
      *
      * @param jsonStr
      */
