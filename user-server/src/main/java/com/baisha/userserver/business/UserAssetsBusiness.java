@@ -302,13 +302,6 @@ public class UserAssetsBusiness {
 
     private ResponseEntity doReduceBalanceNegative(User user, BalanceVO vo) {
         Assets assets = findAssetsByUserId(user.getId());
-        //支出先扣钱
-        int flag = assetsService.doSubtractBalanceById(vo.getAmount(), assets.getId());
-        if (flag < 1) {
-            log.info("(支出)更新余额失败(userId={} assetsId={})subtract", user.getId(), assets.getId());
-            return ResponseUtil.fail();
-        }
-        log.info("(支出)更新余额成功(userId={} assetsId={})subtract", user.getId(), assets.getId());
         BalanceChange balanceChange = new BalanceChange();
         balanceChange.setUserId(user.getId());
         balanceChange.setBalanceType(UserServerConstants.EXPENSES);
@@ -321,6 +314,13 @@ public class UserAssetsBusiness {
         BalanceChange bc = balanceChangeService.save(balanceChange);
         if (Objects.nonNull(bc)) {
             log.info("(支出)创建余额变化成功(userId={})subtract", user.getId());
+            //支出
+            int flag = assetsService.doSubtractBalanceById(vo.getAmount(), assets.getId());
+            if (flag < 1) {
+                log.info("(支出)更新余额失败(userId={} assetsId={})subtract", user.getId(), assets.getId());
+                return ResponseUtil.fail();
+            }
+            log.info("(支出)更新余额成功(userId={} assetsId={})subtract", user.getId(), assets.getId());
             return ResponseUtil.success();
         }
         log.info("(支出)创建余额变化失败(userId={})subtract", user.getId());

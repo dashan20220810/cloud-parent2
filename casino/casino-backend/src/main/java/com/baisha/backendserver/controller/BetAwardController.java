@@ -130,6 +130,15 @@ public class BetAwardController {
         if (Objects.isNull(resultBO)) {
             return new ResponseEntity("未查询到局");
         }
+
+        //时间对比
+        Date betResultCreateTime = resultBO.getCreateTime();
+        //要大于2分钟 才能
+        Long time_gap = 1200000L;
+        if ((new Date()).getTime() - betResultCreateTime.getTime() < time_gap) {
+            return new ResponseEntity("不能开最近局");
+        }
+
         //检查传入的开奖结果是否规范
         BetResultRepairVO repairVO = doCheckAwardOption(resultBO, vo.getAwardOption(), vo.getNoActive());
         if (Objects.isNull(repairVO)) {
@@ -233,6 +242,11 @@ public class BetAwardController {
                 || StringUtils.isEmpty(resultBO.getAwardOption())
                 || resultBO.getReopen().equals(Constants.open)) {
             return new ResponseEntity("未查询到局/未开奖/已重新开牌");
+        }
+        //要大于2分钟 才能
+        Long time_gap = 1200000L;
+        if ((new Date()).getTime() - resultBO.getCreateTime().getTime() < time_gap) {
+            return new ResponseEntity("不能开最近局");
         }
         //检查传入的开奖结果是否规范
         BetResultReopenVO reopenVO = doCheckReopenAwardOption(resultBO, vo.getAwardOption(), vo.getNoActive());
