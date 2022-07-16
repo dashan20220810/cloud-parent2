@@ -408,9 +408,8 @@ public class AsyncCommandService {
 				noActive + "/1" +Constants.MP4;
 		newGameInfo.setVideoAddress(openCardVideoAddress);
 		gameInfoBusiness.setGameTime(deskCode + "_" + gameNo, newGameInfo);
-		SysTelegramDto sysTg = telegramService.getSysTelegram();
 		//发送视频地址给TG
-		sendVideoAddressToTg("截屏", sysTg.getOpenCardUrl(), gameDesk.getDeskId(), null, null,
+		sendVideoAddressToTg("截屏", null, gameDesk.getDeskId(), null, null,
 				openCardVideoAddress, newGameInfo.getPicAddress());
 		asyncApiService.tgSettlement(noActive, openCardResult, top20WinUsers);
 //		openCardVideoService.saveOpenCardVideoAndPic(openCardVideoAddress, newGameInfo.getPicAddress(), noActive);
