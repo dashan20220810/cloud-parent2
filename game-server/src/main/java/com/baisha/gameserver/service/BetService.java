@@ -45,9 +45,9 @@ public class BetService {
     public void delete(Long id) {
         betRepository.deleteById(id);
     }
-    
+
     public Bet findById(Long id) {
-    	return betRepository.findById(id).get();
+        return betRepository.findById(id).get();
     }
 
     public Page<Bet> getBetPage(BetPageVO vo, Pageable pageable) {
@@ -134,4 +134,10 @@ public class BetService {
     public List<Bet> findByNoActive(String noActive) {
         return betRepository.findByNoActive(noActive);
     }
+
+    public int returnBet(Long id) {
+        return betRepository.returnBet(id);
+    }
+
+
 }

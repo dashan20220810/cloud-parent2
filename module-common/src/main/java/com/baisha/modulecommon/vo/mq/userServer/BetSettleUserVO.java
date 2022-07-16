@@ -46,4 +46,9 @@ public class BetSettleUserVO {
      */
     private String remark;
 
+    /**
+     * 是否重新派彩
+     */
+    private Integer isReopen;
+
 }
