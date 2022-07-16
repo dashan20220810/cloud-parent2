@@ -78,6 +78,31 @@ public class UserAssetsBusiness {
 
     }
 
+    public ResponseEntity doAddBalanceBusiness(User user, BalanceVO vo) {
+        //支持多次重新开奖,所以可以更新当前余额变化记录
+        long start = System.currentTimeMillis();
+        BalanceChange isExist = balanceChangeService.findByUserIdAndChangeTypeAndRelateId(user.getId(), vo.getChangeType(), vo.getRelateId());
+        log.info("余额变化记录 查询耗时{}毫秒", System.currentTimeMillis() - start);
+        //使用用户ID 使用redisson 公平锁
+        RLock fairLock = redisson.getFairLock(RedisConstants.USER_ASSETS + user.getId());
+        try {
+            boolean res = fairLock.tryLock(RedisConstants.WAIT_TIME, RedisConstants.UNLOCK_TIME, TimeUnit.SECONDS);
+            if (res) {
+                if (UserServerConstants.INCOME == vo.getBalanceType()) {
+                    //收入
+                    ResponseEntity response = doAddIncomeBalance(user, vo, isExist);
+                    fairLock.unlock();
+                    return response;
+                }
+            }
+        } catch (Exception e) {
+            fairLock.unlock();
+            log.error(e.getMessage());
+            e.printStackTrace();
+        }
+        return ResponseUtil.fail();
+    }
+
     private ResponseEntity doReduceBalance(User user, BalanceVO vo) {
         Assets assets = findAssetsByUserId(user.getId());
         if (assets.getBalance().compareTo(vo.getAmount()) < 0) {
@@ -135,6 +160,38 @@ public class UserAssetsBusiness {
         log.info("(收入)创建余额变化失败(userId={})", user.getId());
         return ResponseUtil.fail();
     }
+
+    private ResponseEntity doAddIncomeBalance(User user, BalanceVO vo, BalanceChange isExist) {
+        Assets assets = findAssetsByUserId(user.getId());
+        //插入余额变动表
+        BalanceChange balanceChange = new BalanceChange();
+        if (Objects.nonNull(isExist)) {
+            balanceChange.setId(isExist.getId());
+        }
+        balanceChange.setUserId(user.getId());
+        balanceChange.setBalanceType(UserServerConstants.INCOME);
+        balanceChange.setRemark(vo.getRemark());
+        balanceChange.setBeforeAmount(assets.getBalance());
+        balanceChange.setAmount(vo.getAmount());
+        balanceChange.setAfterAmount(assets.getBalance().add(vo.getAmount()));
+        balanceChange.setChangeType(vo.getChangeType());
+        balanceChange.setRelateId(vo.getRelateId());
+        BalanceChange bc = balanceChangeService.save(balanceChange);
+        if (Objects.nonNull(bc)) {
+            log.info("(收入)创建余额变化成功(userId={})", user.getId());
+            //更新余额
+            int flag = assetsService.doIncreaseBalanceById(vo.getAmount(), assets.getId());
+            if (flag < 1) {
+                log.info("(收入)更新余额失败(userId={} assetsId={})", user.getId(), assets.getId());
+                return ResponseUtil.fail();
+            }
+            log.info("(收入)更新余额成功(userId={} assetsId={})", user.getId(), assets.getId());
+            return ResponseUtil.success();
+        }
+        log.info("(收入)创建余额变化失败(userId={})", user.getId());
+        return ResponseUtil.fail();
+    }
+
 
     public Assets findAssetsByUserId(Long userId) {
         Assets assets = assetsService.getAssetsByUserId(userId);
@@ -279,7 +336,12 @@ public class UserAssetsBusiness {
      * @param vo
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity doSubtractBalanceBusiness(User user, BalanceVO vo) {
+        //支持多次重新开奖,所以可以更新当前余额变化记录
+        long start = System.currentTimeMillis();
+        BalanceChange isExist = balanceChangeService.findByUserIdAndChangeTypeAndRelateId(user.getId(), vo.getChangeType(), vo.getRelateId());
+        log.info("余额变化记录 查询耗时{}毫秒", System.currentTimeMillis() - start);
         //使用用户ID 使用redisson 公平锁
         RLock fairLock = redisson.getFairLock(RedisConstants.USER_ASSETS + user.getId());
         try {
@@ -287,7 +349,7 @@ public class UserAssetsBusiness {
             if (res) {
                 if (UserServerConstants.EXPENSES == vo.getBalanceType()) {
                     //支出
-                    ResponseEntity response = doReduceBalanceNegative(user, vo);
+                    ResponseEntity response = doReduceBalanceNegative(user, vo, isExist);
                     fairLock.unlock();
                     return response;
                 }
@@ -300,9 +362,20 @@ public class UserAssetsBusiness {
         return ResponseUtil.fail();
     }
 
-    private ResponseEntity doReduceBalanceNegative(User user, BalanceVO vo) {
+    private ResponseEntity doReduceBalanceNegative(User user, BalanceVO vo, BalanceChange isExist) {
         Assets assets = findAssetsByUserId(user.getId());
+        //支出 先扣除金额
+        int flag = assetsService.doSubtractBalanceById(vo.getAmount(), assets.getId());
+        if (flag < 1) {
+            log.info("(支出)更新余额失败(userId={} assetsId={})subtract", user.getId(), assets.getId());
+            return ResponseUtil.fail();
+        }
+        log.info("(支出)更新余额成功(userId={} assetsId={})subtract", user.getId(), assets.getId());
+
         BalanceChange balanceChange = new BalanceChange();
+        if (Objects.nonNull(isExist)) {
+            balanceChange.setId(isExist.getId());
+        }
         balanceChange.setUserId(user.getId());
         balanceChange.setBalanceType(UserServerConstants.EXPENSES);
         balanceChange.setRemark(vo.getRemark());
@@ -314,13 +387,6 @@ public class UserAssetsBusiness {
         BalanceChange bc = balanceChangeService.save(balanceChange);
         if (Objects.nonNull(bc)) {
             log.info("(支出)创建余额变化成功(userId={})subtract", user.getId());
-            //支出
-            int flag = assetsService.doSubtractBalanceById(vo.getAmount(), assets.getId());
-            if (flag < 1) {
-                log.info("(支出)更新余额失败(userId={} assetsId={})subtract", user.getId(), assets.getId());
-                return ResponseUtil.fail();
-            }
-            log.info("(支出)更新余额成功(userId={} assetsId={})subtract", user.getId(), assets.getId());
             return ResponseUtil.success();
         }
         log.info("(支出)创建余额变化失败(userId={})subtract", user.getId());

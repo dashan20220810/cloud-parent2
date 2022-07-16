@@ -273,8 +273,9 @@ public class BetAwardController {
         BetResultBO resultBO = getBetResultBO(vo.getNoActive());
         if (Objects.isNull(resultBO)
                 || StringUtils.isEmpty(resultBO.getAwardOption())
-                || resultBO.getReopen().equals(Constants.open)) {
-            return new ResponseEntity("未查询到局/未开奖/已重新开牌");
+            // || resultBO.getReopen().equals(Constants.open)
+        ) {
+            return new ResponseEntity("未查询到局/未开奖");
         }
         //要大于2分钟 才能
         Long time_gap = 1200000L;
