@@ -13,17 +13,17 @@ import java.math.BigDecimal;
 @ApiModel(value = "展示最近注单")
 public class RecentBetVO {
 
-    @ApiModelProperty(value = "订单编号")
-    private String orderNo;
+    @ApiModelProperty("游戏局号")
+    private String noActive;
 
-    @ApiModelProperty(value = "下注")
+    @ApiModelProperty(value = "下注内容")
     private String betCommand;
 
-    @ApiModelProperty(value = "注单输赢金额(含派彩)")
-    private BigDecimal finalAmount;
+    @ApiModelProperty(value = "下注金额")
+    private BigDecimal totalAmount;
 
-    @ApiModelProperty(value = "注单状态")
-    private Integer status;
+    @ApiModelProperty(value = "输赢金额")
+    private BigDecimal winAmount;
 
     @ApiModelProperty("下注金额-庄")
     private Long amountZ;

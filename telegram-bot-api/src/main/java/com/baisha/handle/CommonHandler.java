@@ -1,11 +1,13 @@
 package com.baisha.handle;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
 import com.baisha.model.vo.ConfigInfo;
+import com.baisha.model.vo.OddsAndLimitVO;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.service.TgBotService;
@@ -13,6 +15,7 @@ import com.baisha.service.TgChatService;
 import com.baisha.util.TelegramBotUtil;
 import com.baisha.util.TgHttpClient4Util;
 import com.baisha.util.enums.RequestPathEnum;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -52,6 +56,9 @@ public class CommonHandler {
             ResponseEntity response = JSONObject.parseObject(userBalance, ResponseEntity.class);
             if (response.getCode() == 0) {
                 userBalanceResult = (BigDecimal) response.getData();
+                if (userBalanceResult.compareTo(BigDecimal.ZERO) <= 0) {
+                    userBalanceResult = BigDecimal.ZERO;
+                }
             }
         }
         return userBalanceResult;
@@ -110,6 +117,30 @@ public class CommonHandler {
         return configInfo;
     }
 
+    public List<OddsAndLimitVO> getRedLimit(Long userId) {
+        List<OddsAndLimitVO> result = Lists.newArrayList();
+        String redLimitUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_ORDER_RED_LIMIT.getApiName();
+        String redLimit = TgHttpClient4Util.doGet(redLimitUrl, userId);
+        if (StrUtil.isNotEmpty(redLimit)) {
+            ResponseEntity response = JSONObject.parseObject(redLimit, ResponseEntity.class);
+            if (response.getCode() == 0 && null != response.getData()) {
+                result = JSONArray.parseArray(response.getData().toString(), OddsAndLimitVO.class);
+            }
+        }
+        return result;
+    }
+
+    public Long getMinAmountLimit(String betContent, List<OddsAndLimitVO> redLimits) {
+        Long minAmount = null;
+        for (OddsAndLimitVO redLimit : redLimits) {
+            if (betContent.equals(redLimit.getRuleCode())) {
+                minAmount = redLimit.getMinAmount();
+                break;
+            }
+        }
+        return minAmount;
+    }
+
     public boolean parseChat(TgChat tgChat) {
         if (null == tgChat || tgChat.getStatus() == Constants.close) {
             return false;
@@ -117,15 +148,15 @@ public class CommonHandler {
         if (null == tgChat.getTableId()) {
             return false;
         }
-        if (null == tgChat.getMinAmount()) {
-            return false;
-        }
-        if (null == tgChat.getMaxAmount()) {
-            return false;
-        }
-        if (null == tgChat.getMaxShoeAmount()) {
-            return false;
-        }
+//        if (null == tgChat.getMinAmount()) {
+//            return false;
+//        }
+//        if (null == tgChat.getMaxAmount()) {
+//            return false;
+//        }
+//        if (null == tgChat.getMaxShoeAmount()) {
+//            return false;
+//        }
         return true;
     }
 }

@@ -139,6 +139,8 @@ public class TelegramMessageHandler {
     }
 
     private void showButton(Chat chat, MyTelegramLongPollingBot bot, String textParam, Integer messageId) {
+        // 获取配置信息
+        ConfigInfo configInfo = commonHandler.getConfigInfo(DEFAULT_USER_ID);
         SendMessage sp = new SendMessage();
         sp.setChatId(chat.getId()+"");
         sp.setText(textParam);
@@ -154,6 +156,7 @@ public class TelegramMessageHandler {
         InlineKeyboardButton onlyFinance = new InlineKeyboardButton();
         onlyFinance.setText("唯一财务");
         onlyFinance.setCallbackData("唯一财务");
+        onlyFinance.setUrl("tg://user?id=" + configInfo.getOnlyFinanceTgId());
 
         firstRow.add(checkUserBalance);
         firstRow.add(onlyFinance);
@@ -163,7 +166,7 @@ public class TelegramMessageHandler {
         InlineKeyboardButton officialChannel = new InlineKeyboardButton();
         officialChannel.setText("白沙集团-博彩官方频道");
         officialChannel.setCallbackData("白沙集团-博彩官方频道");
-        officialChannel.setUrl("http://wstgst-bc.live-gameclub.com/#/?G26");
+        officialChannel.setUrl(configInfo.getOfficialGamingChannel());
         secondRow.add(officialChannel);
 
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
@@ -205,6 +208,9 @@ public class TelegramMessageHandler {
     }
 
     private void showButtonBalance(Chat chat, MyTelegramLongPollingBot bot, String userBalanceMessage, Integer messageId) {
+        // 获取配置信息
+        ConfigInfo configInfo = commonHandler.getConfigInfo(DEFAULT_USER_ID);
+
         SendMessage sp = new SendMessage();
         sp.setChatId(chat.getId()+"");
         sp.setText(userBalanceMessage);
@@ -220,6 +226,7 @@ public class TelegramMessageHandler {
         InlineKeyboardButton onlyFinance = new InlineKeyboardButton();
         onlyFinance.setText("唯一财务");
         onlyFinance.setCallbackData("唯一财务");
+        onlyFinance.setUrl("tg://user?id=" + configInfo.getOnlyFinanceTgId());
 
         firstRow.add(checkUserBalance);
         firstRow.add(onlyFinance);
@@ -333,13 +340,16 @@ public class TelegramMessageHandler {
             return false;
         }
         param.put("tableId", tgChat.getTableId());
-        param.put("minAmount", tgChat.getMinAmount());
-        param.put("maxAmount", tgChat.getMaxAmount());
-        param.put("maxShoeAmount", tgChat.getMaxShoeAmount());
+//        param.put("minAmount", tgChat.getMinAmount());
+//        param.put("maxAmount", tgChat.getMaxAmount());
+//        param.put("maxShoeAmount", tgChat.getMaxShoeAmount());
 
+        log.info("下注请求开始:下注参数:{},下注会员:{}", param, userId);
         // 远程调用
         String forObject = TgHttpClient4Util.doPost(requestUrl, param, userId);
-        log.info("下注参数:{},下注会员:{},返回结果:{}", param, userId, forObject);
+
+        log.info("下注请求结束:下注参数:{},下注会员:{},返回结果:{}", param, userId, forObject);
+
         if (ObjectUtils.isEmpty(forObject)) {
             log.error("{}桌{}群{}用户,下注:{},下注失败,原因HTTP请求 NULL",
                     tgChat.getTableId(),

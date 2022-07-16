@@ -5,7 +5,6 @@ import com.baisha.handle.TelegramMessageHandler;
 import com.baisha.handle.TelegramMyChatMemberHandler;
 import com.baisha.util.TelegramBotUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -17,21 +16,19 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Slf4j
 public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
+
     // 机器人username
     private String username;
 
     // 机器人token
     private String token;
 
-    @Autowired
-    TelegramMessageHandler messageHandler;
-
     public MyTelegramLongPollingBot(String username, String token) {
         this.username = username;
         this.token = token;
     }
 
-    private TelegramMyChatMemberHandler getTelegramMyChatMemberHandler() {
+    public TelegramMyChatMemberHandler getTelegramMyChatMemberHandler() {
         return TelegramBotUtil.getTelegramMyChatMemberHandler();
     }
 

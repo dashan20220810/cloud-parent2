@@ -34,7 +34,6 @@ public class TgChatService {
         return Optional.of(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }
 
-
     public TgChat findByChatIdAndBotId(Long chatId, Long botId) {
         return tgChatRepository.findByChatIdAndBotId(chatId, botId);
     }
