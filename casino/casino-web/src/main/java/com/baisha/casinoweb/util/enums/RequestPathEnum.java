@@ -41,7 +41,7 @@ public enum RequestPathEnum {
     ORDER_QUERY_BET_IS_NOT_RETURNED("/order/queryBetIsNotReturned"),
     /** 返水 */
     ORDER_RETURN_AMOUNT("/order/returnAmount"),
-    
+
     /** 开牌结果储存 */
     BET_RESULT_ADD("/betResult/add"),
     /** 开牌结果更新 */
@@ -80,6 +80,8 @@ public enum RequestPathEnum {
     VIDEO_SNAP("/videosnap/"),
     /** 视频流结束截屏 */
     VIDEO_STOP("/videostop/"),
+    /** 上传图片 */
+    UPLOAD_PIC("/minio/uploadTgPic"),
     ;
 
     /**

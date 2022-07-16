@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.baisha.modulecommon.enums.BetOption;
 import org.springframework.util.CollectionUtils;
 
 import lombok.AccessLevel;
@@ -101,6 +103,14 @@ public class GameUserInfo implements Serializable {
 	}
 
 	public Boolean getBetOptionByUser(final String betOption){
-		return betHistory.stream().anyMatch(obj -> obj.get("betOption").equals(betOption));
+		List<Map<String, Object>> userBetOptions = betHistory.stream()
+				.filter(obj -> BetOption.Z_X.contains(obj.get("betOption") == null ? null
+						: obj.get("betOption"))).toList();
+		if(CollectionUtils.isEmpty(userBetOptions)){
+			return true;
+		}else{
+			return userBetOptions.stream().
+					anyMatch(obj -> obj.get("betOption").equals(betOption));
+		}
 	}
 }

@@ -1,5 +1,8 @@
 package com.baisha.casinoweb.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,15 +23,18 @@ import com.baisha.modulecommon.BigDecimalConstants;
 import com.baisha.modulecommon.enums.OpenCardConvertSettleEnum;
 import com.baisha.modulecommon.enums.OpenCardConvertTgEnum;
 import com.baisha.modulecommon.vo.GameDesk;
+import com.baisha.modulecommon.vo.HttpResultDTO;
 import com.baisha.modulecommon.vo.NewGameInfo;
 import com.baisha.modulecommon.vo.mq.OpenVO;
 import com.baisha.modulecommon.vo.mq.PairImageVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
+import org.apache.http.entity.ContentType;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +58,7 @@ import com.beust.jcommander.internal.Maps;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j
@@ -65,6 +72,9 @@ public class AsyncCommandService {
 
 	@Value("${project.server-url.video-server-domain}")
 	private String videoServerDomain;
+
+	@Value("${project.server-url.upload-server-domain}")
+	private String uploadServerDomain;
 
     @Value("${project.game.count-down-seconds}")
     private Integer gameCountDownSeconds;
@@ -193,7 +203,7 @@ public class AsyncCommandService {
 		// 给tg发送开牌图片和近景远景视频
 		SysTelegramDto sysTg = telegramService.getSysTelegram();
 		sendVideoAddressToTg("开牌结果", sysTg.getOpenCardUrl(),
-				String.valueOf(desk.getId()), desk.getNearVideoAddress(),
+				desk.getId(), desk.getNearVideoAddress(),
 				desk.getVideoAddress(), null, null);
 		return CompletableFuture.completedFuture(true);
     }
@@ -284,9 +294,9 @@ public class AsyncCommandService {
 	 */
 	private void sendVideoAddressToTg(
 			final String action, final String getOpenCardUrl,
-			final String deskId, final String nearVideoAddress,
+			final Long deskId, final String nearVideoAddress,
 			final String videoAddress, final String videoResultAddress,
-			final byte[] picRoadAddress) {
+			final String picRoadAddress) {
 
 
 		// 开牌 5 request parameter
@@ -398,10 +408,10 @@ public class AsyncCommandService {
 				noActive + "/1" +Constants.MP4;
 		newGameInfo.setVideoAddress(openCardVideoAddress);
 		gameInfoBusiness.setGameTime(deskCode + "_" + gameNo, newGameInfo);
+		SysTelegramDto sysTg = telegramService.getSysTelegram();
 		//发送视频地址给TG
-		sendVideoAddressToTg(action, null, String.valueOf(gameDesk.getDeskId()), null, null,
+		sendVideoAddressToTg("截屏", sysTg.getOpenCardUrl(), gameDesk.getDeskId(), null, null,
 				openCardVideoAddress, newGameInfo.getPicAddress());
-
 		asyncApiService.tgSettlement(noActive, openCardResult, top20WinUsers);
 //		openCardVideoService.saveOpenCardVideoAndPic(openCardVideoAddress, newGameInfo.getPicAddress(), noActive);
     }
@@ -413,7 +423,23 @@ public class AsyncCommandService {
 
 		final String deskCode = desk.getDeskCode();
 		NewGameInfo newGameInfo = gameInfoBusiness.getGameTime(deskCode + "_" + gameNo);
-		newGameInfo.setPicAddress(pairImageVO.getImageContent());
+		InputStream inputStream = new ByteArrayInputStream(pairImageVO.getImageContent());
+		String result;
+		try {
+			MultipartFile file = new MockMultipartFile(ContentType.APPLICATION_OCTET_STREAM.toString(), inputStream);
+			String url = uploadServerDomain + RequestPathEnum.UPLOAD_PIC.getApiName() + "/telegram/jpeg";
+			result = HttpClient4Util.postMultipartFile
+					(url, file);
+		} catch (IOException e) {
+			log.error("上传文件发生异常", e);
+			throw new RuntimeException(e);
+		}
+		if ( !ValidateUtil.checkHttpResponse("录单图上传", result) ) {
+			return;
+		}
+		JSONObject json = JSONObject.parseObject(result);
+		JSONObject resultJson = json.getJSONObject("data");
+		newGameInfo.setPicAddress(resultJson.getString("url"));
 		gameInfoBusiness.setGameTime(deskCode + "_" + gameNo, newGameInfo);
 	}
 

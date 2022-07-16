@@ -160,4 +160,52 @@ public class MinioController {
     }
 
 
+    //endpoint: 域名或IP  ，bucket: 不同项目不同名称
+    @ApiOperation("文件（图片）上传,成功返回文件地址")
+    @ApiImplicitParams({@ApiImplicitParam(name = "bigFileSecret", type = "String", value = "大文件(2M以上)需要秘钥。找管理员获取",
+            dataTypeClass = String.class), @ApiImplicitParam(name = "bucket", type = "String", value = "bucket" +
+            "名称,提前联系管理员获取", required = true, dataTypeClass = String.class),})
+    @PostMapping("uploadTgPic/{bucket}/{suffix}")
+    public ResponseEntity<Map<String, Object>> uploadTgPic(@PathVariable("bucket") String bucket,
+                   @PathVariable("suffix") String suffix,
+                   @RequestPart("file") MultipartFile file, String bigFileSecret) {
+        if (file == null) {
+            return ResponseUtil.custom("文件不能为null");
+        }
+        try {
+            if (!checkBucketExists(bucket)) {
+                return ResponseUtil.custom("不支持，请联系技术");
+            }
+            InputStream inputStream = file.getInputStream();
+            long size = inputStream.available();
+            System.out.println("文件大小：" + size + " Byte");
+
+            if (CommonUtil.checkNull(bigFileSecret) || !checkBigFileSecret(bigFileSecret)) {
+                if (size == 0 || size > 2 * 1024 * 1024) {
+                    return ResponseUtil.custom("文件不能大于2M");
+                }
+            }
+
+
+            String filename = UUID.randomUUID().toString() + "." + suffix;
+            PutObjectArgs args = PutObjectArgs.builder().bucket(bucket).object(filename).stream(inputStream, size,
+                    -1).build();
+            //上传到MINIO
+            getInstance().putObject(args);
+            String url = domain + "/" + bucket + "/" + filename;
+            String fileKey = bucket + "/" + filename;
+            Map<String, Object> data = new HashMap<>(16);
+            data.put("url", url);
+            data.put("fileKey", fileKey);
+            return ResponseUtil.success(data);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("Exception:{}", e.toString());
+            return ResponseUtil.fail();
+        }
+
+    }
+
+
 }

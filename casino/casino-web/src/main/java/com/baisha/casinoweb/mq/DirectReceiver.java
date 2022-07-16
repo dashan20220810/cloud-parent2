@@ -60,7 +60,7 @@ public class DirectReceiver {
      */
     @RabbitListener(queues = MqConstants.WEB_PAIR_IMAGE)
     public void pairImage(final String jsonStr) {
-        System.out.println("==============" + jsonStr);
+//        System.out.println("==============" + jsonStr);
         final PairImageVO pairImageVO = JSONObject.parseObject(jsonStr, PairImageVO.class);
         dealerBusiness.pairImage(pairImageVO);
     }

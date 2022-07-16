@@ -5,14 +5,18 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
+import com.baisha.modulecommon.vo.HttpResultDTO;
+import com.beust.jcommander.internal.Maps;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -20,6 +24,9 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -28,6 +35,8 @@ import org.apache.http.util.EntityUtils;
 import com.alibaba.fastjson.JSONObject;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
+
 @Slf4j
 public class HttpClient4Util {
     public static String get(String url) throws Exception {
@@ -271,5 +280,54 @@ public class HttpClient4Util {
             }
         }
         return result;
+    }
+
+    public static String postMultipartFile(
+            String url, MultipartFile multipartFile) throws IOException {
+        log.info("doPost请求路径,url:{}",url);
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(url);// 创建httpPost
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setCharset(StandardCharsets.UTF_8);
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        String fileName;
+        fileName = multipartFile.getOriginalFilename();
+        builder.addBinaryBody("file", multipartFile.getInputStream(), ContentType.MULTIPART_FORM_DATA, fileName);// 文件流
+//        ContentType contentType = ContentType.create(HTTP.PLAIN_TEXT_TYPE, HTTP.UTF_8);
+//        for (Map.Entry<String, Object> entry : params.entrySet()) {
+//            if (entry.getValue() == null)
+//                continue;
+//            // 类似浏览器表单提交，对应input的name和value
+//            builder.addTextBody(entry.getKey(), entry.getValue().toString(), contentType);
+//        }
+        HttpEntity entity = builder.build();
+        httpPost.setEntity(entity);
+        CloseableHttpResponse response = null;
+        try {
+
+            response = httpclient.execute(httpPost);
+            StatusLine status = response.getStatusLine();
+            int state = status.getStatusCode();
+            if (state == HttpStatus.SC_OK) {
+                HttpEntity responseEntity = response.getEntity();
+                String jsonString = EntityUtils.toString(responseEntity);
+                return jsonString;
+            } else {
+                return null;
+            }
+        } finally {
+            if (response != null) {
+                try {
+                    response.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                httpclient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
