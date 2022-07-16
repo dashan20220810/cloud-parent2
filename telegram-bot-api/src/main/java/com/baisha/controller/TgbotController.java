@@ -1,5 +1,6 @@
 package com.baisha.controller;
 
+import com.baisha.business.ControlBotBusiness;
 import com.baisha.business.TgBotBusiness;
 import com.baisha.model.TgBot;
 import com.baisha.model.vo.StatusVO;
@@ -27,13 +28,16 @@ import org.telegram.telegrambots.meta.generics.BotSession;
 @Slf4j
 @RestController
 @RequestMapping("tgBot")
-public class TgbotController {
+public class TgBotController {
 
     @Autowired
-    private TgBotService tgBotService;
+    private ControlBotBusiness controlBotBusiness;
 
     @Autowired
     private TgBotBusiness tgBotBusiness;
+
+    @Autowired
+    private TgBotService tgBotService;
 
     @ApiOperation("新开机器人")
     @ApiImplicitParams({
@@ -48,7 +52,7 @@ public class TgbotController {
         }
 
         //啟動機器人
-        boolean isSuccess = tgBotBusiness.startupBot(username, token);
+        boolean isSuccess = controlBotBusiness.startupBot(username, token);
         if (!isSuccess) {
             return ResponseUtil.custom("机器人启动失败，请联系技术处理");
         }
@@ -99,12 +103,15 @@ public class TgbotController {
         }
         TgBot tgBot = tgBotService.findById(id);
         // 停止机器人
-        BotSession botSession = tgBotBusiness.getBotSession(tgBot.getBotName());
+        BotSession botSession = controlBotBusiness.getBotSession(tgBot.getBotName());
         if (botSession != null && botSession.isRunning()) {
             botSession.stop();
         }
         // 删除MAP
-        tgBotBusiness.botSerssionMap.remove(tgBot.getBotName());
+        controlBotBusiness.botSessionMap.remove(tgBot.getBotName());
+
+
+
         // 删除机器人
         tgBotService.delBot(id);
         return ResponseUtil.success();

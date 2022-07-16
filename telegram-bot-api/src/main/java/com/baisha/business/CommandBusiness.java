@@ -3,6 +3,7 @@ package com.baisha.business;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.handle.CommonHandler;
@@ -16,7 +17,6 @@ import com.baisha.service.TgBotService;
 import com.baisha.service.TgChatService;
 import com.baisha.util.Base64Utils;
 import com.baisha.util.TelegramBotUtil;
-import com.baisha.util.constants.BotConstant;
 import com.baisha.util.constants.CommonConstant;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -32,11 +32,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.baisha.util.constants.BotConstant.*;
@@ -65,7 +63,7 @@ public class CommandBusiness {
         if (tgBot == null) {
             return;
         }
-        MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgBot.getBotName());
+        MyTelegramLongPollingBot myBot = ControlBotBusiness.myBotMap.get(tgBot.getBotName());
         if (myBot == null) {
             return;
         }
@@ -89,7 +87,7 @@ public class CommandBusiness {
         if (!commonHandler.parseChat(tgChat)) {
             return;
         }
-        MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgChat.getBotName());
+        MyTelegramLongPollingBot myBot = ControlBotBusiness.myBotMap.get(tgChat.getBotName());
         if (myBot == null) {
             return;
         }
@@ -101,12 +99,12 @@ public class CommandBusiness {
     }
 
     @Async
-    public void openCardLoop(OpenCardVO vo, URL openCardAddress, URL videoResultAddress, byte[] picRoadAddress, TgChat tgChat) {
+    public void openCardLoop(OpenCardVO vo, URL openCardAddress, URL videoResultAddress, URL picRoadAddress, TgChat tgChat) {
         // 群审核通过，才发消息
         if(!Constants.open.equals(tgChat.getStatus())){
             return;
         }
-        MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgChat.getBotName());
+        MyTelegramLongPollingBot myBot = ControlBotBusiness.myBotMap.get(tgChat.getBotName());
         if (myBot == null) {
             return;
         }
@@ -117,10 +115,8 @@ public class CommandBusiness {
         if (null != videoResultAddress) {
             myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(videoResultAddress, VIDEO_SUFFIX_MP4))), tgChat.getChatId()+"");
         }
-
-        if (picRoadAddress != null && picRoadAddress.length > 0) {
-            InputStream input = new ByteArrayInputStream(picRoadAddress);
-            myBot.SendPhoto(new InputFile(input, UUID.randomUUID().toString()), tgChat.getChatId()+"");
+        if (null != picRoadAddress) {
+            myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(picRoadAddress))), tgChat.getChatId()+"");
         }
     }
 
@@ -131,7 +127,7 @@ public class CommandBusiness {
         if (!commonHandler.parseChat(tgChat)) {
             return;
         }
-        MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgChat.getBotName());
+        MyTelegramLongPollingBot myBot = ControlBotBusiness.myBotMap.get(tgChat.getBotName());
         if (myBot == null) {
             return;
         }
@@ -146,7 +142,7 @@ public class CommandBusiness {
         if (!commonHandler.parseChat(tgChat)) {
             return;
         }
-        MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgChat.getBotName());
+        MyTelegramLongPollingBot myBot = ControlBotBusiness.myBotMap.get(tgChat.getBotName());
         if (myBot == null) {
             return;
         }
@@ -220,29 +216,28 @@ public class CommandBusiness {
                 Long minAmountLimitZD = commonHandler.getMinAmountLimit(BetOption.ZD.name(), redLimits);
                 Long minAmountLimitXD = commonHandler.getMinAmountLimit(BetOption.XD.name(), redLimits);
                 minAmountLimit = minAmountLimitZD + minAmountLimitXD;
-            }
-            if (betContent.equals(BetOption.SB.name())) {
+            } else if (betContent.equals(BetOption.SB.name())) {
                 Long minAmountLimitZD = commonHandler.getMinAmountLimit(BetOption.ZD.name(), redLimits);
                 Long minAmountLimitXD = commonHandler.getMinAmountLimit(BetOption.XD.name(), redLimits);
                 Long minAmountLimitH = commonHandler.getMinAmountLimit(BetOption.H.name(), redLimits);
                 minAmountLimit = minAmountLimitZD + minAmountLimitXD + minAmountLimitH;
-            }
-            if (betContent.equals(BetOption.SS.name())) {
+            } else if (betContent.equals(BetOption.SS.name())) {
                 betContent = BetOption.SS.name() + "2";
+                minAmountLimit = commonHandler.getMinAmountLimit(betContent, redLimits);
+            } else {
+                minAmountLimit = commonHandler.getMinAmountLimit(betContent, redLimits);
             }
-            minAmountLimit = commonHandler.getMinAmountLimit(betContent, redLimits);
-            List<String> amounts = Lists.newArrayList();
+            List<BigDecimal> amounts = Lists.newArrayList();
             Integer minMultiple = tgBetBot.getMinMultiple();
             Integer maxMultiple = tgBetBot.getMaxMultiple();
             for (int i = minMultiple; i <= maxMultiple; i++) {
-
+                amounts.add(NumberUtil.mul(minAmountLimit+"", i+""));
             }
-
+            int indexAmount = TelegramBotUtil.getRandom(0, amounts.size() - 1);
+            BigDecimal amount = amounts.get(indexAmount);
+            // 下注机器人-开始下注
+            myBot.sendMessage(betContent + amount, tgChat.getChatId()+"");
         });
-
-        // 下注
-//        String settlementMessage = this.buildSettlementMessage(vo, userWinVOs);
-//        myBot.sendMessage(settlementMessage, tgChat.getChatId()+"");
     }
 
     public void muteAllUser(Long chatId, MyTelegramLongPollingBot myBot) {
