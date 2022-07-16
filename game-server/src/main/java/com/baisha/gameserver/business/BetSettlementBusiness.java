@@ -8,6 +8,7 @@ import com.baisha.gameserver.service.BetService;
 import com.baisha.gameserver.service.BetStatisticsService;
 import com.baisha.gameserver.util.BaccNoCommissionUtil;
 import com.baisha.gameserver.util.GameServerUtil;
+import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.enums.BetStatusEnum;
 import com.baisha.modulecommon.util.DateUtil;
@@ -73,7 +74,8 @@ public class BetSettlementBusiness {
         int splitSize = 10;
         List<List<Bet>> lists = GameServerUtil.splitList(bets, splitSize);
         List<CompletableFuture<List<Bet>>> futures = lists.stream()
-                .map(item -> CompletableFuture.supplyAsync(() -> doBetSettlement(item, vo, gameBaccOdds, true), asyncExecutor)).toList();
+                .map(item -> CompletableFuture.supplyAsync(() ->
+                        doBetSettlement(item, vo, gameBaccOdds, true, false), asyncExecutor)).toList();
         lists = futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
         bets = trans(lists);
         int settleSize = bets.size();
@@ -87,10 +89,12 @@ public class BetSettlementBusiness {
      * @param item
      * @param vo
      * @param gameBaccOdds
-     * @param isPlayMoney  是否需要计算打码量
+     * @param isPlayMoney  是否需要计算打码量 (重新开牌不需要重新计算)
+     * @param isReopen     是否重新开牌
      * @return
      */
-    private List<Bet> doBetSettlement(List<Bet> item, BetSettleVO vo, GameBaccOddsBO gameBaccOdds, boolean isPlayMoney) {
+    private List<Bet> doBetSettlement(List<Bet> item, BetSettleVO vo, GameBaccOddsBO gameBaccOdds,
+                                      boolean isPlayMoney, boolean isReopen) {
         //强制大写
         vo.setAwardOption(vo.getAwardOption().toUpperCase());
         List<Bet> settleList = new ArrayList<>();
@@ -128,13 +132,11 @@ public class BetSettlementBusiness {
                 rabbitTemplate.convertAndSend(MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS, userBetStatisticsJsonStr);
 
                 log.info("=======================================================================================");
-                BigDecimal playMoney = BigDecimal.ZERO;
-                if (isPlayMoney) {
-                    playMoney = BigDecimal.valueOf(betAmount);
-                }
                 log.info("通知用户中心更新余额{}和打码量{}", finalAmount, betAmount);
                 BetSettleUserVO betSettleUserVO = BetSettleUserVO.builder().betId(bet.getId()).noActive(bet.getNoActive())
-                        .userId(bet.getUserId()).finalAmount(finalAmount).playMoney(playMoney)
+                        .userId(bet.getUserId()).finalAmount(finalAmount)
+                        .playMoney(isPlayMoney ? BigDecimal.valueOf(betAmount) : BigDecimal.ZERO)
+                        .isReopen(isReopen ? Constants.open : Constants.close)
                         .remark(settleRemarkBuffer.toString()).build();
                 String betSettleUserJsonStr = JSONObject.toJSONString(betSettleUserVO);
                 log.info("派奖-发送给用户中心MQ消息：{}", betSettleUserJsonStr);
@@ -266,7 +268,7 @@ public class BetSettlementBusiness {
                 List<Bet> item = new ArrayList<>();
                 item.add(bet);
                 //之前已经算过打码量了，不需要再次计算
-                doBetSettlement(item, vo, gameBaccOdds, false);
+                doBetSettlement(item, vo, gameBaccOdds, false, true);
             } else {
                 log.error("数据还原失败，注单id={}", bet.getId());
             }
@@ -275,7 +277,7 @@ public class BetSettlementBusiness {
             //就去派彩
             List<Bet> item = new ArrayList<>();
             item.add(bet);
-            doBetSettlement(item, vo, gameBaccOdds, true);
+            doBetSettlement(item, vo, gameBaccOdds, true, false);
         }
     }
 

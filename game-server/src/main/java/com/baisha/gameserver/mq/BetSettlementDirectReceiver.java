@@ -147,7 +147,7 @@ public class BetSettlementDirectReceiver {
                 BetResult result = betResultService.findByNoActive(vo.getNoActive());
                 doBetResultChange(result, vo.getAwardOption());
                 //修改开奖结果 reopen
-                doUpdateBetResult(result);
+                doUpdateBetResult(result, vo.getAwardOption());
             }
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -157,9 +157,9 @@ public class BetSettlementDirectReceiver {
         }
     }
 
-    private void doUpdateBetResult(BetResult result) {
+    private void doUpdateBetResult(BetResult result, String awardOption) {
         if (Objects.nonNull(result)) {
-            betResultService.updateReopenByNoActive(result.getNoActive());
+            betResultService.updateReopenAndAwardOptionByNoActive(result.getNoActive(), awardOption);
         }
     }
 

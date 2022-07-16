@@ -33,19 +33,19 @@ public class BetResultService {
     public void save(BetResult betResult) {
         betResultRepository.save(betResult);
     }
-    
-    public void update ( String noActive, String awardOption ) {
-    	betResultRepository.UpdateAwardOptionByTableIdAndNoActive(awardOption, noActive);
+
+    public void update(String noActive, String awardOption) {
+        betResultRepository.UpdateAwardOptionByTableIdAndNoActive(awardOption, noActive);
     }
-    
-    public void updateReopenByNoActive (String noActive ) {
-    	betResultRepository.updateReopenByNoActive(noActive);
+
+    public void updateReopenByNoActive(String noActive) {
+        betResultRepository.updateReopenByNoActive(noActive);
     }
-    
-    public BetResult findByNoActive (String noActive) {
-    	return betResultRepository.findByNoActive(noActive);
+
+    public BetResult findByNoActive(String noActive) {
+        return betResultRepository.findByNoActive(noActive);
     }
-    
+
     public Page<BetResult> getBetResultPage(BetResultPageVO vo, Pageable pageable) {
         Specification<BetResult> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
@@ -60,5 +60,9 @@ public class BetResultService {
         };
         Page<BetResult> page = betResultRepository.findAll(spec, pageable);
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
+    }
+
+    public int updateReopenAndAwardOptionByNoActive(String noActive, String awardOption) {
+        return betResultRepository.updateReopenAndAwardOptionByNoActive(noActive, awardOption);
     }
 }
