@@ -17,6 +17,12 @@ public class ConfigInfo {
     @ApiModelProperty(value = "唯一客服")
     private String onlyCustomerService = "";
 
+    @ApiModelProperty(value = "唯一财务TG用户ID")
+    private String onlyFinanceTgId = "";
+
+    @ApiModelProperty(value = "唯一客服TG用户ID")
+    private String onlyCustomerServiceTgId = "";
+
     @ApiModelProperty(value = "白沙集团-博彩官方频道")
     private String officialGamingChannel = "";
 }

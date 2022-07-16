@@ -16,20 +16,20 @@ import lombok.experimental.Accessors;
 @ApiModel(value = "OpenCardVO对象", description = "开牌")
 public class OpenCardVO {
 
-    @ApiModelProperty(value = "开牌-图片地址", required = true)
+    @ApiModelProperty(value = "开牌-图片地址")
     private String openCardAddress;
 
-    @ApiModelProperty(value = "实时开牌俯视地址", required = true)
-    private String lookDownAddress;
+    @ApiModelProperty(value = "实时开牌俯视地址")
+    private String lookDownAddress = "";
 
-    @ApiModelProperty(value = "实时开牌正面地址", required = true)
-    private String frontAddress;
+    @ApiModelProperty(value = "实时开牌正面地址")
+    private String frontAddress = "";
 
-    @ApiModelProperty(value = "牌面-视频地址", required = true)
+    @ApiModelProperty(value = "牌面-视频地址")
     private String videoResultAddress;
 
-    @ApiModelProperty(value = "路图-图片地址", required = true)
-    private String picRoadAddress;
+    @ApiModelProperty(value = "路图-图片地址")
+    private byte[] picRoadAddress;
 
     @ApiModelProperty(value = "桌子id", required = true)
     private Long tableId;

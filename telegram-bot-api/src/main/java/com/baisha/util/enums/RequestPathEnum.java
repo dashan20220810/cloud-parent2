@@ -11,6 +11,7 @@ public enum RequestPathEnum {
     TELEGRAM_ORDER_DAY_PROFIT("/order/todayTotalProfit"),
     TELEGRAM_ORDER_RETURN_AMOUNT("/order/returnAmount"),
     TELEGRAM_ORDER_RECENT_BET("/order/currentList"),
+    TELEGRAM_ORDER_RED_LIMIT("/order/redLimit"),
     TELEGRAM_USER_BALANCE("/user/balance"),
     ;
 

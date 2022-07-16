@@ -35,7 +35,7 @@ public class ReturnAmountTask {
 	@Autowired
 	AssetsBusiness assetsBusiness;
 	
-	@Scheduled(cron = "0 40 11 * * ?", zone="Asia/Shanghai")
+	@Scheduled(cron = "0 10 00 * * ?", zone="Asia/Shanghai")
 	public void returnAmount () {
 		log.info("\r\n ========= 计算每日返水 ");
 		

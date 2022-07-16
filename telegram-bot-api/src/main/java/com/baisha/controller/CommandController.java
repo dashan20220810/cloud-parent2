@@ -9,6 +9,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
+import cn.hutool.core.util.StrUtil;
+import com.baisha.business.BetCommandBusiness;
 import com.baisha.business.CommandBusiness;
 import com.baisha.model.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +31,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Resource;
-
 @Api(tags = "游戏指令推送")
 @Slf4j
 @RestController
 @RequestMapping("command")
 public class CommandController {
 
-    @Resource(name = "asyncExecutor")
+    @Autowired
     private Executor asyncExecutor;
 
     @Autowired
@@ -50,11 +50,15 @@ public class CommandController {
     private CommandBusiness commandBusiness;
 
     @Autowired
+    private BetCommandBusiness betCommandBusiness;
+
+    @Autowired
     private CommonHandler commonHandler;
 
     @ApiOperation("开始新局")
     @PostMapping("startNewBureau")
     public ResponseEntity startNewBureau(StartNewBureauVO vo) throws Exception {
+        log.info("开始新局:{}", vo);
 
         // 第一步，验证参数有效性
         if (!StartNewBureauVO.check(vo)) {
@@ -69,14 +73,11 @@ public class CommandController {
         log.info("桌台ID:{},局号:{}===群数量{}个", vo.getTableId(), vo.getBureauNum(), chatList.size());
 
         // 第三步: 循环不同的桌群配置，组装不同的推送消息并发送
-        URL imageAddress = new URL(vo.getImageAddress());
+//        URL imageAddress = new URL(vo.getImageAddress());
         URL countdownAddress = new URL(vo.getCountdownAddress());
-//        for (TgChat tgChat : chatList) {
-//            commandBusiness.startNewBureauLoop(vo, imageAddress, countdownAddress, tgChat);
-//        }
         List<CompletableFuture<TgChat>> futures = chatList.stream()
                 .map(tgChat -> CompletableFuture.supplyAsync(() -> {
-                    commandBusiness.startNewBureauLoop(vo, imageAddress, countdownAddress, tgChat);
+                    commandBusiness.startNewBureauLoop(vo, countdownAddress, tgChat);
                     return tgChat;
                 }, asyncExecutor))
                 .collect(Collectors.toList());
@@ -84,12 +85,16 @@ public class CommandController {
 
         log.info("桌台ID:{},局号:{}===已发送的群数量{}个", vo.getTableId(), vo.getBureauNum(), chatList.size());
 
+        // 机器人-异步投注
+//        betCommandBusiness.botStartBet(chatList);
+
         return ResponseUtil.success();
     }
 
     @ApiOperation("封盘线")
     @PostMapping("sealingLine")
     public ResponseEntity sealingLine(@RequestBody SealingLineVO vo) throws Exception {
+        log.info("封盘线:{}", vo);
         // 验证参数有效性
         if (!SealingLineVO.check(vo)) {
             return ResponseUtil.parameterNotNull();
@@ -105,11 +110,7 @@ public class CommandController {
     @ApiOperation("开牌")
     @PostMapping("openCard")
     public ResponseEntity openCard(OpenCardVO vo) throws Exception {
-
-        // 验证参数有效性
-        if (!OpenCardVO.check(vo)) {
-            return ResponseUtil.parameterNotNull();
-        }
+        log.info("开牌:{}", vo);
 
         // 根据参数中的桌台ID，找到绑定该桌台的有效群
         List<TgChat> chatList = tgChatService.findByTableId(vo.getTableId());
@@ -118,11 +119,16 @@ public class CommandController {
         }
 
         // 循环不同的群配置，组装不同的推送消息并发送
-        URL openCardAddress = new URL(vo.getOpenCardAddress());
-        URL videoResultAddress = new URL(vo.getVideoResultAddress());
-        URL picRoadAddress = new URL(vo.getPicRoadAddress());
+        URL openCardAddress = null;
+        if (StrUtil.isNotEmpty(vo.getOpenCardAddress())) {
+            openCardAddress = new URL(vo.getOpenCardAddress());
+        }
+        URL videoResultAddress = null;
+        if (StrUtil.isNotEmpty(vo.getVideoResultAddress())) {
+            videoResultAddress = new URL(vo.getVideoResultAddress());
+        }
         for (TgChat tgChat : chatList) {
-            commandBusiness.openCardLoop(vo, openCardAddress, videoResultAddress, picRoadAddress, tgChat);
+            commandBusiness.openCardLoop(vo, openCardAddress, videoResultAddress, vo.getPicRoadAddress(), tgChat);
         }
         return ResponseUtil.success();
     }
@@ -130,6 +136,7 @@ public class CommandController {
     @ApiOperation("结算")
     @PostMapping("settlement")
     public ResponseEntity settlement(@RequestBody SettlementVO vo) throws Exception {
+        log.info("结算:{}", vo);
         // 验证参数有效性
         if (!SettlementVO.check(vo)) {
             return ResponseUtil.parameterNotNull();

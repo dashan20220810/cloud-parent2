@@ -1,15 +1,23 @@
 package com.baisha.business;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.handle.CommonHandler;
+import com.baisha.model.TgBetBot;
 import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
 import com.baisha.model.vo.*;
 import com.baisha.modulecommon.Constants;
+import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.service.TgBotService;
 import com.baisha.service.TgChatService;
 import com.baisha.util.Base64Utils;
+import com.baisha.util.TelegramBotUtil;
+import com.baisha.util.constants.BotConstant;
+import com.baisha.util.constants.CommonConstant;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +31,15 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static com.baisha.util.constants.BotConstant.*;
-import static com.baisha.util.constants.CommonConstant.VIDEO_SUFFIX_FLV;
 import static com.baisha.util.constants.CommonConstant.VIDEO_SUFFIX_MP4;
 
 @Slf4j
@@ -45,12 +55,12 @@ public class CommandBusiness {
     @Autowired
     private CommonHandler commonHandler;
 
-    public void startNewBureauLoop(StartNewBureauVO vo, URL imageAddress, URL countdownAddress, TgChat tgChat) {
-        //验证群审核通过，才发消息
-        if(!Constants.open.equals(tgChat.getStatus())){
+    public void startNewBureauLoop(StartNewBureauVO vo, URL countdownAddress, TgChat tgChat) {
+        // 验证群审核通过，才发消息
+        if (!Constants.open.equals(tgChat.getStatus())) {
             return;
         }
-        //3.1。  找出机器人实例。
+        //3.1。  找出机器人实例
         TgBot tgBot = tgBotService.findById(tgChat.getBotId());
         if (tgBot == null) {
             return;
@@ -66,10 +76,10 @@ public class CommandBusiness {
                 tgChat.getMaxAmount() + "", tgChat.getMaxShoeAmount() + "");
 
         //3.3： 每个桌台推送开局消息
-        myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(imageAddress))), tgChat.getChatId()+"");
-        myBot.SendMessageHtml(message, tgChat.getChatId()+"");
+//        myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(imageAddress))), tgChat.getChatId()+"");
         // 倒计时视频
         myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(countdownAddress, VIDEO_SUFFIX_MP4))), tgChat.getChatId()+"");
+        myBot.sendMessage(message, tgChat.getChatId()+"");
     }
 
     @Async
@@ -91,7 +101,7 @@ public class CommandBusiness {
     }
 
     @Async
-    public void openCardLoop(OpenCardVO vo, URL openCardAddress, URL videoResultAddress, URL picRoadAddress, TgChat tgChat) {
+    public void openCardLoop(OpenCardVO vo, URL openCardAddress, URL videoResultAddress, byte[] picRoadAddress, TgChat tgChat) {
         // 群审核通过，才发消息
         if(!Constants.open.equals(tgChat.getStatus())){
             return;
@@ -101,9 +111,17 @@ public class CommandBusiness {
             return;
         }
 
-        this.showOpenCardButton(vo, openCardAddress, tgChat, myBot);
-        myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(videoResultAddress, VIDEO_SUFFIX_FLV))), tgChat.getChatId()+"");
-        myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(picRoadAddress))), tgChat.getChatId()+"");
+        if (null != openCardAddress) {
+            this.showOpenCardButton(vo, openCardAddress, tgChat, myBot);
+        }
+        if (null != videoResultAddress) {
+            myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(videoResultAddress, VIDEO_SUFFIX_MP4))), tgChat.getChatId()+"");
+        }
+
+        if (picRoadAddress != null && picRoadAddress.length > 0) {
+            InputStream input = new ByteArrayInputStream(picRoadAddress);
+            myBot.SendPhoto(new InputFile(input, UUID.randomUUID().toString()), tgChat.getChatId()+"");
+        }
     }
 
     @Async
@@ -120,6 +138,111 @@ public class CommandBusiness {
         // 组装结算信息
         String settlementMessage = this.buildSettlementMessage(vo, userWinVOs);
         myBot.sendMessage(settlementMessage, tgChat.getChatId()+"");
+    }
+
+    @Async
+    public void botStartBet(TgChat tgChat) {
+        // 群审核通过，才发消息
+        if (!commonHandler.parseChat(tgChat)) {
+            return;
+        }
+        MyTelegramLongPollingBot myBot = TgBotBusiness.myBotMap.get(tgChat.getBotName());
+        if (myBot == null) {
+            return;
+        }
+        // 根据chatId查询 所有的下注机器人
+
+
+        List<TgBetBot> tgBetBots = Lists.newArrayList();
+        tgBetBots.forEach(tgBetBot -> {
+            int random = TelegramBotUtil.getRandom(10, 20);
+            try {
+                Thread.sleep(Long.parseLong(random + "000"));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            // 判断投注时间
+            String startTime = tgBetBot.getBetStartTime();
+            String endTime = tgBetBot.getBetEndTime();
+            if (StrUtil.isEmpty(startTime) || StrUtil.isEmpty(endTime)) {
+                return;
+            }
+            DateTime betStartTime = DateUtil.parse(startTime, "HH:mm:ss");
+            DateTime betEndTime = DateUtil.parse(endTime, "HH:mm:ss");
+            // 当前时间
+            String now = DateUtil.format(new Date(), "HH:mm:ss");
+            DateTime nowTime = DateUtil.parse(now, "HH:mm:ss");
+            if (nowTime.isBefore(betStartTime) || nowTime.isAfter(betEndTime)) {
+                // 不符合投注时间
+                return;
+            }
+            // 判断投注频率
+            Integer betFrequency = tgBetBot.getBetFrequency();
+            if (CommonConstant.CONSTANT_0.equals(betFrequency)) {
+                return;
+            }
+            int betFrequencyRandom = TelegramBotUtil.getRandom(1, 10);
+            if (betFrequencyRandom > betFrequency) {
+                // 投注频率 没有被随机上
+                return;
+            }
+            // 判断投注内容
+            String[] betContentStr = tgBetBot.getBetContents().split(",");
+            List<String> betContents = Arrays.asList(betContentStr);
+            // 自动投注机器人的乱序里，d,h,sb,ss   这些出现的频率设置的低一些
+            if (betContents.contains(BetOption.ZD.name())) {
+                betContents.add(BetOption.ZD.name());
+                betContents.add(BetOption.ZD.name());
+            }
+            if (betContents.contains(BetOption.XD.name())) {
+                betContents.add(BetOption.XD.name());
+                betContents.add(BetOption.XD.name());
+            }
+            if (betContents.contains(BetOption.Z.name())) {
+                betContents.add(BetOption.Z.name());
+                betContents.add(BetOption.Z.name());
+                betContents.add(BetOption.Z.name());
+                betContents.add(BetOption.Z.name());
+            }
+            if (betContents.contains(BetOption.X.name())) {
+                betContents.add(BetOption.X.name());
+                betContents.add(BetOption.X.name());
+                betContents.add(BetOption.X.name());
+                betContents.add(BetOption.X.name());
+            }
+            int index = TelegramBotUtil.getRandom(0, betContents.size() - 1);
+            // 随机的投注内容
+            String betContent = betContents.get(index);
+            // 计算限红、投注金额
+            Long minAmountLimit;
+            List<OddsAndLimitVO> redLimits = commonHandler.getRedLimit(DEFAULT_USER_ID);
+            if (betContent.equals(BetOption.D.name())) {
+                Long minAmountLimitZD = commonHandler.getMinAmountLimit(BetOption.ZD.name(), redLimits);
+                Long minAmountLimitXD = commonHandler.getMinAmountLimit(BetOption.XD.name(), redLimits);
+                minAmountLimit = minAmountLimitZD + minAmountLimitXD;
+            }
+            if (betContent.equals(BetOption.SB.name())) {
+                Long minAmountLimitZD = commonHandler.getMinAmountLimit(BetOption.ZD.name(), redLimits);
+                Long minAmountLimitXD = commonHandler.getMinAmountLimit(BetOption.XD.name(), redLimits);
+                Long minAmountLimitH = commonHandler.getMinAmountLimit(BetOption.H.name(), redLimits);
+                minAmountLimit = minAmountLimitZD + minAmountLimitXD + minAmountLimitH;
+            }
+            if (betContent.equals(BetOption.SS.name())) {
+                betContent = BetOption.SS.name() + "2";
+            }
+            minAmountLimit = commonHandler.getMinAmountLimit(betContent, redLimits);
+            List<String> amounts = Lists.newArrayList();
+            Integer minMultiple = tgBetBot.getMinMultiple();
+            Integer maxMultiple = tgBetBot.getMaxMultiple();
+            for (int i = minMultiple; i <= maxMultiple; i++) {
+
+            }
+
+        });
+
+        // 下注
+//        String settlementMessage = this.buildSettlementMessage(vo, userWinVOs);
+//        myBot.sendMessage(settlementMessage, tgChat.getChatId()+"");
     }
 
     public void muteAllUser(Long chatId, MyTelegramLongPollingBot myBot) {

@@ -1,6 +1,7 @@
 package com.baisha.userserver.mq;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
@@ -77,9 +78,11 @@ public class DirectReceiver {
             balanceVO.setBalanceType(UserServerConstants.INCOME);
             balanceVO.setAmount(vo.getFinalAmount());
             balanceVO.setRelateId(vo.getBetId());
-
-            balanceVO.setChangeType(BalanceChangeEnum.WIN.getCode());
-
+            if (vo.getIsReopen().equals(Constants.open)) {
+                balanceVO.setChangeType(BalanceChangeEnum.BET_REOPEN.getCode());
+            } else {
+                balanceVO.setChangeType(BalanceChangeEnum.WIN.getCode());
+            }
             balanceVO.setRemark("会员" + "在局号为" + vo.getNoActive() + "中奖");
             rabbitBusiness.doUserBalance(user, balanceVO);
         }

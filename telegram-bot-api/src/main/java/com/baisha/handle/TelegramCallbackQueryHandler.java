@@ -58,10 +58,6 @@ public class TelegramCallbackQueryHandler {
                 String userBalanceMessage = checkUserBalance(user);
                 bot.showAlert(callbackQuery, userBalanceMessage);
                 break;
-            case "唯一财务":
-                String onlyFinanceMessage = getOnlyFinance(user);
-                bot.showAlert(callbackQuery, onlyFinanceMessage);
-                break;
             case "查看流水":
                 String runningWaterMessage = checkRunningWater(user, chat);
                 bot.showAlert(callbackQuery, runningWaterMessage);
@@ -77,8 +73,10 @@ public class TelegramCallbackQueryHandler {
 
     private String checkRecentBet(User user, Chat chat) {
         StringBuilder reply = new StringBuilder();
+        reply.append(RECENT_BET1);
         reply.append(RECENT_BET2);
         reply.append(RECENT_BET3);
+        reply.append(RECENT_BET4);
         reply.append(SEALING_BET_INFO17);
 
         String commandSb;
@@ -95,66 +93,98 @@ public class TelegramCallbackQueryHandler {
                     && 0 != recentBetVO.getAmountXd()
                     && 0 != recentBetVO.getAmountH()) {
                 commandSb = "SB" + recentBetVO.getAmountZd().toString();
+                reply.append(TelegramBotUtil.format(recentBetVO.getNoActive().substring(recentBetVO.getNoActive().length() - 4)));
+                reply.append(RECENT_BET5);
                 reply.append(commandSb);
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getFinalAmount());
+                reply.append(recentBetVO.getTotalAmount());
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
                 reply.append(SEALING_BET_INFO17);
                 continue;
             }
             if (0 != recentBetVO.getAmountZd()
                     && 0 != recentBetVO.getAmountXd()) {
                 commandD = "D" + recentBetVO.getAmountZd().toString();
+                reply.append(TelegramBotUtil.format(recentBetVO.getNoActive().substring(recentBetVO.getNoActive().length()-4)));
+                reply.append(RECENT_BET5);
                 reply.append(commandD);
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getFinalAmount());
+                reply.append(recentBetVO.getTotalAmount());
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
                 reply.append(SEALING_BET_INFO17);
                 continue;
             }
             if (0 != recentBetVO.getAmountZd()) {
                 commandZd = "ZD" + recentBetVO.getAmountZd().toString();
+                reply.append(TelegramBotUtil.format(recentBetVO.getNoActive().substring(recentBetVO.getNoActive().length() - 4)));
+                reply.append(RECENT_BET5);
                 reply.append(commandZd);
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getFinalAmount());
+                reply.append(recentBetVO.getTotalAmount());
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
                 reply.append(SEALING_BET_INFO17);
                 continue;
             }
             if (0 != recentBetVO.getAmountXd()) {
                 commandXd = "XD" + recentBetVO.getAmountXd().toString();
+                reply.append(TelegramBotUtil.format(recentBetVO.getNoActive().substring(recentBetVO.getNoActive().length() - 4)));
+                reply.append(RECENT_BET5);
                 reply.append(commandXd);
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getFinalAmount());
+                reply.append(recentBetVO.getTotalAmount());
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
                 reply.append(SEALING_BET_INFO17);
                 continue;
             }
             if (0 != recentBetVO.getAmountZ()) {
                 commandZ = "Z" + recentBetVO.getAmountZ();
+                reply.append(TelegramBotUtil.format(recentBetVO.getNoActive().substring(recentBetVO.getNoActive().length() - 4)));
+                reply.append(RECENT_BET5);
                 reply.append(commandZ);
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getFinalAmount());
+                reply.append(recentBetVO.getTotalAmount());
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
                 reply.append(SEALING_BET_INFO17);
                 continue;
             }
             if (0 != recentBetVO.getAmountX()) {
                 commandX = "X" + recentBetVO.getAmountX();
+                reply.append(TelegramBotUtil.format(recentBetVO.getNoActive().substring(recentBetVO.getNoActive().length() - 4)));
+                reply.append(RECENT_BET5);
                 reply.append(commandX);
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getFinalAmount());
+                reply.append(recentBetVO.getTotalAmount());
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
                 reply.append(SEALING_BET_INFO17);
                 continue;
             }
             if (0 != recentBetVO.getAmountH()) {
                 commandH = "H" + recentBetVO.getAmountH();
+                reply.append(TelegramBotUtil.format(recentBetVO.getNoActive().substring(recentBetVO.getNoActive().length() - 4)));
+                reply.append(RECENT_BET5);
                 reply.append(commandH);
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getFinalAmount());
+                reply.append(recentBetVO.getTotalAmount());
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
                 reply.append(SEALING_BET_INFO17);
                 continue;
             }
             if (0 != recentBetVO.getAmountSs()) {
                 commandSs = "SS" + recentBetVO.getAmountSs();
+                reply.append(TelegramBotUtil.format(recentBetVO.getNoActive().substring(recentBetVO.getNoActive().length() - 4)));
+                reply.append(RECENT_BET5);
                 reply.append(commandSs);
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getFinalAmount());
+                reply.append(recentBetVO.getTotalAmount());
+                reply.append(RECENT_BET5);
+                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
                 reply.append(SEALING_BET_INFO17);
             }
         }
@@ -166,6 +196,7 @@ public class TelegramCallbackQueryHandler {
         String recentBetUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_ORDER_RECENT_BET.getApiName();
         Map<String, Object> recentBetParam = Maps.newHashMap();
         recentBetParam.put("tgChatId", chatId);
+        recentBetParam.put("queryAmount", 6);
         String recentBet = TgHttpClient4Util.doPost(recentBetUrl, recentBetParam, userId);
         
         if (StrUtil.isNotEmpty(recentBet)) {
@@ -208,15 +239,6 @@ public class TelegramCallbackQueryHandler {
         // 查询用户余额
         BigDecimal userBalance = commonHandler.checkUserBalance(user.getId());
         reply.append(userBalance);
-        return reply.toString();
-    }
-
-    private String getOnlyFinance(User user) {
-        StringBuilder reply = new StringBuilder();
-        reply.append(ONLY_FINANCE1);
-        // 配置信息
-        ConfigInfo configInfo = commonHandler.getConfigInfo(user.getId());
-        reply.append(configInfo.getOnlyFinance());
         return reply.toString();
     }
 }

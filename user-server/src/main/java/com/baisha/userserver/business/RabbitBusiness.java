@@ -25,7 +25,7 @@ public class RabbitBusiness {
         userAssetsBusiness.doPlayMoneyBusiness(user, playMoneyVO);
     }
 
-
+    @Async(value = "asyncExecutor")
     public void doUserSubtractBalance(User user, BalanceVO balanceVO) {
         userAssetsBusiness.doSubtractBalanceBusiness(user, balanceVO);
     }

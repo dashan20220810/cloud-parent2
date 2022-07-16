@@ -15,11 +15,15 @@ public interface BetResultRepository extends JpaRepository<BetResult, Long>, Jpa
 
     @Query(value = "update BetResult  u set u.awardOption = ?1 where u.noActive=?2")
     @Modifying
-    void UpdateAwardOptionByTableIdAndNoActive ( String awardOption, String noActive );
-	
+    void UpdateAwardOptionByTableIdAndNoActive(String awardOption, String noActive);
+
     BetResult findByNoActive(String noActive);
 
     @Query(value = "update BetResult  u set u.reopen=1 where u.noActive=?1")
     @Modifying
-    void updateReopenByNoActive (String noActive);
+    void updateReopenByNoActive(String noActive);
+
+    @Query(value = "update BetResult  u set u.awardOption = ?2 ,u.reopen=1  where u.noActive=?1")
+    @Modifying
+    int updateReopenAndAwardOptionByNoActive(String noActive, String awardOption);
 }
