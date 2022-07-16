@@ -1,25 +1,14 @@
 package com.baisha.casinoweb.util;
 
-import java.util.Objects;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
-import com.baisha.casinoweb.model.vo.UserVO;
-import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.enums.UserOriginEnum;
-import com.baisha.modulecommon.util.CommonUtil;
-import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulejjwt.JjwtUtil;
 
 public class CasinoWebUtil {
@@ -49,8 +38,7 @@ public class CasinoWebUtil {
             return true;
         }
 
-//        return false;
-        return true; // TODO for test
+        return false;
     }
     public static String getCurrentUserId() {
         String token = getToken();
@@ -61,70 +49,4 @@ public class CasinoWebUtil {
         return subject.getUserId();
     }
 
-    public static Pageable setPageable(Integer pageCode, Integer pageSize, Sort sort) {
-        if (Objects.isNull(sort)) {
-            sort = Sort.unsorted();
-        }
-
-        if (pageSize == null || pageCode == null) {
-            pageCode = 1;
-            pageSize = 10;
-        }
-
-        if (pageCode < 1 || pageSize < 1) {
-            pageCode = 1;
-            pageSize = 10;
-        }
-
-        if (pageSize > 100) {
-            pageSize = 100;
-        }
-
-        Pageable pageable = PageRequest.of(pageCode - 1, pageSize, sort);
-        return pageable;
-    }
-
-    public static Pageable setPageable(Integer pageCode, Integer pageSize) {
-        return setPageable(pageCode, pageSize, null);
-    }
-
-    public static UserVO getUserVO( String userServerDomain, Long userId ) {
-
-    	String params = "?userId=" + userId;
-
-		return getUserVO(userServerDomain, RequestPathEnum.USER_QUERY_BY_ID.getApiName(), 
-				params);
-    }
-
-    public static UserVO getUserVO( String userServerDomain, String tgUserId, Long tgGroupId ) {
-
-    	String params = "?tgUserId=" + tgUserId +"&tgGroupId=" +tgGroupId;
-
-		return getUserVO(userServerDomain, RequestPathEnum.USER_QUERY_BY_USER_NAME.getApiName(), 
-				params);
-    }
-
-    public static UserVO getUserVO( String userServerDomain, String userName ) {
-
-    	String params = "?userName=" + userName;
-
-		return getUserVO(userServerDomain, RequestPathEnum.USER_QUERY_BY_USER_NAME.getApiName(), 
-				params);
-    }
-    
-    private static UserVO getUserVO( String userServerDomain, String api, String params ) {
-
-    	String result = HttpClient4Util.doGet(userServerDomain + api + params);
-        if (CommonUtil.checkNull(result)) {
-            return null;
-        }
-
-		JSONObject json = JSONObject.parseObject(result);
-		Integer code = json.getInteger("code");
-		if ( code==null || code!=0 ) {
-			return null;
-		}
-
-		return JSONObject.parseObject(json.getString("data"), new TypeReference<UserVO>(){});
-    }
 }
