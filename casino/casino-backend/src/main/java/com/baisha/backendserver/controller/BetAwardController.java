@@ -28,6 +28,8 @@ import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -118,6 +120,24 @@ public class BetAwardController {
         return ResponseUtil.success(TgBaccRuleEnum.getList().stream()
                 .map(item -> CodeNameBO.builder().code(item.getCode()).name(item.getName()).build()).toList());
     }
+
+
+    @ApiOperation(value = "获取当前局信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "noActive", value = "游戏局号", required = true, dataTypeClass = String.class)
+    })
+    @GetMapping(value = "getResultInfo")
+    public ResponseEntity<BetResultBO> getBetResult(String noActive) {
+        if (StringUtils.isEmpty(noActive)) {
+            return ResponseUtil.parameterNotNull();
+        }
+        BetResultBO resultBO = getBetResultBO(noActive);
+        if (Objects.isNull(resultBO)) {
+            return new ResponseEntity("未查询到局");
+        }
+        return ResponseUtil.success(resultBO);
+    }
+
 
     @ApiOperation(value = "补单(不影响已结算的该局的会员)", notes = "未开奖 或 开奖后部分注单没结算 ")
     @PostMapping(value = "repair")
@@ -223,13 +243,26 @@ public class BetAwardController {
         ResponseEntity response = JSONObject.parseObject(result, ResponseEntity.class);
         if (Objects.nonNull(response) && response.getCode() == ResponseCode.SUCCESS.getCode()) {
             JSONObject jsonObject = (JSONObject) response.getData();
-            return JSONObject.parseObject(JSONObject.toJSONString(jsonObject), BetResultBO.class);
+            BetResultBO betResultBO = JSONObject.parseObject(JSONObject.toJSONString(jsonObject), BetResultBO.class);
+            String awardOption = betResultBO.getAwardOption();
+            if (StringUtils.isNotEmpty(awardOption)) {
+                String[] awardOptionArr = awardOption.split(",");
+                String name = "";
+                for (String option : awardOptionArr) {
+                    name = TgBaccRuleEnum.valueOf(option).getName() + ",";
+                }
+                if (StringUtils.isNotEmpty(name)) {
+                    name = name.substring(0, name.length() - 1);
+                }
+                betResultBO.setAwardOptionName(name);
+            }
+            return betResultBO;
         }
         return null;
     }
 
 
-    @ApiOperation(value = "重新开牌(影响该局的会员)", notes = "重新结算-(1输的加 赢得减 2 再次结算)")
+    @ApiOperation(value = "重新开牌(影响该局的会员)", notes = "重新结算-(1加了钱的都得减 2 再次结算)")
     @PostMapping(value = "reopen")
     public ResponseEntity reopenBetResult(BetResultReopenVO vo) {
         if (CommonUtil.checkNull(vo.getNoActive(), vo.getAwardOption())) {

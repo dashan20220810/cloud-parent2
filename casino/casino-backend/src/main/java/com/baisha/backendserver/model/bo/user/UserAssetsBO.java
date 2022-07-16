@@ -3,6 +3,7 @@ package com.baisha.backendserver.model.bo.user;
 import com.baisha.backendserver.model.bo.BaseBO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
  * @author yihui
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class UserAssetsBO extends BaseBO {
 
     @ApiModelProperty(value = "用户名")
