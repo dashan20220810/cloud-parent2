@@ -113,6 +113,10 @@ public class Bet extends BaseEntity {
     @Column(name = "settle_remark", columnDefinition = "VARCHAR(100) COMMENT '备注(结算)'")
     private String settleRemark;
 
+    @ApiModelProperty(value = "返水金额")
+    @Column(columnDefinition = "decimal(16,2) comment '返水金额'")
+    private BigDecimal returnAmount;
+
 
     /**
      * 检核下注请求
