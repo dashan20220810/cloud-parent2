@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.baisha.casinoweb.model.vo.response.DeskVO;
@@ -19,8 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GamblingBusiness {
 
-	@Value("${project.server-url.backend-server-domain}")
-	private String backendServerDomain;
 
     @Autowired
     private RedisUtil redisUtil;

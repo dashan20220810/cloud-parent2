@@ -35,6 +35,9 @@ public class AssetsBusiness {
 	@Autowired
 	private DeskBusiness deskBusiness;
 	
+	@Autowired
+	private UserBusiness userBusiness;
+	
 	public String withdraw ( Long userId, Long amount, Long tableId, Long relatedBetId ) {
 		String action = "呼叫下分api";
 		Integer balanceChange = BalanceChangeEnum.BET.getCode();
@@ -102,7 +105,7 @@ public class AssetsBusiness {
     	boolean isTgRequest = CasinoWebUtil.isTelegramRequest();
     	
     	if ( isTgRequest ) {
-    		UserVO userVO = CasinoWebUtil.getUserVO(userServerDomain, userIdOrName);
+    		UserVO userVO = userBusiness.getUserVO(isTgRequest, userIdOrName);
     		if ( userVO==null ) {
     			return null;
     		}
