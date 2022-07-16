@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.beust.jcommander.internal.Lists;
 import org.apache.commons.codec.binary.StringUtils;
 
 public enum BetOption {
@@ -27,6 +28,8 @@ public enum BetOption {
 	private final Set<String> commands;
 
 	private static final List<BetOption> list;
+
+	public static final List<String> Z_X = Lists.newArrayList(Z.name(), X.name());
 	static {
 		list = Arrays.stream(values())
 				.sorted(Comparator.comparingInt(BetOption::getOrder))

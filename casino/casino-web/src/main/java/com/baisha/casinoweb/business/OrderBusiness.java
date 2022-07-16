@@ -1,11 +1,7 @@
 package com.baisha.casinoweb.business;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import com.baisha.modulecommon.vo.mq.webServer.BsOddsVO;
 import org.apache.commons.lang3.StringUtils;
@@ -118,7 +114,7 @@ public class OrderBusiness {
             return "玩家资料错误";
     	}
     	
-    	if (UserVO.Status.DISABLE.getCode() == userVO.getStatus()) {
+    	if (Objects.equals(UserVO.Status.DISABLE.getCode(), userVO.getStatus())) {
     		log.warn("[下注] user状态停用");
             return "玩家资料错误";
     	}
@@ -140,6 +136,12 @@ public class OrderBusiness {
 		List<BsOddsBO> limitList = JSONObject.parseObject(JSONObject.parseObject(result).getString("data"), new TypeReference<List<BsOddsBO>>(){});
     	
     	for (String betOption: betOptionList) {
+			if(BetOption.Z_X.contains(betOption) && !StringUtils.isEmpty(userInfo.getBetHistoryString())){
+				if(!userInfo.getBetOptionByUser(betOption)){
+					return "下注失败，不允许对冲下注";
+				}
+			}
+
     		// BsOdds里 幸运6有两笔配置，只比对ss2
     		Optional<BsOddsBO> oddsBoOpt = limitList.stream().filter( 
     				odds -> (StringUtils.equalsIgnoreCase(betOption, odds.getRuleCode()) 
@@ -157,8 +159,8 @@ public class OrderBusiness {
     			return "下注失败 限红配置有误";
     		}
     		
-        	if ( userInfo.checkUserBetAmount(betOption, amount
-        			, oddsBO.getMinAmount().longValue(), oddsBO.getMaxAmount().longValue())==false ) {
+        	if (!userInfo.checkUserBetAmount(betOption, amount
+					, oddsBO.getMinAmount().longValue(), oddsBO.getMaxAmount().longValue())) {
                 return String.format("下注失败 限红单注 %s %s-%s", betOption, oddsBO.getMinAmount(), oddsBO.getMaxAmount());
         	}
     	}

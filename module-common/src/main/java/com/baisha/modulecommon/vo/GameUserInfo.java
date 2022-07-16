@@ -99,4 +99,8 @@ public class GameUserInfo implements Serializable {
 		
 		return result.toString().trim();
 	}
+
+	public Boolean getBetOptionByUser(final String betOption){
+		return betHistory.stream().anyMatch(obj -> obj.get("betOption").equals(betOption));
+	}
 }
