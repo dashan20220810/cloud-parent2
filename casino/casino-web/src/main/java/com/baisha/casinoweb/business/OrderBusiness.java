@@ -341,7 +341,7 @@ public class OrderBusiness {
             params.put("betId", vo.getId());
             params.put("userId", vo.getUserId());
             params.put("tgChatId", vo.getTgChatId());
-            params.put("winAmount", vo.getWinAmount());
+//            params.put("winAmount", vo.getWinAmount());
             result = HttpClient4Util.doPost(gameServerDomain + RequestPathEnum.ORDER_RETURN_AMOUNT.getApiName(), params);
             if (!ValidateUtil.checkHttpResponse(action, result)) {
                 log.info("\r\n==== 返水失败, 注单id: {}, 返水api报错: {}", vo.getId(), result);

@@ -33,7 +33,7 @@ public class BetResult extends BaseEntity{
 
     @ApiModelProperty("类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,SS幸运六")
     @Column(name="award_option"
-    	, columnDefinition="VARCHAR(10) COMMENT '开牌类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,SS幸运六'")
+    	, columnDefinition="VARCHAR(20) COMMENT '开牌类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,SS幸运六'")
 	private String awardOption;
 
     @ApiModelProperty("重开牌(0.否 1.是)")

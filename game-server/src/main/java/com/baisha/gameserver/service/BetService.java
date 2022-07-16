@@ -45,6 +45,10 @@ public class BetService {
     public void delete(Long id) {
         betRepository.deleteById(id);
     }
+    
+    public Bet findById(Long id) {
+    	return betRepository.findById(id).get();
+    }
 
     public Page<Bet> getBetPage(BetPageVO vo, Pageable pageable) {
         Specification<Bet> spec = (root, query, cb) -> {
@@ -76,10 +80,6 @@ public class BetService {
         };
         Page<Bet> page = betRepository.findAll(spec, pageable);
         return Optional.ofNullable(page).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
-    }
-
-    public List<Bet> findAllByUserIdAndCreateTimeBetween(Long userId, Date createBeginTime, Date createEndTime) {
-        return betRepository.findAllByUserIdAndCreateTimeBetween(userId, createBeginTime, createEndTime);
     }
 
     /**
@@ -127,8 +127,8 @@ public class BetService {
         return betRepository.findAllBy(yesterdayStartTime, yesterdayEndTime, PageRequest.of(0, queryAmount));
     }
 
-    public void updateReturnAmount(Long betId) {
-        betRepository.updateIsReturnedById(betId);
+    public void updateReturnAmount(Long betId, BigDecimal returnAmount) {
+        betRepository.updateIsReturnedAndReturnAmountById(betId, returnAmount);
     }
 
     public List<Bet> findByNoActive(String noActive) {

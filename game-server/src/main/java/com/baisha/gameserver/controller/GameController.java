@@ -95,7 +95,7 @@ public class GameController {
                 || checkOdds(vo.getXd(), vo.getXdMinAmount(), vo.getXdMaxAmount())
                 || checkOdds(vo.getSs2(), vo.getSsMinAmount(), vo.getSsMaxAmount())
                 || checkOdds(vo.getSs3(), vo.getSsMinAmount(), vo.getSsMaxAmount())) {
-            return new ResponseEntity("数据不规范(赔率0-100 限红为整数且大小正确)");
+            return new ResponseEntity<String>("数据不规范(赔率0-100 限红为整数且大小正确)");
         }
         synchronized (vo.getGameCode()) {
             doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.X.getCode(), vo.getX(), vo.getXMinAmount(), vo.getXMaxAmount());
