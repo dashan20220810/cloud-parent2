@@ -20,6 +20,7 @@ import com.baisha.backendserver.service.BetResultChangeService;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.GameServerConstants;
+import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.enums.TgBaccRuleEnum;
 import com.baisha.modulecommon.reponse.ResponseCode;
 import com.baisha.modulecommon.reponse.ResponseEntity;
@@ -228,8 +229,10 @@ public class BetAwardController {
         log.info("重新开牌--(web)传入参数 ：{}", JSONObject.toJSONString(vo));
         //先查询开奖结果是否 与原来一样
         BetResultBO resultBO = getBetResultBO(vo.getNoActive());
-        if (Objects.isNull(resultBO) && StringUtils.isEmpty(resultBO.getAwardOption())) {
-            return new ResponseEntity("未查询到局/未开奖");
+        if (Objects.isNull(resultBO)
+                || StringUtils.isEmpty(resultBO.getAwardOption())
+                || resultBO.getReopen().equals(Constants.open)) {
+            return new ResponseEntity("未查询到局/未开奖/已重新开牌");
         }
         //检查传入的开奖结果是否规范
         BetResultReopenVO reopenVO = doCheckReopenAwardOption(resultBO, vo.getAwardOption(), vo.getNoActive());

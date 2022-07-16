@@ -19,4 +19,7 @@ public class BetResultBO extends BaseBO {
     @ApiModelProperty("类型: ZD庄对,XD闲对,Z庄,X闲,H和,H和,SS幸运六")
     private String awardOption;
 
+    @ApiModelProperty("重开牌(0.否 1.是)")
+    private Integer reopen = 0;
+
 }
