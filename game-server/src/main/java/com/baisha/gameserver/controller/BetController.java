@@ -1,6 +1,7 @@
 package com.baisha.gameserver.controller;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -171,28 +172,33 @@ public class BetController {
         }
         log.info("查询未返水 user id: {}, tgChatId: {}", userId, tgChatId);
         List<Bet> betList = betService.queryBetIsNotReturned(userId, tgChatId);
-        return ResponseUtil.success(betList.stream().map(bet -> {
-        	BetResponseVO vo = new BetResponseVO();
-        	BeanUtils.copyProperties(bet, vo);
-        	vo.setId(bet.getId());
-        	return vo;
-        }).collect(Collectors.toList()));
         
+        if (betList!=null) {
+            return ResponseUtil.success(betList.stream().map(bet -> {
+            	BetResponseVO vo = new BetResponseVO();
+            	BeanUtils.copyProperties(bet, vo);
+            	vo.setId(bet.getId());
+            	return vo;
+            }).collect(Collectors.toList()));
+        }
+        
+        return ResponseUtil.success(new ArrayList<>());
     }
     
     @PostMapping("returnAmount")
     @ApiOperation("返水")
-    public ResponseEntity<BigDecimal> returnAmount(Long betId, Long userId, Long tgChatId, BigDecimal winAmount) {
+    public ResponseEntity<BigDecimal> returnAmount(Long betId, Long userId, Long tgChatId) {
 
-        if ( betId==null || userId==null || tgChatId==null || winAmount==null ) {
+        if ( betId==null || userId==null || tgChatId==null ) {
             log.info("[返水] 检核失败");
             return ResponseUtil.custom("检核失败");
         }
-        log.info("返水 betId: {}, userId: {}, tgChatId: {}, winAmount: {}", betId, userId, tgChatId, winAmount);
+        log.info("返水 betId: {}, userId: {}, tgChatId: {}", betId, userId, tgChatId);
         BigDecimal returnAmount = BigDecimal.ZERO;
-        returnAmount = gameReturnAmountMultiplier.multiply(winAmount).abs();
+        Bet bet = betService.findById(betId);
+        returnAmount = gameReturnAmountMultiplier.multiply(bet.getWinAmount()).abs();
         betStatisticsService.updateReturnAmount(userId, tgChatId, Integer.parseInt(DateUtil.today(DateUtil.YYYYMMDD)), returnAmount);
-        betService.updateReturnAmount(betId);
+        betService.updateReturnAmount(betId, returnAmount);
         return ResponseUtil.success(returnAmount);
     }
     

@@ -25,4 +25,9 @@ public class RabbitBusiness {
         userAssetsBusiness.doPlayMoneyBusiness(user, playMoneyVO);
     }
 
+
+    public void doUserSubtractBalance(User user, BalanceVO balanceVO) {
+        userAssetsBusiness.doSubtractBalanceBusiness(user, balanceVO);
+    }
+
 }

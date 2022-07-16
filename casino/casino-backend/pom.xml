@@ -10,7 +10,7 @@
     <groupId>com.baisha</groupId>
     <artifactId>backend-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>管理后台</name>
+    <name>backend-server</name>
     <description>backend-server</description>
 
     <dependencies>

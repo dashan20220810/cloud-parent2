@@ -31,4 +31,18 @@ public class RabbitDirectConfig {
     Queue userSettlementAssetsQueue() {
         return new Queue(MqConstants.USER_SETTLEMENT_ASSETS);
     }
+
+
+    //重新开牌-结算 告诉user扣除之前的金额
+    @Bean
+    Binding userSubtractAssetsBinding() {
+        return BindingBuilder.bind(userSubtractAssetsQueue()).to(gameAndUserDirectExchange())
+                .with(MqConstants.USER_SUBTRACT_ASSETS + "-direct");
+    }
+
+    @Bean
+    Queue userSubtractAssetsQueue() {
+        return new Queue(MqConstants.USER_SUBTRACT_ASSETS);
+    }
+
 }

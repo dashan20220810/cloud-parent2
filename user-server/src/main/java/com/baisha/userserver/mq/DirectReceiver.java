@@ -5,6 +5,7 @@ import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
+import com.baisha.modulecommon.vo.mq.userServer.BetAmountVO;
 import com.baisha.modulecommon.vo.mq.userServer.BetSettleUserVO;
 import com.baisha.userserver.business.RabbitBusiness;
 import com.baisha.userserver.model.User;
@@ -82,5 +83,42 @@ public class DirectReceiver {
         }
         log.info("====betSettlementAward============END========================");
     }
+
+
+    /**
+     * 重新开牌 减去用去 资产
+     *
+     * @param jsonStr
+     */
+    @RabbitListener(queues = MqConstants.USER_SUBTRACT_ASSETS)
+    public void userSubtractAssets(String jsonStr) {
+        if (StringUtils.isEmpty(jsonStr)) {
+            log.error("重新开牌-收到gameServer参数不能为空");
+            return;
+        }
+        BetAmountVO vo = JSONObject.parseObject(jsonStr, BetAmountVO.class);
+        log.info("重新开牌-收到gameServer参数 {}", JSONObject.toJSONString(vo));
+        if (StringUtils.isEmpty(vo.getNoActive()) || null == vo.getBetId() || null == vo.getUserId()) {
+            log.error("重新开牌-参数不全jsonStr={}", jsonStr);
+            return;
+        }
+        //获取用户
+        User user = userService.findById(vo.getUserId());
+        if (Objects.isNull(user)) {
+            log.error("会员不存在");
+            return;
+        }
+        log.info("=====userSubtractAssets============START==========================");
+        BalanceVO balanceVO = new BalanceVO();
+        balanceVO.setUserId(vo.getUserId());
+        balanceVO.setBalanceType(UserServerConstants.EXPENSES);
+        balanceVO.setAmount(vo.getAmount());
+        balanceVO.setRelateId(vo.getBetId());
+        balanceVO.setChangeType(BalanceChangeEnum.BET_REOPEN.getCode());
+        balanceVO.setRemark(vo.getRemark());
+        rabbitBusiness.doUserSubtractBalance(user, balanceVO);
+        log.info("====userSubtractAssets============END========================");
+    }
+
 
 }

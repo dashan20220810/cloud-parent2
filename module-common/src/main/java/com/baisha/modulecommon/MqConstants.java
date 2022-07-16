@@ -37,4 +37,10 @@ public class MqConstants {
     public final static String GS_REOPEN_BET_RESULT = "gs_reopen_bet_result";
 
 
+
+    /** 重新开牌-结算 告诉user扣除之前的金额 */
+    public static final String USER_SUBTRACT_ASSETS = "user_subtract_assets";
+
+
+
 }

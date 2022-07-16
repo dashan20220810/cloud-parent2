@@ -35,28 +35,33 @@ public class ReturnAmountTask {
 	@Autowired
 	AssetsBusiness assetsBusiness;
 	
-	@Scheduled(cron = "0 10 0 * * ?", zone="Asia/Shanghai")
+	@Scheduled(cron = "0 40 11 * * ?", zone="Asia/Shanghai")
 	public void returnAmount () {
 		log.info("\r\n ========= 计算每日返水 ");
 		
-		Integer queryAmount = 5000;
+		Integer queryAmount = 500;
 		List<Bet> processList = betService.queryBetIsNotReturnedYesterday(queryAmount);
 		Integer dateInt = Integer.parseInt(DateUtil.dateToyyyyMMdd(DateUtils.addDays(new Date(), -1)));
 		
 		while ( processList!=null & processList.size()>0 ) {
-			
-			processList.parallelStream().map(bet -> {
-				BigDecimal returnAmount = gameReturnAmountMultiplier.multiply(bet.getWinAmount()).abs();
-				betStatisticsService.updateReturnAmount(bet.getUserId(), bet.getTgChatId(), dateInt, returnAmount);
-				
-				String result = assetsBusiness.returnAmount(bet.getUserId(), returnAmount, bet.getId());
-				if ( StringUtils.isNotBlank(result) ) {
-					log.warn(" 呼叫用户中心-返水api 失败. user id: {}, amount: {}, bet id: {}, api result: {} "
-							, bet.getUserId(), returnAmount, bet.getId(), result);
-				}
-				return result;
-			});
+	        
+			processList.stream()
+				.map(bet -> doBetReturnAmoun(bet, dateInt)).toList();
+			processList = betService.queryBetIsNotReturnedYesterday(queryAmount);
 		}
 	}
+
+    private String doBetReturnAmoun(Bet bet, Integer dateInt) {
+		BigDecimal returnAmount = gameReturnAmountMultiplier.multiply(bet.getWinAmount()).abs();
+		betStatisticsService.updateReturnAmount(bet.getUserId(), bet.getTgChatId(), dateInt, returnAmount);
+		betService.updateReturnAmount(bet.getId(), returnAmount);
+		
+		String result = assetsBusiness.returnAmount(bet.getUserId(), returnAmount, bet.getId());
+		if ( StringUtils.isNotBlank(result) ) {
+			log.warn(" 呼叫用户中心-返水api 失败. user id: {}, amount: {}, bet id: {}, api result: {} "
+					, bet.getUserId(), returnAmount, bet.getId(), result);
+		}
+    	return result;
+    }
 
 }

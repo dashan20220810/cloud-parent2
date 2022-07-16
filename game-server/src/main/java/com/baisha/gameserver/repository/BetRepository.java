@@ -17,8 +17,6 @@ import com.baisha.gameserver.model.Bet;
  */
 public interface BetRepository extends JpaRepository<Bet, Long>, JpaSpecificationExecutor<Bet> {
 
-    List<Bet> findAllByUserIdAndCreateTimeBetween(Long userId, Date createBeginTime, Date createEndTime);
-
     List<Bet> findAllByUserIdAndTgChatId(Long userId, Long tgChatId, Pageable pageable);
 
     List<Bet> findByNoActiveAndStatus(String noActive, Integer status);
@@ -54,11 +52,16 @@ public interface BetRepository extends JpaRepository<Bet, Long>, JpaSpecificatio
     List<Bet> findAllBy(Date beginTime, Date endTime, Pageable pageable);
 
     @Modifying
-    @Query(value = " update Bet b SET b.isReturned=true WHERE b.id = ?1 ")
-    int updateIsReturnedById(Long id);
+    @Query(value = " update Bet b SET b.isReturned=true, b.returnAmount=?2 WHERE b.id = ?1 ")
+    int updateIsReturnedAndReturnAmountById(Long id, BigDecimal returnAmount);
 
     @Modifying
     @Query(value = " update Bet b SET  b.isReturned=?5 WHERE b.status=2 AND (b.isReturned IS NULL or b.isReturned = false) "
             + " 	AND b.userId = ?1 AND b.tgChatId=?2 AND b.updateTime BETWEEN ?3 AND ?4 ")
     int updateReturnAmount(Long userId, Long tgChatId, Date beginTime, Date endTime, boolean isReturned);
+
+    List<Bet> findByNoActive(String noActive);
+
+
+
 }
