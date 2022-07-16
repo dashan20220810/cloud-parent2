@@ -113,7 +113,7 @@ public class BetAwardController {
 
 
     @ApiOperation(value = "获取开奖选项")
-    @GetMapping(value = "")
+    @GetMapping(value = "getAwardOption")
     public ResponseEntity getAwardOption() {
         return ResponseUtil.success(TgBaccRuleEnum.getList().stream()
                 .map(item -> CodeNameBO.builder().code(item.getCode()).name(item.getName()).build()).toList());
