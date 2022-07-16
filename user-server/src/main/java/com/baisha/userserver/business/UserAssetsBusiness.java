@@ -272,6 +272,13 @@ public class UserAssetsBusiness {
     }
 
 
+    /**
+     * 减去余额 余额可为负数 例如重新开牌可用
+     *
+     * @param user
+     * @param vo
+     * @return
+     */
     public ResponseEntity doSubtractBalanceBusiness(User user, BalanceVO vo) {
         //使用用户ID 使用redisson 公平锁
         RLock fairLock = redisson.getFairLock(RedisConstants.USER_ASSETS + user.getId());
@@ -298,10 +305,10 @@ public class UserAssetsBusiness {
         //支出先扣钱
         int flag = assetsService.doSubtractBalanceById(vo.getAmount(), assets.getId());
         if (flag < 1) {
-            log.info("(支出)更新余额失败(userId={} assetsId={})", user.getId(), assets.getId());
+            log.info("(支出)更新余额失败(userId={} assetsId={})subtract", user.getId(), assets.getId());
             return ResponseUtil.fail();
         }
-        log.info("(支出)更新余额成功(userId={} assetsId={})", user.getId(), assets.getId());
+        log.info("(支出)更新余额成功(userId={} assetsId={})subtract", user.getId(), assets.getId());
         BalanceChange balanceChange = new BalanceChange();
         balanceChange.setUserId(user.getId());
         balanceChange.setBalanceType(UserServerConstants.EXPENSES);
@@ -313,10 +320,10 @@ public class UserAssetsBusiness {
         balanceChange.setRelateId(vo.getRelateId());
         BalanceChange bc = balanceChangeService.save(balanceChange);
         if (Objects.nonNull(bc)) {
-            log.info("(支出)创建余额变化成功(userId={})", user.getId());
+            log.info("(支出)创建余额变化成功(userId={})subtract", user.getId());
             return ResponseUtil.success();
         }
-        log.info("(支出)创建余额变化失败(userId={})", user.getId());
+        log.info("(支出)创建余额变化失败(userId={})subtract", user.getId());
         return ResponseUtil.fail();
     }
 

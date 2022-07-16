@@ -62,6 +62,9 @@ public interface BetRepository extends JpaRepository<Bet, Long>, JpaSpecificatio
 
     List<Bet> findByNoActive(String noActive);
 
-
+    @Modifying
+    @Query(value = " update Bet b SET b.isReturned=false ,b.finalAmount=NULL,b.winAmount=NULL,b.status=1," +
+            "b.returnAmount=NULL,b.settleTime=NULL,b.settleRemark=NULL WHERE b.id = ?1 ")
+    int returnBet(Long id);
 
 }

@@ -77,7 +77,9 @@ public class DirectReceiver {
             balanceVO.setBalanceType(UserServerConstants.INCOME);
             balanceVO.setAmount(vo.getFinalAmount());
             balanceVO.setRelateId(vo.getBetId());
+
             balanceVO.setChangeType(BalanceChangeEnum.WIN.getCode());
+
             balanceVO.setRemark("会员" + "在局号为" + vo.getNoActive() + "中奖");
             rabbitBusiness.doUserBalance(user, balanceVO);
         }

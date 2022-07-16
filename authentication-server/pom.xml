@@ -11,7 +11,7 @@
     <groupId>com.baisha</groupId>
     <artifactId>authentication-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>统一认证中心</name>
+    <name>authentication-server</name>
     <description>authentication-server</description>
 
     <dependencies>
