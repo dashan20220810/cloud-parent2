@@ -96,12 +96,17 @@ public class BetAwardController {
             String[] awardOptionArr = awardOption.split(",");
             String name = "";
             for (String option : awardOptionArr) {
-                name = TgBaccRuleEnum.valueOf(option).getName() + ",";
+                TgBaccRuleEnum tgEnum = TgBaccRuleEnum.nameOfCode(option);
+                if (Objects.nonNull(tgEnum)) {
+                    name = tgEnum.getName() + ",";
+                }
             }
             if (StringUtils.isNotEmpty(name)) {
                 name = name.substring(0, name.length() - 1);
+                bo.setAwardOptionName(name);
+            } else {
+                bo.setAwardOptionName("未知奖项");
             }
-            bo.setAwardOptionName(name);
         } else {
             bo.setAwardOptionName("未开");
         }

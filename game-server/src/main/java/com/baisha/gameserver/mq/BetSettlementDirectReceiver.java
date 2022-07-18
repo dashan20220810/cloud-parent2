@@ -97,6 +97,10 @@ public class BetSettlementDirectReceiver {
                 //写记录
                 BetResult result = betResultService.findByNoActive(vo.getNoActive());
                 doBetResultChange(result, vo.getAwardOption());
+                if (StringUtils.isEmpty(result.getAwardOption())) {
+                    //修改开奖结果
+                    betResultService.update(vo.getNoActive(), vo.getAwardOption());
+                }
             }
         } catch (Exception e) {
             log.error(e.getMessage());
