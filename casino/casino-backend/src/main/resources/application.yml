@@ -5,7 +5,7 @@ server:
 url:
   userServer: http://192.168.26.23:9300
   gameServer: http://192.168.26.18:9500
-  tgBotServer: http://192.168.26.12:9000
+  tgBotServer: http://192.168.26.38:9000
   fileServer: http://192.168.26.26:9700
 
 project:
