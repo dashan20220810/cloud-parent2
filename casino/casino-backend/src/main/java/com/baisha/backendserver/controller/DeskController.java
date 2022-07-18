@@ -250,18 +250,18 @@ public class DeskController {
             String ruleCode = g.getRuleCode().toUpperCase();
             if (ruleCode.equals(TgBaccRuleEnum.Z.getCode())) {
                 bo.setZ(odds);
-                bo.setZMinAmount(g.getMinAmount());
-                bo.setZMaxAmount(g.getMaxAmount());
+                bo.setZhuangMinAmount(g.getMinAmount());
+                bo.setZhuangMaxAmount(g.getMaxAmount());
             }
             if (ruleCode.equals(TgBaccRuleEnum.X.getCode())) {
                 bo.setX(odds);
-                bo.setXMinAmount(g.getMinAmount());
-                bo.setXMaxAmount(g.getMaxAmount());
+                bo.setXianMinAmount(g.getMinAmount());
+                bo.setXianMaxAmount(g.getMaxAmount());
             }
             if (ruleCode.equals(TgBaccRuleEnum.H.getCode())) {
                 bo.setH(odds);
-                bo.setHMinAmount(g.getMinAmount());
-                bo.setHMaxAmount(g.getMaxAmount());
+                bo.setHeMinAmount(g.getMinAmount());
+                bo.setHeMaxAmount(g.getMaxAmount());
             }
             if (ruleCode.equals(TgBaccRuleEnum.ZD.getCode())) {
                 bo.setZd(odds);
@@ -292,9 +292,9 @@ public class DeskController {
         if (StringUtils.isEmpty(vo.getGameCode())) {
             return ResponseUtil.parameterNotNull();
         }
-        if (checkOdds(vo.getX(), vo.getXMinAmount(), vo.getXMaxAmount())
-                || checkOdds(vo.getZ(), vo.getZMinAmount(), vo.getZMaxAmount())
-                || checkOdds(vo.getH(), vo.getHMinAmount(), vo.getHMaxAmount())
+        if (checkOdds(vo.getX(), vo.getXianMinAmount(), vo.getXianMaxAmount())
+                || checkOdds(vo.getZ(), vo.getZhuangMinAmount(), vo.getZhuangMaxAmount())
+                || checkOdds(vo.getH(), vo.getHeMinAmount(), vo.getHeMaxAmount())
                 || checkOdds(vo.getZd(), vo.getZdMinAmount(), vo.getZdMaxAmount())
                 || checkOdds(vo.getXd(), vo.getXdMinAmount(), vo.getXdMaxAmount())
                 || checkOdds(vo.getSs2(), vo.getSsMinAmount(), vo.getSsMaxAmount())
@@ -304,6 +304,12 @@ public class DeskController {
 
         String url = gameServerUrl + GameServerConstants.GAME_SET_BACC_ODDS;
         Map<String, Object> param = BackendServerUtil.objectToMap(vo);
+        param.put("xMinAmount", vo.getXianMinAmount());
+        param.put("xMaxAmount", vo.getXianMaxAmount());
+        param.put("zMinAmount", vo.getZhuangMinAmount());
+        param.put("zMaxAmount", vo.getZhuangMaxAmount());
+        param.put("hMinAmount", vo.getHeMinAmount());
+        param.put("hMaxAmount", vo.getHeMaxAmount());
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
