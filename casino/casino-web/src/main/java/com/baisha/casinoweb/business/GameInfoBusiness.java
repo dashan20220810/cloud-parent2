@@ -129,7 +129,7 @@ public class GameInfoBusiness {
 
 	public void setGameTime(String gameTimeKey, NewGameInfo newGameInfo) {
 		RMapCache<String, NewGameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
-		map.put(gameTimeKey, newGameInfo, BigDecimalConstants.TEN.longValue(), TimeUnit.MINUTES);
+		map.put(gameTimeKey, newGameInfo, BigDecimalConstants.ONE.longValue(), TimeUnit.DAYS);
 	}
 
 	public NewGameInfo getGameTime(String gameTimeKey) {

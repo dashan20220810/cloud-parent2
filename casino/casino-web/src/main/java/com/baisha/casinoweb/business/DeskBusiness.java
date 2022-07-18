@@ -122,7 +122,7 @@ public class DeskBusiness {
 
 	public synchronized void setGameDesk(final String deskKey, final GameDesk gameDesk) {
 		RMapCache<String, GameDesk> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_DESK);
-		map.put(deskKey, gameDesk, BigDecimalConstants.TEN.longValue(), TimeUnit.MINUTES);
+		map.put(deskKey, gameDesk, BigDecimalConstants.ONE.longValue(), TimeUnit.DAYS);
 	}
 
 	public synchronized GameDesk getGameDesk(final String deskKey) {

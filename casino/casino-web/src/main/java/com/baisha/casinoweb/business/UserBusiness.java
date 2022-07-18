@@ -50,8 +50,8 @@ public class UserBusiness {
     	return userVO;
 	}
 
-	public boolean registerTG( String clientIP, String id, String nickName, Long groupId
-			, String inviteTgUserId, String tgGroupName, String tgUserName ) {
+	public boolean registerTG(String clientIP, String id, String nickName, Long groupId
+			, String inviteTgUserId, String tgGroupName, String tgUserName, String userType) {
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("ip", clientIP);
@@ -63,6 +63,7 @@ public class UserBusiness {
 		params.put("tgUserName", tgUserName);
 		params.put("password", tgRegisterPassword);
 		params.put("origin", UserOriginEnum.TG_ORIGIN.getOrigin());
+		params.put("userType", userType);
 
 		String result = HttpClient4Util.doPost(
 				userServerDomain + RequestPathEnum.USER_REGISTER.getApiName(),

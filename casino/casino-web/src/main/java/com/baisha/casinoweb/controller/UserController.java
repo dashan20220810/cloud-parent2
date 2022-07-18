@@ -46,11 +46,13 @@ public class UserController {
 		@ApiImplicitParam(name = "groupId", value = "telegram group id", dataType = "long", required = true, paramType = "query"),
 		@ApiImplicitParam(name = "inviteTgUserId", value = "邀请人 tg_user_id", dataType = "string", paramType = "query"),
 		@ApiImplicitParam(name = "tgGroupName", value = "tg群名称", dataType = "string", paramType = "query"),
-		@ApiImplicitParam(name = "tgUserName", value = "tg玩家名称", dataType = "string", paramType = "query")
+		@ApiImplicitParam(name = "tgUserName", value = "tg玩家名称", dataType = "string", paramType = "query"),
+		@ApiImplicitParam(name = "userType", value = "用户类型(1正式 2测试 3机器人)", dataType = "string", paramType = "query")
 	})
 	@ApiOperation("telegram注册")
 	@NoAuthentication
-	public ResponseEntity<?> registerTG(String id, String nickname, Long groupId, String inviteTgUserId, String tgGroupName, String tgUserName) {
+	public ResponseEntity<?> registerTG(String id, String nickname, Long groupId, String inviteTgUserId,
+							String tgGroupName, String tgUserName, String userType) {
 		log.info("注册使用者");
 		if ( CommonUtil.checkNull(id, nickname, tgGroupName) || groupId==null ) {
 			log.info("注册检核失败");
@@ -59,7 +61,7 @@ public class UserController {
 		
 		// 记录IP
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
-		if (!userBusiness.registerTG(ip, id, nickname, groupId, inviteTgUserId, tgGroupName, tgUserName)) {
+		if (!userBusiness.registerTG(ip, id, nickname, groupId, inviteTgUserId, tgGroupName, tgUserName, userType)) {
             return ResponseUtil.fail();
 		}
 
