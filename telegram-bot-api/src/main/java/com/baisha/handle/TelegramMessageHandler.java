@@ -57,6 +57,8 @@ public class TelegramMessageHandler {
             param.put("inviteTgUserId", from.getId());
         }
         param.put("tgGroupName", chat.getTitle());
+        // 是否下注机器人(1正式 2测试 3机器人)
+        param.put("userType", user.getIsBot() ? 3 : 1);
         // 远程调用
         String requestUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_REGISTER_USER.getApiName();
         String forObject = TgHttpClient4Util.doPost(requestUrl, param, user.getId());
@@ -71,20 +73,12 @@ public class TelegramMessageHandler {
         }
         log.error("{}群{}用户绑定失败，原因:{}", chat.getId(), user.getId(), result.getMsg());
         return false;
-
     }
 
     public void messageHandler(MyTelegramLongPollingBot bot, Update update) {
         Message message = update.getMessage();
         Chat chat = message.getChat();
         User from = message.getFrom();
-
-        // 如果当前时间秒数 - 消息时间秒数 > 70，那么不再处理消息事件。
-        long messageTime = message.getDate();
-        long currentTime = System.currentTimeMillis() / 1000;
-        if (currentTime - messageTime > 70) {
-            return;
-        }
 
         // 判断此群是否通过审核，未通过不处理消息。
         if (!commonHandler.checkChatIsAudit(bot, chat)) {
@@ -103,6 +97,17 @@ public class TelegramMessageHandler {
             }
             return;
         }
+        // 会员离群事件
+        User leftChatMember = message.getLeftChatMember();
+        //
+
+        // 如果当前时间秒数 - 消息时间秒数 > 70，那么不再处理消息事件。
+        long messageTime = message.getDate();
+        long currentTime = System.currentTimeMillis() / 1000;
+        if (currentTime - messageTime > 70) {
+            return;
+        }
+
         // 下面都是：发送消息事件
         String originText = message.getText();
         if (StrUtil.isEmpty(originText)) {
