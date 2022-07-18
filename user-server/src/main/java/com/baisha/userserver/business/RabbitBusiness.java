@@ -18,8 +18,9 @@ public class RabbitBusiness {
 
     @Async(value = "asyncExecutor")
     public void doUserBalance(User user, BalanceVO balanceVO) {
-        if (BalanceChangeEnum.BET_REWIN.equals(balanceVO.getBalanceType())) {
+        if (BalanceChangeEnum.BET_REWIN.getCode().equals(balanceVO.getChangeType())) {
             //支持多次重新开奖
+            log.info("doUserBalance-重新派彩");
             userAssetsBusiness.doAddBalanceBusiness(user, balanceVO);
         } else {
             userAssetsBusiness.doBalanceBusiness(user, balanceVO);

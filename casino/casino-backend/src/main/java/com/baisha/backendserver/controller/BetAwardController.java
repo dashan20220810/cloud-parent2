@@ -20,6 +20,7 @@ import com.baisha.backendserver.service.BetResultChangeService;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.GameServerConstants;
+import com.baisha.backendserver.util.constants.RedisKeyConstants;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.enums.TgBaccRuleEnum;
 import com.baisha.modulecommon.reponse.ResponseCode;
@@ -27,6 +28,7 @@ import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
+import com.baisha.modulespringcacheredis.util.RedisUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -54,6 +56,8 @@ import java.util.*;
 public class BetAwardController {
     @Value("${url.gameServer}")
     private String gameServerUrl;
+    @Autowired
+    private RedisUtil redisUtil;
     @Autowired
     private CommonBusiness commonService;
     @Autowired
@@ -98,7 +102,7 @@ public class BetAwardController {
             for (String option : awardOptionArr) {
                 TgBaccRuleEnum tgEnum = TgBaccRuleEnum.nameOfCode(option);
                 if (Objects.nonNull(tgEnum)) {
-                    name = tgEnum.getName() + ",";
+                    name = name + tgEnum.getName() + ",";
                 }
             }
             if (StringUtils.isNotEmpty(name)) {
@@ -144,12 +148,21 @@ public class BetAwardController {
     }
 
 
-    @ApiOperation(value = "补单(不影响已结算的该局的会员)", notes = "未开奖 或 开奖后部分注单没结算 ")
+    @ApiOperation(value = "补单(不影响已结算的该局的会员)", notes = "用与未开奖 或 开奖后部分注单没结算  " +
+            "如果当前局没有开奖，可以重新选择奖项开奖，如果已经开奖，不能重新选择奖项开奖，必须使以前")
     @PostMapping(value = "repair")
     public ResponseEntity repairBetResult(BetResultRepairVO vo) {
         if (CommonUtil.checkNull(vo.getNoActive(), vo.getAwardOption())) {
             return ResponseUtil.parameterNotNull();
         }
+        //防止前端多次点击操作
+        String prevent = RedisKeyConstants.PREVENT_CLICKS + "repair_" + vo.getNoActive();
+        if (redisUtil.hasKey(prevent)) {
+            return new ResponseEntity("当前局补单已在处理，间隔10秒后才能再次请求");
+        } else {
+            redisUtil.set(prevent, prevent, 10L);
+        }
+
         log.info("补单--(web)传入参数 ：{}", JSONObject.toJSONString(vo));
         BetResultBO resultBO = getBetResultBO(vo.getNoActive());
         if (Objects.isNull(resultBO)) {
@@ -267,11 +280,19 @@ public class BetAwardController {
     }
 
 
-    @ApiOperation(value = "重新开牌(影响该局的会员)", notes = "重新结算-(1加了钱的都得减 2 再次结算)")
+    @ApiOperation(value = "重新开牌(影响该局的会员)", notes = "必须重新选择奖项开奖" +
+            "重新结算-(1加了钱的都得减 2 再次结算)")
     @PostMapping(value = "reopen")
     public ResponseEntity reopenBetResult(BetResultReopenVO vo) {
         if (CommonUtil.checkNull(vo.getNoActive(), vo.getAwardOption())) {
             return ResponseUtil.parameterNotNull();
+        }
+        //防止前端多次点击操作
+        String prevent = RedisKeyConstants.PREVENT_CLICKS + "reopen_" + vo.getNoActive();
+        if (redisUtil.hasKey(prevent)) {
+            return new ResponseEntity("当前局重新开牌已在处理，间隔10秒后才能再次请求");
+        } else {
+            redisUtil.set(prevent, prevent, 10L);
         }
         log.info("重新开牌--(web)传入参数 ：{}", JSONObject.toJSONString(vo));
         //先查询开奖结果是否 与原来一样

@@ -82,7 +82,7 @@ public class UserAssetsBusiness {
         //支持多次重新开奖,所以可以更新当前余额变化记录
         long start = System.currentTimeMillis();
         BalanceChange isExist = balanceChangeService.findByUserIdAndChangeTypeAndRelateId(user.getId(), vo.getChangeType(), vo.getRelateId());
-        log.info("余额变化记录 查询耗时{}毫秒", System.currentTimeMillis() - start);
+        log.info("doAddBalanceBusiness余额变化记录 查询耗时{}毫秒", System.currentTimeMillis() - start);
         //使用用户ID 使用redisson 公平锁
         RLock fairLock = redisson.getFairLock(RedisConstants.USER_ASSETS + user.getId());
         try {
@@ -341,7 +341,7 @@ public class UserAssetsBusiness {
         //支持多次重新开奖,所以可以更新当前余额变化记录
         long start = System.currentTimeMillis();
         BalanceChange isExist = balanceChangeService.findByUserIdAndChangeTypeAndRelateId(user.getId(), vo.getChangeType(), vo.getRelateId());
-        log.info("余额变化记录 查询耗时{}毫秒", System.currentTimeMillis() - start);
+        log.info("doSubtractBalanceBusiness余额变化记录 查询耗时{}毫秒", System.currentTimeMillis() - start);
         //使用用户ID 使用redisson 公平锁
         RLock fairLock = redisson.getFairLock(RedisConstants.USER_ASSETS + user.getId());
         try {

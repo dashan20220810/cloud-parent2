@@ -430,17 +430,9 @@ public class UserController {
 
     private void changeType(UserBalanceChangePageBO bo) {
         if (Objects.nonNull(bo.getChangeType())) {
-            if (bo.getChangeType().equals(BalanceChangeEnum.RECHARGE.getCode())) {
-                bo.setChangeTypeName(BalanceChangeEnum.RECHARGE.getName());
-                return;
-            }
-            if (bo.getChangeType().equals(BalanceChangeEnum.BET.getCode())) {
-                bo.setChangeTypeName(BalanceChangeEnum.BET.getName());
-                return;
-            }
-            if (bo.getChangeType().equals(BalanceChangeEnum.WIN.getCode())) {
-                bo.setChangeTypeName(BalanceChangeEnum.WIN.getName());
-                return;
+            BalanceChangeEnum balanceChangeEnum = BalanceChangeEnum.nameOfCode(bo.getChangeType());
+            if (Objects.nonNull(balanceChangeEnum)) {
+                bo.setChangeTypeName(balanceChangeEnum.getName());
             }
         }
     }
@@ -502,13 +494,9 @@ public class UserController {
 
     private void playMoneyType(UserPlayMoneyChangePageBO bo) {
         if (Objects.nonNull(bo.getChangeType())) {
-            if (bo.getChangeType().equals(PlayMoneyChangeEnum.RECHARGE.getCode())) {
-                bo.setChangeTypeName(PlayMoneyChangeEnum.RECHARGE.getName());
-                return;
-            }
-            if (bo.getChangeType().equals(PlayMoneyChangeEnum.SETTLEMENT.getCode())) {
-                bo.setChangeTypeName(PlayMoneyChangeEnum.SETTLEMENT.getName());
-                return;
+            PlayMoneyChangeEnum playMoneyChangeEnum = PlayMoneyChangeEnum.nameOfCode(bo.getChangeType());
+            if (Objects.nonNull(playMoneyChangeEnum)) {
+                bo.setChangeTypeName(playMoneyChangeEnum.getName());
             }
         }
     }
