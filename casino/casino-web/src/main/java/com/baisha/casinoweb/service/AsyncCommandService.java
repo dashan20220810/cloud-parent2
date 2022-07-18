@@ -28,6 +28,7 @@ import com.baisha.modulecommon.vo.NewGameInfo;
 import com.baisha.modulecommon.vo.mq.OpenVO;
 import com.baisha.modulecommon.vo.mq.PairImageVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
@@ -357,6 +358,10 @@ public class AsyncCommandService {
 
 		// 获取开牌结果(转换成tg端结果)
 		String openCardResult = OpenCardConvertTgEnum.getAllOpenCardTgResult(consequences);
+		// 开牌结果不符合规则直接返回
+		if(StringUtils.isEmpty(openCardResult)){
+			return ;
+		}
 
 		JSONObject betJson = JSONObject.parseObject(result);
 		JSONArray betArray = betJson.getJSONArray("data");
