@@ -151,6 +151,7 @@ public class DealerBusiness {
     public void settlement (final SettleFinishVO settleFinishVO) {
     	
     	log.info("\r\n================= 结算");
+		log.info("结算参数 :{}", settleFinishVO);
     	asyncCommandService.settlement(settleFinishVO);
     	log.info("结算成功");
     }
