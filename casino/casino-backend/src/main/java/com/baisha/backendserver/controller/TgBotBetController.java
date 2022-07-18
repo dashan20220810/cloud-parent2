@@ -35,8 +35,8 @@ public class TgBotBetController {
     @Autowired
     private CommonBusiness commonService;
 
-    @ApiOperation("新开机器人")
-    @PostMapping("open")
+    @ApiOperation("新增机器人")
+    @PostMapping("addBetBot")
     public ResponseEntity open(String username, String token) {
         // 参数校验
         if (CommonUtil.checkNull(username, token)) {

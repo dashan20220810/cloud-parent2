@@ -120,16 +120,19 @@ public class BetSettlementBusiness {
             //修改注单数据
             int flag = betService.settleBet(bet.getId(), winAmount, finalAmount, settleRemarkBuffer.toString());
             if (flag > 0) {
-                //用户统计今日数据(输赢结果)
-                statisticsWinAmount(bet, winAmount);
+                if (winAmount.compareTo(BigDecimal.ZERO) != 0) {
+                    log.info("输赢金额 {}", winAmount);
+                    //用户统计今日数据(输赢结果)
+                    statisticsWinAmount(bet, winAmount);
 
-                log.info("通知后台更新输赢{}", winAmount);
-                UserBetStatisticsVO userBetStatisticsVO = UserBetStatisticsVO.builder().userId(bet.getUserId())
-                        .betTime(DateUtil.getSimpleDateFormat().format(bet.getCreateTime()))
-                        .winAmount(winAmount).build();
-                String userBetStatisticsJsonStr = JSONObject.toJSONString(userBetStatisticsVO);
-                log.info("发送给后台MQ消息：{}", userBetStatisticsJsonStr);
-                rabbitTemplate.convertAndSend(MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS, userBetStatisticsJsonStr);
+                    log.info("通知后台更新输赢{}", winAmount);
+                    UserBetStatisticsVO userBetStatisticsVO = UserBetStatisticsVO.builder().userId(bet.getUserId())
+                            .betTime(DateUtil.getSimpleDateFormat().format(bet.getCreateTime()))
+                            .winAmount(winAmount).build();
+                    String userBetStatisticsJsonStr = JSONObject.toJSONString(userBetStatisticsVO);
+                    log.info("发送给后台MQ消息：{}", userBetStatisticsJsonStr);
+                    rabbitTemplate.convertAndSend(MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS, userBetStatisticsJsonStr);
+                }
 
                 log.info("=======================================================================================");
                 log.info("通知用户中心更新余额{}和打码量{}", finalAmount, betAmount);
@@ -218,17 +221,20 @@ public class BetSettlementBusiness {
         if (null != bet.getSettleTime()) {
             //输赢不为空 就表示 已经结算了
             BigDecimal return_winAmount = BigDecimal.ZERO.subtract(bet.getWinAmount());
-            //返回-用户统计今日数据(输赢结果)
-            statisticsWinAmount(bet, return_winAmount);
+            if (return_winAmount.compareTo(BigDecimal.ZERO) != 0) {
+                log.info("返回 - 输赢金额 {}", return_winAmount);
+                //返回-用户统计今日数据(输赢结果)
+                statisticsWinAmount(bet, return_winAmount);
 
-            //返回-后台统计该注单重新开牌
-            log.info("重新开牌-通知后台更新输赢{}", return_winAmount);
-            UserBetStatisticsVO userBetStatisticsVO = UserBetStatisticsVO.builder().userId(bet.getUserId())
-                    .betTime(DateUtil.getSimpleDateFormat().format(bet.getCreateTime()))
-                    .winAmount(return_winAmount).build();
-            String userBetStatisticsJsonStr = JSONObject.toJSONString(userBetStatisticsVO);
-            log.info("重新开牌-发送给后台MQ消息：{}", userBetStatisticsJsonStr);
-            rabbitTemplate.convertAndSend(MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS, userBetStatisticsJsonStr);
+                //返回-后台统计该注单重新开牌
+                log.info("重新开牌-通知后台更新输赢{}", return_winAmount);
+                UserBetStatisticsVO userBetStatisticsVO = UserBetStatisticsVO.builder().userId(bet.getUserId())
+                        .betTime(DateUtil.getSimpleDateFormat().format(bet.getCreateTime()))
+                        .winAmount(return_winAmount).build();
+                String userBetStatisticsJsonStr = JSONObject.toJSONString(userBetStatisticsVO);
+                log.info("重新开牌-发送给后台MQ消息：{}", userBetStatisticsJsonStr);
+                rabbitTemplate.convertAndSend(MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS, userBetStatisticsJsonStr);
+            }
 
             //派彩金额
             BigDecimal finalAmount = bet.getFinalAmount();
