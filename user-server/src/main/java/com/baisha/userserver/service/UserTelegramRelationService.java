@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -39,5 +40,14 @@ public class UserTelegramRelationService {
 
     public UserTelegramRelation findByTgUserIdAndTgGroupId(String tgUserId, String tgGroupId) {
         return relationRepository.findByTgUserIdAndTgGroupId(tgUserId, tgGroupId);
+    }
+
+    public int leaveGroup(String tgUserId, String tgGroupId) {
+        return relationRepository.leaveGroup(tgUserId, tgGroupId);
+    }
+
+
+    public List<UserTelegramRelation> findByTgGroupIdAndUserType(String tgGroupId,Integer userType) {
+        return relationRepository.findByTgGroupIdAndUserType(tgGroupId,userType);
     }
 }

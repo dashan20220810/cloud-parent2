@@ -2,6 +2,7 @@ package com.baisha.userserver.contrloller;
 
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.enums.UserOriginEnum;
+import com.baisha.modulecommon.enums.user.UserTypeEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
@@ -18,6 +19,8 @@ import com.baisha.userserver.service.UserService;
 import com.baisha.userserver.service.UserTelegramRelationService;
 import com.baisha.userserver.util.UserServerUtil;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -34,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.criteria.Predicate;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -101,8 +103,11 @@ public class UserController {
                 relation.setTgUserId(vo.getTgUserId());
                 relation.setTgGroupId(vo.getTgGroupId());
                 relation.setTgGroupName(vo.getTgGroupName());
-                relationService.save(relation);
+                relation.setUserType(vo.getUserType());
+            } else {
+                relation.setStatus(Constants.open);
             }
+            relationService.save(relation);
         }
     }
 
@@ -309,6 +314,45 @@ public class UserController {
         };
         Page<UserTelegramRelation> pageList = relationService.getUserTelegramPage(spec, pageable);
         return ResponseUtil.success(pageList);
+    }
+
+
+    @ApiOperation(value = ("离群"))
+    @PostMapping(value = "leaveGroup")
+    public ResponseEntity leaveGroup(TgUserAndGroupIdVO vo) {
+        if (CommonUtil.checkNull(vo.getTgUserId(), vo.getTgGroupId())) {
+            return ResponseUtil.parameterNotNull();
+        }
+        relationService.leaveGroup(vo.getTgUserId(), vo.getTgGroupId());
+        return ResponseUtil.success();
+    }
+
+
+    @ApiOperation(value = ("获取TG群的机器人用户"))
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "tgGroupId", value = "群ID", required = true, dataTypeClass = String.class)
+    })
+    @GetMapping(value = "getBotList")
+    public ResponseEntity<List<User>> getBotList(String tgGroupId) {
+        if (StringUtils.isEmpty(tgGroupId)) {
+            return ResponseUtil.parameterNotNull();
+        }
+
+        List<UserTelegramRelation> relations = relationService.findByTgGroupIdAndUserType(tgGroupId,UserTypeEnum.BOT.getCode());
+        if (!CollectionUtils.isEmpty(relations)) {
+            List<Long> userIds = relations.stream().map(item -> item.getUserId()).toList();
+            List<User> list = userService.findByIdIn(userIds);
+            if (!CollectionUtils.isEmpty(list)) {
+                list = list.stream().map(item -> {
+                    //隐藏密码
+                    item.setPassword(null);
+                    return item;
+                }).toList();
+            }
+
+            return ResponseUtil.success(list);
+        }
+        return ResponseUtil.success(new ArrayList<>());
     }
 
 }

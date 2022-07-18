@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 /**
  * @author yihui
  */
@@ -38,4 +40,8 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
      * @return
      */
     User findByTgUserId(String tgUserId);
+
+    List<User> findByUserType(Integer userType);
+
+    List<User> findByIdIn(List<Long> userIds);
 }

@@ -18,23 +18,23 @@ public class GameBaccOddsVO {
 
     @ApiModelProperty(value = "闲-赔率(大于0,支持2位小数)", required = true)
     private BigDecimal x;
-    @ApiModelProperty(value = "闲-最大限红", required = true)
+    @ApiModelProperty(value = "闲-最大限红(必填)", required = true)
     private Integer xMaxAmount;
-    @ApiModelProperty(value = "闲-最小限红", required = true)
+    @ApiModelProperty(value = "闲-最小限红(必填)", required = true)
     private Integer xMinAmount;
 
     @ApiModelProperty(value = "庄-赔率(大于0,支持2位小数)", required = true)
     private BigDecimal z;
-    @ApiModelProperty(value = "庄-最大限红", required = true)
+    @ApiModelProperty(value = "庄-最大限红(必填)", required = true)
     private Integer zMaxAmount;
-    @ApiModelProperty(value = "庄-最小限红", required = true)
+    @ApiModelProperty(value = "庄-最小限红(必填)", required = true)
     private Integer zMinAmount;
 
     @ApiModelProperty(value = "和-赔率(大于0,支持2位小数)", required = true)
     private BigDecimal h;
-    @ApiModelProperty(value = "和-最大限红", required = true)
+    @ApiModelProperty(value = "和-最大限红(必填)", required = true)
     private Integer hMaxAmount;
-    @ApiModelProperty(value = "和-最小限红", required = true)
+    @ApiModelProperty(value = "和-最小限红(必填)", required = true)
     private Integer hMinAmount;
 
     @ApiModelProperty(value = "闲对-赔率(大于0,支持2位小数)", required = true)

@@ -16,7 +16,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @org.hibernate.annotations.Table(appliesTo = "user", comment = "会员")
-@Table(name = "User", indexes = {@Index(columnList = "tgUserId"), @Index(columnList = "inviteUserId")})
+@Table(name = "User", indexes = {@Index(columnList = "tgUserId"), @Index(columnList = "inviteUserId"), @Index(columnList = "userType")})
 @ApiModel(value = "用户中心-用户对象")
 public class User extends BaseEntity {
 

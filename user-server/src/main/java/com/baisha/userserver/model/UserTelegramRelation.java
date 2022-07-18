@@ -45,4 +45,8 @@ public class UserTelegramRelation extends BaseEntity {
     @Column(columnDefinition = "tinyint(2) comment '状态 1 正常 ，0离开'")
     private Integer status = 1;
 
+    @ApiModelProperty(value = "用户类型")
+    @Column(columnDefinition = "tinyint(2) comment '用户类型 1正式 2测试 3机器人'")
+    private Integer userType = 1;
+
 }
