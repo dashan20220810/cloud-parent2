@@ -58,7 +58,7 @@ public class CommandController {
     @ApiOperation("开始新局")
     @PostMapping("startNewBureau")
     public ResponseEntity startNewBureau(StartNewBureauVO vo) throws Exception {
-        log.info("开始新局:{}", vo);
+        log.info("==================开始新局:{}", vo);
 
         // 第一步，验证参数有效性
         if (!StartNewBureauVO.check(vo)) {
@@ -94,7 +94,7 @@ public class CommandController {
     @ApiOperation("封盘线")
     @PostMapping("sealingLine")
     public ResponseEntity sealingLine(@RequestBody SealingLineVO vo) throws Exception {
-        log.info("封盘线:{}", vo);
+        log.info("==================封盘线:{}", vo);
         // 验证参数有效性
         if (!SealingLineVO.check(vo)) {
             return ResponseUtil.parameterNotNull();
@@ -110,7 +110,7 @@ public class CommandController {
     @ApiOperation("开牌")
     @PostMapping("openCard")
     public ResponseEntity openCard(OpenCardVO vo) throws Exception {
-        log.info("开牌:{}", vo);
+        log.info("==================开牌:{}", vo);
 
         // 根据参数中的桌台ID，找到绑定该桌台的有效群
         List<TgChat> chatList = tgChatService.findByTableId(vo.getTableId());
@@ -140,7 +140,7 @@ public class CommandController {
     @ApiOperation("结算")
     @PostMapping("settlement")
     public ResponseEntity settlement(@RequestBody SettlementVO vo) throws Exception {
-        log.info("结算:{}", vo);
+        log.info("==================结算:{}", vo);
         // 验证参数有效性
         if (!SettlementVO.check(vo)) {
             return ResponseUtil.parameterNotNull();

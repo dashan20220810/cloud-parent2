@@ -13,6 +13,7 @@ import com.baisha.model.TgChat;
 import com.baisha.model.vo.*;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.enums.BetOption;
+import com.baisha.modulespringcacheredis.util.RedisUtil;
 import com.baisha.service.TgBotService;
 import com.baisha.service.TgChatService;
 import com.baisha.util.Base64Utils;
@@ -43,6 +44,9 @@ import static com.baisha.util.constants.CommonConstant.VIDEO_SUFFIX_MP4;
 @Slf4j
 @Service
 public class CommandBusiness {
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Autowired
     private TgBotService tgBotService;
@@ -111,12 +115,14 @@ public class CommandBusiness {
 
         if (null != openCardAddress) {
             this.showOpenCardButton(vo, openCardAddress, tgChat, myBot);
+            redisUtil.set(tgChat.getId()+"", 0);
         }
         if (null != videoResultAddress) {
             myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(videoResultAddress, VIDEO_SUFFIX_MP4))), tgChat.getChatId()+"");
         }
         if (null != picRoadAddress) {
             myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(picRoadAddress))), tgChat.getChatId()+"");
+            redisUtil.set(tgChat.getId()+"", 1);
         }
     }
 
@@ -133,6 +139,18 @@ public class CommandBusiness {
         }
         // 组装结算信息
         String settlementMessage = this.buildSettlementMessage(vo, userWinVOs);
+        for (int i = 0; i < 10; i++) {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            Object object = redisUtil.get(tgChat.getId() + "");
+            if (null != object && (Integer)object == 1) {
+                myBot.sendMessage(settlementMessage, tgChat.getChatId()+"");
+                return;
+            }
+        }
         myBot.sendMessage(settlementMessage, tgChat.getChatId()+"");
     }
 
@@ -151,12 +169,6 @@ public class CommandBusiness {
 
         List<TgBetBot> tgBetBots = Lists.newArrayList();
         tgBetBots.forEach(tgBetBot -> {
-            int random = TelegramBotUtil.getRandom(10, 20);
-            try {
-                Thread.sleep(Long.parseLong(random + "000"));
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
             // 判断投注时间
             String startTime = tgBetBot.getBetStartTime();
             String endTime = tgBetBot.getBetEndTime();
@@ -236,6 +248,12 @@ public class CommandBusiness {
             int indexAmount = TelegramBotUtil.getRandom(0, amounts.size() - 1);
             BigDecimal amount = amounts.get(indexAmount);
             // 下注机器人-开始下注
+            int random = TelegramBotUtil.getRandom(10, 19);
+            try {
+                Thread.sleep(Long.parseLong(random + "000"));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             myBot.sendMessage(betContent + amount, tgChat.getChatId()+"");
         });
     }

@@ -37,4 +37,25 @@ public class TgBotServerConstants {
      */
     public static final String GROUP_DELETEBYID = "/tgChat/deleteById";
 
+    /**
+     * 投注机器人 - 新增
+     */
+    public static final String TGBETBOT_ADDBETBOT = "/tgBetBot/addBetBot";
+
+    /**
+     * 投注机器人 - 删除
+     */
+    public static final String TGBETBOT_DELBOT = "/tgBetBot/delBot";
+
+    /**
+     * 分页查询 - 投注机器人
+     */
+    public static final String TGBETBOT_PAGE = "/tgBetBot/page";
+
+    /**
+     * 投注机器人 -状态
+     */
+    public static final String TGBETBOT_UPDATESTATUSBYID = "/tgBetBot/updateStatusById";
+
+
 }
