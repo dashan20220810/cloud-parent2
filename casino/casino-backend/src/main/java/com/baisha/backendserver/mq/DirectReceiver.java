@@ -23,11 +23,11 @@ public class DirectReceiver {
     /**
      * 用户下注统计
      *
-     * @param jsonStr
+     * @param jsonStr 投注金额 注单数
      */
     @RabbitListener(queues = MqConstants.USER_BET_STATISTICS)
     public void userBetStatistics(String jsonStr) {
-        log.info("=====参数==={}", jsonStr);
+        log.info("后台==用户下注统计===收到参数==={}", jsonStr);
         if (StringUtils.isEmpty(jsonStr)) {
             log.error("用户下注统计 参数为空");
             return;
@@ -46,12 +46,13 @@ public class DirectReceiver {
 
     /**
      * 用户结算统计
+     * 输赢金额
      *
      * @param jsonStr
      */
     @RabbitListener(queues = MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS)
     public void userSettleBetStatistics(String jsonStr) {
-        log.info("=====参数==={}", jsonStr);
+        log.info("后台==用户结算统计===收到参数==={}", jsonStr);
         if (StringUtils.isEmpty(jsonStr)) {
             log.error("用户结算统计 参数为空");
             return;
