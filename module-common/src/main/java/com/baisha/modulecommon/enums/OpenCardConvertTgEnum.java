@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author 小智
@@ -68,7 +69,7 @@ public enum OpenCardConvertTgEnum {
             if(null == openResult){
                 return null;
             }
-            result.append(getName(str)).append(Constants.COMMA_SEPARATED);
+            result.append(Objects.requireNonNull(getName(str)).getName()).append(Constants.COMMA_SEPARATED);
         }
         return result.substring(BigDecimal.ZERO.intValue(), result.length() - 1);
     }
