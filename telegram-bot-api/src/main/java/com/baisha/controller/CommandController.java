@@ -86,7 +86,7 @@ public class CommandController {
         log.info("桌台ID:{},局号:{}===已发送的群数量{}个", vo.getTableId(), vo.getBureauNum(), chatList.size());
 
         // 机器人-异步投注
-        betCommandBusiness.botStartBet(chatList);
+//        betCommandBusiness.botStartBet(chatList);
 
         return ResponseUtil.success();
     }

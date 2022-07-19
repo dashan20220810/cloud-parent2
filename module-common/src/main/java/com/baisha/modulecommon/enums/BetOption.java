@@ -1,11 +1,6 @@
 package com.baisha.modulecommon.enums;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.beust.jcommander.internal.Lists;
@@ -17,15 +12,15 @@ public enum BetOption {
 	XD(2, "闲对", new String[] {"XD", "闲对"}),
 	Z(3, "庄", new String[] {"Z", "庄"}),
 	X(4, "闲", new String[] {"X", "闲"}),
-	H(5, "和", new String[] {"H", "和", "和局"}),
-	D(6, "对", new String[] {"D", "对", "对子"}),
+	H(5, "和", new String[] {"H", "和局", "和"}),
+	D(6, "对", new String[] {"D", "对子", "对"}),
 	SS(7, "幸运六", new String[] {"SS", "超六", "幸运六", "超6", "幸运6"}),
 	SB(8, "三宝", new String[] {"SB", "三宝", "3宝"})
 	;
 
 	private final int order;
 	private final String display;
-	private final Set<String> commands;
+	private final List<String> commands;
 
 	private static final List<BetOption> list;
 
@@ -59,7 +54,7 @@ public enum BetOption {
 	BetOption(int order, String display, String[] commandsArray) {
 		this.order = order;
 		this.display = display;
-		this.commands = new HashSet<>(Arrays.asList(commandsArray));
+		this.commands = new ArrayList<>(Arrays.asList(commandsArray));
 	}
 	
 	public int getOrder() {
@@ -70,7 +65,7 @@ public enum BetOption {
 		return display;
 	}
 	
-	public Set<String> getCommands() {
+	public List<String> getCommands() {
 		return commands;
 	}
 }

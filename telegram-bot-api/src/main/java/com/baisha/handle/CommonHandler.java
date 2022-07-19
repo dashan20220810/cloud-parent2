@@ -10,6 +10,7 @@ import com.baisha.model.vo.ConfigInfo;
 import com.baisha.model.vo.OddsAndLimitVO;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
+import com.baisha.modulecommon.vo.mq.tgBotServer.BotGroupVO;
 import com.baisha.service.TgBotService;
 import com.baisha.service.TgChatService;
 import com.baisha.util.TelegramBotUtil;
@@ -26,6 +27,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+import static com.baisha.util.constants.BotConstant.DEFAULT_USER_ID;
+
 @Slf4j
 @Component
 public class CommonHandler {
@@ -36,12 +39,10 @@ public class CommonHandler {
     @Autowired
     TgBotService tgBotService;
 
-    public boolean checkChatIsAudit(MyTelegramLongPollingBot bot, Chat chat) {
+    public boolean checkChatIsAudit(Chat chat) {
         // 判断此群是否通过审核，未通过不处理消息。
-        TgBot tgBot = tgBotService.findByBotName(bot.getBotUsername());
-        TgChat tgChat = tgChatService.findByChatIdAndBotId(chat.getId(), tgBot.getId());
-
-        if (tgChat == null || Constants.close == tgChat.getStatus()) {
+        TgChat tgChat = tgChatService.findByChatId(chat.getId());
+        if (tgChat == null || Constants.close.equals(tgChat.getStatus())) {
             return false;
         }
         return true;
@@ -125,6 +126,21 @@ public class CommonHandler {
             ResponseEntity response = JSONObject.parseObject(redLimit, ResponseEntity.class);
             if (response.getCode() == 0 && null != response.getData()) {
                 result = JSONArray.parseArray(response.getData().toString(), OddsAndLimitVO.class);
+            }
+        }
+        return result;
+    }
+
+    public List<BotGroupVO> getBetBotsByChatId(Long chatId) {
+        List<BotGroupVO> result = Lists.newArrayList();
+        String betBotsUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_GET_BET_BOTS_BY_CHAT_ID.getApiName();
+        Map<String, Object> betBotsParam = Maps.newHashMap();
+        betBotsParam.put("groupId", chatId);
+        String betBots = TgHttpClient4Util.doPost(betBotsUrl, betBotsParam, DEFAULT_USER_ID);
+        if (StrUtil.isNotEmpty(betBots)) {
+            ResponseEntity response = JSONObject.parseObject(betBots, ResponseEntity.class);
+            if (response.getCode() == 0 && null != response.getData()) {
+                result = JSONArray.parseArray(response.getData().toString(), BotGroupVO.class);
             }
         }
         return result;
