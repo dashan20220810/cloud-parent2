@@ -66,8 +66,8 @@ public class AsyncCommandService {
     @Value("${project.server-url.game-server-domain}")
     private String gameServerDomain;
 
-	@Value("${project.server-url.video-server-domain}")
-	private String videoServerDomain;
+	@Value("${project.server-url.video-post-server-domain}")
+	private String videoPostServerDomain;
 
 	@Value("${project.server-url.upload-server-domain}")
 	private String uploadServerDomain;
@@ -219,7 +219,7 @@ public class AsyncCommandService {
 		gameVideoParam.put("qtime", qTime);
 
 		HttpClient4Util.doPost(
-				videoServerDomain + RequestPathEnum.VIDEO_SNAP.getApiName(),
+				videoPostServerDomain + RequestPathEnum.VIDEO_SNAP.getApiName(),
 				gameVideoParam);
 	}
 
@@ -326,7 +326,7 @@ public class AsyncCommandService {
 		gameVideoParam.put("rtmpurl", streamVideoCode);
 
 		HttpClient4Util.doPost(
-				videoServerDomain + RequestPathEnum.VIDEO_STOP.getApiName(),
+				videoPostServerDomain + RequestPathEnum.VIDEO_STOP.getApiName(),
 				gameVideoParam);
 
 	}

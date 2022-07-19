@@ -27,6 +27,7 @@ import com.baisha.modulecommon.vo.mq.OpenVO;
 import com.baisha.modulecommon.vo.mq.PairImageVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 import org.apache.commons.lang3.time.DateUtils;
+import org.redisson.api.RLock;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
