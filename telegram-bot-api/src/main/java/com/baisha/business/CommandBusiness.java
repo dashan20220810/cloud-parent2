@@ -13,7 +13,9 @@ import com.baisha.model.TgChat;
 import com.baisha.model.vo.*;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.enums.BetOption;
+import com.baisha.modulecommon.vo.mq.tgBotServer.BotGroupVO;
 import com.baisha.modulespringcacheredis.util.RedisUtil;
+import com.baisha.service.TgBetBotService;
 import com.baisha.service.TgBotService;
 import com.baisha.service.TgChatService;
 import com.baisha.util.Base64Utils;
@@ -50,6 +52,9 @@ public class CommandBusiness {
 
     @Autowired
     private TgBotService tgBotService;
+
+    @Autowired
+    private TgBetBotService tgBetBotService;
 
     @Autowired
     private TgChatService tgChatService;
@@ -118,11 +123,20 @@ public class CommandBusiness {
             redisUtil.set(tgChat.getId()+"", 0);
         }
         if (null != videoResultAddress) {
-            myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(videoResultAddress, VIDEO_SUFFIX_MP4))), tgChat.getChatId()+"");
+            try {
+                myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(videoResultAddress, VIDEO_SUFFIX_MP4))), tgChat.getChatId()+"");
+            } catch (Exception e) {
+                log.error("根据URL获取视频流-异常,视频地址:{}", videoResultAddress);
+            }
         }
         if (null != picRoadAddress) {
-            myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(picRoadAddress))), tgChat.getChatId()+"");
-            redisUtil.set(tgChat.getId()+"", 1);
+            try {
+                myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(picRoadAddress))), tgChat.getChatId()+"");
+                redisUtil.set(tgChat.getId()+"", 1);
+            } catch (Exception e) {
+                log.error("根据URL获取图片流-异常,图片地址:{}", picRoadAddress);
+                redisUtil.set(tgChat.getId()+"", 1);
+            }
         }
     }
 
@@ -139,7 +153,7 @@ public class CommandBusiness {
         }
         // 组装结算信息
         String settlementMessage = this.buildSettlementMessage(vo, userWinVOs);
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
             try {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
@@ -160,15 +174,21 @@ public class CommandBusiness {
         if (!commonHandler.parseChat(tgChat)) {
             return;
         }
-        MyTelegramLongPollingBot myBot = ControlBotBusiness.myBotMap.get(tgChat.getBotName());
-        if (myBot == null) {
-            return;
-        }
         // 根据chatId查询 所有的下注机器人
-
-
         List<TgBetBot> tgBetBots = Lists.newArrayList();
+        List<BotGroupVO> botGroups = commonHandler.getBetBotsByChatId(tgChat.getChatId());
+        botGroups.forEach(botGroup -> {
+            TgBetBot tgBetBot = tgBetBotService.findByBetBotName(botGroup.getTgUserName());
+            if (null != tgBetBot && Objects.equals(tgBetBot.getStatus(), Constants.open)) {
+                tgBetBots.add(tgBetBot);
+            }
+        });
+
         tgBetBots.forEach(tgBetBot -> {
+            MyTelegramLongPollingBot myBot = ControlBotBusiness.myBotMap.get(tgBetBot.getBetBotName());
+            if (myBot == null) {
+                return;
+            }
             // 判断投注时间
             String startTime = tgBetBot.getBetStartTime();
             String endTime = tgBetBot.getBetEndTime();
@@ -196,7 +216,7 @@ public class CommandBusiness {
             }
             // 判断投注内容
             String[] betContentStr = tgBetBot.getBetContents().split(",");
-            List<String> betContents = Arrays.asList(betContentStr);
+            List<String> betContents = new ArrayList<>(Arrays.asList(betContentStr));
             // 自动投注机器人的乱序里，d,h,sb,ss   这些出现的频率设置的低一些
             if (betContents.contains(BetOption.ZD.name())) {
                 betContents.add(BetOption.ZD.name());
@@ -243,7 +263,7 @@ public class CommandBusiness {
             Integer minMultiple = tgBetBot.getMinMultiple();
             Integer maxMultiple = tgBetBot.getMaxMultiple();
             for (int i = minMultiple; i <= maxMultiple; i++) {
-                amounts.add(NumberUtil.mul(minAmountLimit+"", i+""));
+                amounts.add(NumberUtil.mul(minAmountLimit.toString(), String.valueOf(i)));
             }
             int indexAmount = TelegramBotUtil.getRandom(0, amounts.size() - 1);
             BigDecimal amount = amounts.get(indexAmount);

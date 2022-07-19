@@ -3,6 +3,7 @@ package com.baisha.handle;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.bot.MyTelegramLongPollingBot;
+import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
 import com.baisha.model.vo.ConfigInfo;
 import com.baisha.model.vo.TgBetVO;
@@ -53,7 +54,7 @@ public class TelegramMessageHandler {
         param.put("nickname", userName);
         param.put("tgUserName", user.getUserName());
         param.put("groupId", chat.getId());
-        if(!ObjectUtils.isEmpty(from) && from.getId() != null){
+        if (!ObjectUtils.isEmpty(from) && from.getId() != null) {
             param.put("inviteTgUserId", from.getId());
         }
         param.put("tgGroupName", chat.getTitle());
@@ -75,13 +76,38 @@ public class TelegramMessageHandler {
         return false;
     }
 
+    public boolean leftChat(User leftChatMember, Chat chat) {
+        // 设置请求参数
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("id", leftChatMember.getId());
+        param.put("groupId", chat.getId());
+        // 远程调用
+        String requestUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_LEFT_USER.getApiName();
+        String forObject = TgHttpClient4Util.doPost(requestUrl, param, leftChatMember.getId());
+
+        if (ObjectUtils.isEmpty(forObject)) {
+            log.error("{}群{}用户离群失败，原因HTTP请求 NULL", chat.getId(), leftChatMember.getId());
+            return false;
+        }
+        ResponseEntity result = JSONObject.parseObject(forObject, ResponseEntity.class);
+        if (result.getCode() == 0) {
+            return true;
+        }
+        log.error("{}群{}用户离群失败，原因:{}", chat.getId(), leftChatMember.getId(), result.getMsg());
+        return false;
+    }
+
     public void messageHandler(MyTelegramLongPollingBot bot, Update update) {
         Message message = update.getMessage();
         Chat chat = message.getChat();
         User from = message.getFrom();
 
+        TgBot myBot = tgBotService.findByBotName(bot.getBotUsername());
+        if (null == myBot) {
+            return;
+        }
         // 判断此群是否通过审核，未通过不处理消息。
-        if (!commonHandler.checkChatIsAudit(bot, chat)) {
+        if (!commonHandler.checkChatIsAudit(chat)) {
             return;
         }
 
@@ -99,12 +125,19 @@ public class TelegramMessageHandler {
         }
         // 会员离群事件
         User leftChatMember = message.getLeftChatMember();
-        //
-
-        // 如果当前时间秒数 - 消息时间秒数 > 70，那么不再处理消息事件。
-        long messageTime = message.getDate();
-        long currentTime = System.currentTimeMillis() / 1000;
-        if (currentTime - messageTime > 70) {
+        if (null != leftChatMember) {
+            // 分两种：1、群管理机器人离群 2、会员离群
+            if (leftChatMember.getIsBot()) {
+                TgBot tgBot = tgBotService.findByBotName(leftChatMember.getUserName());
+                if (null != tgBot) {
+                    TgChat tgChat = tgChatService.findByChatIdAndBotId(chat.getId(), tgBot.getId());
+                    if (null != tgChat) {
+                        tgChatService.deleteByChatIdAndBotId(chat.getId(), tgBot.getId());
+                    }
+                    return;
+                }
+            }
+            leftChat(leftChatMember, chat);
             return;
         }
 
@@ -113,6 +146,22 @@ public class TelegramMessageHandler {
         if (StrUtil.isEmpty(originText)) {
             return;
         }
+        if (originText.replace(" ", "").equals("+")) {
+            boolean isSuccess = registerEvery(from, chat, null);
+            // 注册成功推送消息
+            if (isSuccess) {
+                showWords(from, chat, bot);
+            }
+            return;
+        }
+
+        // 如果当前时间秒数 - 消息时间秒数 > 70，那么不再处理消息事件。
+        long messageTime = message.getDate();
+        long currentTime = System.currentTimeMillis() / 1000;
+        if (currentTime - messageTime > 70) {
+            return;
+        }
+
         if (originText.replace(" ", "").contains("余额")) {
             // 查询余额，并拼接信息
             String userBalanceMessage = checkUserBalance(from);
@@ -383,7 +432,7 @@ public class TelegramMessageHandler {
         try {
             String text = originText.toUpperCase().replace(" ", "");
             for (BetOption betOption : BetOption.getList()) {
-                Set<String> commands = betOption.getCommands();
+                List<String> commands = betOption.getCommands();
                 for (String command : commands) {
                     if (text.contains(command)) {
                         long amount = Long.parseLong(text.replace(command, ""));

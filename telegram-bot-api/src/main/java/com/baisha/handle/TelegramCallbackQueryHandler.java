@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.bot.MyTelegramLongPollingBot;
+import com.baisha.model.TgBot;
 import com.baisha.model.vo.ConfigInfo;
 import com.baisha.model.vo.RecentBetVO;
 import com.baisha.modulecommon.reponse.ResponseEntity;
@@ -46,8 +47,12 @@ public class TelegramCallbackQueryHandler {
         User user = callbackQuery.getFrom();
         Chat chat = message.getChat();
 
+        TgBot tgBot = tgBotService.findByBotName(bot.getBotUsername());
+        if (null == tgBot) {
+            return;
+        }
         // 判断此群是否通过审核，未通过不处理消息。
-        if (!commonHandler.checkChatIsAudit(bot, chat)) {
+        if (!commonHandler.checkChatIsAudit(chat)) {
             return;
         }
 

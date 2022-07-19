@@ -29,7 +29,7 @@ public class UserBetStatisticsBusiness {
     @Autowired
     private BetDayStatisticsService betDayStatisticsService;
 
-
+    @Async(value = "asyncExecutor")
     public void doUserBetStatistics(UserBetVO userBetVO) {
         //下注天 yyyy-MM-dd HH:mm:ss
         String betTime = userBetVO.getBetTime();
@@ -80,6 +80,7 @@ public class UserBetStatisticsBusiness {
         }
     }
 
+    @Async(value = "asyncExecutor")
     public void doUserSettleBetStatistics(UserBetStatisticsVO userBetStatisticsVO) {
         //下注天 yyyy-MM-dd HH:mm:ss
         String betTime = userBetStatisticsVO.getBetTime();

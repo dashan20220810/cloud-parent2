@@ -65,7 +65,7 @@ public class TgChatController {
             return ResponseUtil.parameterNotNull();
         }
 
-        TgChat tgChat = tgChatService.findbyId(vo.getChatId());
+        TgChat tgChat = tgChatService.findById(vo.getChatId());
         if (tgChat == null || tgChat.getId() == null) {
             return ResponseUtil.custom("未找到群");
         }

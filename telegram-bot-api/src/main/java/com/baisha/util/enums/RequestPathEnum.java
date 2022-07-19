@@ -5,6 +5,8 @@ package com.baisha.util.enums;
  */
 public enum RequestPathEnum {
     TELEGRAM_REGISTER_USER("/user/registerTG"),
+    TELEGRAM_LEFT_USER("/user/leftTG"),
+    TELEGRAM_GET_BET_BOTS_BY_CHAT_ID("/user/botListByGroupId"),
     TELEGRAM_PROP_MAP("/prop/systemTg"),
     TELEGRAM_ORDER_BET("/order/bet"),
     TELEGRAM_ORDER_DAY_FLOW("/order/todayTotalWater"),

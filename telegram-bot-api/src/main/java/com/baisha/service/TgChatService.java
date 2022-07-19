@@ -39,7 +39,7 @@ public class TgChatService {
     }
 
     @Cacheable(key = "#p0",unless = "#result==null")
-    public TgChat findbyId(Long chatId) {
+    public TgChat findById(Long chatId) {
         Optional<TgChat> byId = tgChatRepository.findById(chatId);
         if (byId.isPresent()) {
             return byId.get();
@@ -48,8 +48,7 @@ public class TgChatService {
     }
 
     public Page<TgChat> pageByCondition(Pageable pageable, TgChat tgChat) {
-
-        //可扩展简单的动态条件
+        // 可扩展简单的动态条件
         ExampleMatcher matcher=ExampleMatcher.matching()
                 .withMatcher("botId", ExampleMatcher.GenericPropertyMatchers.exact());
 
@@ -64,6 +63,10 @@ public class TgChatService {
     @CacheEvict(key="#p0")
     public void deleteById(Long id) {
         tgChatRepository.deleteById(id);
+    }
+
+    public void deleteByChatIdAndBotId(Long chatId, Long botId) {
+        tgChatRepository.deleteByChatIdAndBotId(chatId, botId);
     }
 
     public TgChat findByChatId(Long chatId) {

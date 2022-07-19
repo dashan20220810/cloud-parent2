@@ -25,14 +25,16 @@ public class TelegramMyChatMemberHandler {
         ChatMemberUpdated myChatMember = update.getMyChatMember();
         Chat chat = myChatMember.getChat();
 
-        String chatName = chat.getTitle();
         // 新增TG群
         TgBot tgBot = tgBotService.findByBotName(bot.getBotUsername());
-        TgChat tgChat = tgChatService.findByChatIdAndBotId(chat.getId(), tgBot.getId());
+        if (null == tgBot) {
+            return;
+        }
+        TgChat tgChat = tgChatService.findByChatId(chat.getId());
         if (null == tgChat) {
             tgChat = new TgChat();
             tgChat.setChatId(chat.getId())
-                    .setChatName(chatName)
+                    .setChatName(chat.getTitle())
                     .setBotName(bot.getBotUsername())
                     .setBotId(tgBot.getId())
                     .setStatus(Constants.close);

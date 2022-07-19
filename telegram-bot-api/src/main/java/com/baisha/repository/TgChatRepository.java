@@ -19,5 +19,7 @@ public interface TgChatRepository extends JpaRepository<TgChat, Long>, JpaSpecif
 
     List<TgChat> findByTableId(Long tableId);
 
+    void deleteByChatIdAndBotId(Long chatId, Long botId);
+
     TgChat findByChatId(Long chatId);
 }
