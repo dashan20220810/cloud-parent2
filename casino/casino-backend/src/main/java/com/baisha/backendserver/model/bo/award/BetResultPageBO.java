@@ -1,10 +1,17 @@
 package com.baisha.backendserver.model.bo.award;
 
 import com.baisha.backendserver.model.bo.BaseBO;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.persistence.Column;
+
+/**
+ * @author yihui
+ */
 @Data
+@ApiModel(value = "后台-开奖结果分页返回对象")
 public class BetResultPageBO extends BaseBO {
 
     @ApiModelProperty(value = "桌台ID")
@@ -22,5 +29,10 @@ public class BetResultPageBO extends BaseBO {
     @ApiModelProperty(value = "开奖结果名称")
     private String awardOptionName;
 
+    @ApiModelProperty("是否重新开牌(0.否 1.是)")
+    private Integer reopen = 0;
+
+    @ApiModelProperty("是否重新开牌")
+    private String reOpenName;
 
 }

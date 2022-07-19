@@ -120,6 +120,44 @@ public class BetAwardController {
                 bo.setTableName(desk.getName());
             }
         }
+
+        if (bo.getReopen().equals(Constants.open)) {
+            bo.setReOpenName("是");
+        } else {
+            bo.setReOpenName("否");
+        }
+    }
+
+
+    private BetResultBO getBetResultBO(String noActive) {
+        String url = gameServerUrl + GameServerConstants.GAME_BET_RESULT_NOACTIVE;
+        url = url + "?noActive=" + noActive;
+        String result = HttpClient4Util.doGet(url);
+        if (StringUtils.isEmpty(result)) {
+            return null;
+        }
+        ResponseEntity response = JSONObject.parseObject(result, ResponseEntity.class);
+        if (Objects.nonNull(response) && response.getCode() == ResponseCode.SUCCESS.getCode()) {
+            JSONObject jsonObject = (JSONObject) response.getData();
+            BetResultBO betResultBO = JSONObject.parseObject(JSONObject.toJSONString(jsonObject), BetResultBO.class);
+            String awardOption = betResultBO.getAwardOption();
+            if (StringUtils.isNotEmpty(awardOption)) {
+                String[] awardOptionArr = awardOption.split(",");
+                String name = "";
+                for (String option : awardOptionArr) {
+                    TgBaccRuleEnum tgEnum = TgBaccRuleEnum.nameOfCode(option);
+                    if (Objects.nonNull(tgEnum)) {
+                        name = name + tgEnum.getName() + ",";
+                    }
+                }
+                if (StringUtils.isNotEmpty(name)) {
+                    name = name.substring(0, name.length() - 1);
+                }
+                betResultBO.setAwardOptionName(name);
+            }
+            return betResultBO;
+        }
+        return null;
     }
 
 
@@ -149,21 +187,22 @@ public class BetAwardController {
 
 
     @ApiOperation(value = "补单(不影响已结算的该局的会员)", notes = "用与未开奖 或 开奖后部分注单没结算  " +
-            "如果当前局没有开奖，可以重新选择奖项开奖，如果已经开奖，不能重新选择奖项开奖，必须使以前")
+            "如果当前局没有开奖，可以重新选择奖项开奖，如果已经开奖，不能重新选择奖项开奖，必须使以前的开奖选项")
     @PostMapping(value = "repair")
     public ResponseEntity repairBetResult(BetResultRepairVO vo) {
         if (CommonUtil.checkNull(vo.getNoActive(), vo.getAwardOption())) {
             return ResponseUtil.parameterNotNull();
         }
-        //防止前端多次点击操作
+
+        //防止前端多次点击操作，强制10秒
         String prevent = RedisKeyConstants.PREVENT_CLICKS + "repair_" + vo.getNoActive();
         if (redisUtil.hasKey(prevent)) {
-            return new ResponseEntity("当前局补单已在处理，间隔10秒后才能再次请求");
+            return new ResponseEntity("重要操作，间隔10秒后才能再次请求");
         } else {
             redisUtil.set(prevent, prevent, 10L);
         }
 
-        log.info("补单--(web)传入参数 ：{}", JSONObject.toJSONString(vo));
+        log.info("补单--传入参数 ：{}", JSONObject.toJSONString(vo));
         BetResultBO resultBO = getBetResultBO(vo.getNoActive());
         if (Objects.isNull(resultBO)) {
             return new ResponseEntity("未查询到局");
@@ -172,7 +211,7 @@ public class BetAwardController {
         //时间对比
         Date betResultCreateTime = resultBO.getCreateTime();
         //要大于2分钟 才能
-        Long time_gap = 1200000L;
+        Long time_gap = 120000L;
         if ((new Date()).getTime() - betResultCreateTime.getTime() < time_gap) {
             return new ResponseEntity("不能开最近局");
         }
@@ -228,101 +267,27 @@ public class BetAwardController {
         List<TgBaccRuleEnum> list = TgBaccRuleEnum.getList();
         List<String> rules = list.stream().map(item -> item.getCode()).toList();
         String[] awardOptionArr = awardOption.toUpperCase().split(",");
+        boolean xianFlag = false;
+        boolean zhuangFlag = false;
         for (String option : awardOptionArr) {
             if (!rules.contains(option)) {
                 log.error("补单----传入了其他玩法");
                 return null;
             }
+            if (option.equals(TgBaccRuleEnum.Z.getCode())) {
+                zhuangFlag = true;
+            }
+            if (option.equals(TgBaccRuleEnum.X.getCode())) {
+                xianFlag = true;
+            }
         }
-        return repairVO;
-    }
 
-    private boolean compareOption(String yiAwardOption, String awardOption) {
-        String[] yiAwardOptionArr = yiAwardOption.split(",");
-        Arrays.sort(yiAwardOptionArr);
-        String yiJsonStr = JSONObject.toJSONString(yiAwardOptionArr);
-        log.info("旧的开奖选项 {}", yiJsonStr);
-
-        String[] awardOptionArr = awardOption.split(",");
-        Arrays.sort(awardOptionArr);
-        String awardJsonStr = JSONObject.toJSONString(awardOptionArr);
-        log.info("参数的开奖选项 {}", awardJsonStr);
-
-        return yiJsonStr.equals(awardJsonStr);
-    }
-
-    private BetResultBO getBetResultBO(String noActive) {
-        String url = gameServerUrl + GameServerConstants.GAME_BET_RESULT_NOACTIVE;
-        url = url + "?noActive=" + noActive;
-        String result = HttpClient4Util.doGet(url);
-        if (StringUtils.isEmpty(result)) {
+        if (xianFlag && zhuangFlag) {
+            log.error("补单----庄闲不能同时出现");
             return null;
         }
-        ResponseEntity response = JSONObject.parseObject(result, ResponseEntity.class);
-        if (Objects.nonNull(response) && response.getCode() == ResponseCode.SUCCESS.getCode()) {
-            JSONObject jsonObject = (JSONObject) response.getData();
-            BetResultBO betResultBO = JSONObject.parseObject(JSONObject.toJSONString(jsonObject), BetResultBO.class);
-            String awardOption = betResultBO.getAwardOption();
-            if (StringUtils.isNotEmpty(awardOption)) {
-                String[] awardOptionArr = awardOption.split(",");
-                String name = "";
-                for (String option : awardOptionArr) {
-                    name = TgBaccRuleEnum.valueOf(option).getName() + ",";
-                }
-                if (StringUtils.isNotEmpty(name)) {
-                    name = name.substring(0, name.length() - 1);
-                }
-                betResultBO.setAwardOptionName(name);
-            }
-            return betResultBO;
-        }
-        return null;
-    }
 
-
-    @ApiOperation(value = "重新开牌(影响该局的会员)", notes = "必须重新选择奖项开奖" +
-            "重新结算-(1加了钱的都得减 2 再次结算)")
-    @PostMapping(value = "reopen")
-    public ResponseEntity reopenBetResult(BetResultReopenVO vo) {
-        if (CommonUtil.checkNull(vo.getNoActive(), vo.getAwardOption())) {
-            return ResponseUtil.parameterNotNull();
-        }
-        //防止前端多次点击操作
-        String prevent = RedisKeyConstants.PREVENT_CLICKS + "reopen_" + vo.getNoActive();
-        if (redisUtil.hasKey(prevent)) {
-            return new ResponseEntity("当前局重新开牌已在处理，间隔10秒后才能再次请求");
-        } else {
-            redisUtil.set(prevent, prevent, 10L);
-        }
-        log.info("重新开牌--(web)传入参数 ：{}", JSONObject.toJSONString(vo));
-        //先查询开奖结果是否 与原来一样
-        BetResultBO resultBO = getBetResultBO(vo.getNoActive());
-        if (Objects.isNull(resultBO)
-                || StringUtils.isEmpty(resultBO.getAwardOption())
-            // || resultBO.getReopen().equals(Constants.open)
-        ) {
-            return new ResponseEntity("未查询到局/未开奖");
-        }
-        //要大于2分钟 才能
-        Long time_gap = 1200000L;
-        if ((new Date()).getTime() - resultBO.getCreateTime().getTime() < time_gap) {
-            return new ResponseEntity("不能开最近局");
-        }
-        //检查传入的开奖结果是否规范
-        BetResultReopenVO reopenVO = doCheckReopenAwardOption(resultBO, vo.getAwardOption(), vo.getNoActive());
-        if (Objects.isNull(reopenVO)) {
-            return new ResponseEntity("开奖选项不正确(选项不能和之前一样)");
-        }
-        log.info("重新开牌--参数 ：{}", JSONObject.toJSONString(reopenVO));
-
-        //获取当前登陆用户
-        Admin currentUser = commonService.getCurrentUser();
-        openAwardBusiness.reopenBetResult(reopenVO);
-        //日志记录
-        doSaveChangReopen(currentUser, reopenVO, resultBO);
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
-                "重新开牌：" + JSON.toJSONString(vo), BackendConstants.BET_RESULT_MODULE);
-        return ResponseUtil.success();
+        return repairVO;
     }
 
     private BetResultReopenVO doCheckReopenAwardOption(BetResultBO resultBO, String awardOption, String noActive) {
@@ -343,13 +308,83 @@ public class BetAwardController {
         List<TgBaccRuleEnum> list = TgBaccRuleEnum.getList();
         List<String> rules = list.stream().map(item -> item.getCode()).toList();
         String[] awardOptionArr = awardOption.toUpperCase().split(",");
+        boolean xianFlag = false;
+        boolean zhuangFlag = false;
         for (String option : awardOptionArr) {
             if (!rules.contains(option)) {
                 log.error("重新开牌----传入了其他玩法");
                 return null;
             }
+            if (option.equals(TgBaccRuleEnum.Z.getCode())) {
+                zhuangFlag = true;
+            }
+            if (option.equals(TgBaccRuleEnum.X.getCode())) {
+                xianFlag = true;
+            }
+        }
+        if (xianFlag && zhuangFlag) {
+            log.error("重新开牌----庄闲不能同时出现");
+            return null;
         }
         return reopenVO;
+    }
+
+    private boolean compareOption(String yiAwardOption, String awardOption) {
+        String[] yiAwardOptionArr = yiAwardOption.split(",");
+        Arrays.sort(yiAwardOptionArr);
+        String yiJsonStr = JSONObject.toJSONString(yiAwardOptionArr);
+        log.info("旧的开奖选项 {}", yiJsonStr);
+
+        String[] awardOptionArr = awardOption.split(",");
+        Arrays.sort(awardOptionArr);
+        String awardJsonStr = JSONObject.toJSONString(awardOptionArr);
+        log.info("参数的开奖选项 {}", awardJsonStr);
+
+        return yiJsonStr.equals(awardJsonStr);
+    }
+
+
+    @ApiOperation(value = "重新开牌(影响该局的会员)", notes = "必须重新选择奖项开奖 重新结算-(1加了钱的都得减 2 再次结算)")
+    @PostMapping(value = "reopen")
+    public ResponseEntity reopenBetResult(BetResultReopenVO vo) {
+        if (CommonUtil.checkNull(vo.getNoActive(), vo.getAwardOption())) {
+            return ResponseUtil.parameterNotNull();
+        }
+        
+        //防止前端多次点击操作
+        String prevent = RedisKeyConstants.PREVENT_CLICKS + "reopen_" + vo.getNoActive();
+        if (redisUtil.hasKey(prevent)) {
+            return new ResponseEntity("重要操作，间隔10秒后才能再次请求");
+        } else {
+            redisUtil.set(prevent, prevent, 10L);
+        }
+
+        log.info("重新开牌--传入参数 ：{}", JSONObject.toJSONString(vo));
+        //先查询开奖结果是否 与原来一样
+        BetResultBO resultBO = getBetResultBO(vo.getNoActive());
+        if (Objects.isNull(resultBO) || StringUtils.isEmpty(resultBO.getAwardOption())) {
+            return new ResponseEntity("未查询到局/未开奖");
+        }
+        //要大于2分钟 才能
+        Long time_gap = 120000L;
+        if ((new Date()).getTime() - resultBO.getCreateTime().getTime() < time_gap) {
+            return new ResponseEntity("不能开最近局");
+        }
+        //检查传入的开奖结果是否规范
+        BetResultReopenVO reopenVO = doCheckReopenAwardOption(resultBO, vo.getAwardOption(), vo.getNoActive());
+        if (Objects.isNull(reopenVO)) {
+            return new ResponseEntity("开奖选项不正确(选项不能和之前一样)");
+        }
+        log.info("重新开牌--参数 ：{}", JSONObject.toJSONString(reopenVO));
+
+        //获取当前登陆用户
+        Admin currentUser = commonService.getCurrentUser();
+        openAwardBusiness.reopenBetResult(reopenVO);
+        //日志记录
+        doSaveChangReopen(currentUser, reopenVO, resultBO);
+        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
+                "重新开牌：" + JSON.toJSONString(vo), BackendConstants.BET_RESULT_MODULE);
+        return ResponseUtil.success();
     }
 
     private void doSaveChangReopen(Admin currentUser, BetResultReopenVO reopenVO, BetResultBO resultBO) {
