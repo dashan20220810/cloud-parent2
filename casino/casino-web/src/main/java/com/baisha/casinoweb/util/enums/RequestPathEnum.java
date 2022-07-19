@@ -20,6 +20,10 @@ public enum RequestPathEnum {
     ASSETS_BALANCE("/assets/balance"),
     /** 余額 */
     ASSETS_QUERY("/assets/query"),
+    /** 使用者离群 */
+    USER_LEFT_TG("/user/leftTG"),
+    /** 根据群ID查询机器人 */
+    BOTS_BY_GROUP_ID("/user/getBotList"),
 
 	/*
 	 * 游戏中心  

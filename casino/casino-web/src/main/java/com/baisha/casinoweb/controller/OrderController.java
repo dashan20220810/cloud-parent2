@@ -3,6 +3,7 @@ package com.baisha.casinoweb.controller;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.baisha.modulecommon.annotation.NoAuthentication;
 import com.baisha.modulecommon.vo.mq.webServer.BsOddsVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

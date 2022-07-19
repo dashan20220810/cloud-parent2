@@ -17,20 +17,16 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.baisha.casinoweb.model.OpenCardVideo;
-import com.baisha.casinoweb.util.constant.Constants;
 import com.baisha.modulecommon.BigDecimalConstants;
 import com.baisha.modulecommon.enums.OpenCardConvertSettleEnum;
 import com.baisha.modulecommon.enums.OpenCardConvertTgEnum;
 import com.baisha.modulecommon.vo.GameDesk;
-import com.baisha.modulecommon.vo.HttpResultDTO;
 import com.baisha.modulecommon.vo.NewGameInfo;
 import com.baisha.modulecommon.vo.mq.OpenVO;
 import com.baisha.modulecommon.vo.mq.PairImageVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
-import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +43,6 @@ import com.baisha.casinoweb.model.vo.response.BetResponseVO;
 import com.baisha.casinoweb.model.vo.response.DeskVO;
 import com.baisha.casinoweb.util.ValidateUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
-import com.baisha.core.constants.RedisKeyConstants;
 import com.baisha.core.dto.SysTelegramDto;
 import com.baisha.core.service.TelegramService;
 import com.baisha.modulecommon.MqConstants;
@@ -252,6 +247,7 @@ public class AsyncCommandService {
 //		final String openingTime = openVO.getEndTime();
     	String action = "开牌";
     	GameDesk gameDesk = deskBusiness.getGameDesk(dealerIp + "_" + gameNo);
+		String noActive = gameDesk.getCurrentActive();
     	if ( gameDesk==null ) {
     		log.warn("开牌 失败, 查无桌台");
     		return;
@@ -278,6 +274,8 @@ public class AsyncCommandService {
 		if (!ValidateUtil.checkHttpResponse(action, result)) {
     		return;
 		}
+
+		sendVideoEndScreenRecording(noActive, gameDesk.getStreamVideoCode());
 
         String settlement = JSONObject.toJSONString(BetSettleVO.builder().noActive(gameInfo.getCurrentActive())
 				.awardOption(openCardResult).build());
@@ -341,9 +339,12 @@ public class AsyncCommandService {
 		final String consequences = settleFinishVO.getConsequences();
 		final Integer gameNo = settleFinishVO.getGameNo();
 		GameDesk gameDesk = deskBusiness.getGameDesk(dealerIp + "_" + gameNo);
-
 		final String deskCode = gameDesk.getDeskCode();
 		NewGameInfo newGameInfo = gameInfoBusiness.getGameTime(deskCode + "_" + gameNo);
+		String picAddress = newGameInfo.getPicAddress();
+		String videoAddress = newGameInfo.getVideoAddress();
+		log.info("开牌结果 newGameInfo :{}", newGameInfo);
+
 		String noActive = newGameInfo.getNoActive();
     	String action = "结算";
     	Map<String, Object> params = new HashMap<>();
@@ -407,17 +408,11 @@ public class AsyncCommandService {
 		for ( Long tgGroupId: allGroupIdSet ) {
 			top20WinUsers.put(tgGroupId, new ArrayList<>());
 		}
-		sendVideoEndScreenRecording(noActive, gameDesk.getStreamVideoCode());
-		// 存储视频截屏地址和录单图地址
-		String openCardVideoAddress = videoServerDomain + Constants.IMAGE +  gameDesk.getStreamVideoCode() + "/" +
-				noActive + "/1" +Constants.MP4;
-		newGameInfo.setVideoAddress(openCardVideoAddress);
-		gameInfoBusiness.setGameTime(deskCode + "_" + gameNo, newGameInfo);
 		//发送视频地址给TG
 		sendVideoAddressToTg("截屏", null, gameDesk.getDeskId(), null, null,
-				openCardVideoAddress, newGameInfo.getPicAddress());
+				videoAddress, picAddress);
 		asyncApiService.tgSettlement(noActive, openCardResult, top20WinUsers);
-//		openCardVideoService.saveOpenCardVideoAndPic(openCardVideoAddress, newGameInfo.getPicAddress(), noActive);
+		openCardVideoService.saveOpenCardVideoAndPic(videoAddress, picAddress, noActive);
     }
 
 	public void pairImage(PairImageVO pairImageVO) {

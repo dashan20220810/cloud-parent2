@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.baisha.casinoweb.model.vo.response.TgChatVO;
 import com.baisha.casinoweb.util.ValidateUtil;
+import com.baisha.casinoweb.util.constant.Constants;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.core.constants.RedisKeyConstants;
 import com.baisha.modulecommon.BigDecimalConstants;
@@ -47,6 +48,9 @@ public class DealerBusiness {
 
 	@Value("${project.game.count-down-seconds}")
 	private Integer gameCountDownSeconds;
+
+	@Value("${project.server-url.video-server-domain}")
+	private String videoServerDomain;
     
     @Autowired
     private GamblingBusiness gamblingBusiness;
@@ -100,7 +104,12 @@ public class DealerBusiness {
 		newGameInfo.setNoActive(newActive);
 		newGameInfo.setBeginTime(beginTime);
 		newGameInfo.setEndTime(endTime);
+		// 存储视频截屏地址和录单图地址
+		String openCardVideoAddress = videoServerDomain + Constants.IMAGE +  gameDesk.getStreamVideoCode() + "/" +
+				newActive + "/1" +Constants.MP4;
+		newGameInfo.setVideoAddress(openCardVideoAddress);
 		gameInfoBusiness.setGameTime(deskCode + "_" + gameNo ,newGameInfo);
+		log.info("=======开局时间 newGameInfo: {}", newGameInfo);
 		GameInfo gameInfo = new GameInfo();
 		gameInfo.setCurrentActive(newActive);
 		gameInfo.setStatus(GameStatusEnum.Betting);		// 状态: 下注中

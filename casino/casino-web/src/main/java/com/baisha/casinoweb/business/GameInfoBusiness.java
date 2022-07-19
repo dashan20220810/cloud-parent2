@@ -117,22 +117,22 @@ public class GameInfoBusiness {
 		}
     }
 
-	public void setGameResult(final String currentActive, final String openCardResult) {
+	public synchronized void setGameResult(final String currentActive, final String openCardResult) {
 		RMapCache<String, String> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_RESULT);
 		map.put(currentActive, openCardResult, BigDecimalConstants.TEN.longValue(), TimeUnit.MINUTES);
 	}
 
-	public void getGameResult(final String currentActive) {
+	public synchronized void getGameResult(final String currentActive) {
 		RMapCache<String, String> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_RESULT);
 		map.get(currentActive);
 	}
 
-	public void setGameTime(String gameTimeKey, NewGameInfo newGameInfo) {
+	public synchronized void setGameTime(String gameTimeKey, NewGameInfo newGameInfo) {
 		RMapCache<String, NewGameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
-		map.put(gameTimeKey, newGameInfo, BigDecimalConstants.ONE.longValue(), TimeUnit.DAYS);
+		map.fastPut(gameTimeKey, newGameInfo, BigDecimalConstants.ONE.longValue(), TimeUnit.DAYS);
 	}
 
-	public NewGameInfo getGameTime(String gameTimeKey) {
+	public synchronized NewGameInfo getGameTime(String gameTimeKey) {
 		RMapCache<String, NewGameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
 		return map.get(gameTimeKey);
 	}

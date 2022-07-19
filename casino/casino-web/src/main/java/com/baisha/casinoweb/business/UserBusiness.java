@@ -1,8 +1,13 @@
 package com.baisha.casinoweb.business;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
+import com.baisha.casinoweb.model.vo.response.TgChatVO;
+import com.baisha.casinoweb.util.ValidateUtil;
+import com.baisha.modulecommon.vo.mq.tgBotServer.BotGroupVO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -111,5 +116,32 @@ public class UserBusiness {
 
 		return JSONObject.parseObject(json.getString("data"), new TypeReference<UserVO>(){});
     }
-	
+
+	public boolean leftTg(final String id, final Long groupId) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("tgUserId", id);
+		params.put("tgGroupId", groupId);
+
+		String result = HttpClient4Util.doPost(
+				userServerDomain + RequestPathEnum.USER_LEFT_TG.getApiName(),
+				params);
+
+		if (!ValidateUtil.checkHttpResponse("离群", result)) {
+			return false;
+		}
+		return true;
+	}
+
+	public List<BotGroupVO> botListByGroupId(Long groupId) {
+
+		String result = HttpClient4Util.doGet(
+				userServerDomain + RequestPathEnum.BOTS_BY_GROUP_ID.getApiName() + "?tgGroupId=" + groupId);
+
+		if (!ValidateUtil.checkHttpResponse("根据群ID查询机器人", result)) {
+			CompletableFuture.completedFuture(false);
+		}
+
+		JSONObject groupListJson = JSONObject.parseObject(result);
+		return JSONObject.parseObject(groupListJson.getString("data"), new TypeReference<List<BotGroupVO>>(){});
+	}
 }

@@ -367,7 +367,7 @@ public class OrderBusiness {
 	}
 
 	public List<BsOddsVO> redLimit() {
-		String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.GAME_ODDS_LIST);
+		String result = HttpClient4Util.doGet(gameServerDomain + RequestPathEnum.GAME_ODDS_LIST.getApiName());
 		JSONObject json = JSONObject.parseObject(result);
 		return JSONObject.parseObject(json.getString("data"), new TypeReference<List<BsOddsVO>>(){});
 	}

@@ -30,7 +30,7 @@ public class OpenCardVideoService {
     }
 
     public void saveOpenCardVideoAndPic(
-            final String openCardVideoAddress, final byte[] picAddress, final String noActive) {
+            final String openCardVideoAddress, final String picAddress, final String noActive) {
         OpenCardVideo openCardVideo = new OpenCardVideo();
         openCardVideo.setNoActive(noActive);
         openCardVideo.setPicAddress(picAddress);
