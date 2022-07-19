@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author 小智
@@ -15,26 +16,26 @@ import java.util.List;
 @Getter
 public enum OpenCardConvertSettleEnum {
 
-    ZERO("0", TgBaccRuleEnum.SS2.getCode()),
+    ZERO("0", TgBaccRuleEnum.SS2),
 
-    ONE("1", TgBaccRuleEnum.Z.getCode()),
+    ONE("1", TgBaccRuleEnum.Z),
 
-    TWO("2", TgBaccRuleEnum.H.getCode()),
+    TWO("2", TgBaccRuleEnum.H),
 
-    THREE("3", TgBaccRuleEnum.X.getCode()),
+    THREE("3", TgBaccRuleEnum.X),
 
-    FOUR("4", TgBaccRuleEnum.ZD.getCode()),
+    FOUR("4", TgBaccRuleEnum.ZD),
 
-    FIVE("6", TgBaccRuleEnum.XD.getCode()),
+    FIVE("6", TgBaccRuleEnum.XD),
 
-    SIX("7", TgBaccRuleEnum.SS3.getCode());
+    SIX("7", TgBaccRuleEnum.SS3);
 
 
     private String code;
 
-    private String openCard;
+    private TgBaccRuleEnum openCard;
 
-    OpenCardConvertSettleEnum(String code, String openCard) {
+    OpenCardConvertSettleEnum(String code, TgBaccRuleEnum openCard) {
         this.code = code;
         this.openCard = openCard;
     }
@@ -47,11 +48,11 @@ public enum OpenCardConvertSettleEnum {
         this.code = code;
     }
 
-    public String getOpenCard() {
+    public TgBaccRuleEnum getOpenCard() {
         return openCard;
     }
 
-    public void setOpenCard(String openCard) {
+    public void setOpenCard(TgBaccRuleEnum openCard) {
         this.openCard = openCard;
     }
 
@@ -62,15 +63,19 @@ public enum OpenCardConvertSettleEnum {
             openCardList.add(String.valueOf(openCard.charAt(i)));
         }
         for(String str : openCardList){
-            result.append(getCode(str));
+            TgBaccRuleEnum openResult = getCode(str);
+            if(null == openResult){
+                return null;
+            }
+            result.append(Objects.requireNonNull(getCode(str)).getCode()).append(Constants.COMMA_SEPARATED);
         }
         return result.substring(BigDecimal.ZERO.intValue(), result.length() - 1);
     }
 
-    public static String getCode(final String openCard){
+    public static TgBaccRuleEnum getCode(final String openCard){
         for(OpenCardConvertSettleEnum openCardConvertEnum : OpenCardConvertSettleEnum.values()){
             if(openCard.contains(openCardConvertEnum.getCode())){
-                return openCardConvertEnum.getOpenCard() + Constants.COMMA_SEPARATED;
+                return openCardConvertEnum.getOpenCard();
             }
         }
         return null;
