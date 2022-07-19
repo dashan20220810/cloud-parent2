@@ -135,10 +135,15 @@ public class BetSettlementBusiness {
                 }
 
                 log.info("=======================================================================================");
+                //没有输赢金额 打码量为0
+                BigDecimal playMoney = BigDecimal.ZERO;
+                if (winAmount.compareTo(BigDecimal.ZERO) != 0) {
+                    playMoney = BigDecimal.valueOf(betAmount);
+                }
                 log.info("通知用户中心更新余额{}和打码量{}", finalAmount, betAmount);
                 BetSettleUserVO betSettleUserVO = BetSettleUserVO.builder().betId(bet.getId()).noActive(bet.getNoActive())
                         .userId(bet.getUserId()).finalAmount(finalAmount)
-                        .playMoney(isPlayMoney ? BigDecimal.valueOf(betAmount) : BigDecimal.ZERO)
+                        .playMoney(isPlayMoney ? playMoney : BigDecimal.ZERO)
                         .isReopen(isReopen ? Constants.open : Constants.close)
                         .remark(settleRemarkBuffer.toString()).build();
                 String betSettleUserJsonStr = JSONObject.toJSONString(betSettleUserVO);

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * @author: alvin
  */
 @RestController
-@Api(tags = "订单管理")
+@Api(tags = "注单管理")
 @RequestMapping("order")
 @Slf4j
 public class BetOrderController {
@@ -43,7 +43,7 @@ public class BetOrderController {
     private String gameServerUrl;
 
     @PostMapping("page")
-    @ApiOperation(("订单查询"))
+    @ApiOperation(("注单分页查询"))
     public ResponseEntity<Page<BetPageBO>> page(BetPageVO betRequest) {
         Map<String, Object> params = BackendServerUtil.objectToMap(betRequest);
         String result = HttpClient4Util.doPost(gameServerUrl + GameServerConstants.ORDER_PAGE, params);
