@@ -8,6 +8,7 @@ import java.util.Optional;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -49,7 +50,7 @@ public class BetResultService {
     public Page<BetResult> getBetResultPage(BetResultPageVO vo, Pageable pageable) {
         Specification<BetResult> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
-            if (vo.getNoActive() != null) {
+            if (StringUtils.isNotEmpty(vo.getNoActive())) {
                 predicates.add(cb.equal(root.get("noActive"), vo.getNoActive()));
             }
             if (vo.getTableId() != null) {
