@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <property name="LOGS" value="./logs/game"/>
-    <property name="LOGS_FILENAME" value="game"/>
+    <property name="LOGS" value="./logs/backendServer"/>
+    <property name="LOGS_FILENAME" value="backendServer"/>
 
     <appender name="Console"
               class="ch.qos.logback.core.ConsoleAppender">
@@ -23,7 +23,6 @@
 
         <rollingPolicy
                 class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- rollover daily and when the file reaches 10 MegaBytes -->
             <fileNamePattern>${LOGS}/archived/${LOGS_FILENAME}-%d{yyyy-MM-dd}.%i.log
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
