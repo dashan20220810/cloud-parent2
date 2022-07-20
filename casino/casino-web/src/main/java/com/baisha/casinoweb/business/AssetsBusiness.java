@@ -63,9 +63,9 @@ public class AssetsBusiness {
 			DeskVO desk = deskBusiness.queryDeskById(tableId);
 			String deskCode = desk.getDeskCode();
 			GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
-			remark = String.format("user:%d ,局号:%s %s", userId, gameInfo.getCurrentActive(), remarkComment);
+			remark = String.format("betId:%d ,局号:%s %s", relatedBetId, gameInfo.getCurrentActive(), remarkComment);
 		} else {
-			remark = String.format("user:%d ,%s", userId, remarkComment);
+			remark = String.format("betId:%d ,%s", relatedBetId, remarkComment);
 		}
 
 		log.info("{}, userID:{}", action, userId);

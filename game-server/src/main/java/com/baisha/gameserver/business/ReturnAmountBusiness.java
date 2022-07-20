@@ -38,12 +38,15 @@ public class ReturnAmountBusiness {
 		List<Bet> processList = betService.queryBetIsNotReturnedYesterday(queryAmount);
 		Integer dateInt = Integer.parseInt(DateUtil.dateToyyyyMMdd(DateUtils.addDays(new Date(), -1)));
 		Long successCount = 0L;
+		Long totalCount = 0L;
 		
 		while ( processList!=null & processList.size()>0 ) {
 	        
 			successCount += processList.stream()
 				.mapToLong(bet -> doBetReturnAmoun(bet, dateInt)).sum();
-			log.info("\r\n ==== 每日返水已处理笔数 {}", successCount);
+			totalCount += processList.size();
+			log.info("\r\n ==== 每日返水已下分处理笔数 {}", successCount);
+			log.info("\r\n ==== 每日返水已处理笔数 {}", totalCount);
 			processList = betService.queryBetIsNotReturnedYesterday(queryAmount);
 		}
 	}
