@@ -25,6 +25,7 @@ public class BackendConstants {
     public static final String TOBOT_AUTO_MODULE = "  机器人管理(自动投注)";
     public static final String TOBOT_GROUP_MODULE = "机器人-群";
     public static final String ADMIN_MODULE = "管理员";
+    public static final String SYS_PARAMTER_MODULE = "系统参数设置";
     public static final String SYS_TELEGRAM_MODULE = "系统设置-电报";
     public static final String SYS_PLAYMONEY_MODULE = "系统设置-打码量倍数";
     public static final String BACC_ODDS_MODULE = "百家乐赔率设置";

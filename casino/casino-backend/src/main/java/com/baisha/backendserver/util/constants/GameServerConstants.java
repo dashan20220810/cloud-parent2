@@ -63,5 +63,15 @@ public class GameServerConstants {
      */
     public static final String GAME_BET_RESULT_NOACTIVE = "/betResult/queryByNoActive";
 
+    /**
+     * 获取返水信息
+     */
+    public static final String GAME_GET_REBATE_INFO = "/prop/queryReturnAmountMultiplier";
+
+    /**
+     * 设置返水信息
+     */
+    public static final String GAME_SET_REBATE_INFO = "/prop/updateReturnAmountMultiplier";
+
 
 }
