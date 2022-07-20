@@ -4,7 +4,6 @@ import com.baisha.casinoweb.model.OpenCardVideo;
 import com.baisha.casinoweb.repository.OpenCardVideoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,11 +29,13 @@ public class OpenCardVideoService {
     }
 
     public void saveOpenCardVideoAndPic(
-            final String openCardVideoAddress, final String picAddress, final String noActive) {
+            final String openCardVideoAddress, final String picAddress,
+            final String recordingChartAddress, final String noActive) {
         OpenCardVideo openCardVideo = new OpenCardVideo();
         openCardVideo.setNoActive(noActive);
         openCardVideo.setPicAddress(picAddress);
         openCardVideo.setVideoAddress(openCardVideoAddress);
+        openCardVideo.setRecordingChartAddress(recordingChartAddress);
         save(openCardVideo);
     }
 }

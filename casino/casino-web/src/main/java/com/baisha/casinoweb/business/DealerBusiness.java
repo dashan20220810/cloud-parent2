@@ -115,7 +115,10 @@ public class DealerBusiness {
 		// 存储视频截屏地址和录单图地址
 		String openCardVideoAddress = videoServerDomain + Constants.IMAGE +  gameDesk.getStreamVideoCode() + "/" +
 				newActive + "/1" +Constants.MP4;
+		String openCardPicAddress = videoServerDomain + Constants.IMAGE +  gameDesk.getStreamVideoCode() + "/" +
+				newActive + "/1" +Constants.JPEG;
 		newGameInfo.setVideoAddress(openCardVideoAddress);
+		newGameInfo.setPicAddress(openCardPicAddress);
 		gameInfoBusiness.setGameTime(deskCode + "_" + gameNo ,newGameInfo);
 		log.info("=======开局时间 newGameInfo: {}", newGameInfo);
 		GameInfo gameInfo = new GameInfo();

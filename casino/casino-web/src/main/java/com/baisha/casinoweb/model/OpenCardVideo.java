@@ -33,6 +33,10 @@ public class OpenCardVideo extends BaseEntity{
     private String videoAddress;
 
     @ApiModelProperty("录单图地址")
-    @Column(name = "pic_address", nullable = true, columnDefinition = "VARCHAR(1000) COMMENT '录单图地址'")
+    @Column(name = "recording_chart_address", nullable = true, columnDefinition = "VARCHAR(200) COMMENT '录单图地址'")
+    private String recordingChartAddress;
+
+    @ApiModelProperty("开牌图片地址")
+    @Column(name = "pic_address", nullable = true, columnDefinition = "VARCHAR(200) COMMENT '开牌图片地址'")
     private String picAddress;
 }

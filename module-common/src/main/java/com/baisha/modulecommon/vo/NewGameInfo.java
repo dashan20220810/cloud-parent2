@@ -28,8 +28,11 @@ public class NewGameInfo implements Serializable {
     private Date endTime;
 
     /** 游戏录单图地址 */
-    private String picAddress;
+    private String recordingChartAddress;
 
-    /** 游戏视频地址 */
+    /** 游戏开局视频地址 */
     private String videoAddress;
+
+    /** 游戏开局图片地址 */
+    private String picAddress;
 }

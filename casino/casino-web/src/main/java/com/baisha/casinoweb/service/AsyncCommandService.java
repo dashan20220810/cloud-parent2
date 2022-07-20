@@ -194,7 +194,7 @@ public class AsyncCommandService {
 		SysTelegramDto sysTg = telegramService.getSysTelegram();
 		sendVideoAddressToTg("开牌结果", sysTg.getOpenCardUrl(),
 				desk.getId(), desk.getNearVideoAddress(),
-				desk.getVideoAddress(), null, null);
+				desk.getVideoAddress(), null, null, null);
 		return CompletableFuture.completedFuture(true);
     }
 
@@ -289,7 +289,7 @@ public class AsyncCommandService {
 			final String action, final String getOpenCardUrl,
 			final Long deskId, final String nearVideoAddress,
 			final String videoAddress, final String videoResultAddress,
-			final String picRoadAddress) {
+			final String picRoadAddress, final String recordingChartAddress) {
 
 
 		// 开牌 5 request parameter
@@ -299,7 +299,8 @@ public class AsyncCommandService {
 		params.put("frontAddress", nearVideoAddress); // TODO for test
 		params.put("lookDownAddress", videoAddress); // TODO for test
 		params.put("videoResultAddress", videoResultAddress); // TODO for test
-		params.put("picRoadAddress", picRoadAddress); // TODO for test
+		params.put("picRoadAddress", recordingChartAddress); // TODO for test
+		params.put("picResultAddress", picRoadAddress);
 
 		String result = HttpClient4Util.doPost(
 				telegramServerDomain + RequestPathEnum.TG_OPEN.getApiName(),
@@ -335,7 +336,11 @@ public class AsyncCommandService {
 		GameDesk gameDesk = deskBusiness.getGameDesk(dealerIp + "_" + gameNo);
 		final String deskCode = gameDesk.getDeskCode();
 		NewGameInfo newGameInfo = gameInfoBusiness.getGameTime(deskCode + "_" + gameNo);
+		// 录单图图片地址
+		String recordingChartAddress = newGameInfo.getRecordingChartAddress();
+		// 开牌图片地址
 		String picAddress = newGameInfo.getPicAddress();
+		// 开牌视频地址
 		String videoAddress = newGameInfo.getVideoAddress();
 		log.info("开牌结果 newGameInfo :{}", newGameInfo);
 
@@ -404,9 +409,9 @@ public class AsyncCommandService {
 		}
 		//发送视频地址给TG
 		sendVideoAddressToTg("截屏", null, gameDesk.getDeskId(), null, null,
-				videoAddress, picAddress);
+				videoAddress, picAddress, recordingChartAddress);
 		asyncApiService.tgSettlement(noActive, openCardResult, top20WinUsers);
-		openCardVideoService.saveOpenCardVideoAndPic(videoAddress, picAddress, noActive);
+		openCardVideoService.saveOpenCardVideoAndPic(videoAddress, picAddress, recordingChartAddress, noActive);
     }
 
 	public void pairImage(PairImageVO pairImageVO) {
@@ -432,7 +437,7 @@ public class AsyncCommandService {
 		}
 		JSONObject json = JSONObject.parseObject(result);
 		JSONObject resultJson = json.getJSONObject("data");
-		newGameInfo.setPicAddress(resultJson.getString("url"));
+		newGameInfo.setRecordingChartAddress(resultJson.getString("url"));
 		gameInfoBusiness.setGameTime(deskCode + "_" + gameNo, newGameInfo);
 	}
 
