@@ -11,10 +11,7 @@ import com.baisha.backendserver.model.bo.desk.DeskListBO;
 import com.baisha.backendserver.model.bo.order.SsOrderAddBO;
 import com.baisha.backendserver.model.bo.sys.SysPlayMoneyParameterBO;
 import com.baisha.backendserver.model.bo.tgBot.TgGroupPageBO;
-import com.baisha.backendserver.model.bo.user.UserAssetsBO;
-import com.baisha.backendserver.model.bo.user.UserBalanceChangePageBO;
-import com.baisha.backendserver.model.bo.user.UserPageBO;
-import com.baisha.backendserver.model.bo.user.UserPlayMoneyChangePageBO;
+import com.baisha.backendserver.model.bo.user.*;
 import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.order.SsOrderAddVO;
 import com.baisha.backendserver.model.vo.user.*;
@@ -23,6 +20,7 @@ import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
+import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
 import com.baisha.modulecommon.enums.order.OrderStatusEnum;
 import com.baisha.modulecommon.enums.order.OrderTypeEnum;
@@ -51,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author yihui
@@ -509,6 +508,25 @@ public class UserController {
                 bo.setPlayMoneyTypeName("支出");
             }
         }
+    }
+
+
+    @GetMapping(value = "balanceChangeType")
+    @ApiOperation("余额变化记录类型列表")
+    public ResponseEntity<List<ChangeTypeNameBO>> getBalanceChangeType() {
+        return ResponseUtil.success(BalanceChangeEnum.getList()
+                .stream()
+                .map(option -> ChangeTypeNameBO.builder().changeType(option.getCode())
+                        .changeTypeName(option.getName()).build()).collect(Collectors.toList()));
+    }
+
+    @GetMapping(value = "playMoneyChangeType")
+    @ApiOperation("打码量变化记录类型列表")
+    public ResponseEntity<List<ChangeTypeNameBO>> getPlayMoneyChangeType() {
+        return ResponseUtil.success(PlayMoneyChangeEnum.getList()
+                .stream()
+                .map(option -> ChangeTypeNameBO.builder().changeType(option.getCode())
+                        .changeTypeName(option.getName()).build()).collect(Collectors.toList()));
     }
 
 
