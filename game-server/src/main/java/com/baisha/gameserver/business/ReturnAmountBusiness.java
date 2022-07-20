@@ -13,7 +13,9 @@ import org.springframework.stereotype.Component;
 import com.baisha.gameserver.model.Bet;
 import com.baisha.gameserver.service.BetService;
 import com.baisha.gameserver.service.BetStatisticsService;
+import com.baisha.gameserver.util.enums.RedisPropEnum;
 import com.baisha.modulecommon.util.DateUtil;
+import com.baisha.modulespringcacheredis.util.RedisUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,6 +25,9 @@ public class ReturnAmountBusiness {
 
     @Value("${project.game.return-amount-multiplier}")
     private BigDecimal gameReturnAmountMultiplier;
+
+    @Autowired
+    private RedisUtil redisUtil;
     
 	@Autowired
 	BetService betService;
@@ -39,11 +44,17 @@ public class ReturnAmountBusiness {
 		Integer dateInt = Integer.parseInt(DateUtil.dateToyyyyMMdd(DateUtils.addDays(new Date(), -1)));
 		Long successCount = 0L;
 		Long totalCount = 0L;
+        BigDecimal returnAmountMultiplier = redisUtil.getValue(RedisPropEnum.ReturnAmountMultiplier.getKey());
+        if (returnAmountMultiplier == null) {
+        	returnAmountMultiplier = gameReturnAmountMultiplier;
+        	redisUtil.setValue(RedisPropEnum.ReturnAmountMultiplier.getKey(), returnAmountMultiplier);
+        }
+        final BigDecimal finalReturnAmountMultiplier = returnAmountMultiplier;
 		
 		while ( processList!=null & processList.size()>0 ) {
 	        
 			successCount += processList.stream()
-				.mapToLong(bet -> doBetReturnAmoun(bet, dateInt)).sum();
+				.mapToLong(bet -> doBetReturnAmoun(bet, dateInt, finalReturnAmountMultiplier)).sum();
 			totalCount += processList.size();
 			log.info("\r\n ==== 每日返水已下分处理笔数 {}", successCount);
 			log.info("\r\n ==== 每日返水已处理笔数 {}", totalCount);
@@ -51,8 +62,8 @@ public class ReturnAmountBusiness {
 		}
 	}
 
-    private Long doBetReturnAmoun(Bet bet, Integer dateInt) {
-		BigDecimal returnAmount = gameReturnAmountMultiplier.multiply(bet.getWinAmount()).abs();
+    private Long doBetReturnAmoun(Bet bet, Integer dateInt, BigDecimal returnAmountMultiplier) {
+		BigDecimal returnAmount = returnAmountMultiplier.multiply(bet.getWinAmount()).abs();
 		betStatisticsService.updateReturnAmount(bet.getUserId(), bet.getTgChatId(), dateInt, returnAmount);
 		betService.updateReturnAmount(bet.getId(), returnAmount);
 		

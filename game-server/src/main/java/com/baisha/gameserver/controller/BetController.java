@@ -20,6 +20,7 @@ import com.baisha.gameserver.model.Bet;
 import com.baisha.gameserver.model.BetStatistics;
 import com.baisha.gameserver.service.BetService;
 import com.baisha.gameserver.service.BetStatisticsService;
+import com.baisha.gameserver.util.enums.RedisPropEnum;
 import com.baisha.gameserver.vo.BetPageVO;
 import com.baisha.gameserver.vo.BetVO;
 import com.baisha.gameserver.vo.response.BetResponseVO;
@@ -27,6 +28,7 @@ import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.DateUtil;
 import com.baisha.modulecommon.util.PageUtil;
+import com.baisha.modulespringcacheredis.util.RedisUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -44,6 +46,9 @@ public class BetController {
 	
     @Value("${project.game.return-amount-multiplier}")
     private BigDecimal gameReturnAmountMultiplier;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Autowired
     BetService betService;
@@ -196,7 +201,14 @@ public class BetController {
         log.info("返水 betId: {}, userId: {}, tgChatId: {}", betId, userId, tgChatId);
         BigDecimal returnAmount = BigDecimal.ZERO;
         Bet bet = betService.findById(betId);
-        returnAmount = gameReturnAmountMultiplier.multiply(bet.getWinAmount()).abs();
+        
+        BigDecimal returnAmountMultiplier = redisUtil.getValue(RedisPropEnum.ReturnAmountMultiplier.getKey());
+        if (returnAmountMultiplier == null) {
+        	returnAmountMultiplier = gameReturnAmountMultiplier;
+        	redisUtil.setValue(RedisPropEnum.ReturnAmountMultiplier.getKey(), returnAmountMultiplier);
+        }
+        
+        returnAmount = returnAmountMultiplier.multiply(bet.getWinAmount()).abs();
         betStatisticsService.updateReturnAmount(userId, tgChatId, Integer.parseInt(DateUtil.today(DateUtil.YYYYMMDD)), returnAmount);
         betService.updateReturnAmount(betId, returnAmount);
         return ResponseUtil.success(returnAmount);
