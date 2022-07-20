@@ -186,8 +186,9 @@ public class BetAwardController {
     }
 
 
-    @ApiOperation(value = "补单(不影响已结算的该局的会员)", notes = "用与未开奖 或 开奖后部分注单没结算  " +
-            "如果当前局没有开奖，可以重新选择奖项开奖，如果已经开奖，不能重新选择奖项开奖，必须使以前的开奖选项")
+    //@ApiOperation(value = "补单(不影响已结算的该局的会员)", notes = "用与未开奖 或 开奖后部分注单没结算  " +
+    //       "如果当前局没有开奖，可以重新选择奖项开奖，如果已经开奖，不能重新选择奖项开奖，必须使以前的开奖选项")
+    @ApiOperation(value = "补单(不影响已结算的该局的会员)")
     @PostMapping(value = "repair")
     public ResponseEntity repairBetResult(BetResultRepairVO vo) {
         if (CommonUtil.checkNull(vo.getNoActive(), vo.getAwardOption())) {
@@ -204,8 +205,8 @@ public class BetAwardController {
 
         log.info("补单--传入参数 ：{}", JSONObject.toJSONString(vo));
         BetResultBO resultBO = getBetResultBO(vo.getNoActive());
-        if (Objects.isNull(resultBO)) {
-            return new ResponseEntity("未查询到局");
+        if (Objects.isNull(resultBO) || StringUtils.isEmpty(resultBO.getAwardOption())) {
+            return new ResponseEntity("未查询到局/荷官端未开奖");
         }
 
         //时间对比
@@ -229,7 +230,7 @@ public class BetAwardController {
         doSaveChang(currentUser, repairVO, resultBO);
         log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
                 JSON.toJSONString(vo), BackendConstants.BET_RESULT_MODULE);
-        return ResponseUtil.success();
+        return ResponseUtil.success(resultBO.getAwardOption());
     }
 
     private void doSaveChang(Admin currentUser, BetResultRepairVO repairVO, BetResultBO resultBO) {
@@ -350,7 +351,7 @@ public class BetAwardController {
         if (CommonUtil.checkNull(vo.getNoActive(), vo.getAwardOption())) {
             return ResponseUtil.parameterNotNull();
         }
-        
+
         //防止前端多次点击操作
         String prevent = RedisKeyConstants.PREVENT_CLICKS + "reopen_" + vo.getNoActive();
         if (redisUtil.hasKey(prevent)) {
@@ -384,7 +385,7 @@ public class BetAwardController {
         doSaveChangReopen(currentUser, reopenVO, resultBO);
         log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
                 "重新开牌：" + JSON.toJSONString(vo), BackendConstants.BET_RESULT_MODULE);
-        return ResponseUtil.success();
+        return ResponseUtil.success(vo.getAwardOption());
     }
 
     private void doSaveChangReopen(Admin currentUser, BetResultReopenVO reopenVO, BetResultBO resultBO) {
