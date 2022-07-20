@@ -3,7 +3,6 @@ package com.baisha.business;
 import cn.hutool.core.util.StrUtil;
 import com.baisha.model.TgBetBot;
 import com.baisha.model.vo.TgBetBotPageVO;
-import com.baisha.modulecommon.Constants;
 import com.baisha.service.TgBetBotService;
 import com.baisha.util.TelegramServerUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +20,6 @@ import java.util.List;
 @Slf4j
 @Service
 public class TgBetBotBusiness {
-
-    @Autowired
-    private ControlBotBusiness controlBotBusiness;
-
     @Autowired
     private TgBetBotService tgBetBotService;
 
@@ -33,22 +28,11 @@ public class TgBetBotBusiness {
         Pageable pageable = TelegramServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), sort);
         Specification<TgBetBot> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
-            if (StrUtil.isNotEmpty(vo.getBetBotName())) {
-                predicates.add(cb.equal(root.get("betBotName"), vo.getBetBotName()));
+            if (StrUtil.isNotEmpty(vo.getBetBotPhone())) {
+                predicates.add(cb.equal(root.get("betBotPhone"), vo.getBetBotPhone()));
             }
             return cb.and(predicates.toArray(new Predicate[predicates.size()]));
         };
         return tgBetBotService.getTgBetBotPage(spec, pageable);
-    }
-
-    public boolean updateBotSession(Long id, Integer status) {
-        TgBetBot tgBetBot = tgBetBotService.findById(id);
-        if (tgBetBot == null) {
-            return false;
-        }
-        if (Constants.open.equals(status)) {
-            return controlBotBusiness.startupBot(tgBetBot.getBetBotName(), tgBetBot.getBetBotToken());
-        }
-        return controlBotBusiness.shutdownBot(tgBetBot.getBetBotName(),tgBetBot.getBetBotToken());
     }
 }

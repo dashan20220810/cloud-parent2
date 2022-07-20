@@ -16,11 +16,11 @@ import lombok.experimental.Accessors;
 @ApiModel(value = "TgBetBotVO对象", description = "TG下注机器人VO")
 public class TgBetBotVO {
 
-    @ApiModelProperty(value = "机器人名称")
-    private String betBotName;
+    @ApiModelProperty(value = "机器人id")
+    private String betBotId;
 
-    @ApiModelProperty(value = "机器人token")
-    private String betBotToken;
+    @ApiModelProperty(value = "机器人手机号")
+    private String betBotPhone;
 
     @ApiModelProperty(value = "投注开始时间")
     private String betStartTime;

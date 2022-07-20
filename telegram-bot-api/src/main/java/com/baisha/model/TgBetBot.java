@@ -18,16 +18,16 @@ import javax.persistence.UniqueConstraint;
 @Accessors(chain = true)
 @Entity
 @Table(uniqueConstraints = {
-    @UniqueConstraint(name = "unique_bot_name", columnNames = "betBotName")
+    @UniqueConstraint(name = "unique_bet_bot_id", columnNames = "betBotId")
 })
 @ApiModel(value = "TgBetBot对象", description = "TG下注机器人")
 public class TgBetBot extends BaseEntity {
 
-    @ApiModelProperty(value = "机器人名称")
-    private String betBotName;
+    @ApiModelProperty(value = "机器人id")
+    private String betBotId;
 
-    @ApiModelProperty(value = "机器人token")
-    private String betBotToken;
+    @ApiModelProperty(value = "机器人手机号")
+    private String betBotPhone;
 
     @ApiModelProperty(value = "投注开始时间")
     private String betStartTime;

@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface TgBetBotRepository extends JpaRepository<TgBetBot, Long>, JpaSpecificationExecutor<TgBetBot> {
 
-    TgBetBot findByBetBotName(String betBotName);
+    TgBetBot findByBetBotId(String betBotId);
 
     List<TgBetBot> findByStatus(Integer status);
 

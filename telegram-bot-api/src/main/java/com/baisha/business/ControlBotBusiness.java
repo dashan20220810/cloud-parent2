@@ -66,7 +66,7 @@ public class ControlBotBusiness {
         }
 
         // 2.没有实例创建一个机器人
-        MyTelegramLongPollingBot myBot = null;
+        MyTelegramLongPollingBot myBot;
         try {
             myBot = new MyTelegramLongPollingBot(botName, token);
             botSession = getBotsApiInstance().registerBot(myBot);

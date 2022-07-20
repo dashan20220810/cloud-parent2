@@ -26,8 +26,8 @@ public class TgBetBotService {
     @Autowired
     private TgBetBotRepository tgBetBotRepository;
 
-    public TgBetBot findByBetBotName(String betBotName) {
-        return tgBetBotRepository.findByBetBotName(betBotName);
+    public TgBetBot findByBetBotId(String betBotId) {
+        return tgBetBotRepository.findByBetBotId(betBotId);
     }
 
     @CachePut(key = "#tgBetBot.id")

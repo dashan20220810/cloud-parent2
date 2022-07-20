@@ -8,6 +8,6 @@ import lombok.Data;
 @ApiModel(value = "投注机器人-分页对象")
 public class TgBetBotPageVO extends PageVO {
 
-    @ApiModelProperty(value = "机器人名称")
-    private String betBotName;
+    @ApiModelProperty(value = "机器人手机号")
+    private String betBotPhone;
 }

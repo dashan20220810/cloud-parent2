@@ -51,16 +51,16 @@ public class TgManageBotController {
             return ResponseUtil.parameterNotNull();
         }
 
-        //啟動機器人
+        // 启动机器人
         boolean isSuccess = controlBotBusiness.startupBot(username, token);
         if (!isSuccess) {
             return ResponseUtil.custom("机器人启动失败，请联系技术处理");
         }
 
-        //启动机器人成功更新机器人资料
+        // 启动机器人成功，更新
         TgBot tgBot = tgBotService.findByBotName(username);
         if (ObjectUtils.isEmpty(tgBot) || StringUtils.isEmpty(tgBot.getBotName())) {
-            //新增
+            // 新增
             tgBot = new TgBot();
             tgBot.setBotName(username)
                     .setBotToken(token);

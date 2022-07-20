@@ -1,6 +1,5 @@
 package com.baisha.controller;
 
-import com.baisha.business.ControlBotBusiness;
 import com.baisha.business.TgBetBotBusiness;
 import com.baisha.model.TgBetBot;
 import com.baisha.model.vo.StatusVO;
@@ -21,16 +20,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.telegram.telegrambots.meta.generics.BotSession;
 
 @Api(tags = "投注机器人管理")
 @Slf4j
 @RestController
 @RequestMapping("tgBetBot")
 public class TgBetBotController {
-
-    @Autowired
-    private ControlBotBusiness controlBotBusiness;
 
     @Autowired
     private TgBetBotBusiness tgBetBotBusiness;
@@ -40,27 +35,16 @@ public class TgBetBotController {
 
     @ApiOperation("新增投注机器人")
     @PostMapping("addBetBot")
-    public ResponseEntity addBetBot(TgBetBotVO vo) throws Exception {
-        // 参数校验
-        if (!TgBetBotVO.check(vo)) {
-            return ResponseUtil.parameterNotNull();
-        }
-
-        // 启动机器人
-        boolean isSuccess = controlBotBusiness.startupBot(vo.getBetBotName(), vo.getBetBotToken());
-        if (!isSuccess) {
-            return ResponseUtil.custom("机器人启动失败，请联系技术处理");
-        }
-
+    public ResponseEntity addBetBot(TgBetBotVO vo) {
         // 启动机器人成功，更新机器人资料
-        TgBetBot tgBetBot = tgBetBotService.findByBetBotName(vo.getBetBotName());
-        if (ObjectUtils.isEmpty(tgBetBot) || StringUtils.isEmpty(tgBetBot.getBetBotName())) {
+        TgBetBot tgBetBot = tgBetBotService.findByBetBotId(vo.getBetBotId());
+        if (ObjectUtils.isEmpty(tgBetBot) || StringUtils.isEmpty(tgBetBot.getBetBotId())) {
             // 新增
             tgBetBot = new TgBetBot();
+            tgBetBot.setBetBotId(vo.getBetBotId())
+                    .setBetBotPhone(vo.getBetBotPhone());
         }
-        tgBetBot.setBetBotName(vo.getBetBotName())
-                .setBetBotToken(vo.getBetBotToken())
-                .setBetStartTime(vo.getBetStartTime())
+        tgBetBot.setBetStartTime(vo.getBetStartTime())
                 .setBetEndTime(vo.getBetEndTime())
                 .setBetFrequency(vo.getBetFrequency())
                 .setBetContents(vo.getBetContents())
@@ -88,8 +72,6 @@ public class TgBetBotController {
         if (CommonUtil.checkNull(id.toString(), status.toString())) {
             return ResponseUtil.parameterNotNull();
         }
-        // 更新BotSession
-        tgBetBotBusiness.updateBotSession(id, status);
         // 更新状态
         tgBetBotService.updateStatusById(id, status);
         return ResponseUtil.success();
@@ -102,19 +84,6 @@ public class TgBetBotController {
         if (CommonUtil.checkNull(id.toString())) {
             return ResponseUtil.parameterNotNull();
         }
-        TgBetBot tgBetBot = tgBetBotService.findById(id);
-        // 停止机器人
-        BotSession botSession = controlBotBusiness.getBotSession(tgBetBot.getBetBotName());
-        if (botSession != null && botSession.isRunning()) {
-            botSession.stop();
-        }
-        // 删除MAP
-        controlBotBusiness.botSessionMap.remove(tgBetBot.getBetBotName());
-
-
-
-
-
         // 删除机器人
         tgBetBotService.delBot(id);
         return ResponseUtil.success();
