@@ -24,5 +24,8 @@ public class UserAssetsBO extends Assets {
     @ApiModelProperty(value = "TG用户ID")
     private String tgUserId;
 
+    @ApiModelProperty(value = "用户类型")
+    private Integer userType;
+
 
 }

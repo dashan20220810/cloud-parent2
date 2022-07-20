@@ -35,5 +35,8 @@ public class UserAssetsBO extends BaseBO {
     @ApiModelProperty(value = "打码量")
     private BigDecimal playMoney;
 
+    @ApiModelProperty(value = "用户类型")
+    private Integer userType;
+
 
 }

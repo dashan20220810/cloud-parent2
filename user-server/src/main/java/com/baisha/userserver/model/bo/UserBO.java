@@ -27,4 +27,7 @@ public class UserBO implements Serializable {
     @ApiModelProperty(value = "状态 1 正常 ，0禁用")
     private Integer status;
 
+    @ApiModelProperty(value = "用户类型")
+    private Integer userType;
+
 }

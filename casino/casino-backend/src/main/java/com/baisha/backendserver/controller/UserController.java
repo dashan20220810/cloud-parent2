@@ -310,6 +310,9 @@ public class UserController {
             return assetsResponse;
         }
         UserAssetsBO userAssetsBO = JSONObject.parseObject(assetsResponse.getData().toString(), UserAssetsBO.class);
+        if (userAssetsBO.getUserType().equals(UserTypeEnum.BOT.getCode())) {
+            return new ResponseEntity("该会员不能下分(BOT)");
+        }
         if (userAssetsBO.getBalance().compareTo(BigDecimal.valueOf(vo.getAmount())) < 0) {
             return new ResponseEntity("下分金额不足 余额:" + userAssetsBO.getBalance());
         }

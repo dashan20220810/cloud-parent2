@@ -279,7 +279,7 @@ public class UserController {
         if (Objects.isNull(user)) {
             return new ResponseEntity("会员不存在");
         }
-        return ResponseUtil.success(UserBO.builder().id(user.getId())
+        return ResponseUtil.success(UserBO.builder().id(user.getId()).userType(user.getUserType())
                 .userName(user.getUserName()).nickName(user.getNickName()).build());
     }
 
@@ -293,7 +293,7 @@ public class UserController {
         if (Objects.isNull(user)) {
             return new ResponseEntity("会员不存在");
         }
-        return ResponseUtil.success(UserBO.builder().id(user.getId())
+        return ResponseUtil.success(UserBO.builder().id(user.getId()).userType(user.getUserType())
                 .userName(user.getUserName()).nickName(user.getNickName()).status(user.getStatus()).build());
     }
 
