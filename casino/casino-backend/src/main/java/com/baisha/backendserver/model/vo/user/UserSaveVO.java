@@ -4,6 +4,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+/**
+ * @author yihui
+ */
 @Data
 @ApiModel(value = "后台-新增TG会员请求对象")
 public class UserSaveVO {

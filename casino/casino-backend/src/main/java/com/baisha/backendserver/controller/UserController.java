@@ -194,11 +194,12 @@ public class UserController {
         }
         SsOrderAddBO ssOrderAddBO = JSONObject.parseObject(JSONObject.toJSONString(orderResponseEntity.getData()), SsOrderAddBO.class);
         Long orderId = ssOrderAddBO.getId();
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
-                currentUser.getUserName() + "为用户id={" + vo.getId() + "}新增充值订单成功", BackendConstants.ORDER_MODULE);
         //增加余额
         ResponseEntity balanceResponseEntity = doIncomeBalance(vo, orderId);
         if (balanceResponseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
+            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
+                    currentUser.getUserName() + "为用户id={" + vo.getId() + "}新增充值订单成功", BackendConstants.ORDER_MODULE);
+
             log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
                     currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加余额成功", BackendConstants.USER_ASSETS_MODULE);
             //充值余额成功过后，在增加打码量
@@ -316,15 +317,13 @@ public class UserController {
             return new ResponseEntity("不能下分，打码量不足");
         }
         Admin currentUser = commonService.getCurrentUser();
-        SsOrderAddVO order = createWithdrawOrder(vo, currentUser);
+        SsOrderAddVO order = createWithdrawOrder(vo, currentUser, userAssetsBO);
         ResponseEntity orderResponseEntity = doCreateOrder(order);
         if (orderResponseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
             return ResponseUtil.fail();
         }
         SsOrderAddBO ssOrderAddBO = JSONObject.parseObject(JSONObject.toJSONString(orderResponseEntity.getData()), SsOrderAddBO.class);
         Long orderId = ssOrderAddBO.getId();
-        log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
-                currentUser.getUserName() + "为用户id={" + vo.getId() + "}新增提现(下分)订单成功", BackendConstants.ORDER_MODULE);
 
         //下分减去
         String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_BALANCE;
@@ -343,6 +342,8 @@ public class UserController {
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
         if (responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
+            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
+                    currentUser.getUserName() + "为用户id={" + vo.getId() + "}新增提现(下分)订单成功", BackendConstants.ORDER_MODULE);
             log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
                     currentUser.getUserName() + "为用户id={" + vo.getId() + "}下分", BackendConstants.USER_ASSETS_MODULE);
         } else {
@@ -352,13 +353,13 @@ public class UserController {
         return responseEntity;
     }
 
-    private SsOrderAddVO createWithdrawOrder(BalanceVO vo, Admin currentUser) {
+    private SsOrderAddVO createWithdrawOrder(BalanceVO vo, Admin currentUser, UserAssetsBO userAssetsBO) {
         SsOrderAddVO ssOrder = new SsOrderAddVO();
         ssOrder.setUserId(vo.getId());
         ssOrder.setOrderType(OrderTypeEnum.WITHDRAW_ORDER.getCode());
         ssOrder.setOrderStatus(OrderStatusEnum.ORDER_SUCCESS.getCode());
         ssOrder.setAmount(new BigDecimal(vo.getAmount().intValue()));
-        ssOrder.setRemark(currentUser.getUserName() + "为用户userId=" + vo.getId() + "提现" + vo.getAmount());
+        ssOrder.setRemark(currentUser.getUserName() + "为用户" + userAssetsBO.getUserName() + "提现" + vo.getAmount());
         return ssOrder;
     }
 

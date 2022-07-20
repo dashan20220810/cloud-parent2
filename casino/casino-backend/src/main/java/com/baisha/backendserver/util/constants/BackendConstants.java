@@ -14,7 +14,7 @@ public class BackendConstants {
     public static int EXPENSES = 2;
 
 
-    public static final String DEFAULT_TG_GROUP_ID = "-1001789896595";
+    public static final String DEFAULT_TG_GROUP_ID = "-1001551226121";
     public static final String DEFAULT_TG_GROUP_NAME = "默认官方群";
 
     public static final String INSERT = "insert";
@@ -24,7 +24,7 @@ public class BackendConstants {
     public static final String USER_MODULE = "会员";
     public static final String USER_ASSETS_MODULE = "会员资产";
     public static final String TOBOT_MODULE = "机器人";
-    public static final String TOBOT_AUTO_MODULE = "  机器人管理(自动投注)";
+    public static final String TOBOT_AUTO_MODULE = "机器人管理(自动投注)";
     public static final String TOBOT_GROUP_MODULE = "机器人-群";
     public static final String ADMIN_MODULE = "管理员";
     public static final String SYS_PARAMTER_MODULE = "系统参数设置";
