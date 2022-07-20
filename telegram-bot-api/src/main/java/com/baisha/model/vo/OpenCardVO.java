@@ -28,6 +28,9 @@ public class OpenCardVO {
     @ApiModelProperty(value = "牌面-视频地址")
     private String videoResultAddress;
 
+    @ApiModelProperty(value = "牌面-图片地址")
+    private String picResultAddress;
+
     @ApiModelProperty(value = "路图-图片地址")
     private String picRoadAddress;
 

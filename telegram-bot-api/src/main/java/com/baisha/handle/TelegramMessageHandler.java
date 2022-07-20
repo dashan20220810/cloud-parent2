@@ -435,6 +435,9 @@ public class TelegramMessageHandler {
                 List<String> commands = betOption.getCommands();
                 for (String command : commands) {
                     if (text.contains(command)) {
+                        if (0 != text.indexOf(command)) {
+                            return result;
+                        }
                         long amount = Long.parseLong(text.replace(command, ""));
                         if (amount <= 0) {
                             return result;

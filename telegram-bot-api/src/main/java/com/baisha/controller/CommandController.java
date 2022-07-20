@@ -58,7 +58,7 @@ public class CommandController {
     @ApiOperation("开始新局")
     @PostMapping("startNewBureau")
     public ResponseEntity startNewBureau(StartNewBureauVO vo) throws Exception {
-        log.info("==================开始新局:{}", vo);
+        log.info("===============开始新局==============={}", vo);
 
         // 第一步，验证参数有效性
         if (!StartNewBureauVO.check(vo)) {
@@ -70,10 +70,9 @@ public class CommandController {
         if (CollectionUtils.isEmpty(chatList)) {
             return ResponseUtil.success();
         }
-        log.info("桌台ID:{},局号:{}===群数量{}个", vo.getTableId(), vo.getBureauNum(), chatList.size());
+        log.info("桌台ID:{},局号:{}======群数量{}个", vo.getTableId(), vo.getBureauNum(), chatList.size());
 
         // 第三步: 循环不同的桌群配置，组装不同的推送消息并发送
-//        URL imageAddress = new URL(vo.getImageAddress());
         URL countdownAddress = new URL(vo.getCountdownAddress());
         List<CompletableFuture<TgChat>> futures = chatList.stream()
                 .map(tgChat -> CompletableFuture.supplyAsync(() -> {
@@ -83,7 +82,7 @@ public class CommandController {
                 .collect(Collectors.toList());
         chatList = futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
 
-        log.info("桌台ID:{},局号:{}===已发送的群数量{}个", vo.getTableId(), vo.getBureauNum(), chatList.size());
+        log.info("桌台ID:{},局号:{}======已发送的群数量{}个", vo.getTableId(), vo.getBureauNum(), chatList.size());
 
         // 机器人-异步投注
 //        betCommandBusiness.botStartBet(chatList);
@@ -94,7 +93,7 @@ public class CommandController {
     @ApiOperation("封盘线")
     @PostMapping("sealingLine")
     public ResponseEntity sealingLine(@RequestBody SealingLineVO vo) throws Exception {
-        log.info("==================封盘线:{}", vo);
+        log.info("===============封盘线==============={}", vo);
         // 验证参数有效性
         if (!SealingLineVO.check(vo)) {
             return ResponseUtil.parameterNotNull();
@@ -110,7 +109,7 @@ public class CommandController {
     @ApiOperation("开牌")
     @PostMapping("openCard")
     public ResponseEntity openCard(OpenCardVO vo) throws Exception {
-        log.info("==================开牌:{}", vo);
+        log.info("===============开牌==============={}", vo);
 
         // 根据参数中的桌台ID，找到绑定该桌台的有效群
         List<TgChat> chatList = tgChatService.findByTableId(vo.getTableId());
@@ -127,12 +126,16 @@ public class CommandController {
         if (StrUtil.isNotEmpty(vo.getVideoResultAddress())) {
             videoResultAddress = new URL(vo.getVideoResultAddress());
         }
+        URL picResultAddress = null;
+        if (StrUtil.isNotEmpty(vo.getPicResultAddress())) {
+            picResultAddress = new URL(vo.getPicResultAddress());
+        }
         URL picRoadAddress = null;
         if (StrUtil.isNotEmpty(vo.getPicRoadAddress())) {
             picRoadAddress = new URL(vo.getPicRoadAddress());
         }
         for (TgChat tgChat : chatList) {
-            commandBusiness.openCardLoop(vo, openCardAddress, videoResultAddress, picRoadAddress, tgChat);
+            commandBusiness.openCardLoop(vo, openCardAddress, videoResultAddress, picResultAddress, picRoadAddress, tgChat);
         }
         return ResponseUtil.success();
     }
@@ -140,7 +143,7 @@ public class CommandController {
     @ApiOperation("结算")
     @PostMapping("settlement")
     public ResponseEntity settlement(@RequestBody SettlementVO vo) throws Exception {
-        log.info("==================结算:{}", vo);
+        log.info("===============结算==============={}", vo);
         // 验证参数有效性
         if (!SettlementVO.check(vo)) {
             return ResponseUtil.parameterNotNull();

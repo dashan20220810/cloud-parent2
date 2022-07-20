@@ -55,7 +55,7 @@ public class CommonHandler {
         BigDecimal userBalanceResult = BigDecimal.ZERO;
         if (StrUtil.isNotEmpty(userBalance)) {
             ResponseEntity response = JSONObject.parseObject(userBalance, ResponseEntity.class);
-            if (response.getCode() == 0) {
+            if (response.getCode() == 0 && null != response.getData()) {
                 userBalanceResult = (BigDecimal) response.getData();
                 if (userBalanceResult.compareTo(BigDecimal.ZERO) <= 0) {
                     userBalanceResult = BigDecimal.ZERO;
@@ -71,7 +71,7 @@ public class CommonHandler {
         BigDecimal flowOfDayResult = BigDecimal.ZERO;
         if (StrUtil.isNotEmpty(flowOfDay)) {
             ResponseEntity response = JSONObject.parseObject(flowOfDay, ResponseEntity.class);
-            if (response.getCode() == 0) {
+            if (response.getCode() == 0 && null != response.getData()) {
                 flowOfDayResult = (BigDecimal) response.getData();
             }
         }
@@ -84,7 +84,7 @@ public class CommonHandler {
         BigDecimal profitOfDayResult = BigDecimal.ZERO;
         if (StrUtil.isNotEmpty(profitOfDay)) {
             ResponseEntity response = JSONObject.parseObject(profitOfDay, ResponseEntity.class);
-            if (response.getCode() == 0) {
+            if (response.getCode() == 0 && null != response.getData()) {
                 profitOfDayResult = (BigDecimal) response.getData();
             }
         }
@@ -97,7 +97,7 @@ public class CommonHandler {
         BigDecimal returnWaterResult = BigDecimal.ZERO;
         if (StrUtil.isNotEmpty(returnWater)) {
             ResponseEntity response = JSONObject.parseObject(returnWater, ResponseEntity.class);
-            if (response.getCode() == 0) {
+            if (response.getCode() == 0 && null != response.getData()) {
                 returnWaterResult = (BigDecimal) response.getData();
             }
         }
@@ -111,7 +111,7 @@ public class CommonHandler {
         String config = TgHttpClient4Util.doPost(configUrl, configParam, userId);
         if (StrUtil.isNotEmpty(config)) {
             ResponseEntity response = JSONObject.parseObject(config, ResponseEntity.class);
-            if (response.getCode() == 0) {
+            if (response.getCode() == 0 && null != response.getData()) {
                 configInfo = JSONObject.parseObject(response.getData().toString(), ConfigInfo.class);
             }
         }

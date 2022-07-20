@@ -34,8 +34,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.util.*;
@@ -83,10 +81,10 @@ public class CommandBusiness {
                 tgChat.getMaxAmount() + "", tgChat.getMaxShoeAmount() + "");
 
         //3.3： 每个桌台推送开局消息
-//        myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(imageAddress))), tgChat.getChatId()+"");
         // 倒计时视频
         myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(countdownAddress, VIDEO_SUFFIX_MP4))), tgChat.getChatId()+"");
         myBot.sendMessage(message, tgChat.getChatId()+"");
+        redisUtil.set(tgChat.getId()+"123", 0);
     }
 
     @Async
@@ -105,10 +103,11 @@ public class CommandBusiness {
         // 组装TG信息
         String sealingLineMessage = this.buildSealingLineMessage(configInfo, vo, betUserAmountVO);
         myBot.sendMessage(sealingLineMessage, tgChat.getChatId()+"");
+        redisUtil.set(tgChat.getId()+"123", 1);
     }
 
     @Async
-    public void openCardLoop(OpenCardVO vo, URL openCardAddress, URL videoResultAddress, URL picRoadAddress, TgChat tgChat) {
+    public void openCardLoop(OpenCardVO vo, URL openCardAddress, URL videoResultAddress, URL picResultAddress, URL picRoadAddress, TgChat tgChat) {
         // 群审核通过，才发消息
         if(!Constants.open.equals(tgChat.getStatus())){
             return;
@@ -119,8 +118,21 @@ public class CommandBusiness {
         }
 
         if (null != openCardAddress) {
+            for (int i = 0; i < 25; i++) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                Object object = redisUtil.get(tgChat.getId() + "123");
+                if (null != object && (Integer)object == 1) {
+                    this.showOpenCardButton(vo, openCardAddress, tgChat, myBot);
+                    redisUtil.set(tgChat.getId()+"321", 0);
+                    return;
+                }
+            }
             this.showOpenCardButton(vo, openCardAddress, tgChat, myBot);
-            redisUtil.set(tgChat.getId()+"", 0);
+            redisUtil.set(tgChat.getId()+"321", 0);
         }
         if (null != videoResultAddress) {
             try {
@@ -129,13 +141,20 @@ public class CommandBusiness {
                 log.error("根据URL获取视频流-异常,视频地址:{}", videoResultAddress);
             }
         }
+        if (null != picResultAddress) {
+            try {
+                myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(picResultAddress))), tgChat.getChatId()+"");
+            } catch (Exception e) {
+                log.error("根据URL获取图片流-异常,图片地址:{}", picResultAddress);
+            }
+        }
         if (null != picRoadAddress) {
             try {
                 myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(picRoadAddress))), tgChat.getChatId()+"");
-                redisUtil.set(tgChat.getId()+"", 1);
+                redisUtil.set(tgChat.getId()+"321", 1);
             } catch (Exception e) {
                 log.error("根据URL获取图片流-异常,图片地址:{}", picRoadAddress);
-                redisUtil.set(tgChat.getId()+"", 1);
+                redisUtil.set(tgChat.getId()+"321", 1);
             }
         }
     }
@@ -153,13 +172,13 @@ public class CommandBusiness {
         }
         // 组装结算信息
         String settlementMessage = this.buildSettlementMessage(vo, userWinVOs);
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 50; i++) {
             try {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            Object object = redisUtil.get(tgChat.getId() + "");
+            Object object = redisUtil.get(tgChat.getId() + "321");
             if (null != object && (Integer)object == 1) {
                 myBot.sendMessage(settlementMessage, tgChat.getChatId()+"");
                 return;
@@ -268,7 +287,7 @@ public class CommandBusiness {
             int indexAmount = TelegramBotUtil.getRandom(0, amounts.size() - 1);
             BigDecimal amount = amounts.get(indexAmount);
             // 下注机器人-开始下注
-            int random = TelegramBotUtil.getRandom(10, 19);
+            int random = TelegramBotUtil.getRandom(10, 17);
             try {
                 Thread.sleep(Long.parseLong(random + "000"));
             } catch (InterruptedException e) {

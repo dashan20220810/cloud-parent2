@@ -16,9 +16,6 @@ import lombok.experimental.Accessors;
 @ApiModel(value = "StartNewBureauVO对象", description = "开始新局-倒计时")
 public class StartNewBureauVO {
 
-//    @ApiModelProperty(value = "开始新局-图片地址", required = true)
-//    private String imageAddress;
-
     @ApiModelProperty(value = "倒计时-视频地址", required = true)
     private String countdownAddress;
 
