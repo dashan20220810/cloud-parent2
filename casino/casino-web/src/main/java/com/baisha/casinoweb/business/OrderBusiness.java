@@ -164,10 +164,6 @@ public class OrderBusiness {
                 return String.format("下注失败 限红单注 %s %s-%s", betOption, oddsBO.getMinAmount(), oddsBO.getMaxAmount());
         	}
     	}
-
-    	for (String betOption: betOptionList) {
-    		userInfo.addOptionAmount(betOption, amount);
-    	}
     	
     	gameInfoBusiness.setGameInfo(deskCode, gameInfo);
 

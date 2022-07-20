@@ -65,6 +65,7 @@ public class GameInfoBusiness {
 			groupInfo.addTotalBetAmount(amount);
 			userInfo.addTotalBetAmount(amount);
 			userInfo.addBetHistory(betOption, amount);
+    		userInfo.addOptionAmount(betOption, amount);
 		}
 		setGameInfo(deskCode, gameInfo);
     	return gameInfo;

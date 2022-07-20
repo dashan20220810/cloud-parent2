@@ -83,7 +83,7 @@ public class GameTgGroupInfo implements Serializable {
 		
 		Collection<GameUserInfo> userInfoList = userMap.values();
 		
-		return userInfoList.stream().filter(user->null != user.getNickName()).sorted(Comparator.comparingLong(GameUserInfo::getTotalBetAmount)).limit(20)
+		return userInfoList.stream().filter(user->null != user.getNickName()).sorted(Comparator.comparingLong(GameUserInfo::getTotalBetAmount).reversed()).limit(20)
 			.map( userInfo -> {
 				Map<String, Object> map = new HashMap<>();
 				map.put("username", userInfo.getNickName());
