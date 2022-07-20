@@ -35,19 +35,19 @@ public class TgChatController {
             @ApiImplicitParam(name = "pageSize", value = "分页大小(默认10条)", required = false),
             @ApiImplicitParam(name = "pageCode", value = "分页页码(默认1页)", required = false),
             @ApiImplicitParam(name = "botId", value = "机器人ID", required = false),
-
     })
     @GetMapping("page")
-    public ResponseEntity<Page<TgChat>> page(Integer pageSize, Integer pageCode,Long botId) {
+    public ResponseEntity<Page<TgChat>> page(Integer pageSize, Integer pageCode, Long botId) {
         Sort sort = Sort.by(Sort.Direction.DESC, "id");
         Pageable pageable = TelegramBotUtil.setPageable(pageCode, pageSize, sort);
 
         TgChat tgChat = new TgChat();
-        tgChat.setBotId(botId);
+        if (null != botId) {
+            tgChat.setBotId(botId);
+        }
 
         Page<TgChat> page = tgChatService.pageByCondition(pageable, tgChat);
         return ResponseUtil.success(page);
-
     }
 
     @ApiOperation("群审计功能")

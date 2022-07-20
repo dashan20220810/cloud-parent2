@@ -49,7 +49,7 @@ public class TgChatService {
 
     public Page<TgChat> pageByCondition(Pageable pageable, TgChat tgChat) {
         // 可扩展简单的动态条件
-        ExampleMatcher matcher=ExampleMatcher.matching()
+        ExampleMatcher matcher = ExampleMatcher.matching()
                 .withMatcher("botId", ExampleMatcher.GenericPropertyMatchers.exact());
 
         Example<TgChat> example = Example.of(tgChat, matcher);

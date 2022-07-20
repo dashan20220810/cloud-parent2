@@ -28,12 +28,6 @@ public class TelegramBotUtil {
 		return (int)(min + Math.random() * (max - min + 1));
 	}
 
-	public static void main(String[] args) {
-		for (int i = 0; i < 200; i++) {
-			System.out.println(getRandom(0, 2));
-		}
-	}
-
 	public static Pageable setPageable(Integer pageCode, Integer pageSize, Sort sort) {
 		if (Objects.isNull(sort)) {
 			sort = Sort.unsorted();

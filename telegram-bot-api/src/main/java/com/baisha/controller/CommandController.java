@@ -13,6 +13,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baisha.business.BetCommandBusiness;
 import com.baisha.business.CommandBusiness;
 import com.baisha.model.vo.*;
+import com.baisha.modulespringcacheredis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +37,9 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("command")
 public class CommandController {
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Autowired
     private Executor asyncExecutor;
@@ -64,6 +68,9 @@ public class CommandController {
         if (!StartNewBureauVO.check(vo)) {
             return ResponseUtil.parameterNotNull();
         }
+
+        // 局号存入redis
+        redisUtil.set(vo.getTableId().toString(), vo.getBureauNum());
 
         // 第二步:根据参数中的桌台ID,找到绑定该桌台的有效的群
         List<TgChat> chatList = tgChatService.findByTableId(vo.getTableId());

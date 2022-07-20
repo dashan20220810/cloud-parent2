@@ -9,6 +9,7 @@ import com.baisha.model.vo.ConfigInfo;
 import com.baisha.model.vo.TgBetVO;
 import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.reponse.ResponseEntity;
+import com.baisha.modulespringcacheredis.util.RedisUtil;
 import com.baisha.service.TgBotService;
 import com.baisha.service.TgChatService;
 import com.baisha.util.TelegramBotUtil;
@@ -36,6 +37,9 @@ import static com.baisha.util.constants.BotConstant.*;
 @Slf4j
 @Component
 public class TelegramMessageHandler {
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     @Autowired
     TgChatService tgChatService;
@@ -393,7 +397,11 @@ public class TelegramMessageHandler {
         if (!commonHandler.parseChat(tgChat)) {
             return false;
         }
-        param.put("tableId", tgChat.getTableId());
+        Object object = redisUtil.get(tgChat.getTableId().toString());
+        if (null != object) {
+            String noActive = (String) object;
+            param.put("noActive", noActive);
+        }
 //        param.put("minAmount", tgChat.getMinAmount());
 //        param.put("maxAmount", tgChat.getMaxAmount());
 //        param.put("maxShoeAmount", tgChat.getMaxShoeAmount());
