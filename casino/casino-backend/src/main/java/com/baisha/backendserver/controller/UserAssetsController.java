@@ -3,20 +3,17 @@ package com.baisha.backendserver.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.backendserver.business.CommonBusiness;
-import com.baisha.backendserver.business.UserAssetsBusiness;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.bo.assets.AdjustmentTypeBO;
 import com.baisha.backendserver.model.bo.assets.OrderAdjustmentTypeBO;
 import com.baisha.backendserver.model.bo.order.SsOrderAddBO;
 import com.baisha.backendserver.model.bo.user.UserAssetsBO;
-import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.assets.TgUserVO;
 import com.baisha.backendserver.model.vo.assets.UserApplyReduceVO;
 import com.baisha.backendserver.model.vo.assets.UserApplyVO;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.UserServerConstants;
-import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
 import com.baisha.modulecommon.enums.order.OrderAdjustmentTypeEnum;
 import com.baisha.modulecommon.enums.order.OrderAdjustmentTypeTxEnum;
 import com.baisha.modulecommon.enums.order.OrderStatusEnum;
@@ -38,7 +35,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -53,8 +49,6 @@ public class UserAssetsController {
     private String userServerUrl;
     @Autowired
     private CommonBusiness commonService;
-    @Autowired
-    private UserAssetsBusiness userAssetsBusiness;
 
 
     @ApiOperation(value = "用户个人资产")

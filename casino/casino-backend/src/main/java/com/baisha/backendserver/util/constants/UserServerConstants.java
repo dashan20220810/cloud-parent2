@@ -6,6 +6,12 @@ package com.baisha.backendserver.util.constants;
 public class UserServerConstants {
 
     //**************************用户中心***************************************
+
+    /**
+     * 用户新增
+     */
+    public static final String USERSERVER_USER_SAVE = " /user/save";
+
     /**
      * 用户分页接口
      */

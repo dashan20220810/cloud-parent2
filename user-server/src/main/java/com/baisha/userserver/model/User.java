@@ -76,6 +76,10 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "varchar(20) comment '渠道'")
     private String channelCode;
 
+    @ApiModelProperty(value = "手机号")
+    @Column(columnDefinition = "varchar(20) comment '手机号'")
+    private String phone;
+
 
     /**
      * 用户名(长度3-20,只能输入字母和数字和_)

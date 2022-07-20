@@ -1,12 +1,20 @@
 package com.baisha.backendserver.model.vo.tgBot;
 
+import com.baisha.modulecommon.reponse.ResponseEntity;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 @Api(tags = "后台-机器人管理(自动投注)新增对象")
 public class TgBotAutoAddVO {
+
+    @ApiModelProperty(value = "TG用户ID(必须要真实的 1-15位) ", required = true)
+    private String tgUserId;
+
+    @ApiModelProperty(value = "手机号", required = true)
+    private String phone;
 
     @ApiModelProperty(value = "机器人名称", required = true)
     private String betBotName;
@@ -31,6 +39,18 @@ public class TgBotAutoAddVO {
 
     @ApiModelProperty(value = "投注金额-最大倍数 6-20整数", required = true)
     private Integer maxMultiple;
+
+    public static boolean checkTgUserId(String tgUserId) {
+        if (StringUtils.isEmpty(tgUserId)) {
+            return true;
+        }
+        int tgUserIdLength = 15;
+        if (tgUserId.length() > tgUserIdLength) {
+            //"TG用户ID太长"
+            return true;
+        }
+        return false;
+    }
 
 
 }

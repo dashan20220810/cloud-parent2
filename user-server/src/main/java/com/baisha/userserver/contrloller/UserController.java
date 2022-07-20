@@ -113,21 +113,23 @@ public class UserController {
 
     private User createTelegramUser(UserAddVO vo) {
         User user = new User();
-        user.setUserName(vo.getUserName());
-        user.setNickName(vo.getNickName());
         String bcryptPassword = CommonUtil.checkNull(vo.getPassword()) ? null : UserServerUtil.bcrypt(vo.getPassword());
         user.setPassword(bcryptPassword);
+        user.setInviteCode(UserServerUtil.randomCode());
+
+        user.setUserName(vo.getUserName());
+        user.setNickName(vo.getNickName());
         user.setIp(vo.getIp());
         user.setOrigin(vo.getOrigin());
         user.setTgUserId(vo.getTgUserId());
         user.setTgUserName(vo.getTgUserName());
         user.setTgGroupId(vo.getTgGroupId());
         user.setTgGroupName(vo.getTgGroupName());
-        user.setInviteCode(UserServerUtil.randomCode());
         user.setCreateBy(vo.getUserName());
         user.setUpdateBy(vo.getUserName());
         user.setUserType(vo.getUserType());
         user.setChannelCode(vo.getChannelCode());
+        user.setPhone(vo.getPhone());
         //是否有tg的邀请人 先用邀请人的tgUserId查询是否存在
         if (StringUtils.isNotEmpty(vo.getInviteTgUserId())) {
             User inviteUser = userService.findByUserName(vo.getInviteTgUserId());
@@ -338,7 +340,7 @@ public class UserController {
             return ResponseUtil.parameterNotNull();
         }
 
-        List<UserTelegramRelation> relations = relationService.findByTgGroupIdAndUserType(tgGroupId,UserTypeEnum.BOT.getCode());
+        List<UserTelegramRelation> relations = relationService.findByTgGroupIdAndUserType(tgGroupId, UserTypeEnum.BOT.getCode());
         if (!CollectionUtils.isEmpty(relations)) {
             List<Long> userIds = relations.stream().map(item -> item.getUserId()).toList();
             List<User> list = userService.findByIdIn(userIds);

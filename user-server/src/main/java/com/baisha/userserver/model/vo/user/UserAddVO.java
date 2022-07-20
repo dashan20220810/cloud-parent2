@@ -47,4 +47,8 @@ public class UserAddVO {
     @ApiModelProperty(value = "渠道")
     private String channelCode;
 
+    @ApiModelProperty(value = "手机号")
+    private String phone;
+
+
 }

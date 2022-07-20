@@ -5,25 +5,25 @@ import com.alibaba.fastjson.JSONObject;
 import com.baisha.backendserver.business.CommonBusiness;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.bo.tgBot.TgBotAutoPageBO;
-import com.baisha.backendserver.model.bo.tgBot.TgBotPageBO;
 import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.StatusVO;
 import com.baisha.backendserver.model.vo.tgBot.TgBotAutoAddVO;
 import com.baisha.backendserver.model.vo.tgBot.TgBotAutoPageVO;
 import com.baisha.backendserver.model.vo.tgBot.TgBotAutoUpdateVO;
-import com.baisha.backendserver.model.vo.tgBot.TgBotPageVO;
+import com.baisha.backendserver.model.vo.user.UserSaveVO;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.TgBotServerConstants;
+import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.modulecommon.enums.BetOption;
+import com.baisha.modulecommon.enums.UserOriginEnum;
+import com.baisha.modulecommon.enums.user.UserTypeEnum;
 import com.baisha.modulecommon.reponse.ResponseCode;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -47,6 +48,8 @@ public class TgBotBetController {
 
     @Value("${url.tgBotServer}")
     private String tgBotServerUrl;
+    @Value("${url.userServer}")
+    private String userServerUrl;
     @Autowired
     private CommonBusiness commonService;
 
@@ -66,24 +69,37 @@ public class TgBotBetController {
 
     @ApiOperation("新增机器人")
     @PostMapping("addBetBot")
-    public ResponseEntity addBetBot(TgBotAutoAddVO vo) throws IllegalAccessException {
+    public synchronized ResponseEntity addBetBot(TgBotAutoAddVO vo) throws IllegalAccessException {
         // 参数校验
         if (!CommonUtil.checkObjectFieldNotNull(vo)) {
             return ResponseUtil.parameterNotNull();
         }
+        if (TgBotAutoAddVO.checkTgUserId(vo.getTgUserId())) {
+            return new ResponseEntity("TG用户ID太长");
+        }
 
+        //最大 投注频率
         int maxBetFrequency = 10;
+        //投注金额-最小倍数 1-5整数
         int maxMinMultiple = 5;
+        //投注金额-最大倍数 6-20整数
         int maxMaxMultiple = 20;
         if (vo.getBetFrequency() < 0 || vo.getBetFrequency() > maxBetFrequency
                 || vo.getMinMultiple() <= 0 || vo.getMinMultiple() > maxMinMultiple
                 || vo.getMinMultiple() > vo.getMaxMultiple()
-                || vo.getMaxMultiple() <= 0 || vo.getMaxMultiple() > maxMaxMultiple) {
+                || vo.getMaxMultiple() <= maxMinMultiple || vo.getMaxMultiple() > maxMaxMultiple) {
             return new ResponseEntity("数据不规范");
         }
 
         // 后台登陆用户
         Admin current = commonService.getCurrentUser();
+        //把这个用户加到user里面去，认作机器人
+        boolean userFlag = doSaveUserAsBot(vo);
+        if (!userFlag) {
+            log.error("添加用户加到user里面去，认作机器人失败");
+            return ResponseUtil.fail();
+        }
+
         String url = tgBotServerUrl + TgBotServerConstants.TGBETBOT_ADDBETBOT;
         Map<String, Object> paramMap = BackendServerUtil.objectToMap(vo);
         log.info("机器人管理(自动投注)-新增 paramMap =  {}", JSONObject.toJSONString(paramMap));
@@ -99,6 +115,34 @@ public class TgBotBetController {
         return responseEntity;
     }
 
+    private boolean doSaveUserAsBot(TgBotAutoAddVO vo) {
+        UserSaveVO userSaveVO = new UserSaveVO();
+        userSaveVO.setUserType(UserTypeEnum.BOT.getCode());
+        //新增的会员用于电报投注服务
+        userSaveVO.setOrigin(UserOriginEnum.TG_ORIGIN.getOrigin());
+        userSaveVO.setTgUserId(vo.getTgUserId());
+        userSaveVO.setPhone(vo.getPhone());
+        userSaveVO.setUserName(vo.getTgUserId());
+        userSaveVO.setTgGroupId(BackendConstants.DEFAULT_TG_GROUP_ID);
+        userSaveVO.setTgGroupName(BackendConstants.DEFAULT_TG_GROUP_NAME);
+        userSaveVO.setNickName("bot" + vo.getTgUserId());
+
+        String url = userServerUrl + UserServerConstants.USERSERVER_USER_SAVE;
+        Map<String, Object> param = BackendServerUtil.objectToMap(userSaveVO);
+        String result = HttpClient4Util.doPost(url, param);
+        if (CommonUtil.checkNull(result)) {
+            log.error("添加用户失败-1");
+            return false;
+        }
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
+            log.error("添加用户失败-2");
+            return false;
+        }
+
+        return true;
+    }
+
     @ApiOperation("修改机器人")
     @PostMapping("updateBetBot")
     public ResponseEntity updateBetBot(TgBotAutoUpdateVO vo) throws IllegalAccessException {
@@ -107,13 +151,16 @@ public class TgBotBetController {
             return ResponseUtil.parameterNotNull();
         }
 
-        int maxBetFrequency = 100;
+        //最大 投注频率
+        int maxBetFrequency = 10;
+        //投注金额-最小倍数 1-5整数
         int maxMinMultiple = 5;
+        //投注金额-最大倍数 6-20整数
         int maxMaxMultiple = 20;
         if (vo.getBetFrequency() < 0 || vo.getBetFrequency() > maxBetFrequency || vo.getId() <= 0
                 || vo.getMinMultiple() < 0 || vo.getMinMultiple() > maxMinMultiple
                 || vo.getMinMultiple() > vo.getMaxMultiple()
-                || vo.getMaxMultiple() < 0 || vo.getMaxMultiple() > maxMaxMultiple) {
+                || vo.getMaxMultiple() <= maxMinMultiple || vo.getMaxMultiple() > maxMaxMultiple) {
             return new ResponseEntity("数据不规范");
         }
 

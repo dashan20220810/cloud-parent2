@@ -14,6 +14,8 @@ public class BackendConstants {
     public static int EXPENSES = 2;
 
 
+    public static final String DEFAULT_TG_GROUP_ID = "-1001789896595";
+    public static final String DEFAULT_TG_GROUP_NAME = "默认官方群";
 
     public static final String INSERT = "insert";
     public static final String DELETE = "delete";
