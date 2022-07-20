@@ -177,7 +177,7 @@ public class UserController {
     @ApiOperation(value = "用户充值")
     @PostMapping("increaseBalance")
     public ResponseEntity increaseBalance(BalanceVO vo) {
-        if (null == vo.getId() || vo.getId() < 0 || null == vo.getAmount() || vo.getAmount() < 0) {
+        if (null == vo.getId() || vo.getId() < 0 || null == vo.getAmount() || vo.getAmount() <= 0) {
             return ResponseUtil.parameterNotNull();
         }
         if (BackendServerUtil.checkIntAmount(vo.getAmount())) {
@@ -297,7 +297,7 @@ public class UserController {
     @ApiOperation(value = "用户下分")
     @PostMapping("reduceBalance")
     public ResponseEntity reduceBalance(BalanceVO vo) {
-        if (null == vo.getId() || vo.getId() < 0 || null == vo.getAmount() || vo.getAmount() < 0) {
+        if (null == vo.getId() || vo.getId() < 0 || null == vo.getAmount() || vo.getAmount() <= 0) {
             return ResponseUtil.parameterNotNull();
         }
         if (BackendServerUtil.checkIntAmount(vo.getAmount())) {

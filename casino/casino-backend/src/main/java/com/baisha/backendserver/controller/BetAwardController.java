@@ -230,7 +230,7 @@ public class BetAwardController {
         doSaveChang(currentUser, repairVO, resultBO);
         log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT,
                 JSON.toJSONString(vo), BackendConstants.BET_RESULT_MODULE);
-        return ResponseUtil.success(resultBO.getAwardOption());
+        return ResponseUtil.success(vo.getAwardOption());
     }
 
     private void doSaveChang(Admin currentUser, BetResultRepairVO repairVO, BetResultBO resultBO) {
