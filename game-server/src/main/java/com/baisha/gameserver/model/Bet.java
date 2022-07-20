@@ -78,7 +78,7 @@ public class Bet extends BaseEntity {
     private Long amountSs = 0L;
 
     @ApiModelProperty("客户端IP")
-    @Column(name = "client_ip", columnDefinition = "VARCHAR(20) COMMENT '客户端IP'")
+    @Column(name = "client_ip", columnDefinition = "VARCHAR(150) COMMENT '客户端IP'")
     private String clientIP;
 
     @ApiModelProperty("游戏轮号")
