@@ -11,16 +11,10 @@ import org.apache.commons.lang3.StringUtils;
 public class TgBotAutoAddVO {
 
     @ApiModelProperty(value = "TG用户ID(必须要真实的 1-15位) ", required = true)
-    private String tgUserId;
+    private String betBotId;
 
     @ApiModelProperty(value = "手机号", required = true)
-    private String phone;
-
-    @ApiModelProperty(value = "机器人名称", required = true)
-    private String betBotName;
-
-    @ApiModelProperty(value = "机器人token", required = true)
-    private String betBotToken;
+    private String betBotPhone;
 
     @ApiModelProperty(value = "投注开始时间 HH:mm:ss", required = true)
     private String betStartTime;

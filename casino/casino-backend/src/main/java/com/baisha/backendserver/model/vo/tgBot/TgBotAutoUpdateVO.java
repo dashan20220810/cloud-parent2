@@ -8,14 +8,14 @@ import lombok.Data;
 @Api(tags = "后台-机器人管理(自动投注)编辑对象")
 public class TgBotAutoUpdateVO {
 
-    @ApiModelProperty(value = "机器人ID", required = true)
-    private Long id;
+    //@ApiModelProperty(value = "机器人ID", required = true)
+    //private Long id;
 
-    @ApiModelProperty(value = "机器人名称", required = true)
-    private String betBotName;
+    @ApiModelProperty(value = "TG用户ID(必须要真实的 1-15位) ", required = true)
+    private String betBotId;
 
-    @ApiModelProperty(value = "机器人token", required = true)
-    private String betBotToken;
+    //@ApiModelProperty(value = "手机号", required = true)
+    // private String betBotPhone;
 
     @ApiModelProperty(value = "投注开始时间 HH:mm:ss", required = true)
     private String betStartTime;

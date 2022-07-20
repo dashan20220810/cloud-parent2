@@ -9,11 +9,11 @@ import lombok.Data;
 @ApiModel(value = "机器人(自动投注)-分页对象")
 public class TgBotAutoPageBO extends BaseBO {
 
-    @ApiModelProperty(value = "机器人名称")
-    private String betBotName;
+    @ApiModelProperty(value = "TG用户ID(必须要真实的 1-15位) ", required = true)
+    private String betBotId;
 
-    @ApiModelProperty(value = "机器人token")
-    private String betBotToken;
+    @ApiModelProperty(value = "手机号", required = true)
+    private String betBotPhone;
 
     @ApiModelProperty(value = "投注开始时间")
     private String betStartTime;

@@ -74,7 +74,7 @@ public class TgBotBetController {
         if (!CommonUtil.checkObjectFieldNotNull(vo)) {
             return ResponseUtil.parameterNotNull();
         }
-        if (TgBotAutoAddVO.checkTgUserId(vo.getTgUserId())) {
+        if (TgBotAutoAddVO.checkTgUserId(vo.getBetBotId())) {
             return new ResponseEntity("TG用户ID太长");
         }
 
@@ -120,12 +120,12 @@ public class TgBotBetController {
         userSaveVO.setUserType(UserTypeEnum.BOT.getCode());
         //新增的会员用于电报投注服务
         userSaveVO.setOrigin(UserOriginEnum.TG_ORIGIN.getOrigin());
-        userSaveVO.setTgUserId(vo.getTgUserId());
-        userSaveVO.setPhone(vo.getPhone());
-        userSaveVO.setUserName(vo.getTgUserId());
+        userSaveVO.setTgUserId(vo.getBetBotId());
+        userSaveVO.setPhone(vo.getBetBotPhone());
+        userSaveVO.setUserName(vo.getBetBotId());
         userSaveVO.setTgGroupId(BackendConstants.DEFAULT_TG_GROUP_ID);
         userSaveVO.setTgGroupName(BackendConstants.DEFAULT_TG_GROUP_NAME);
-        userSaveVO.setNickName("bot" + vo.getTgUserId());
+        userSaveVO.setNickName("bot" + vo.getBetBotId());
 
         String url = userServerUrl + UserServerConstants.USERSERVER_USER_SAVE;
         Map<String, Object> param = BackendServerUtil.objectToMap(userSaveVO);
@@ -157,7 +157,7 @@ public class TgBotBetController {
         int maxMinMultiple = 5;
         //投注金额-最大倍数 6-20整数
         int maxMaxMultiple = 20;
-        if (vo.getBetFrequency() < 0 || vo.getBetFrequency() > maxBetFrequency || vo.getId() <= 0
+        if (vo.getBetFrequency() < 0 || vo.getBetFrequency() > maxBetFrequency
                 || vo.getMinMultiple() < 0 || vo.getMinMultiple() > maxMinMultiple
                 || vo.getMinMultiple() > vo.getMaxMultiple()
                 || vo.getMaxMultiple() <= maxMinMultiple || vo.getMaxMultiple() > maxMaxMultiple) {
