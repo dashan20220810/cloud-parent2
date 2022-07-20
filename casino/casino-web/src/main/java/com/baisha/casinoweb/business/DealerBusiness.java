@@ -1,6 +1,7 @@
 package com.baisha.casinoweb.business;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,6 +10,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.baisha.casinoweb.model.vo.response.TgChatVO;
@@ -47,9 +50,6 @@ public class DealerBusiness {
     @Value("${project.server-url.telegram-server-domain}")
     private String telegramServerDomain;
 
-	@Value("${project.game.count-down-seconds}")
-	private Integer gameCountDownSeconds;
-
 	@Value("${project.server-url.video-server-domain}")
 	private String videoServerDomain;
     
@@ -81,6 +81,16 @@ public class DealerBusiness {
 
 		String dealerIp = openNewGameVO.getDealerIp();
 		Integer gameNo = openNewGameVO.getGameNo();
+		Integer gameCountDownSeconds = openNewGameVO.getCountDown();
+		// 荷官开牌时间
+		Date beginTime = openNewGameVO.getStartTime();
+		// 预计这次gameInfo开牌结束时间
+		Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);;
+		Date now = new Date();
+		if(now.after(endTime)){
+			log.error("开牌结束时间: {} 已经超过 当前时间 :{}", endTime, now);
+			return;
+		}
     	DeskVO desk = deskBusiness.queryDeskByIp(dealerIp);
     	if ( desk==null ) {
     		log.warn("开新局 失败, 查无桌台");
@@ -97,9 +107,6 @@ public class DealerBusiness {
 		gameDesk.setCurrentActive(newActive);
 		gameDesk.setStreamVideoCode(desk.getCloseVideoAddress());
 		deskBusiness.setGameDesk(dealerIp + "_" + gameNo, gameDesk);
-		Date beginTime = new Date();
-		// 预计这次gameInfo开牌结束时间
-		Date endTime = DateUtils.addSeconds(beginTime, gameCountDownSeconds);
 		NewGameInfo newGameInfo = new NewGameInfo();
 		newGameInfo.setDeskCode(deskCode);
 		newGameInfo.setNoActive(newActive);

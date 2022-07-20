@@ -1,6 +1,7 @@
 package com.baisha.modulecommon.vo.mq;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import lombok.Builder;
 import lombok.Data;
@@ -21,5 +22,8 @@ public class OpenNewGameVO implements Serializable {
 	private String dealerIp;
 
 	/** 牌局开始时间 */
-	private String startTime;
+	private Date startTime;
+
+	/** 倒计时时间 */
+	private Integer countDown;
 }

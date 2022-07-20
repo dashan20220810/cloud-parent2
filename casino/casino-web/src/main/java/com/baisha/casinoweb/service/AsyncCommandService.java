@@ -72,12 +72,6 @@ public class AsyncCommandService {
 	@Value("${project.server-url.upload-server-domain}")
 	private String uploadServerDomain;
 
-    @Value("${project.game.count-down-seconds}")
-    private Integer gameCountDownSeconds;
-
-    @Value("${project.game.settle-buffer-time-seconds}")
-    private Integer gameSettleBufferTimeSeconds;
-
     @Autowired
     private RabbitTemplate rabbitTemplate;
     
