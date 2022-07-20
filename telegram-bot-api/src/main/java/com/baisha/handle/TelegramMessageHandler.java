@@ -438,6 +438,9 @@ public class TelegramMessageHandler {
                         if (0 != text.indexOf(command)) {
                             return result;
                         }
+                        if (0 != text.lastIndexOf(command)) {
+                            return result;
+                        }
                         long amount = Long.parseLong(text.replace(command, ""));
                         if (amount <= 0) {
                             return result;
