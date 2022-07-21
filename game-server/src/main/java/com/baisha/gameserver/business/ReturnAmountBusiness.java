@@ -63,7 +63,7 @@ public class ReturnAmountBusiness {
 	}
 
     private Long doBetReturnAmoun(Bet bet, Integer dateInt, BigDecimal returnAmountMultiplier) {
-		BigDecimal returnAmount = returnAmountMultiplier.multiply(bet.getWinAmount()).abs();
+		BigDecimal returnAmount = returnAmountMultiplier.multiply(BigDecimal.valueOf(bet.getFlowAmount())).abs();
 		betStatisticsService.updateReturnAmount(bet.getUserId(), bet.getTgChatId(), dateInt, returnAmount);
 		betService.updateReturnAmount(bet.getId(), returnAmount);
 		
