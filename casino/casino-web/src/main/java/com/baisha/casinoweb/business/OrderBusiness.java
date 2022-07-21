@@ -128,8 +128,6 @@ public class OrderBusiness {
     	String nickName = userVO.getNickName();
     	GameUserInfo userInfo = groupInfo.getUserInfo(userVO.getId());
 
-    	Map<String, Object> params = new HashMap<>();
-		
 		String result = HttpClient4Util.doGet(
 				gameServerDomain + RequestPathEnum.GAME_ODDS_LIST.getApiName() +"?gameCode=BACC"); 
 
@@ -172,7 +170,7 @@ public class OrderBusiness {
     	gameInfoBusiness.setTgGameInfo(noActive, tgGameInfo);
 
 		// gs下注
-    	params = new HashMap<>();
+		Map<String, Object> params = new HashMap<>();
 		String ip = IpUtil.getIp(CasinoWebUtil.getRequest());
 
 		params.put("isTgRequest", isTgRequest);
