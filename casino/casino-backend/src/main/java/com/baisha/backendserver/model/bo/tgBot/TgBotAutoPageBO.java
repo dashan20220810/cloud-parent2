@@ -27,6 +27,9 @@ public class TgBotAutoPageBO extends BaseBO {
     @ApiModelProperty(value = "投注内容")
     private String betContents;
 
+    @ApiModelProperty(value = "投注内容名称")
+    private String betContentsName;
+
     @ApiModelProperty(value = "投注金额-最小倍数")
     private Integer minMultiple;
 

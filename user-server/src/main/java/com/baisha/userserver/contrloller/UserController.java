@@ -357,4 +357,15 @@ public class UserController {
         return ResponseUtil.success(new ArrayList<>());
     }
 
+    @ApiOperation(value = ("设置用户类型"))
+    @PostMapping(value = "userType")
+    public ResponseEntity userType(UserTypeVO vo) {
+        if (null == vo.getUserType() || CommonUtil.checkNull(vo.getUserName())) {
+            return ResponseUtil.parameterNotNull();
+        }
+        userService.updateUserType(vo.getUserName(), vo.getUserType());
+        return ResponseUtil.success();
+    }
+
+
 }

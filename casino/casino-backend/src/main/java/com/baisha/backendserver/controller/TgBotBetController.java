@@ -1,9 +1,11 @@
 package com.baisha.backendserver.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.backendserver.business.CommonBusiness;
 import com.baisha.backendserver.model.Admin;
+import com.baisha.backendserver.model.bo.order.BetPageBO;
 import com.baisha.backendserver.model.bo.tgBot.TgBotAutoPageBO;
 import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.StatusVO;
@@ -16,6 +18,7 @@ import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.TgBotServerConstants;
 import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.modulecommon.enums.BetOption;
+import com.baisha.modulecommon.enums.TgBaccRuleEnum;
 import com.baisha.modulecommon.enums.UserOriginEnum;
 import com.baisha.modulecommon.enums.user.UserTypeEnum;
 import com.baisha.modulecommon.reponse.ResponseCode;
@@ -26,9 +29,11 @@ import com.baisha.modulecommon.util.HttpClient4Util;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,13 +60,15 @@ public class TgBotBetController {
 
 
     @GetMapping("betOption")
-    @ApiOperation("投注内容 列表")
+    @ApiOperation("投注内容列表")
     public ResponseEntity<List<Map<String, String>>> betOption() {
         return ResponseUtil.success(BetOption.getList()
                 .stream()
                 .map(option -> {
-                    Map<String, String> map = new HashMap<>();
+                    Map<String, String> map = new HashMap<>(16);
+                    //名称 - 玩法名称
                     map.put("name", option.getDisplay());
+                    //值 - 玩法编码
                     map.put("value", option.toString());
                     return map;
                 }).collect(Collectors.toList()));
@@ -135,7 +142,19 @@ public class TgBotBetController {
             return false;
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        if (responseEntity.getCode() != ResponseCode.SUCCESS.getCode()) {
+        if (responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
+            //强制机器人 防止管理员 先把机器人拖进群，再来后台添加
+            url = userServerUrl + UserServerConstants.USERSERVER_USER_TYPE;
+            param = new HashMap<>(16);
+            //用户名 即TG用户ID
+            param.put("userName", vo.getBetBotId());
+            param.put("userType", UserTypeEnum.BOT.getCode());
+            result = HttpClient4Util.doPost(url, param);
+            if (CommonUtil.checkNull(result)) {
+                log.error("设置未机器人失败");
+                return false;
+            }
+        } else {
             log.error("添加用户失败-2");
             return false;
         }
@@ -237,7 +256,37 @@ public class TgBotBetController {
         if (CommonUtil.checkNull(result)) {
             return ResponseUtil.fail();
         }
-        return JSON.parseObject(result, ResponseEntity.class);
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (Objects.nonNull(responseEntity) && responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
+            JSONObject page = (JSONObject) responseEntity.getData();
+            List<TgBotAutoPageBO> list = JSONArray.parseArray(page.getString("content"), TgBotAutoPageBO.class);
+            if (!CollectionUtils.isEmpty(list)) {
+                for (TgBotAutoPageBO bo : list) {
+                    setTgBotAutoPageBO(bo);
+                }
+                page.put("content", list);
+                responseEntity.setData(page);
+            }
+        }
+        return responseEntity;
+    }
+
+    private void setTgBotAutoPageBO(TgBotAutoPageBO bo) {
+        String betContents = bo.getBetContents();
+        String[] betContentsArr = betContents.split(",");
+        String name = "";
+        for (String option : betContentsArr) {
+            BetOption betOption = BetOption.getBetOption(option);
+            if (Objects.nonNull(betOption)) {
+                name = name + betOption.getDisplay() + ",";
+            }
+        }
+        if (StringUtils.isNotEmpty(name)) {
+            name = name.substring(0, name.length() - 1);
+            bo.setBetContentsName(name);
+        } else {
+            bo.setBetContentsName("未知奖项");
+        }
     }
 
 

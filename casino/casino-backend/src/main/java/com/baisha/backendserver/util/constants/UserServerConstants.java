@@ -16,6 +16,12 @@ public class UserServerConstants {
      * 用户分页接口
      */
     public static final String USERSERVER_USER_PAGE = "/user/page";
+
+    /**
+     * 设置用户为机器人
+     */
+    public static final String USERSERVER_USER_TYPE = "/user/userType";
+
     /**
      * 用户删除
      */
