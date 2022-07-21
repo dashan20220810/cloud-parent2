@@ -77,6 +77,8 @@ public class UserService {
     public List<User> findByIdIn(List<Long> userIds) {
         return userRepository.findByIdIn(userIds);
     }
-    
 
+    public int updateUserType(String userName, Integer userType) {
+        return userRepository.updateUserType(userName, userType);
+    }
 }

@@ -1,11 +1,14 @@
 package com.baisha.modulecommon.enums;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 import com.beust.jcommander.internal.Lists;
 import org.apache.commons.codec.binary.StringUtils;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * 公共枚举不能乱改，其他服务也在使用
+ */
 public enum BetOption {
 
 	ZD(1, "庄对", new String[] {"ZD", "庄对"}),
