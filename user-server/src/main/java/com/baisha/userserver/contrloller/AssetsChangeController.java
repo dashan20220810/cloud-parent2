@@ -48,7 +48,7 @@ public class AssetsChangeController {
         if (null == vo.getUserId()) {
             return ResponseUtil.parameterNotNull();
         }
-        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        Sort sort = Sort.by(Sort.Direction.DESC, "updateTime");
         Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), sort);
         Specification<BalanceChange> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
@@ -79,7 +79,7 @@ public class AssetsChangeController {
         if (null == vo.getUserId()) {
             return ResponseUtil.parameterNotNull();
         }
-        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
+        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), Sort.by(Sort.Direction.DESC, "updateTime"));
         Specification<PlayMoneyChange> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             predicates.add(cb.equal(root.get("userId"), vo.getUserId()));
