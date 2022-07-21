@@ -3,6 +3,8 @@ package com.baisha.casinoweb.business;
 import java.math.BigDecimal;
 import java.util.*;
 
+import com.baisha.modulecommon.vo.GameInfo;
+import com.baisha.modulecommon.vo.TgGameInfo;
 import com.baisha.modulecommon.vo.mq.webServer.BsOddsVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -16,7 +18,6 @@ import com.baisha.casinoweb.model.bo.BsOddsBO;
 import com.baisha.casinoweb.model.vo.BetVO;
 import com.baisha.casinoweb.model.vo.UserVO;
 import com.baisha.casinoweb.model.vo.response.BetResponseVO;
-import com.baisha.casinoweb.model.vo.response.DeskVO;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.util.ValidateUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
@@ -29,7 +30,6 @@ import com.baisha.modulecommon.util.DateUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
 import com.baisha.modulecommon.util.IpUtil;
 import com.baisha.modulecommon.util.SnowFlakeUtils;
-import com.baisha.modulecommon.vo.GameInfo;
 import com.baisha.modulecommon.vo.GameTgGroupInfo;
 import com.baisha.modulecommon.vo.GameUserInfo;
 import com.baisha.modulecommon.vo.mq.webServer.UserBetVO;
@@ -60,46 +60,50 @@ public class OrderBusiness {
 	
 
 	
-	public String bet ( boolean isTgRequest, BetVO betVO, String noRun ) {
-		return bet(isTgRequest, betVO.getTableId(), betVO.getTgChatId(), betVO.getBetOptionList(), betVO.getAmount()
-				, noRun);
+	public String bet ( boolean isTgRequest, BetVO betVO) {
+		return bet(isTgRequest, betVO.getNoActive(), betVO.getTgChatId(), betVO.getBetOptionList(), betVO.getAmount());
 	}
 	
-	public String bet ( boolean isTgRequest, Long tableId, Long tgChatId, List<String> betOptionList, 
-			Long amount, String noRun ) {
+	public String bet ( boolean isTgRequest, String noActive, Long tgChatId, List<String> betOptionList,
+			Long amount) {
 		
 		String action = "下注";
 		log.info(action);
 		Long totalAmount = 0L;
 
     	// 桌台资料
-    	DeskVO deskVO = deskBusiness.queryDeskById(tableId);
-    	if ( deskVO==null ) {
-    		log.warn("[下注] 桌台号查无资料, table id: {}", tableId);
-            return "桌台资料错误";
-    	}
-		String deskCode = deskVO.getDeskCode();
-		GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
+//    	DeskVO deskVO = deskBusiness.queryDeskById(tableId);
+//    	if ( deskVO==null ) {
+//    		log.warn("[下注] 桌台号查无资料, table id: {}", tableId);
+//            return "桌台资料错误";
+//    	}
+//		String deskCode = deskVO.getDeskCode();
+		TgGameInfo tgGameInfo = gameInfoBusiness.getTgGameInfo(noActive);
+		// 游戏时间
+		GameInfo gameInfo = gameInfoBusiness.getGameInfo(noActive);
+		// 靴号s
+		String noRun = gameInfo.getBootsNo();
+		Date endTime = gameInfo.getEndTime();
     	
-		if ( gameInfo==null ) {
+		if ( tgGameInfo==null ) {
     		log.warn("下注 失败 无游戏资讯");
 			return "下注 失败 无游戏资讯";
 		}
 		
-		if ( StringUtils.isBlank(gameInfo.getCurrentActive()) ) {
+		if ( StringUtils.isBlank(noActive) ) {
     		log.warn("下注 失败 局号不符, {}");
 			return "下注 失败 局号不符";
 		}
 		
 		Date now = new Date();
 		
-		if ( gameInfo.getStatus()!= GameStatusEnum.Betting || (gameInfo.getEndTime()!=null && now.after(gameInfo.getEndTime())) ) {
-    		log.warn("下注 失败 非下注状态, {}", gameInfo.getStatus().toString());
+		if ( tgGameInfo.getStatus()!= GameStatusEnum.Betting || (endTime!=null && now.after(endTime)) ) {
+    		log.warn("下注 失败 非下注状态, {}, 本局结束时间: {}", tgGameInfo.getStatus().toString(), endTime);
             return "下注 失败 非下注状态";
 		}
     	
     	// 检核限红
-    	GameTgGroupInfo groupInfo = gameInfo.getTgGroupInfo(tgChatId);
+    	GameTgGroupInfo groupInfo = tgGameInfo.getTgGroupInfo(tgChatId);
     	/// 20220713 调整为玩法限红
 //    	if ( groupInfo.checkTotalBetAmount(betVO.getTotalAmount(), betVO.getMaxShoeAmount().longValue())==false ) {
 //            return ResponseUtil.custom(String.format("下注失败 达到当局最大投注 %s", betVO.getMaxShoeAmount()));
@@ -165,7 +169,7 @@ public class OrderBusiness {
         	}
     	}
     	
-    	gameInfoBusiness.setGameInfo(deskCode, gameInfo);
+    	gameInfoBusiness.setTgGameInfo(noActive, tgGameInfo);
 
 		// gs下注
     	params = new HashMap<>();
@@ -178,7 +182,7 @@ public class OrderBusiness {
 		params.put("userName", userName); 
 		params.put("nickName", nickName); 
 		params.put("noRun", noRun);
-		params.put("noActive", gameInfo.getCurrentActive());
+		params.put("noActive", noActive);
 		params.put("status", BetStatusEnum.BET.getCode());
 		params.put("orderNo", SnowFlakeUtils.getSnowId());
 		
@@ -206,7 +210,7 @@ public class OrderBusiness {
 				params);
 
 		if (!ValidateUtil.checkHttpResponse(action, result)) {
-			log.warn("\r\n===== 下注 失败, 下注api报错, 玩家id:{}, 局号:{}, 错误原因:{}", userId, gameInfo.getCurrentActive(), result);
+			log.warn("\r\n===== 下注 失败, 下注api报错, 玩家id:{}, 局号:{}, 错误原因:{}", userId, noActive, result);
             return String.format("下注 失败, %s", StringUtils.defaultString(result));
 		}
 
@@ -215,7 +219,7 @@ public class OrderBusiness {
 
     	//  呼叫
     	//	会员管理 - 下分api
-    	String withdrawResult = assetsBusiness.withdraw(userId, totalAmount, tableId, betId);
+    	String withdrawResult = assetsBusiness.withdraw(userId, totalAmount, noActive, betId);
     	if ( StringUtils.isNotBlank(withdrawResult) ) {
     		log.warn("[下注] 下分失败");
     		params = new HashMap<>();
@@ -226,13 +230,13 @@ public class OrderBusiness {
     				params);
 
     		if (!ValidateUtil.checkHttpResponse(action, result)) {
-    			log.warn("\r\n===== 下注 失败, 下分api报错, betId:{}, 玩家id:{}, 局号:{}, 错误原因:{}", betId.toString(), userId, gameInfo.getCurrentActive(), result);
+    			log.warn("\r\n===== 下注 失败, 下分api报错, betId:{}, 玩家id:{}, 局号:{}, 错误原因:{}", betId.toString(), userId, noActive, result);
                 return String.format("下注 失败, 必须人工删除bet, id:%s, %s", betId.toString(), StringUtils.defaultString(result));
     		}
             return withdrawResult;
     	}
     	
-		gameInfo = gameInfoBusiness.calculateBetAmount(deskCode, tgChatId, userId, nickName, betOptionList, amount);
+		tgGameInfo = gameInfoBusiness.calculateBetAmount(noActive, tgChatId, userId, nickName, betOptionList, amount);
 		
 		UserBetVO userBetVO = UserBetVO.builder().amount(BigDecimal.valueOf(totalAmount))
 				.userId(userId).betTime(DateUtil.dateToPatten(now))

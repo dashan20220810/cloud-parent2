@@ -25,7 +25,7 @@ public class SettleFinishVO implements Serializable {
     /**
      * 荷官端局号
      */
-    private Integer gameNo;
+    private String gameNo;
 
 
     /**

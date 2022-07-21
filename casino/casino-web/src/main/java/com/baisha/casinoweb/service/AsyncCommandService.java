@@ -21,7 +21,8 @@ import com.baisha.modulecommon.BigDecimalConstants;
 import com.baisha.modulecommon.enums.OpenCardConvertSettleEnum;
 import com.baisha.modulecommon.enums.OpenCardConvertTgEnum;
 import com.baisha.modulecommon.vo.GameDesk;
-import com.baisha.modulecommon.vo.NewGameInfo;
+import com.baisha.modulecommon.vo.GameInfo;
+import com.baisha.modulecommon.vo.TgGameInfo;
 import com.baisha.modulecommon.vo.mq.OpenVO;
 import com.baisha.modulecommon.vo.mq.PairImageVO;
 import com.baisha.modulecommon.vo.mq.SettleFinishVO;
@@ -47,7 +48,6 @@ import com.baisha.core.dto.SysTelegramDto;
 import com.baisha.core.service.TelegramService;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.util.HttpClient4Util;
-import com.baisha.modulecommon.vo.GameInfo;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
 import com.baisha.modulespringcacheredis.util.RedisUtil;
 import com.beust.jcommander.internal.Maps;
@@ -143,21 +143,20 @@ public class AsyncCommandService {
     }
     
     /**
-     * TODO 切成两个thread，一个倒数，另一个封盘(stopping status在此set)
-     * @param desk 桌台对象
-     * @param noActive 游戏局号
-	 * @param gameNo 荷官端游戏局号
-     * @return 下注倒计时结果
-     */
+	 * TODO 切成两个thread，一个倒数，另一个封盘(stopping status在此set)
+	 *
+	 * @param desk     桌台对象
+	 * @param noActive 游戏局号
+	 * @return 下注倒计时结果
+	 */
     @Async
-    public Future<Boolean> betting ( final DeskVO desk, final Integer gameNo, final String noActive) {
+    public Future<Boolean> betting (final DeskVO desk, final String noActive) {
     	
     	log.info("\r\n================= 下注中 倒数计时");
-		String deskCode = desk.getDeskCode();
-		NewGameInfo newGameInfo = gameInfoBusiness.getGameTime(deskCode + "_" + gameNo);
-		log.info("\r\n================= newGameInfo : {}", newGameInfo);
+		GameInfo gameInfo = gameInfoBusiness.getGameInfo(noActive);
+		log.info("\r\n================= gameInfo : {}", gameInfo);
 //    	Date beginTime = newGameInfo.getBeginTime();
-    	Date endTime = newGameInfo.getEndTime();
+    	Date endTime = gameInfo.getEndTime();
 
     	Date now = new Date();
 		if(endTime.after(now)){
@@ -189,7 +188,7 @@ public class AsyncCommandService {
 //			now = new Date();
 //		}
 		// 给tg发送封盘线
-    	gameInfoBusiness.closeGame(deskCode);
+    	gameInfoBusiness.closeGame(noActive);
 		// 给tg发送开牌图片和近景远景视频
 		SysTelegramDto sysTg = telegramService.getSysTelegram();
 		sendVideoAddressToTg("开牌结果", sysTg.getOpenCardUrl(),
@@ -235,30 +234,26 @@ public class AsyncCommandService {
     @Async
     public void open (final OpenVO openVO) {
 
-		final String dealerIp = openVO.getDealerIp();
 		final String consequences = openVO.getConsequences();
-		final Integer gameNo = openVO.getGameNo();
+		final String noActive = openVO.getGameNo();
 //		final String openingTime = openVO.getEndTime();
     	String action = "开牌";
-    	GameDesk gameDesk = deskBusiness.getGameDesk(dealerIp + "_" + gameNo);
-		String noActive = gameDesk.getCurrentActive();
-    	if ( gameDesk==null ) {
-    		log.warn("开牌 失败, 查无桌台");
+		GameInfo gameInfo = gameInfoBusiness.getGameInfo(noActive);
+    	if ( gameInfo==null ) {
+    		log.warn("开牌 失败, 查无局号");
     		return;
     	}
 
 		// 获取开牌结果(结算需要的结果)
 		String openCardResult = OpenCardConvertSettleEnum.getAllOpenCardResult(consequences);
 
-    	Long deskId = gameDesk.getDeskId();
-    	String deskCode = gameDesk.getDeskCode();
-    	GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
+    	Long deskId = gameInfo.getDeskId();
 
-		gameInfoBusiness.setGameResult(gameInfo.getCurrentActive(), openCardResult);
+		gameInfoBusiness.setGameResult(noActive, openCardResult);
 
     	// 预存开牌资料
 		Map<String, Object> params = new HashMap<>();
-		params.put("noActive", gameInfo.getCurrentActive());
+		params.put("noActive", noActive);
 		params.put("tableId", deskId);
 		params.put("awardOption", openCardResult);
 		String result = HttpClient4Util.doPost(
@@ -269,9 +264,9 @@ public class AsyncCommandService {
     		return;
 		}
 
-		sendVideoEndScreenRecording(noActive, gameDesk.getStreamVideoCode());
+		sendVideoEndScreenRecording(noActive, gameInfo.getStreamVideoCode());
 
-        String settlement = JSONObject.toJSONString(BetSettleVO.builder().noActive(gameInfo.getCurrentActive())
+        String settlement = JSONObject.toJSONString(BetSettleVO.builder().noActive(noActive)
 				.awardOption(openCardResult).build());
         rabbitTemplate.convertAndSend(MqConstants.BET_SETTLEMENT, settlement);
     }
@@ -311,13 +306,13 @@ public class AsyncCommandService {
 	/**
 	 * 获取视频流地址
 	 *
-	 * @param currentActive
+	 * @param noActive
 	 * @param streamVideoCode
 	 */
-	public void sendVideoEndScreenRecording(final String currentActive, final String streamVideoCode){
+	public void sendVideoEndScreenRecording(final String noActive, final String streamVideoCode){
 		// 获取视频流
 		Map<String, Object> gameVideoParam = Maps.newHashMap();
-		gameVideoParam.put("period", currentActive);
+		gameVideoParam.put("period", noActive);
 		gameVideoParam.put("rtmpurl", streamVideoCode);
 
 		HttpClient4Util.doPost(
@@ -330,21 +325,17 @@ public class AsyncCommandService {
 	@Async
     public void settlement (final SettleFinishVO settleFinishVO) {
 
-		final String dealerIp = settleFinishVO.getDealerIp();
 		final String consequences = settleFinishVO.getConsequences();
-		final Integer gameNo = settleFinishVO.getGameNo();
-		GameDesk gameDesk = deskBusiness.getGameDesk(dealerIp + "_" + gameNo);
-		final String deskCode = gameDesk.getDeskCode();
-		NewGameInfo newGameInfo = gameInfoBusiness.getGameTime(deskCode + "_" + gameNo);
+		final String noActive = settleFinishVO.getGameNo();
+		final GameInfo gameInfo = gameInfoBusiness.getGameInfo(noActive);
 		// 录单图图片地址
-		String recordingChartAddress = newGameInfo.getRecordingChartAddress();
+		String recordingChartAddress = gameInfo.getRecordingChartAddress();
 		// 开牌图片地址
-		String picAddress = newGameInfo.getPicAddress();
+		String picAddress = gameInfo.getPicAddress();
 		// 开牌视频地址
-		String videoAddress = newGameInfo.getVideoAddress();
-		log.info("开牌结果 newGameInfo :{}", newGameInfo);
+		String videoAddress = gameInfo.getVideoAddress();
+		log.info("开牌结果 gameInfo :{}", gameInfo);
 
-		String noActive = newGameInfo.getNoActive();
     	String action = "结算";
     	Map<String, Object> params = new HashMap<>();
 		params.put("noActive", noActive);
@@ -366,7 +357,7 @@ public class AsyncCommandService {
 		JSONObject betJson = JSONObject.parseObject(result);
 		JSONArray betArray = betJson.getJSONArray("data");
 		Map<Long, List<BetResponseVO>> betMap = null;
-		GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
+		TgGameInfo tgGameInfo = gameInfoBusiness.getTgGameInfo(noActive);
 		
 		if ( betArray!=null && betArray.size()>0 ) {
 			List<BetResponseVO> betList = betArray.toJavaList(BetResponseVO.class);
@@ -374,7 +365,7 @@ public class AsyncCommandService {
 					(-bet.getWinAmount().doubleValue()))).collect(Collectors.groupingBy(BetResponseVO::getTgChatId));
 		}
 		
-		Set<Long> allGroupIdSet = gameInfo.getTgGroupMap().keySet();
+		Set<Long> allGroupIdSet = tgGameInfo.getTgGroupMap().keySet();
 		Set<Long> groupIdSet = new HashSet<>();
 
 		Map<Long, List<BetHistory>> top20WinUsers = new HashMap<>();
@@ -408,7 +399,7 @@ public class AsyncCommandService {
 			top20WinUsers.put(tgGroupId, new ArrayList<>());
 		}
 		//发送视频地址给TG
-		sendVideoAddressToTg("截屏", null, gameDesk.getDeskId(), null, null,
+		sendVideoAddressToTg("截屏", null, gameInfo.getDeskId(), null, null,
 				videoAddress, picAddress, recordingChartAddress);
 		asyncApiService.tgSettlement(noActive, openCardResult, top20WinUsers);
 		openCardVideoService.saveOpenCardVideoAndPic(videoAddress, picAddress, recordingChartAddress, noActive);
@@ -416,11 +407,11 @@ public class AsyncCommandService {
 
 	public void pairImage(PairImageVO pairImageVO) {
 		final String dealerIp = pairImageVO.getDealerIp();
-		final Integer gameNo = pairImageVO.getGameNo();
+		final String noActive = pairImageVO.getGameNo();
 		DeskVO desk = deskBusiness.queryDeskByIp(dealerIp);
 
 		final String deskCode = desk.getDeskCode();
-		NewGameInfo newGameInfo = gameInfoBusiness.getGameTime(deskCode + "_" + gameNo);
+		GameInfo gameInfo = gameInfoBusiness.getGameInfo(noActive);
 		InputStream inputStream = new ByteArrayInputStream(pairImageVO.getImageContent());
 		String result;
 		try {
@@ -437,8 +428,8 @@ public class AsyncCommandService {
 		}
 		JSONObject json = JSONObject.parseObject(result);
 		JSONObject resultJson = json.getJSONObject("data");
-		newGameInfo.setRecordingChartAddress(resultJson.getString("url"));
-		gameInfoBusiness.setGameTime(deskCode + "_" + gameNo, newGameInfo);
+		gameInfo.setRecordingChartAddress(resultJson.getString("url"));
+		gameInfoBusiness.setGameInfo(noActive, gameInfo);
 	}
 
 	@Data

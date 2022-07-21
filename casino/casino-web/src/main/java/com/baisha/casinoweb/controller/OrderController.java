@@ -67,7 +67,7 @@ public class OrderController {
 //    	}
 
 		//	TODO 輪/局號 應來自荷官端，不得從請求中代入
-    	String betResult = orderBusiness.bet(isTgRequest, betVO, "00001");
+    	String betResult = orderBusiness.bet(isTgRequest, betVO);
     	if ( StringUtils.isNotBlank(betResult) ) {
             return ResponseUtil.custom(betResult);
     	}

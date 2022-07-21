@@ -17,7 +17,7 @@ public class OpenNewGameVO implements Serializable {
 	
 	private static final long serialVersionUID = 6359244205039129481L;
 	
-	private Integer gameNo;
+	private String gameNo;
 	
 	private String dealerIp;
 
@@ -26,4 +26,7 @@ public class OpenNewGameVO implements Serializable {
 
 	/** 倒计时时间 */
 	private Integer countDown;
+
+	/** 靴号s */
+	private String bootsNo;
 }

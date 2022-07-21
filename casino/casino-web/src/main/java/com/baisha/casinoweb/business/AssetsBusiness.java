@@ -11,14 +11,12 @@ import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.casinoweb.model.bo.BalanceBO;
 import com.baisha.casinoweb.model.vo.UserVO;
-import com.baisha.casinoweb.model.vo.response.DeskVO;
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.casinoweb.util.enums.RequestPathEnum;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.enums.BalanceTypeEnum;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulecommon.util.HttpClient4Util;
-import com.baisha.modulecommon.vo.GameInfo;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,12 +36,12 @@ public class AssetsBusiness {
 	@Autowired
 	private UserBusiness userBusiness;
 	
-	public String withdraw ( Long userId, Long amount, Long tableId, Long relatedBetId ) {
+	public String withdraw ( Long userId, Long amount, String noActive, Long relatedBetId ) {
 		String action = "呼叫下分api";
 		Integer balanceChange = BalanceChangeEnum.BET.getCode();
 		String remarkComment = "下注"; 
 		
-		return assets(userId, new BigDecimal(amount), tableId, relatedBetId, action, balanceChange, BalanceTypeEnum.EXPENSES.getCode(), remarkComment);
+		return assets(userId, new BigDecimal(amount), noActive, relatedBetId, action, balanceChange, BalanceTypeEnum.EXPENSES.getCode(), remarkComment);
 	}
 	
 	public String returnAmount (Long userId, BigDecimal amount, Long relatedBetId ) {
@@ -54,16 +52,15 @@ public class AssetsBusiness {
 		return assets(userId, amount, null, relatedBetId, action, balanceChange, BalanceTypeEnum.INCOME.getCode(), remarkComment);
 	}
 	
-	private String assets ( Long userId, BigDecimal amount, Long tableId, Long relatedBetId, String action, Integer balanceChange
+	private String assets ( Long userId, BigDecimal amount, String noActive, Long relatedBetId, String action, Integer balanceChange
 			, Integer balanceType, String remarkComment ) {
 
 		String remark = "";
 		
-		if ( tableId!=null ) {
-			DeskVO desk = deskBusiness.queryDeskById(tableId);
-			String deskCode = desk.getDeskCode();
-			GameInfo gameInfo = gameInfoBusiness.getGameInfo(deskCode);
-			remark = String.format("betId:%d ,局号:%s %s", relatedBetId, gameInfo.getCurrentActive(), remarkComment);
+		if ( noActive!=null ) {
+//			DeskVO desk = deskBusiness.queryDeskById(tableId);
+//			String deskCode = desk.getDeskCode();
+			remark = String.format("betId:%d ,局号:%s %s", relatedBetId, noActive, remarkComment);
 		} else {
 			remark = String.format("betId:%d ,%s", relatedBetId, remarkComment);
 		}

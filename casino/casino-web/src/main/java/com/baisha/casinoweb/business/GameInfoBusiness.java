@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.baisha.modulecommon.BigDecimalConstants;
 import com.baisha.modulecommon.vo.*;
+import org.redisson.api.RBucket;
 import org.redisson.api.RMap;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
@@ -37,26 +38,26 @@ public class GameInfoBusiness {
     @Autowired
     private RedissonClient redisUtil;
 
-    public synchronized GameInfo getGameInfo( final String gameKey) {
-		RMap<String, GameInfo> map = redisUtil.getMap(RedisKeyConstants.SYS_GAME_INFO);
+    public synchronized TgGameInfo getTgGameInfo( final String gameKey) {
+		RMapCache<String, TgGameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_INFO);
 		return map.get(gameKey);
     }
 
-    public synchronized void setGameInfo( final String gameKey, final GameInfo gameInfo ) {
-		RMap<String, GameInfo> map = redisUtil.getMap(RedisKeyConstants.SYS_GAME_INFO);
-		map.put(gameKey, gameInfo);
+    public synchronized void setTgGameInfo( final String gameKey, final TgGameInfo gameInfo ) {
+		RMapCache<String, TgGameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_INFO);
+		map.put(gameKey, gameInfo, BigDecimalConstants.ONE.longValue(), TimeUnit.DAYS);
     }
     
     /**
      * 计算game info中下注金额
-     * @param deskCode
+     * @param noActive
      * @param userId
      * @param amount
      * @return
      */
-    public synchronized GameInfo calculateBetAmount ( String deskCode, Long tgGroupId, Long userId, String nickName, List<String> betOptionList
+    public synchronized TgGameInfo calculateBetAmount ( String noActive, Long tgGroupId, Long userId, String nickName, List<String> betOptionList
     		, Long amount ) {
-		GameInfo gameInfo = getGameInfo(deskCode);
+		TgGameInfo gameInfo = getTgGameInfo(noActive);
 		GameTgGroupInfo groupInfo = gameInfo.getTgGroupInfo(tgGroupId);
 		GameUserInfo userInfo = groupInfo.getUserInfo(userId);
 		userInfo.setNickName(nickName);
@@ -67,23 +68,23 @@ public class GameInfoBusiness {
 			userInfo.addBetHistory(betOption, amount);
     		userInfo.addOptionAmount(betOption, amount);
 		}
-		setGameInfo(deskCode, gameInfo);
+		setTgGameInfo(noActive, gameInfo);
     	return gameInfo;
     }
     
-    public void closeGame ( String deskCode ) {
+    public void closeGame ( final String noActive ) {
     	Map<String, Object> result = new HashMap<>();
     	Map<Long, Map<String, Object>> groupTeamMap = new HashMap<>();
-		GameInfo gameInfo = getGameInfo(deskCode);
-		gameInfo.setStatus(GameStatusEnum.StopBetting);
+		TgGameInfo tgGameInfo = getTgGameInfo(noActive);
+		tgGameInfo.setStatus(GameStatusEnum.StopBetting);
     	
-		result.put("bureauNum", gameInfo.getCurrentActive());
+		result.put("bureauNum", noActive);
 		
-		if ( gameInfo.getTgGroupMap()!=null ) {
-			Set<Long> tgGroupIdSet = gameInfo.getTgGroupMap().keySet();
+		if ( tgGameInfo.getTgGroupMap()!=null ) {
+			Set<Long> tgGroupIdSet = tgGameInfo.getTgGroupMap().keySet();
 			for ( Long tgGroupId: tgGroupIdSet ) {
 				Map<String, Object> groupMap = new HashMap<>();
-				GameTgGroupInfo groupInfo = gameInfo.getTgGroupInfo(tgGroupId);
+				GameTgGroupInfo groupInfo = tgGameInfo.getTgGroupInfo(tgGroupId);
 				
 				groupMap.put("totalBetAmount", groupInfo.getTotalBetAmount());
 				groupMap.put("top20Users", groupInfo.getTop20BetUserData());
@@ -92,7 +93,7 @@ public class GameInfoBusiness {
 		}
 		
 		result.put("tgBetInfo", groupTeamMap);
-		setGameInfo(deskCode, gameInfo);
+		setTgGameInfo(noActive, tgGameInfo);
 		
 		try {
 			Thread.sleep( gameSettleBufferTimeSeconds*1000 );
@@ -128,13 +129,13 @@ public class GameInfoBusiness {
 		map.get(currentActive);
 	}
 
-	public synchronized void setGameTime(String gameTimeKey, NewGameInfo newGameInfo) {
-		RMapCache<String, NewGameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
+	public synchronized void setGameInfo(String gameTimeKey, GameInfo newGameInfo) {
+		RMapCache<String, GameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
 		map.fastPut(gameTimeKey, newGameInfo, BigDecimalConstants.ONE.longValue(), TimeUnit.DAYS);
 	}
 
-	public synchronized NewGameInfo getGameTime(String gameTimeKey) {
-		RMapCache<String, NewGameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
+	public synchronized GameInfo getGameInfo(String gameTimeKey) {
+		RMapCache<String, GameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
 		return map.get(gameTimeKey);
 	}
 }

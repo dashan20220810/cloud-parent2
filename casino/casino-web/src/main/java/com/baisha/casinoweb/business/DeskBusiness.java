@@ -120,13 +120,4 @@ public class DeskBusiness {
     	return JSONObject.parseObject(json.getString("data"), new TypeReference<DeskVO>(){});
 	}
 
-	public synchronized void setGameDesk(final String deskKey, final GameDesk gameDesk) {
-		RMapCache<String, GameDesk> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_DESK);
-		map.put(deskKey, gameDesk, BigDecimalConstants.ONE.longValue(), TimeUnit.DAYS);
-	}
-
-	public synchronized GameDesk getGameDesk(final String deskKey) {
-		RMapCache<String, GameDesk> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_DESK);
-		return map.get(deskKey);
-	}
 }

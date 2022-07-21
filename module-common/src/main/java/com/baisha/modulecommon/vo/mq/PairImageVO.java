@@ -28,7 +28,7 @@ public class PairImageVO implements Serializable {
     /**
      * 荷官端局号
      */
-    private Integer gameNo;
+    private String gameNo;
 
     /**
      * 截屏图片流
