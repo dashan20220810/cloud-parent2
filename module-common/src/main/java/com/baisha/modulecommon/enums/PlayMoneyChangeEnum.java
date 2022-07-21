@@ -9,8 +9,14 @@ import java.util.List;
 public enum PlayMoneyChangeEnum {
 
     RECHARGE(1, "充值"),
-    SETTLEMENT(2, "结算");
+    SETTLEMENT(2, "结算"),
 
+    //重新开奖
+    BET_REOPEN(3, "重新开牌"), //加打码量
+    SETTLEMENT_REOPEN(4, "重新结算"), //减打码量
+
+
+    ;
     private Integer code;
     private String name;
 

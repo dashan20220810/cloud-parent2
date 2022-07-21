@@ -31,4 +31,8 @@ public class PlayMoneyChangeService {
         Page<PlayMoneyChange> pageList = playMoneyChangeRepository.findAll(spec, pageable);
         return Optional.ofNullable(pageList).orElseGet(() -> new PageImpl<>(new ArrayList<>()));
     }
+
+    public PlayMoneyChange findByUserIdAndChangeTypeAndRelateId(Long userId, Integer changeType, Long relateId) {
+        return playMoneyChangeRepository.findByUserIdAndChangeTypeAndRelateId(userId, changeType, relateId);
+    }
 }

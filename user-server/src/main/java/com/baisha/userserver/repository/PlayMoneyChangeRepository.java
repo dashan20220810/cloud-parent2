@@ -9,5 +9,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  */
 public interface PlayMoneyChangeRepository extends JpaRepository<PlayMoneyChange, Long>,
         JpaSpecificationExecutor<PlayMoneyChange> {
-    
+
+    PlayMoneyChange findByUserIdAndChangeTypeAndRelateId(Long userId, Integer changeType, Long relateId);
+
+
 }

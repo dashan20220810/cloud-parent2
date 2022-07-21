@@ -45,4 +45,17 @@ public class RabbitDirectConfig {
         return new Queue(MqConstants.USER_SUBTRACT_ASSETS);
     }
 
+
+    //重新开牌-结算 告诉user加回之前的打码量
+    @Bean
+    Binding userAddPlayMoneyAssetsBinding() {
+        return BindingBuilder.bind(userAddPlayMoneyAssetsQueue()).to(gameAndUserDirectExchange())
+                .with(MqConstants.USER_ADD_PLAYMONEY_ASSETS + "-direct");
+    }
+
+    @Bean
+    Queue userAddPlayMoneyAssetsQueue() {
+        return new Queue(MqConstants.USER_ADD_PLAYMONEY_ASSETS);
+    }
+
 }

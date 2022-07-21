@@ -15,9 +15,9 @@ public enum BalanceChangeEnum {
     RETURN_AMOUNT(5, "返水"),
 
     //重新开奖
-    BET_REOPEN(6, "扣除派彩"), // 减余额
+    BET_REOPEN(6, "扣除派彩(重新开牌)"), // 减余额
     BET_REWIN(7, "重新派彩"), // 重新派奖 加余额
-    RETURN_AMOUNT_REOPEN(8, "扣除返水"),// 减余额
+    RETURN_AMOUNT_REOPEN(8, "扣除返水(重新开牌)"),// 减余额
     RETURN_REAMOUNT(9, "重新返水"),// 重新返水 加余额
 
     ;

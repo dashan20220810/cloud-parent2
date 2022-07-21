@@ -12,11 +12,13 @@ import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.enums.BetStatusEnum;
+import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
 import com.baisha.modulecommon.util.DateUtil;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
 import com.baisha.modulecommon.vo.mq.gameServer.UserBetStatisticsVO;
 import com.baisha.modulecommon.vo.mq.userServer.BetAmountVO;
 import com.baisha.modulecommon.vo.mq.userServer.BetSettleUserVO;
+import com.baisha.modulecommon.vo.mq.userServer.PlayMoneyAmountVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -76,7 +78,7 @@ public class BetSettlementBusiness {
         List<List<Bet>> lists = GameServerUtil.splitList(bets, splitSize);
         List<CompletableFuture<List<Bet>>> futures = lists.stream()
                 .map(item -> CompletableFuture.supplyAsync(() ->
-                        doBetSettlement(item, vo, gameBaccOdds, true, false), asyncExecutor)).toList();
+                        doBetSettlement(item, vo, gameBaccOdds, false), asyncExecutor)).toList();
         lists = futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
         bets = trans(lists);
         int settleSize = bets.size();
@@ -90,12 +92,11 @@ public class BetSettlementBusiness {
      * @param item
      * @param vo
      * @param gameBaccOdds
-     * @param isPlayMoney  是否需要计算打码量 (重新开牌不需要重新计算)
      * @param isReopen     是否重新开牌
      * @return
      */
     private List<Bet> doBetSettlement(List<Bet> item, BetSettleVO vo, GameBaccOddsBO gameBaccOdds,
-                                      boolean isPlayMoney, boolean isReopen) {
+                                      boolean isReopen) {
         //强制大写
         vo.setAwardOption(vo.getAwardOption().toUpperCase());
         List<Bet> settleList = new ArrayList<>();
@@ -121,7 +122,11 @@ public class BetSettlementBusiness {
             //修改注单数据
             int flag = betService.settleBet(bet.getId(), winAmount, finalAmount, settleRemarkBuffer.toString());
             if (flag > 0) {
+                //没有输赢金额 打码量为0
+                BigDecimal playMoney = BigDecimal.ZERO;
                 if (winAmount.compareTo(BigDecimal.ZERO) != 0) {
+                    playMoney = BigDecimal.valueOf(betAmount);
+
                     log.info("输赢金额 {}", winAmount);
                     //用户统计今日数据(输赢结果)
                     statisticsWinAmount(bet, winAmount);
@@ -136,15 +141,10 @@ public class BetSettlementBusiness {
                 }
 
                 log.info("=======================================================================================");
-                //没有输赢金额 打码量为0
-                BigDecimal playMoney = BigDecimal.ZERO;
-                if (winAmount.compareTo(BigDecimal.ZERO) != 0) {
-                    playMoney = BigDecimal.valueOf(betAmount);
-                }
                 log.info("通知用户中心更新余额{}和打码量{}", finalAmount, betAmount);
                 BetSettleUserVO betSettleUserVO = BetSettleUserVO.builder().betId(bet.getId()).noActive(bet.getNoActive())
                         .userId(bet.getUserId()).finalAmount(finalAmount)
-                        .playMoney(isPlayMoney ? playMoney : BigDecimal.ZERO)
+                        .playMoney(playMoney)
                         .isReopen(isReopen ? Constants.open : Constants.close)
                         .remark(settleRemarkBuffer.toString()).build();
                 String betSettleUserJsonStr = JSONObject.toJSONString(betSettleUserVO);
@@ -225,7 +225,7 @@ public class BetSettlementBusiness {
      */
     private void doOperate(Bet bet, BetSettleVO vo, GameBaccOddsBO gameBaccOdds) {
         if (null != bet.getSettleTime()) {
-            //输赢不为空 就表示 已经结算了
+            //结算时间 不为空 就表示 已经结算了
             BigDecimal return_winAmount = BigDecimal.ZERO.subtract(bet.getWinAmount());
             if (return_winAmount.compareTo(BigDecimal.ZERO) != 0) {
                 log.info("返回 - 输赢金额 {}", return_winAmount);
@@ -240,6 +240,20 @@ public class BetSettlementBusiness {
                 String userBetStatisticsJsonStr = JSONObject.toJSONString(userBetStatisticsVO);
                 log.info("重新开牌-发送给后台MQ消息：{}", userBetStatisticsJsonStr);
                 rabbitTemplate.convertAndSend(MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS, userBetStatisticsJsonStr);
+            }
+
+            if (bet.getWinAmount().compareTo(BigDecimal.ZERO) != 0) {
+                //输赢不为空 就要把之前 减的打码量 加回来
+                //总下注金额
+                Long betAmount = getBetAmount(bet);
+                log.info("重新开牌-通知用户中心-加回之前打码量-更新打码量{}", betAmount);
+                String remark = bet.getNoActive() + "重新开牌,加回之前打码量";
+                PlayMoneyAmountVO playMoneyAmountVO = PlayMoneyAmountVO.builder().betId(bet.getId()).noActive(bet.getNoActive())
+                        .changeType(PlayMoneyChangeEnum.BET_REOPEN.getCode())
+                        .userId(bet.getUserId()).playMoney(BigDecimal.valueOf(betAmount)).remark(remark).build();
+                String playMoneyAmountVOJsonStr = JSONObject.toJSONString(playMoneyAmountVO);
+                log.info("重新开牌-加回打码量-发送给用户中心MQ消息：{}", playMoneyAmountVOJsonStr);
+                rabbitTemplate.convertAndSend(MqConstants.USER_ADD_PLAYMONEY_ASSETS, playMoneyAmountVOJsonStr);
             }
 
             //派彩金额
@@ -282,7 +296,7 @@ public class BetSettlementBusiness {
                 List<Bet> item = new ArrayList<>();
                 item.add(bet);
                 //之前已经算过打码量了，不需要再次计算
-                doBetSettlement(item, vo, gameBaccOdds, false, true);
+                doBetSettlement(item, vo, gameBaccOdds, true);
             } else {
                 log.error("数据还原失败，注单id={}", bet.getId());
             }
@@ -291,7 +305,7 @@ public class BetSettlementBusiness {
             //就去派彩
             List<Bet> item = new ArrayList<>();
             item.add(bet);
-            doBetSettlement(item, vo, gameBaccOdds, true, false);
+            doBetSettlement(item, vo, gameBaccOdds, false);
         }
     }
 

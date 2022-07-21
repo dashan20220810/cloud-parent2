@@ -41,6 +41,8 @@ public class MqConstants {
     /** 重新开牌-结算 告诉user扣除之前的金额 */
     public static final String USER_SUBTRACT_ASSETS = "user_subtract_assets";
 
+    /** 重新开牌-结算 告诉user加回之前的打码量 */
+    public static final String USER_ADD_PLAYMONEY_ASSETS = "user_add_playMoney_assets";
 
 
 }

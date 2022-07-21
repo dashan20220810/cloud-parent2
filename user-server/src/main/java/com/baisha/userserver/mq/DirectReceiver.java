@@ -8,6 +8,7 @@ import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.vo.mq.userServer.BetAmountVO;
 import com.baisha.modulecommon.vo.mq.userServer.BetSettleUserVO;
+import com.baisha.modulecommon.vo.mq.userServer.PlayMoneyAmountVO;
 import com.baisha.userserver.business.RabbitBusiness;
 import com.baisha.userserver.model.User;
 import com.baisha.userserver.model.vo.balance.BalanceVO;
@@ -45,11 +46,11 @@ public class DirectReceiver {
     @RabbitListener(queues = MqConstants.USER_SETTLEMENT_ASSETS)
     public void betSettlementAward(String jsonStr) {
         if (StringUtils.isEmpty(jsonStr)) {
-            log.error("收到gameServer参数不能为空");
+            log.error("结算(betSettlementAward)-收到gameServer参数不能为空");
             return;
         }
         BetSettleUserVO vo = JSONObject.parseObject(jsonStr, BetSettleUserVO.class);
-        log.info("收到gameServer参数 {}", JSONObject.toJSONString(vo));
+        log.info("结算(betSettlementAward)-收到gameServer参数 {}", JSONObject.toJSONString(vo));
         if (StringUtils.isEmpty(vo.getNoActive()) || null == vo.getBetId() || null == vo.getUserId()) {
             log.error("参数不全jsonStr={}", jsonStr);
             return;
@@ -68,7 +69,11 @@ public class DirectReceiver {
             playMoneyVO.setPlayMoneyType(UserServerConstants.EXPENSES);
             playMoneyVO.setRemark("会员结算打码量，注单ID为" + vo.getBetId());
             playMoneyVO.setRelateId(vo.getBetId());
-            playMoneyVO.setChangeType(PlayMoneyChangeEnum.SETTLEMENT.getCode());
+            if (vo.getIsReopen().equals(Constants.open)) {
+                playMoneyVO.setChangeType(PlayMoneyChangeEnum.SETTLEMENT_REOPEN.getCode());
+            } else {
+                playMoneyVO.setChangeType(PlayMoneyChangeEnum.SETTLEMENT.getCode());
+            }
             rabbitBusiness.doUserPlayMoney(user, playMoneyVO);
         }
 
@@ -98,11 +103,11 @@ public class DirectReceiver {
     @RabbitListener(queues = MqConstants.USER_SUBTRACT_ASSETS)
     public void userSubtractAssets(String jsonStr) {
         if (StringUtils.isEmpty(jsonStr)) {
-            log.error("重新开牌-收到gameServer参数不能为空");
+            log.error("重新开牌(userSubtractAssets)-收到gameServer参数不能为空");
             return;
         }
         BetAmountVO vo = JSONObject.parseObject(jsonStr, BetAmountVO.class);
-        log.info("重新开牌-收到gameServer参数 {}", JSONObject.toJSONString(vo));
+        log.info("重新开牌(userSubtractAssets)-收到gameServer参数 {}", JSONObject.toJSONString(vo));
         if (StringUtils.isEmpty(vo.getNoActive()) || null == vo.getBetId() || null == vo.getUserId()) {
             log.error("重新开牌-参数不全jsonStr={}", jsonStr);
             return;
@@ -123,6 +128,42 @@ public class DirectReceiver {
         balanceVO.setRemark(vo.getRemark());
         rabbitBusiness.doUserSubtractBalance(user, balanceVO);
         log.info("====userSubtractAssets============END========================");
+    }
+
+    /**
+     * 重新开牌 加 会员 打码量
+     *
+     * @param jsonStr
+     */
+    @RabbitListener(queues = MqConstants.USER_ADD_PLAYMONEY_ASSETS)
+    public void userAddPlayMoneyAssets(String jsonStr) {
+        if (StringUtils.isEmpty(jsonStr)) {
+            log.error("重新开牌(userAddPlayMoneyAssets)-收到gameServer参数不能为空");
+            return;
+        }
+
+        PlayMoneyAmountVO vo = JSONObject.parseObject(jsonStr, PlayMoneyAmountVO.class);
+        log.info("重新开牌(userAddPlayMoneyAssets)-收到gameServer参数 {}", JSONObject.toJSONString(vo));
+        if (StringUtils.isEmpty(vo.getNoActive()) || null == vo.getBetId() || null == vo.getUserId()) {
+            log.error("重新开牌-参数不全jsonStr={}", jsonStr);
+            return;
+        }
+        //获取用户
+        User user = userService.findById(vo.getUserId());
+        if (Objects.isNull(user)) {
+            log.error("会员不存在");
+            return;
+        }
+        log.info("=====userAddPlayMoneyAssets============START==========================");
+        PlayMoneyVO playMoneyVO = new PlayMoneyVO();
+        playMoneyVO.setUserId(vo.getUserId());
+        playMoneyVO.setPlayMoneyType(UserServerConstants.INCOME);
+        playMoneyVO.setAmount(vo.getPlayMoney());
+        playMoneyVO.setRelateId(vo.getBetId());
+        playMoneyVO.setChangeType(vo.getChangeType());
+        playMoneyVO.setRemark(vo.getRemark());
+        rabbitBusiness.doUserAddPlayMoney(user, playMoneyVO);
+        log.info("====userAddPlayMoneyAssets============END========================");
     }
 
 

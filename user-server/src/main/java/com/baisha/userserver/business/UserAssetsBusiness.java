@@ -412,4 +412,135 @@ public class UserAssetsBusiness {
     }
 
 
+    public ResponseEntity doSubtractPlayMoneyBusiness(User user, PlayMoneyVO vo) {
+        //支持多次重新开奖,所以可以更新当前打码量变化记录
+        long start = System.currentTimeMillis();
+        PlayMoneyChange isExist = playMoneyChangeService.findByUserIdAndChangeTypeAndRelateId(user.getId(), vo.getChangeType(), vo.getRelateId());
+        log.info("doSubtractPlayMoneyBusiness余额变化记录 查询耗时{}毫秒", System.currentTimeMillis() - start);
+        //使用用户ID 使用redisson 公平锁
+        RLock fairLock = redisson.getFairLock(RedisConstants.USER_ASSETS + user.getId());
+        try {
+            boolean res = fairLock.tryLock(RedisConstants.WAIT_TIME, RedisConstants.UNLOCK_TIME, TimeUnit.SECONDS);
+            if (res) {
+                //支出
+                ResponseEntity response = doSubtractPlayMoney(user, vo, isExist);
+                fairLock.unlock();
+                return response;
+            }
+        } catch (Exception e) {
+            fairLock.unlock();
+            log.error(e.getMessage());
+            e.printStackTrace();
+        }
+        return ResponseUtil.fail();
+    }
+
+    /**
+     * 重新开牌 - 打码量减少
+     *
+     * @param user
+     * @param vo
+     * @return
+     */
+    private ResponseEntity doSubtractPlayMoney(User user, PlayMoneyVO vo, PlayMoneyChange isExist) {
+        Assets assets = findAssetsByUserId(user.getId());
+        if (assets.getPlayMoney().compareTo(BigDecimal.ONE) < 0) {
+            log.info("打码量小于1,不需要打码(userId={} assetsId={})", user.getId(), assets.getId());
+            return ResponseUtil.success();
+        }
+        if (assets.getPlayMoney().compareTo(vo.getAmount()) <= 0) {
+            log.info("最后一笔打码(userId={} assetsId={})", user.getId(), assets.getId());
+            vo.setAmount(assets.getPlayMoney());
+        }
+        PlayMoneyChange change = new PlayMoneyChange();
+        if (Objects.nonNull(isExist)) {
+            change.setId(isExist.getId());
+        }
+        change.setUserId(user.getId());
+        change.setPlayMoneyType(UserServerConstants.EXPENSES);
+        change.setRemark(vo.getRemark());
+        change.setBeforeAmount(assets.getPlayMoney());
+        change.setAmount(vo.getAmount());
+        change.setAfterAmount(assets.getPlayMoney().subtract(vo.getAmount()));
+        change.setChangeType(vo.getChangeType());
+        change.setRelateId(vo.getRelateId());
+        PlayMoneyChange pc = playMoneyChangeService.save(change);
+        if (Objects.nonNull(pc)) {
+            log.info("(支出)创建打码量变化成功(userId={})", user.getId());
+            //支出先扣钱
+            int flag = assetsService.doReducePlayMoneyById(vo.getAmount(), assets.getId());
+            if (flag < 1) {
+                log.info("(支出)更新打码量失败(userId={} assetsId={})", user.getId(), assets.getId());
+                return ResponseUtil.fail();
+            }
+            log.info("(支出)更新打码量成功(userId={} assetsId={})", user.getId(), assets.getId());
+            return ResponseUtil.success();
+        }
+        log.info("(支出)创建打码量变化失败(userId={})", user.getId());
+        return ResponseUtil.fail();
+    }
+
+
+    /**
+     * 重新开牌，新增会员打码量
+     *
+     * @param user
+     * @param playMoneyVO
+     * @return
+     */
+    public ResponseEntity doUserAddPlayMoneyBusiness(User user, PlayMoneyVO vo) {
+        //支持多次重新开奖,所以可以更新当前打码量变化记录
+        long start = System.currentTimeMillis();
+        PlayMoneyChange isExist = playMoneyChangeService.findByUserIdAndChangeTypeAndRelateId(user.getId(), vo.getChangeType(), vo.getRelateId());
+        log.info("doUserAddPlayMoneyBusiness余额变化记录 查询耗时{}毫秒", System.currentTimeMillis() - start);
+        //使用用户ID 使用redisson 公平锁
+        RLock fairLock = redisson.getFairLock(RedisConstants.USER_ASSETS + user.getId());
+        try {
+            boolean res = fairLock.tryLock(RedisConstants.WAIT_TIME, RedisConstants.UNLOCK_TIME, TimeUnit.SECONDS);
+            if (res) {
+                //收入
+                ResponseEntity response = doAddPlayMoney(user, vo, isExist);
+                fairLock.unlock();
+                return response;
+            }
+        } catch (Exception e) {
+            fairLock.unlock();
+            log.error(e.getMessage());
+            e.printStackTrace();
+        }
+        return ResponseUtil.fail();
+    }
+
+    private ResponseEntity doAddPlayMoney(User user, PlayMoneyVO vo, PlayMoneyChange isExist) {
+        Assets assets = findAssetsByUserId(user.getId());
+        //插入打码量变动表
+        PlayMoneyChange change = new PlayMoneyChange();
+        if (Objects.nonNull(isExist)) {
+            change.setId(isExist.getId());
+        }
+        change.setUserId(user.getId());
+        change.setPlayMoneyType(UserServerConstants.INCOME);
+        change.setRemark(vo.getRemark());
+        change.setBeforeAmount(assets.getPlayMoney());
+        change.setAmount(vo.getAmount());
+        change.setAfterAmount(assets.getPlayMoney().add(vo.getAmount()));
+        change.setChangeType(vo.getChangeType());
+        change.setRelateId(vo.getRelateId());
+        PlayMoneyChange pc = playMoneyChangeService.save(change);
+        if (Objects.nonNull(pc)) {
+            log.info("(收入)创建打码量变化成功(userId={})", user.getId());
+            //更新打码量
+            int flag = assetsService.doIncreasePlayMoneyById(vo.getAmount(), assets.getId());
+            if (flag < 1) {
+                log.info("(收入)更新打码量失败(userId={} assetsId={})", user.getId(), assets.getId());
+                return ResponseUtil.fail();
+            }
+            log.info("(收入)更新打码量成功(userId={} assetsId={})", user.getId(), assets.getId());
+            return ResponseUtil.success();
+        }
+        log.info("(收入)创建打码量变化失败(userId={})", user.getId());
+        return ResponseUtil.fail();
+    }
+
+
 }
