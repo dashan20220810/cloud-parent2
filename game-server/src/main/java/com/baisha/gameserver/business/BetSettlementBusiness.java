@@ -10,6 +10,7 @@ import com.baisha.gameserver.util.BaccNoCommissionUtil;
 import com.baisha.gameserver.util.GameServerUtil;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.MqConstants;
+import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.enums.BetStatusEnum;
 import com.baisha.modulecommon.util.DateUtil;
 import com.baisha.modulecommon.vo.mq.BetSettleVO;
@@ -252,6 +253,7 @@ public class BetSettlementBusiness {
                 log.info("重新开牌-通知用户中心-扣除之前派彩-更新余额{}", finalAmount);
                 String remark = bet.getNoActive() + "重新开牌,扣除派彩金额";
                 BetAmountVO betAmountVO = BetAmountVO.builder().betId(bet.getId()).noActive(bet.getNoActive())
+                        .changeType(BalanceChangeEnum.BET_REOPEN.getCode())
                         .userId(bet.getUserId()).amount(finalAmount).remark(remark).build();
                 String betAmountVOJsonStr = JSONObject.toJSONString(betAmountVO);
                 log.info("重新开牌-派彩-发送给用户中心MQ消息：{}", betAmountVOJsonStr);
@@ -264,6 +266,7 @@ public class BetSettlementBusiness {
                 log.info("重新开牌-通知用户中心-扣除之前返水-更新余额{}", returnAmount);
                 String remark = bet.getNoActive() + "重新开牌,扣除返水金额";
                 BetAmountVO betAmountVO = BetAmountVO.builder().betId(bet.getId()).noActive(bet.getNoActive())
+                        .changeType(BalanceChangeEnum.RETURN_AMOUNT_REOPEN.getCode())
                         .userId(bet.getUserId()).amount(returnAmount).remark(remark).build();
                 String betAmountVOJsonStr = JSONObject.toJSONString(betAmountVO);
                 log.info("重新开牌-返水-发送给用户中心MQ消息：{}", betAmountVOJsonStr);

@@ -121,7 +121,7 @@ public class AssetsController {
 
         ResponseEntity res;
         if (vo.getChangeType().equals(BalanceChangeEnum.RETURN_AMOUNT.getCode())) {
-            //反水可以多次，可以修改
+            //因为重新开牌后，返水 被扣除，就会有重新返水
             res = userAssetsService.doAddBalanceBusiness(user, vo);
         } else {
             res = userAssetsService.doBalanceBusiness(user, vo);
