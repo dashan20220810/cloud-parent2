@@ -120,7 +120,7 @@ public class AssetsController {
         }
 
         ResponseEntity res;
-        if (vo.getChangeType().equals(BalanceChangeEnum.RETURN_AMOUNT.getCode())) {
+        if (vo.getChangeType().equals(BalanceChangeEnum.RETURN_REAMOUNT.getCode())) {
             //因为重新开牌后，返水 被扣除，就会有重新返水
             res = userAssetsService.doAddBalanceBusiness(user, vo);
         } else {

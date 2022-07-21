@@ -92,7 +92,7 @@ public class UserAssetsBusiness {
                 //if (UserServerConstants.INCOME == vo.getBalanceType()) {
                 //只有收入
                 ResponseEntity response;
-                if (BalanceChangeEnum.RETURN_AMOUNT.getCode().equals(vo.getChangeType())) {
+                /*if (BalanceChangeEnum.RETURN_AMOUNT.getCode().equals(vo.getChangeType())) {
                     if (Objects.nonNull(isExist)) {
                         //如果不为空 表示次单已经返水  此时查询 是否因为 重新开牌 扣除了返水
                         BalanceChange isExistReopen = balanceChangeService.findByUserIdAndChangeTypeAndRelateId(
@@ -107,7 +107,7 @@ public class UserAssetsBusiness {
                                     user.getId(), BalanceChangeEnum.RETURN_REAMOUNT.getCode(), vo.getRelateId());
                         }
                     }
-                }
+                }*/
 
                 //重新派彩 和 重新 返水 可以修改
                 response = doAddIncomeBalance(user, vo, isExist);
@@ -484,8 +484,8 @@ public class UserAssetsBusiness {
     /**
      * 重新开牌，新增会员打码量
      *
-     * @param user
-     * @param playMoneyVO
+     * @param user 用户
+     * @param vo   打码量参数
      * @return
      */
     public ResponseEntity doUserAddPlayMoneyBusiness(User user, PlayMoneyVO vo) {

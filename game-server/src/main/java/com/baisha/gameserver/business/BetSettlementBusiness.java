@@ -55,6 +55,10 @@ public class BetSettlementBusiness {
     private BetStatisticsService betStatisticsService;
     @Autowired
     private GameBusiness gameBusiness;
+    @Autowired
+    private BetBusiness betBusiness;
+    @Autowired
+    private AssetsBusiness assetsBusiness;
 
     public void betSettlement(BetSettleVO vo) {
         log.info("==============={}开始结算=================", vo.getNoActive());
@@ -78,7 +82,7 @@ public class BetSettlementBusiness {
         List<List<Bet>> lists = GameServerUtil.splitList(bets, splitSize);
         List<CompletableFuture<List<Bet>>> futures = lists.stream()
                 .map(item -> CompletableFuture.supplyAsync(() ->
-                        doBetSettlement(item, vo, gameBaccOdds, false), asyncExecutor)).toList();
+                        doBetSettlement(item, vo, gameBaccOdds, false, false), asyncExecutor)).toList();
         lists = futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
         bets = trans(lists);
         int settleSize = bets.size();
@@ -93,10 +97,11 @@ public class BetSettlementBusiness {
      * @param vo
      * @param gameBaccOdds
      * @param isReopen     是否重新开牌
+     * @param isReturn     是否返水
      * @return
      */
     private List<Bet> doBetSettlement(List<Bet> item, BetSettleVO vo, GameBaccOddsBO gameBaccOdds,
-                                      boolean isReopen) {
+                                      boolean isReopen, boolean isReturn) {
         //强制大写
         vo.setAwardOption(vo.getAwardOption().toUpperCase());
         List<Bet> settleList = new ArrayList<>();
@@ -113,6 +118,7 @@ public class BetSettlementBusiness {
                 BetAwardBO betAwardBO = BaccNoCommissionUtil.getBetAward(bet, awardOption, gameBaccOdds);
                 if (Objects.isNull(betAwardBO)) {
                     log.error("没有对应中奖选项awardOption={}", awardOption);
+                    continue;
                 }
                 log.info("局{} 中奖选项{} 注单Id{} 中奖结果{}", vo.getNoActive(), awardOption, betAwardBO.getId(), JSONObject.toJSONString(betAwardBO));
                 finalAmount = finalAmount.add(betAwardBO.getFinalAmount());
@@ -150,6 +156,11 @@ public class BetSettlementBusiness {
                 String betSettleUserJsonStr = JSONObject.toJSONString(betSettleUserVO);
                 log.info("派奖-发送给用户中心MQ消息：{}", betSettleUserJsonStr);
                 rabbitTemplate.convertAndSend(MqConstants.USER_SETTLEMENT_ASSETS, betSettleUserJsonStr);
+
+                //如果是返回，就需要重新返水
+                if (isReturn) {
+                    betBusiness.updateReturnAmountReopen(bet);
+                }
             }
 
             settleList.add(bet);
@@ -224,8 +235,9 @@ public class BetSettlementBusiness {
      * @param vo
      */
     private void doOperate(Bet bet, BetSettleVO vo, GameBaccOddsBO gameBaccOdds) {
+        //结算时间 不为空 就表示 已经结算了
         if (null != bet.getSettleTime()) {
-            //结算时间 不为空 就表示 已经结算了
+
             BigDecimal return_winAmount = BigDecimal.ZERO.subtract(bet.getWinAmount());
             if (return_winAmount.compareTo(BigDecimal.ZERO) != 0) {
                 log.info("返回 - 输赢金额 {}", return_winAmount);
@@ -276,6 +288,10 @@ public class BetSettlementBusiness {
 
             //查看是否有返水
             if (null != returnAmount && returnAmount.compareTo(BigDecimal.ZERO) > 0) {
+                //修改 gameServer的返水统计
+                log.info("扣除之前的返水统计");
+                betBusiness.fixReturnAmount(bet);
+
                 //已经返水 就要 扣除返水
                 log.info("重新开牌-通知用户中心-扣除之前返水-更新余额{}", returnAmount);
                 String remark = bet.getNoActive() + "重新开牌,扣除返水金额";
@@ -290,13 +306,13 @@ public class BetSettlementBusiness {
             int isUpdate = betService.returnBet(bet.getId());
             if (isUpdate > 0) {
                 log.info("数据还原成功，重新结算注单id={}", bet.getId());
-                //注单
+                //注单新
                 bet = betService.findById(bet.getId());
                 //就去派彩
                 List<Bet> item = new ArrayList<>();
                 item.add(bet);
                 //之前已经算过打码量了，不需要再次计算
-                doBetSettlement(item, vo, gameBaccOdds, true);
+                doBetSettlement(item, vo, gameBaccOdds, true, true);
             } else {
                 log.error("数据还原失败，注单id={}", bet.getId());
             }
@@ -305,7 +321,7 @@ public class BetSettlementBusiness {
             //就去派彩
             List<Bet> item = new ArrayList<>();
             item.add(bet);
-            doBetSettlement(item, vo, gameBaccOdds, false);
+            doBetSettlement(item, vo, gameBaccOdds, false, true);
         }
     }
 
