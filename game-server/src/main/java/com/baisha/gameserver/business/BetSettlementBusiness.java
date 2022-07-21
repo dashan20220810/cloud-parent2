@@ -157,8 +157,10 @@ public class BetSettlementBusiness {
                 log.info("派奖-发送给用户中心MQ消息：{}", betSettleUserJsonStr);
                 rabbitTemplate.convertAndSend(MqConstants.USER_SETTLEMENT_ASSETS, betSettleUserJsonStr);
 
-                //如果是返回，就需要重新返水
+                //如果是返水是true，就需要重新返水
                 if (isReturn) {
+                    bet.setWinAmount(winAmount);
+                    log.info("重新开牌，重新返水");
                     betBusiness.updateReturnAmountReopen(bet);
                 }
             }
