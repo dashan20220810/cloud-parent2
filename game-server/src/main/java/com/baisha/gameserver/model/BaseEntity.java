@@ -3,11 +3,7 @@ package com.baisha.gameserver.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -32,6 +28,7 @@ public abstract class BaseEntity implements Serializable {
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @Column(updatable = false)
     private Date createTime;
     @CreatedBy
     private String createBy;
