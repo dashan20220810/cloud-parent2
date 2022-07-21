@@ -57,5 +57,15 @@ public class TgBotServerConstants {
      */
     public static final String TGBETBOT_UPDATESTATUSBYID = "/tgBetBot/updateStatusById";
 
+    /**
+     * 投注机器人 -点击绑定-TG群下的投注机器人
+     */
+    public static final String TGBETBOT_FINDRELATIONBYTGCHATID = "/tgChat/findRelationByTgChatId";
+
+    /**
+     * 投注机器人 -点击绑定-TG群下的投注机器人
+     */
+    public static final String TGBETBOT_CONFIRMBIND = "/tgChat/confirmBind";
+
 
 }

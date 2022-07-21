@@ -23,6 +23,7 @@ public abstract class BaseEntity implements Serializable {
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @Column(updatable = false)
     private Date createTime;
 
     @CreatedBy
