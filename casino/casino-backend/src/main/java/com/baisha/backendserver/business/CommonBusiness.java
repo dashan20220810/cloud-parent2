@@ -26,6 +26,15 @@ public class CommonBusiness {
     @Value("${url.fileServer}")
     private String fileServerUrl;
 
+    @Value("${admin.account}")
+    private String superAdmin;
+
+    @Value("${admin.password}")
+    private String adminPassword;
+
+    @Value("${admin.authKey}")
+    private String adminAuthKey;
+
     @Autowired
     private AdminService adminService;
     @Autowired
@@ -33,9 +42,17 @@ public class CommonBusiness {
 
     public Admin getCurrentUser() {
         Long authId = BackendServerUtil.getCurrentUserId();
-        System.out.println("authId ="+authId);
         try {
-            Admin admin = adminService.findAdminById(authId);
+            Admin admin = new Admin();
+            if (authId == 0L){
+                admin.setUserName(superAdmin);
+                admin.setNickName(superAdmin);
+                admin.setPassword(adminPassword);
+                admin.setGoogleAuthKey(adminAuthKey);
+                admin.setRoleId(Long.valueOf(0));
+            } else {
+                admin = adminService.findAdminById(authId);
+            }
             if (Objects.nonNull(admin)) {
                 return admin;
             }

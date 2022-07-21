@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -47,29 +48,34 @@ public class AdminController {
     @Autowired
     private CommonBusiness commonService;
 
+    @Value("${admin.account}")
+    private String superAdmin;
+
     @ApiOperation(("新增管理员"))
     @PostMapping("add")
     public ResponseEntity addAdmin(AdminAddVO vo) {
+
+        Admin currentUser = commonService.getCurrentUser();
+        if (!currentUser.equals(superAdmin)){
+            return ResponseUtil.authorizationNopass();
+        }
         if (Admin.checkUserName(vo.getUserName())) {
             return new ResponseEntity("用户名不规范");
         }
-        if (Admin.checkNickName(vo.getNickName())) {
-            return new ResponseEntity("昵称不规范");
-        }
         if (Admin.checkPassword(vo.getPassword())) {
             return new ResponseEntity("密码不规范");
-        }
-        if (Admin.checkPhone(vo.getPhone())) {
-            return new ResponseEntity("手机号不规范");
         }
         // 查询用户名是否存在
         Admin isExist = adminService.findByUserNameSql(vo.getUserName());
         if (Objects.nonNull(isExist)) {
             return new ResponseEntity("用户名已存在");
         }
+        if (!Admin.validateIP(vo.getAllowIps())) {
+            return new ResponseEntity("ip白名單不规范");
+        }
         //获取当前登陆用户
-        Admin currentUser = commonService.getCurrentUser();
-        if (GoogleAuthUtil.check_code(currentUser.getGoogleAuthKey(), vo.getAuthCode())){
+
+        if (! GoogleAuthUtil.check_code(currentUser.getGoogleAuthKey(), vo.getAuthCode())){
             return new ResponseEntity("谷歌验证失敗");
         }
         Admin admin = createAdmin(vo, currentUser);
@@ -160,15 +166,9 @@ public class AdminController {
 
     @ApiOperation(("更新密码(登陆用户)"))
     @PostMapping("updatePassword")
-    public ResponseEntity updatePassword(AdminUpdatePasswordVO vo) {
-        if (Admin.checkPassword(vo.getOldPassword())) {
-            return new ResponseEntity("旧密码不规范");
-        }
+    public ResponseEntity updatePassword(ResetPasswordVO vo) {
         if (Admin.checkPassword(vo.getNewPassword())) {
             return new ResponseEntity("新密码不规范");
-        }
-        if (vo.getOldPassword().equals(vo.getNewPassword())) {
-            return new ResponseEntity("新旧密码不能一样");
         }
         //获取当前登陆用户
         Admin currentUser = commonService.getCurrentUser();
@@ -176,9 +176,9 @@ public class AdminController {
             return new ResponseEntity("管理员不存在");
         }
         String bcryptPassword = currentUser.getPassword();
-        boolean bcrypt = BackendServerUtil.checkBcrypt(vo.getOldPassword(), bcryptPassword);
+        boolean bcrypt = BackendServerUtil.checkBcrypt(vo.getNewPassword(), bcryptPassword);
         if (!bcrypt) {
-            return new ResponseEntity("旧密码错误");
+            return new ResponseEntity("新旧密码不能一样");
         }
         //更新新密码
         adminService.updatePasswordById(BackendServerUtil.bcrypt(vo.getNewPassword()), currentUser.getId());
@@ -213,20 +213,34 @@ public class AdminController {
     }
 
     @ApiOperation(("编辑管理员账户"))
-    @PostMapping("edit")
-    public ResponseEntity mangeAccount(AdminUpdateVO vo) {
+    @PostMapping("manageAccount")
+    public ResponseEntity manageAccount(AdminUpdateVO vo) {
 
-        //获取当前登陆用户
         Admin currentUser = commonService.getCurrentUser();
-        String msg = validateMangeAccount(vo, currentUser);
-        if (StringUtils.isAllEmpty(msg)){
-            return new ResponseEntity(msg);
+        if (!currentUser.equals(superAdmin)){
+            return ResponseUtil.authorizationNopass();
         }
+
+        if (Admin.checkUserName(vo.getUserName())) {
+            return new ResponseEntity("用户名不规范");
+        }
+        if (Admin.checkPassword(vo.getPassword())) {
+            return new ResponseEntity("密码不规范");
+        }
+        if (!Admin.validateIP(vo.getAllowIps())) {
+            return new ResponseEntity("ip白名單不规范");
+        }
+        //获取当前登陆用户
+        if (! GoogleAuthUtil.check_code(currentUser.getGoogleAuthKey(), vo.getAuthCode())){
+            return new ResponseEntity("谷歌验证失敗");
+        }
+
         Admin admin = new Admin();
         BeanUtils.copyProperties(vo, admin);
         admin.setPassword(BackendServerUtil.bcrypt(vo.getPassword()));
         admin.setCreateBy(currentUser.getUserName());
         admin.setUpdateBy(currentUser.getUserName());
+
         admin = adminService.save(admin);
         if (Objects.isNull(admin)) {
             return ResponseUtil.fail();
@@ -234,29 +248,5 @@ public class AdminController {
         log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.INSERT, JSON.toJSONString(admin), BackendConstants.ADMIN_MODULE);
         return ResponseUtil.success();
     }
-
-    private String validateMangeAccount(AdminAddVO vo, Admin currentUser) {
-        StringBuffer sb = new StringBuffer();
-        if (Admin.checkUserName(vo.getUserName())) {
-            sb.append("用户名不规范 ");
-        }
-        if (Admin.checkNickName(vo.getNickName())) {
-            sb.append("昵称不规范");
-        }
-        if (Admin.checkPassword(vo.getPassword())) {
-            sb.append("密码不规范");
-        }
-        if (Admin.checkPhone(vo.getPhone())) {
-            sb.append("手机号不规范");
-        }
-        if (Admin.validateIP(vo.getAllowIps())) {
-            sb.append("IP白名单不规范");
-        }
-        if (GoogleAuthUtil.check_code(currentUser.getGoogleAuthKey(), vo.getAuthCode())){
-            sb.append("谷歌验证失敗");
-        }
-        return sb.toString();
-    }
-
 
 }

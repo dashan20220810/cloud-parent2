@@ -3,6 +3,8 @@ package com.baisha.backendserver.model.vo.admin;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import net.bytebuddy.asm.Advice;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.Column;
 
@@ -22,9 +24,6 @@ public class AdminAddVO {
     @ApiModelProperty(value = "密码(长度限制6~15位,并且必须是数字和字母的组合)", required = true)
     private String password;
 
-    @ApiModelProperty(value = "长度限制6~20位,并且仅允许输入数字")
-    private String phone;
-
     @ApiModelProperty(value = "备注信息 (长度限制200)")
     private String description;
 
@@ -42,5 +41,4 @@ public class AdminAddVO {
 
     @ApiModelProperty(value = "google验证碼", required = true)
     private Integer authCode;
-
 }

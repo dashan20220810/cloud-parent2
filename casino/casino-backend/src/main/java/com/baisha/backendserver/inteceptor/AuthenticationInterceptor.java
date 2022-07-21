@@ -4,13 +4,14 @@ import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.service.AdminService;
 import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.modulecommon.Constants;
-import com.baisha.modulecommon.inteceptor.AbstractAuthenticationInteceptor;
+import com.baisha.modulecommon.inteceptor.AbstractAuthenticationInterceptor;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulejjwt.JjwtUtil;
 import com.baisha.modulespringcacheredis.util.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,11 +22,20 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Slf4j
 @Component
-public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
+public class AuthenticationInterceptor extends AbstractAuthenticationInterceptor {
     @Autowired
     private AdminService userService;
     @Autowired
     private RedisUtil redisUtil;
+
+    @Value("${admin.account}")
+    private String superAdmin;
+
+    @Value("${admin.password}")
+    private String adminPassword;
+
+    @Value("${admin.authKey}")
+    private String adminAuthKey;
 
     @Override
     protected boolean hasBan() {
@@ -74,8 +84,16 @@ public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
             return null;
         }
         //获取登陆用户
+        Admin user = new Admin();
         Long authId = Long.parseLong(subject.getUserId());
-        Admin user = userService.findAdminById(authId);
+        if (authId == 0L){
+
+            user.setUserName(superAdmin);
+            user.setNickName(superAdmin);
+            user.setPassword(adminPassword);
+        } else {
+            user = userService.findAdminById(authId);
+        }
         synchronized (token.intern()) {
             //多个请求只有一个去刷新token
             Object redisToken = redisUtil.get(Constants.REDIS_TOKEN_ADMIN + authId);

@@ -164,21 +164,31 @@ public class Admin extends BaseEntity {
     }
 
     public static boolean validateIP(String allowIps) {
+
         boolean isIp = true;
-        if (StringUtils.isAllEmpty(allowIps)){
+        if (StringUtils.isAllEmpty(allowIps)) {
             isIp = false;
-        }else{
-            List<String> allowIpList = Arrays.asList(allowIps.split(";"));
-            for (String allowIp: allowIpList) {
+        } else {
+            List<String> allowIpList = Arrays.asList(allowIps.split(","));
+            for (String allowIp : allowIpList) {
+                if (StringUtils.isAllEmpty(allowIps)) {
+                    isIp = false;
+                    continue;
+                }
                 final Pattern ipPattern = Pattern.compile(RegexEnum.IP.getRegex());
-                if (! ipPattern.matcher(allowIp).matches()){
+                if (!ipPattern.matcher(allowIp).matches()) {
                     isIp = false;
                     continue;
                 }
             }
         }
-
         return isIp;
     }
 
+    public static boolean isFirstTime(String googleAuthKey) {
+        if (StringUtils.isAllEmpty(googleAuthKey)) {
+            return true;
+        }
+        return false;
+    }
 }

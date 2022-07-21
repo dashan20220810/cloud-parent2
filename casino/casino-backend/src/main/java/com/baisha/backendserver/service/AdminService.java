@@ -70,5 +70,11 @@ public class AdminService {
         return optional.orElse(null);
     }
 
+    @CachePut(key = "#id")
+    public Admin updateAuthKeyById(String googleAuthKey, Long id) {
+        adminRepository.updateAdminGoogleAuthKeyById(googleAuthKey, id);
+        return findAdminByIdSql(id);
+    }
+
 
 }

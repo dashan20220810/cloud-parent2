@@ -24,4 +24,7 @@ public class LoginBO {
 
     @ApiModelProperty(value = "token")
     private String token;
+
+    @ApiModelProperty(value = "是否為第一次登入 1 是, 0 否")
+    private int isFirstTime;
 }

@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
-public abstract class AbstractAuthenticationInteceptor implements HandlerInterceptor {
+public abstract class AbstractAuthenticationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {

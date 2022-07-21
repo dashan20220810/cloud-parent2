@@ -13,6 +13,11 @@ project:
   swagger:
     enable: true
 
+admin:
+  account: superAdmin
+  password: suki1107
+  authKey: CB7EMCSISOTQNX7E
+
 logging:
   level:
     org.hibernate.type.descriptor.sql.BasicBinder: trace

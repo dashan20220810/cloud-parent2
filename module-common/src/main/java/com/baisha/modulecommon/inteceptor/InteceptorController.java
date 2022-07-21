@@ -60,7 +60,7 @@ public class InteceptorController implements ErrorController {
     public ResponseEntity authenticationPlatformMaintain(String startTime, String endTime) {
         ResponseEntity response = ResponseUtil.platformMaintain();
         //因为不能依赖core模块所以参数改为从前面传递而不是直接查数据库
-        AbstractAuthenticationInteceptor.PlatformMaintenanceSwitch data = new AbstractAuthenticationInteceptor.PlatformMaintenanceSwitch();
+        AbstractAuthenticationInterceptor.PlatformMaintenanceSwitch data = new AbstractAuthenticationInterceptor.PlatformMaintenanceSwitch();
         data.setOnOff(true);
         data.setStartTime(startTime);
         data.setEndTime(endTime);

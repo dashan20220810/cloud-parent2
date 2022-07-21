@@ -1,6 +1,6 @@
 package com.baisha.inteceptor;
 
-import com.baisha.modulecommon.inteceptor.AbstractAuthenticationInteceptor;
+import com.baisha.modulecommon.inteceptor.AbstractAuthenticationInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @Component
 @Slf4j
-public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
+public class AuthenticationInteceptor extends AbstractAuthenticationInterceptor {
 
     @Override
     protected boolean hasBan() {

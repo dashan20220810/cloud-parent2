@@ -2,7 +2,7 @@ package com.baisha.casinoweb.inteceptor;
 
 import com.baisha.casinoweb.util.CasinoWebUtil;
 import com.baisha.modulecommon.Constants;
-import com.baisha.modulecommon.inteceptor.AbstractAuthenticationInteceptor;
+import com.baisha.modulecommon.inteceptor.AbstractAuthenticationInterceptor;
 import com.baisha.modulecommon.util.CommonUtil;
 import com.baisha.modulejjwt.JjwtUtil;
 import com.baisha.modulespringcacheredis.util.RedisUtil;
@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @Component
 @Slf4j
-public class AuthenticationInteceptor extends AbstractAuthenticationInteceptor {
+public class AuthenticationInteceptor extends AbstractAuthenticationInterceptor {
 
     @Autowired
     RedisUtil redisUtil;

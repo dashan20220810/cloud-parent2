@@ -43,5 +43,16 @@ public interface AdminRepository extends JpaRepository<Admin, Long>, JpaSpecific
     @Modifying
     int updateAdminPasswordById(String password, Long id);
 
+    /**
+     * 更新google auth key
+     *
+     * @param googleAuthKey
+     * @param id
+     * @return
+     */
+    @Query(value = "update Admin  u set u.googleAuthKey = ?1 where u.id=?2")
+    @Modifying
+    int updateAdminGoogleAuthKeyById(String googleAuthKey, Long id);
+
 
 }

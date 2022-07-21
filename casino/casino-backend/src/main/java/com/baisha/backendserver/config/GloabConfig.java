@@ -1,6 +1,8 @@
 package com.baisha.backendserver.config;
 
-import com.baisha.backendserver.inteceptor.AuthenticationInteceptor;
+import com.baisha.backendserver.inteceptor.AuthenticationInterceptor;
+import com.baisha.backendserver.inteceptor.IpBlackCheckInterceptor;
+import com.baisha.backendserver.inteceptor.IpLimitInterceptor;
 import com.baisha.modulecommon.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -30,17 +32,25 @@ public class GloabConfig implements WebMvcConfigurer {
     }
 
     @Autowired
-    AuthenticationInteceptor authenticationInteceptor;
+    AuthenticationInterceptor authenticationInteceptor;
+
+    @Autowired
+    IpBlackCheckInterceptor ipBlackCheckInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authenticationInteceptor).addPathPatterns("/**")
+                .excludePathPatterns("/genGoogleAuthKey")
+                .excludePathPatterns("/resetPassword")
+                .excludePathPatterns("/googleAuthLogin")
                 .excludePathPatterns("/js/**")
                 .excludePathPatterns("/swagger**/**")
                 .excludePathPatterns("/webjars/**")
                 .excludePathPatterns("/v3/**")
                 .excludePathPatterns("imageView**/**")
                 .excludePathPatterns("/doc.html");
+
+        registry.addInterceptor(ipBlackCheckInterceptor).addPathPatterns("/login");
     }
 
     @Override

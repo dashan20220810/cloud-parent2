@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
-public abstract class AbstractIpBlackCheckInteceptor implements HandlerInterceptor {
+public abstract class AbstractIpLimitInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -19,7 +19,7 @@ public abstract class AbstractIpBlackCheckInteceptor implements HandlerIntercept
         if(url.contains("authenticationIpLimit")){
             return true;
         }
-        String ipRemark = ipBlackCheck(request);
+        String ipRemark = ipLimit(request);
         if(!ObjectUtils.isEmpty(ipRemark)){
             log.error("ip={}被封，原因:{},请求路径:{},token:{}", IpUtil.getIp(request),ipRemark,request.getRequestURI(),request.getHeader(Constants.AUTHORIZATION));
 //            ipRemark = URLEncoder.encode(ipRemark,"UTF-8");
@@ -39,6 +39,5 @@ public abstract class AbstractIpBlackCheckInteceptor implements HandlerIntercept
         HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
 
-    protected abstract String ipBlackCheck(HttpServletRequest request);
-
+    protected abstract String ipLimit(HttpServletRequest request);
 }
