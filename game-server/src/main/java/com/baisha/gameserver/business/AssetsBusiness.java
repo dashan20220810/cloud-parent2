@@ -35,6 +35,7 @@ public class AssetsBusiness {
 
     /**
      * 重新开牌-返水
+     *
      * @param userId
      * @param amount
      * @param relatedBetId
@@ -43,7 +44,7 @@ public class AssetsBusiness {
     @Async
     public String returnAmountReopen(Long userId, BigDecimal amount, Long relatedBetId) {
         String action = "呼叫返水api(重新开牌)";
-        Integer balanceChange = BalanceChangeEnum.RETURN_AMOUNT_REOPEN.getCode();
+        Integer balanceChange = BalanceChangeEnum.RETURN_REAMOUNT.getCode();
         String remarkComment = "返水(重新开牌)";
 
         return assets(userId, amount, relatedBetId, action, balanceChange, BalanceTypeEnum.INCOME.getCode(), remarkComment);
