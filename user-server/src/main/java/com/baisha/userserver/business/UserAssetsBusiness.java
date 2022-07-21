@@ -102,6 +102,7 @@ public class UserAssetsBusiness {
                             log.info("==重新开奖后 的 重新返水==");
                             //设置 改变类型
                             vo.setChangeType(BalanceChangeEnum.RETURN_REAMOUNT.getCode());
+                            vo.setRemark(isExist.getRemark() + "(重新返水)");
                             isExist = balanceChangeService.findByUserIdAndChangeTypeAndRelateId(
                                     user.getId(), BalanceChangeEnum.RETURN_REAMOUNT.getCode(), vo.getRelateId());
                         }

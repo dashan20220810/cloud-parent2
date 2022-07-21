@@ -69,7 +69,7 @@ public class TgGroupController {
     }
 
     @ApiOperation(value = "TG群下的投注机器人")
-    @GetMapping(value = "getBetBotByTgGroup")
+    @GetMapping(value = "getBetBotById")
     @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "主键ID", required = true, dataTypeClass = String.class)})
     public ResponseEntity getBetBotByTgGroup(Long id) {
         if (null == id) {
@@ -99,21 +99,10 @@ public class TgGroupController {
         if (null == arr || arr.length == 0) {
             return new ResponseEntity("请选择机器人");
         }
-        List<Long> tgBetBotIdsList = new ArrayList<>();
-        for (String tgBetBotId : arr) {
-            if (StringUtils.isNotEmpty(tgBetBotId)) {
-                tgBetBotId = tgBetBotId.trim();
-                tgBetBotIdsList.add(Long.parseLong(tgBetBotId));
-            }
-        }
-
-        if (CollectionUtils.isEmpty(tgBetBotIdsList)) {
-            return new ResponseEntity("没有选择机器人");
-        }
         String url = tgBotServerUrl + TgBotServerConstants.TGBETBOT_CONFIRMBIND;
         Map<String, Object> param = new HashMap<>(16);
         param.put("tgChatId", vo.getId());
-        param.put("tgBetBotIds", tgBetBotIdsList);
+        param.put("tgBetBotIds", vo.getTgBetBotIds());
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
             log.error("绑定机器人与群关系");
