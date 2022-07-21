@@ -50,7 +50,7 @@ public class BetVO implements Serializable {
     public static boolean checkRequest ( BetVO bet ) {
     	
     	if ( bet.getNoActive()==null ) {
-    		log.warn(" tableId required!! ");
+    		log.warn(" noActive required!! ");
     		return false;
     	}
 
