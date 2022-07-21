@@ -1,5 +1,6 @@
 package com.baisha.userserver.contrloller;
 
+import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.userserver.business.UserAssetsBusiness;
@@ -118,7 +119,13 @@ public class AssetsController {
             return new ResponseEntity("会员不存在");
         }
 
-        ResponseEntity res = userAssetsService.doBalanceBusiness(user, vo);
+        ResponseEntity res;
+        if (vo.getChangeType().equals(BalanceChangeEnum.RETURN_AMOUNT.getCode())) {
+            //反水可以多次，可以修改
+            res = userAssetsService.doAddBalanceBusiness(user, vo);
+        } else {
+            res = userAssetsService.doBalanceBusiness(user, vo);
+        }
         return res;
     }
 
