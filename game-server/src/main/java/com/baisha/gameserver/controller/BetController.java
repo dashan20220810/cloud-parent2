@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,11 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.baisha.gameserver.business.BetBusiness;
 import com.baisha.gameserver.model.Bet;
 import com.baisha.gameserver.model.BetStatistics;
 import com.baisha.gameserver.service.BetService;
 import com.baisha.gameserver.service.BetStatisticsService;
-import com.baisha.gameserver.util.enums.RedisPropEnum;
 import com.baisha.gameserver.vo.BetPageVO;
 import com.baisha.gameserver.vo.BetVO;
 import com.baisha.gameserver.vo.response.BetResponseVO;
@@ -28,7 +27,6 @@ import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.DateUtil;
 import com.baisha.modulecommon.util.PageUtil;
-import com.baisha.modulespringcacheredis.util.RedisUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -43,18 +41,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BetController {
 
-	
-    @Value("${project.game.return-amount-multiplier}")
-    private BigDecimal gameReturnAmountMultiplier;
-
-    @Autowired
-    private RedisUtil redisUtil;
 
     @Autowired
     BetService betService;
 
     @Autowired
     BetStatisticsService betStatisticsService;
+    
+    @Autowired
+    BetBusiness betBusiness;
 
     @PostMapping("bet")
     @ApiOperation("下注")
@@ -199,18 +194,8 @@ public class BetController {
             return ResponseUtil.custom("检核失败");
         }
         log.info("返水 betId: {}, userId: {}, tgChatId: {}", betId, userId, tgChatId);
-        BigDecimal returnAmount = BigDecimal.ZERO;
         Bet bet = betService.findById(betId);
-        
-        BigDecimal returnAmountMultiplier = redisUtil.getValue(RedisPropEnum.ReturnAmountMultiplier.getKey());
-        if (returnAmountMultiplier == null) {
-        	returnAmountMultiplier = gameReturnAmountMultiplier;
-        	redisUtil.setValue(RedisPropEnum.ReturnAmountMultiplier.getKey(), returnAmountMultiplier);
-        }
-        
-        returnAmount = returnAmountMultiplier.multiply(BigDecimal.valueOf(bet.getFlowAmount())).abs();
-        betStatisticsService.updateReturnAmount(userId, tgChatId, Integer.parseInt(DateUtil.today(DateUtil.YYYYMMDD)), returnAmount);
-        betService.updateReturnAmount(betId, returnAmount);
+        BigDecimal returnAmount = betBusiness.updateReturnAmount(bet);
         return ResponseUtil.success(returnAmount);
     }
     
