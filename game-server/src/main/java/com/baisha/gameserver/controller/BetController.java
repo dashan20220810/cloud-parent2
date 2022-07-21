@@ -208,7 +208,7 @@ public class BetController {
         	redisUtil.setValue(RedisPropEnum.ReturnAmountMultiplier.getKey(), returnAmountMultiplier);
         }
         
-        returnAmount = returnAmountMultiplier.multiply(bet.getWinAmount()).abs();
+        returnAmount = returnAmountMultiplier.multiply(BigDecimal.valueOf(bet.getFlowAmount())).abs();
         betStatisticsService.updateReturnAmount(userId, tgChatId, Integer.parseInt(DateUtil.today(DateUtil.YYYYMMDD)), returnAmount);
         betService.updateReturnAmount(betId, returnAmount);
         return ResponseUtil.success(returnAmount);
