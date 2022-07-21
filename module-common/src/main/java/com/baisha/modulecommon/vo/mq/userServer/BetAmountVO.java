@@ -42,5 +42,10 @@ public class BetAmountVO {
      */
     private String remark;
 
+    /**
+     * 余额改变类型
+     */
+    private Integer changeType;
+
 
 }

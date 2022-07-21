@@ -119,7 +119,7 @@ public class DirectReceiver {
         balanceVO.setBalanceType(UserServerConstants.EXPENSES);
         balanceVO.setAmount(vo.getAmount());
         balanceVO.setRelateId(vo.getBetId());
-        balanceVO.setChangeType(BalanceChangeEnum.BET_REOPEN.getCode());
+        balanceVO.setChangeType(vo.getChangeType());
         balanceVO.setRemark(vo.getRemark());
         rabbitBusiness.doUserSubtractBalance(user, balanceVO);
         log.info("====userSubtractAssets============END========================");
