@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.criteria.Predicate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,8 +49,10 @@ public class AssetsChangeController {
         if (null == vo.getUserId()) {
             return ResponseUtil.parameterNotNull();
         }
-        Sort sort = Sort.by(Sort.Direction.DESC, "updateTime");
-        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), sort);
+        List<Sort.Order> orders = new ArrayList<>();
+        orders.add(new Sort.Order(Sort.Direction.DESC, "id"));
+        orders.add(new Sort.Order(Sort.Direction.DESC, "updateTime"));
+        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), Sort.by(orders));
         Specification<BalanceChange> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             predicates.add(cb.equal(root.get("userId"), vo.getUserId()));
@@ -79,7 +82,11 @@ public class AssetsChangeController {
         if (null == vo.getUserId()) {
             return ResponseUtil.parameterNotNull();
         }
-        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), Sort.by(Sort.Direction.DESC, "updateTime"));
+        List<Sort.Order> orders = new ArrayList<>();
+        orders.add(new Sort.Order(Sort.Direction.DESC, "id"));
+        orders.add(new Sort.Order(Sort.Direction.DESC, "updateTime"));
+
+        Pageable pageable = UserServerUtil.setPageable(vo.getPageNumber(), vo.getPageSize(), Sort.by(orders));
         Specification<PlayMoneyChange> spec = (root, query, cb) -> {
             List<Predicate> predicates = new LinkedList<>();
             predicates.add(cb.equal(root.get("userId"), vo.getUserId()));

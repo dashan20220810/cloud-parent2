@@ -50,9 +50,9 @@ public class SsOrder extends BaseEntity {
     @Column(columnDefinition = "tinyint(2) comment '调整类型'")
     private Integer adjustmentType;
 
-    @ApiModelProperty(value = "流水倍数 >=0 整数(1-3位)")
-    @Column(columnDefinition = "tinyint(4) comment '流水倍数'")
-    private Integer flowMultiple;
+    @ApiModelProperty(value = "流水倍数 >=0 整数(0-10位)")
+    @Column(columnDefinition = "decimal(16,2) comment '流水倍数'")
+    private BigDecimal flowMultiple;
 
     @ApiModelProperty(value = "附件key")
     @Column(columnDefinition = "varchar(100) comment '附件key'")

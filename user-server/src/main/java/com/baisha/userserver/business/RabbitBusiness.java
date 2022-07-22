@@ -17,7 +17,7 @@ public class RabbitBusiness {
     @Autowired
     private UserAssetsBusiness userAssetsBusiness;
 
-    @Async(value = "asyncExecutor")
+    //@Async(value = "asyncExecutor")
     public void doUserBalance(User user, BalanceVO balanceVO) {
         if (BalanceChangeEnum.BET_REWIN.getCode().equals(balanceVO.getChangeType())) {
             //支持多次重新开奖
@@ -28,7 +28,7 @@ public class RabbitBusiness {
         }
     }
 
-    @Async(value = "asyncExecutor")
+    //@Async(value = "asyncExecutor")
     public void doUserPlayMoney(User user, PlayMoneyVO playMoneyVO) {
         if (PlayMoneyChangeEnum.SETTLEMENT_REOPEN.getCode().equals(playMoneyVO.getChangeType())) {
             //支持多次重新开奖
@@ -39,12 +39,12 @@ public class RabbitBusiness {
         }
     }
 
-    @Async(value = "asyncExecutor")
+    //@Async(value = "asyncExecutor")
     public void doUserSubtractBalance(User user, BalanceVO balanceVO) {
         userAssetsBusiness.doSubtractBalanceBusiness(user, balanceVO);
     }
 
-    @Async(value = "asyncExecutor")
+    //@Async(value = "asyncExecutor")
     public void doUserAddPlayMoney(User user, PlayMoneyVO playMoneyVO) {
         userAssetsBusiness.doUserAddPlayMoneyBusiness(user, playMoneyVO);
     }
