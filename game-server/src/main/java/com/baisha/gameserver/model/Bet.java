@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -24,6 +25,7 @@ import java.util.Date;
 @Entity
 @Table(name = "Bet", indexes = {@Index(columnList = "no_active"), @Index(columnList = "status"), @Index(columnList = "user_id")})
 @ApiModel(value = "GS-Bet对象", description = "注单")
+@Slf4j
 public class Bet extends BaseEntity {
 
     private static final long serialVersionUID = -843697330512478843L;
@@ -127,10 +129,12 @@ public class Bet extends BaseEntity {
     public static boolean checkRequest(Bet bet) {
 
         if (bet.getUserId() == null) {
+        	log.warn(" user id required ");
             return false;
         }
 
         if (StringUtils.isBlank(bet.getUserName())) {
+        	log.warn(" user name required ");
             return false;
         }
 
@@ -139,18 +143,22 @@ public class Bet extends BaseEntity {
 //        }
 
         if ((bet.getAmountH() + bet.getAmountSs() + bet.getAmountX() + bet.getAmountXd() + bet.getAmountZ() + bet.getAmountZd()) <= 0L) {
+        	log.warn(" amount required ");
             return false;
         }
 
         if (StringUtils.isBlank(bet.getNoRun())) {
+        	log.warn(" noRun required ");
             return false;
         }
 
         if (StringUtils.isBlank(bet.getNoActive())) {
+        	log.warn(" noActive required ");
             return false;
         }
 
         if (StringUtils.isBlank(bet.getClientIP())) {
+        	log.warn(" client ip required ");
             return false;
         }
 
@@ -170,14 +178,17 @@ public class Bet extends BaseEntity {
         }
 
         if (StringUtils.isBlank(bet.getOrderNo())) {
+        	log.warn(" order no required ");
             return false;
         }
 
         if (bet.getStatus() == null) {
+        	log.warn(" status required ");
             return false;
         }
 
         if (isTgRequest && bet.getTgChatId() == null) {
+        	log.warn(" tg chat id required ");
             return false;
         }
 
