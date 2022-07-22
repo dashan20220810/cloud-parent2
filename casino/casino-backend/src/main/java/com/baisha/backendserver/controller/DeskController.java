@@ -337,7 +337,7 @@ public class DeskController {
             return true;
         }
         Integer ZERO = 0;
-        if (max.compareTo(ZERO) < 0 || min.compareTo(min) < 0) {
+        if (max.compareTo(ZERO) <= 0 || min.compareTo(ZERO) <= 0) {
             return true;
         }
         if (min.compareTo(max) >= 0) {
