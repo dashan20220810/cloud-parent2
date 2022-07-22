@@ -56,7 +56,7 @@ public class AdminController {
     public ResponseEntity addAdmin(AdminAddVO vo) {
 
         Admin currentUser = commonService.getCurrentUser();
-        if (!currentUser.equals(superAdmin)){
+        if (!currentUser.getUserName().equals(superAdmin)){
             return ResponseUtil.authorizationNopass();
         }
         if (Admin.checkUserName(vo.getUserName())) {
@@ -217,7 +217,7 @@ public class AdminController {
     public ResponseEntity manageAccount(AdminUpdateVO vo) {
 
         Admin currentUser = commonService.getCurrentUser();
-        if (!currentUser.equals(superAdmin)){
+        if (!currentUser.getUserName().equals(superAdmin)){
             return ResponseUtil.authorizationNopass();
         }
 
