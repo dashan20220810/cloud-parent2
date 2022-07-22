@@ -234,12 +234,15 @@ public class AdminController {
         if (! GoogleAuthUtil.check_code(currentUser.getGoogleAuthKey(), vo.getAuthCode())){
             return new ResponseEntity("谷歌验证失敗");
         }
-
+        Admin user = adminService.findAdminById(vo.getId());
         Admin admin = new Admin();
+
         BeanUtils.copyProperties(vo, admin);
         admin.setPassword(BackendServerUtil.bcrypt(vo.getPassword()));
+        admin.setGoogleAuthKey(user.getGoogleAuthKey());
         admin.setCreateBy(currentUser.getUserName());
         admin.setUpdateBy(currentUser.getUserName());
+        admin.setGoogleAuthKey(currentUser.getGoogleAuthKey());
 
         admin = adminService.save(admin);
         if (Objects.isNull(admin)) {
