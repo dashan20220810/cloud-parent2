@@ -18,7 +18,7 @@ import java.util.TimeZone;
 public class UserServerApplication {
 
     public static void main(String[] args) {
-        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Bangkok"));
         SpringApplication.run(UserServerApplication.class, args);
     }
 

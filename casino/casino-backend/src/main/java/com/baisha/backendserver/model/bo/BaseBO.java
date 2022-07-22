@@ -13,12 +13,12 @@ public class BaseBO {
 
     @ApiModelProperty(value = "ID")
     private Long id;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
     @ApiModelProperty(value = "创建人")
     private String createBy;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "更新时间")
     private Date updateTime;
     @ApiModelProperty(value = "更新人")

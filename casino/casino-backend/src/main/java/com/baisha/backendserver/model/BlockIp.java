@@ -35,7 +35,7 @@ public class BlockIp  extends BaseEntity{
     private Integer status;
 
     @LastModifiedDate
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
 }
