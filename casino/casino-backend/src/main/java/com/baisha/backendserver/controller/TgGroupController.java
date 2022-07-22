@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baisha.backendserver.business.CommonBusiness;
+import com.baisha.backendserver.model.bo.tgGroup.TgGroupBindsBO;
 import com.baisha.backendserver.model.bo.tgGroup.TgGroupManagePageBO;
 import com.baisha.backendserver.model.vo.PageVO;
 import com.baisha.backendserver.model.vo.tgGroup.TgGroupBindVO;
@@ -28,7 +29,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author yihui
@@ -71,7 +75,7 @@ public class TgGroupController {
     @ApiOperation(value = "TG群下的投注机器人")
     @GetMapping(value = "getBetBotById")
     @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "主键ID", required = true, dataTypeClass = String.class)})
-    public ResponseEntity getBetBotByTgGroup(Long id) {
+    public ResponseEntity<List<TgGroupBindsBO>> getBetBotByTgGroup(Long id) {
         if (null == id) {
             return ResponseUtil.parameterNotNull();
         }

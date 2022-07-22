@@ -7,10 +7,8 @@ import com.baisha.backendserver.business.CommonBusiness;
 import com.baisha.backendserver.business.PlayMoneyBusiness;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.BetStatistics;
-import com.baisha.backendserver.model.bo.desk.DeskListBO;
 import com.baisha.backendserver.model.bo.order.SsOrderAddBO;
 import com.baisha.backendserver.model.bo.sys.SysPlayMoneyParameterBO;
-import com.baisha.backendserver.model.bo.tgBot.TgGroupPageBO;
 import com.baisha.backendserver.model.bo.user.*;
 import com.baisha.backendserver.model.vo.IdVO;
 import com.baisha.backendserver.model.vo.order.SsOrderAddVO;
@@ -20,7 +18,6 @@ import com.baisha.backendserver.util.BackendServerUtil;
 import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
-import com.baisha.modulecommon.enums.BetOption;
 import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
 import com.baisha.modulecommon.enums.order.OrderStatusEnum;
 import com.baisha.modulecommon.enums.order.OrderTypeEnum;
@@ -520,8 +517,19 @@ public class UserController {
     public ResponseEntity<List<ChangeTypeNameBO>> getBalanceChangeType() {
         return ResponseUtil.success(BalanceChangeEnum.getList()
                 .stream()
-                .map(option -> ChangeTypeNameBO.builder().changeType(option.getCode())
-                        .changeTypeName(option.getName()).build()).collect(Collectors.toList()));
+                .map(option -> {
+                            ChangeTypeNameBO bo = null;
+                            //现在没做重新开奖，所以后面的不显示
+                            int code = option.getCode().intValue();
+                            //强制小于
+                            int maxNum = 6;
+                            if (code < maxNum) {
+                                bo = ChangeTypeNameBO.builder().changeType(option.getCode())
+                                        .changeTypeName(option.getName()).build();
+                            }
+                            return bo;
+                        }
+                ).filter(option -> Objects.nonNull(option)).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "playMoneyChangeType")
@@ -529,8 +537,19 @@ public class UserController {
     public ResponseEntity<List<ChangeTypeNameBO>> getPlayMoneyChangeType() {
         return ResponseUtil.success(PlayMoneyChangeEnum.getList()
                 .stream()
-                .map(option -> ChangeTypeNameBO.builder().changeType(option.getCode())
-                        .changeTypeName(option.getName()).build()).collect(Collectors.toList()));
+                .map(option -> {
+                            ChangeTypeNameBO bo = null;
+                            //现在没做重新开奖，所以后面的不显示
+                            int code = option.getCode().intValue();
+                            //强制小于
+                            int maxNum = 3;
+                            if (code < maxNum) {
+                                bo = ChangeTypeNameBO.builder().changeType(option.getCode())
+                                        .changeTypeName(option.getName()).build();
+                            }
+                            return bo;
+                        }
+                ).filter(option -> Objects.nonNull(option)).collect(Collectors.toList()));
     }
 
 
