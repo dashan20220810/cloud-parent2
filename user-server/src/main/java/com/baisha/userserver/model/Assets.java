@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.annotation.Version;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,5 +38,8 @@ public class Assets extends BaseEntity {
     @Column(columnDefinition = "decimal(16,2) comment '打码量'")
     private BigDecimal playMoney = BigDecimal.ZERO;
 
+    @Version
+    @Column(name = "version")
+    private Integer version = 1;
 
 }

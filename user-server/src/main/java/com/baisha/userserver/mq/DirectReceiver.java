@@ -5,7 +5,6 @@ import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.MqConstants;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
-import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.vo.mq.userServer.BetAmountVO;
 import com.baisha.modulecommon.vo.mq.userServer.BetSettleUserVO;
 import com.baisha.modulecommon.vo.mq.userServer.PlayMoneyAmountVO;
@@ -18,13 +17,10 @@ import com.baisha.userserver.util.constants.UserServerConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -74,7 +70,10 @@ public class DirectReceiver {
             } else {
                 playMoneyVO.setChangeType(PlayMoneyChangeEnum.SETTLEMENT.getCode());
             }
-            rabbitBusiness.doUserPlayMoney(user, playMoneyVO);
+            //同一个人，同步
+            synchronized (user.getId() + UserServerConstants.PLAYMONEY) {
+                rabbitBusiness.doUserPlayMoney(user, playMoneyVO);
+            }
         }
 
         if (vo.getFinalAmount().compareTo(BigDecimal.ZERO) > 0) {
@@ -89,7 +88,11 @@ public class DirectReceiver {
                 balanceVO.setChangeType(BalanceChangeEnum.WIN.getCode());
             }
             balanceVO.setRemark("会员" + "在局号为" + vo.getNoActive() + "中奖");
-            rabbitBusiness.doUserBalance(user, balanceVO);
+            //同一个人，同步
+            synchronized (user.getId() + UserServerConstants.BALANCE) {
+                rabbitBusiness.doUserBalance(user, balanceVO);
+            }
+
         }
         log.info("====betSettlementAward============END========================");
     }
@@ -126,7 +129,10 @@ public class DirectReceiver {
         balanceVO.setRelateId(vo.getBetId());
         balanceVO.setChangeType(vo.getChangeType());
         balanceVO.setRemark(vo.getRemark());
-        rabbitBusiness.doUserSubtractBalance(user, balanceVO);
+        //同一个人，同步
+        synchronized (user.getId() + UserServerConstants.BALANCE) {
+            rabbitBusiness.doUserSubtractBalance(user, balanceVO);
+        }
         log.info("====userSubtractAssets============END========================");
     }
 
@@ -162,7 +168,10 @@ public class DirectReceiver {
         playMoneyVO.setRelateId(vo.getBetId());
         playMoneyVO.setChangeType(vo.getChangeType());
         playMoneyVO.setRemark(vo.getRemark());
-        rabbitBusiness.doUserAddPlayMoney(user, playMoneyVO);
+        //同一个人，同步
+        synchronized (user.getId() + UserServerConstants.PLAYMONEY) {
+            rabbitBusiness.doUserAddPlayMoney(user, playMoneyVO);
+        }
         log.info("====userAddPlayMoneyAssets============END========================");
     }
 

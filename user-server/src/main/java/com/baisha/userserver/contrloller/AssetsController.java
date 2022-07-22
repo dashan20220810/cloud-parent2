@@ -15,6 +15,7 @@ import com.baisha.userserver.model.vo.balance.BalanceVO;
 import com.baisha.userserver.model.vo.balance.PlayMoneyVO;
 import com.baisha.userserver.model.vo.user.UserTgIdVO;
 import com.baisha.userserver.service.UserService;
+import com.baisha.userserver.util.constants.UserServerConstants;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -118,13 +119,15 @@ public class AssetsController {
         if (Objects.isNull(user)) {
             return new ResponseEntity("会员不存在");
         }
-
         ResponseEntity res;
-        if (vo.getChangeType().equals(BalanceChangeEnum.RETURN_REAMOUNT.getCode())) {
-            //因为重新开牌后，返水 被扣除，就会有重新返水
-            res = userAssetsService.doAddBalanceBusiness(user, vo);
-        } else {
-            res = userAssetsService.doBalanceBusiness(user, vo);
+        //同一个人，同步
+        synchronized (user.getId() + UserServerConstants.BALANCE) {
+            if (vo.getChangeType().equals(BalanceChangeEnum.RETURN_REAMOUNT.getCode())) {
+                //因为重新开牌后，返水 被扣除，就会有重新返水
+                res = userAssetsService.doAddBalanceBusiness(user, vo);
+            } else {
+                res = userAssetsService.doBalanceBusiness(user, vo);
+            }
         }
         return res;
     }
@@ -146,8 +149,11 @@ public class AssetsController {
         if (Objects.isNull(user)) {
             return new ResponseEntity("会员不存在");
         }
-
-        ResponseEntity res = userAssetsService.doPlayMoneyBusiness(user, vo);
+        ResponseEntity res;
+        //同一个人，同步
+        synchronized (user.getId() + UserServerConstants.PLAYMONEY) {
+            res = userAssetsService.doPlayMoneyBusiness(user, vo);
+        }
         return res;
     }
 
