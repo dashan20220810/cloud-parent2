@@ -74,19 +74,12 @@ public class CommandBusiness {
             return;
         }
         //3.1。  找出机器人实例
-        TgBot tgBot = tgBotService.findById(tgChat.getBotId());
-        if (tgBot == null) {
-            return;
-        }
-        MyTelegramLongPollingBot myBot = ControlBotBusiness.myBotMap.get(tgBot.getBotName());
+        MyTelegramLongPollingBot myBot = ControlBotBusiness.myBotMap.get(tgChat.getBotName());
         if (myBot == null) {
             return;
         }
         // TG群-全员解禁
         this.unmuteAllUser(tgChat, myBot);
-
-        String message = this.buildStartMessage(vo.getBureauNum(), tgChat.getMinAmount() + "",
-                tgChat.getMaxAmount() + "", tgChat.getMaxShoeAmount() + "");
 
         //3.3： 每个桌台推送开局消息
         // 倒计时视频
@@ -97,6 +90,8 @@ public class CommandBusiness {
                 log.error("[开始新局]======根据URL获取视频流-异常,视频地址:{}", countdownAddress);
             }
         }
+        String message = this.buildStartMessage(vo.getBureauNum(), tgChat.getMinAmount() + "",
+                tgChat.getMaxAmount() + "", tgChat.getMaxShoeAmount() + "");
         myBot.sendMessage(message, tgChat.getChatId()+"");
         redisUtil.set(tgChat.getId()+"123", 0);
     }
