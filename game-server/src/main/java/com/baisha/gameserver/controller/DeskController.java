@@ -2,6 +2,7 @@ package com.baisha.gameserver.controller;
 
 import java.util.List;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -104,7 +105,16 @@ public class DeskController {
         try {
         	deskService.save(desk);
         } catch (Exception e) {
-        	return ResponseUtil.fail();
+        	log.error(e.getMessage(), e);
+        	if (e.getCause() instanceof ConstraintViolationException) {
+        		String eMsg = e.getCause().getCause().getMessage();
+        		if ( eMsg.contains(deskVO.getLocalIp()) ) {
+            		return ResponseUtil.custom("内网IP已占用");
+        		} else {
+            		return ResponseUtil.custom(eMsg);
+        		}
+        	}
+    		return ResponseUtil.fail();
         }
 
         log.info("[桌台新增] 成功!");
@@ -161,7 +171,16 @@ public class DeskController {
             deskService.update(deskId, deskVO.getLocalIp(), deskVO.getVideoAddress(), deskVO.getNearVideoAddress()
                     , deskVO.getCloseVideoAddress(), deskVO.getGameCode(), deskVO.getStatus(), deskVO.getName());
         } catch (Exception e) {
-        	return ResponseUtil.fail();
+        	log.error(e.getMessage(), e);
+        	if (e.getCause() instanceof ConstraintViolationException) {
+        		String eMsg = e.getCause().getCause().getMessage();
+        		if ( eMsg.contains(deskVO.getLocalIp()) ) {
+            		return ResponseUtil.custom("内网IP已占用");
+        		} else {
+            		return ResponseUtil.custom(eMsg);
+        		}
+        	}
+    		return ResponseUtil.fail();
         }
 
         log.info("[桌台更新] 成功!");
