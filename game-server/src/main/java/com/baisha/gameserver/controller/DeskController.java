@@ -101,7 +101,11 @@ public class DeskController {
             return ResponseUtil.fail();
         }
 
-        deskService.save(desk);
+        try {
+        	deskService.save(desk);
+        } catch (Exception e) {
+        	return ResponseUtil.fail();
+        }
 
         log.info("[桌台新增] 成功!");
         return ResponseUtil.success();
@@ -153,8 +157,12 @@ public class DeskController {
             return ResponseUtil.fail();
         }
 
-        deskService.update(deskId, deskVO.getLocalIp(), deskVO.getVideoAddress(), deskVO.getNearVideoAddress()
-                , deskVO.getCloseVideoAddress(), deskVO.getGameCode(), deskVO.getStatus(), deskVO.getName());
+        try {
+            deskService.update(deskId, deskVO.getLocalIp(), deskVO.getVideoAddress(), deskVO.getNearVideoAddress()
+                    , deskVO.getCloseVideoAddress(), deskVO.getGameCode(), deskVO.getStatus(), deskVO.getName());
+        } catch (Exception e) {
+        	return ResponseUtil.fail();
+        }
 
         log.info("[桌台更新] 成功!");
         return ResponseUtil.success();
