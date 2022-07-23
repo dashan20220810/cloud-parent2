@@ -191,7 +191,7 @@ public class LoginController {
         }
         //更新新密码
         adminService.updateAuthKeyAndPasswordById(vo.getGoogleAuthKey(),vo.getNewPassword(), vo.getId());
-        log.info("{}重置管理员密码id={}", admin.getUserName(), vo.getId());
+        log.info("{} 重置管理员密码與google驗證, 管理員id={}", admin.getUserName(), vo.getId());
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(String.valueOf(admin.getId()));
         subject.setBcryptPassword(admin.getPassword());
