@@ -190,7 +190,7 @@ public class LoginController {
             return new ResponseEntity("google 驗證不通過");
         }
         //更新新密码
-        adminService.updateAuthKeyAndPasswordById(vo.getGoogleAuthKey(),vo.getNewPassword(), vo.getId());
+        adminService.updateAuthKeyAndPasswordById(vo.getGoogleAuthKey(),BackendServerUtil.bcrypt(vo.getNewPassword()), vo.getId());
         log.info("{} 重置管理员密码與google驗證, 管理員id={}", admin.getUserName(), vo.getId());
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(String.valueOf(admin.getId()));
