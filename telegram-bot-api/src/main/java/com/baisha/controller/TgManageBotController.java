@@ -57,15 +57,20 @@ public class TgManageBotController {
             return ResponseUtil.custom("机器人启动失败，请联系技术处理");
         }
 
-        // 启动机器人成功，更新
-        TgBot tgBot = tgBotService.findByBotName(username);
-        if (ObjectUtils.isEmpty(tgBot) || StringUtils.isEmpty(tgBot.getBotName())) {
-            // 新增
-            tgBot = new TgBot();
-            tgBot.setBotName(username)
-                    .setBotToken(token);
+        // 保存对象
+        TgBot tgBotByName = tgBotService.findByBotName(username);
+        if (null != tgBotByName) {
+            return ResponseUtil.custom("机器人名称已存在");
         }
-        tgBot.setStatus(Constants.open);
+        TgBot tgBotByToken = tgBotService.findByBotToken(token);
+        if (null != tgBotByToken) {
+            return ResponseUtil.custom("Token已存在");
+        }
+        // 新增
+        TgBot tgBot = new TgBot();
+        tgBot.setBotName(username)
+             .setBotToken(token)
+             .setStatus(Constants.open);
         tgBotService.save(tgBot);
 
         return ResponseUtil.success();
@@ -87,7 +92,7 @@ public class TgManageBotController {
         if (CommonUtil.checkNull(id.toString(), status.toString())) {
             return ResponseUtil.parameterNotNull();
         }
-        // 更新BotSession
+        // 更新BotSession-异步执行
         tgBotBusiness.updateBotSession(id, status);
         // 更新状态
         tgBotService.updateStatusById(id, status);
@@ -103,10 +108,7 @@ public class TgManageBotController {
         }
         TgBot tgBot = tgBotService.findById(id);
         // 停止机器人
-        BotSession botSession = controlBotBusiness.getBotSession(tgBot.getBotName());
-        if (botSession != null && botSession.isRunning()) {
-            botSession.stop();
-        }
+        controlBotBusiness.shutdownBot(tgBot.getBotName());
         // 删除MAP
         controlBotBusiness.botSessionMap.remove(tgBot.getBotName());
 

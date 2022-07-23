@@ -1,7 +1,10 @@
 package com.baisha.controller;
 
+import com.baisha.business.TgChatBusiness;
 import com.baisha.model.TgChat;
 import com.baisha.model.vo.AuditVo;
+import com.baisha.model.vo.ConfirmBindVO;
+import com.baisha.model.vo.TgChatBetBotBindingVO;
 import com.baisha.modulecommon.Constants;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -22,10 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Api(tags = "TG群组管理")
 @RestController
 @RequestMapping("tgChat")
-@Api(tags = "tg群组管理")
 public class TgChatController {
+
+    @Autowired
+    TgChatBusiness tgChatBusiness;
 
     @Autowired
     TgChatService tgChatService;
@@ -101,5 +107,29 @@ public class TgChatController {
     @GetMapping("findByTableId")
     public ResponseEntity findByTableId(Long tableId) {
         return ResponseUtil.success(tgChatService.findByTableId(tableId));
+    }
+
+//    ====================群管理====================
+    @ApiOperation("点击绑定")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "tgChatId", value = "TgChat对象-主键", required = true),
+    })
+    @GetMapping("findRelationByTgChatId")
+    public ResponseEntity<List<TgChatBetBotBindingVO>> findRelationByTgChatId(Long tgChatId) {
+        // 验证参数有效性
+        if (null == tgChatId) {
+            return ResponseUtil.parameterNotNull();
+        }
+        return ResponseUtil.success(tgChatBusiness.findRelationByTgChatId(tgChatId));
+    }
+
+    @ApiOperation("确定绑定")
+    @PostMapping("confirmBind")
+    public ResponseEntity<Boolean> confirmBind(ConfirmBindVO confirmBindVO) throws IllegalAccessException {
+        // 验证参数有效性
+        if (!ConfirmBindVO.check(confirmBindVO)) {
+            return ResponseUtil.parameterNotNull();
+        }
+        return ResponseUtil.success(tgChatBusiness.confirmBind(confirmBindVO.getTgChatId(), confirmBindVO.getTgBetBotIds()));
     }
 }
