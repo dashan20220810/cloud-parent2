@@ -29,14 +29,14 @@ public class UserAssetsBO extends BaseBO {
     @ApiModelProperty(value = "余额")
     private BigDecimal balance;
 
-    //@ApiModelProperty(value = "冻结余额")
-    //private BigDecimal freezeAmount;
-
     @ApiModelProperty(value = "打码量")
     private BigDecimal playMoney;
 
     @ApiModelProperty(value = "用户类型")
     private Integer userType;
+
+    @ApiModelProperty(value = "用户类型名称")
+    private String userTypeName;
 
 
 }

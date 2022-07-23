@@ -4,14 +4,19 @@ server:
 #应用接口
 url:
   userServer: http://192.168.26.23:9300
-  gameServer: http://192.168.26.23:9500
-  tgBotServer: http://192.168.26.12:9000
+  gameServer: http://192.168.26.18:9500
+  tgBotServer: http://192.168.26.38:9000
   fileServer: http://192.168.26.26:9700
 
 project:
   title: 管理后台
   swagger:
     enable: true
+
+admin:
+  account: superAdmin
+  password: suki1107
+  authKey: CB7EMCSISOTQNX7E
 
 logging:
   level:
@@ -24,12 +29,12 @@ spring:
       password: baisha
   jpa:
     database: mysql
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
   datasource:
-    url: jdbc:mysql://192.168.26.26:3306/cloud_manage?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://192.168.26.26:3306/cloud_manage?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Bangkok
     username: cloud
     password: 12qw!@QW
     driver-class-name: com.mysql.cj.jdbc.Driver

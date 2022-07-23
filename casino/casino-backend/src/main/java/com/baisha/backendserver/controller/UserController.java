@@ -174,8 +174,15 @@ public class UserController {
     @ApiOperation(value = "用户充值")
     @PostMapping("increaseBalance")
     public ResponseEntity increaseBalance(BalanceVO vo) {
-        if (null == vo.getId() || vo.getId() < 0 || null == vo.getAmount() || vo.getAmount() <= 0) {
+        if (null == vo.getId() || vo.getId() < 0
+                || null == vo.getAdjustmentType()
+                || StringUtils.isEmpty(vo.getTgUserId())
+                || null == vo.getAmount() || vo.getAmount() <= 0) {
             return ResponseUtil.parameterNotNull();
+        }
+        if (null == vo.getFlowMultiple() || vo.getFlowMultiple().compareTo(BigDecimal.ZERO) < 0
+                || vo.getFlowMultiple().compareTo(new BigDecimal("100")) > 0) {
+            return new ResponseEntity("流水倍数不规范");
         }
         if (BackendServerUtil.checkIntAmount(vo.getAmount())) {
             return new ResponseEntity("金额不规范");
@@ -200,21 +207,17 @@ public class UserController {
             log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
                     currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加余额成功", BackendConstants.USER_ASSETS_MODULE);
             //充值余额成功过后，在增加打码量
-            SysPlayMoneyParameterBO sysPlayMoneyParameterBO = playMoneyService.getSysPlayMoney();
-            BigDecimal recharge = sysPlayMoneyParameterBO.getRecharge();
-            if (recharge.compareTo(BigDecimal.ZERO) > 0) {
-                //获取充值打码量倍率 充值增加打码量
-                PlayMoneyVO playMoneyVO = new PlayMoneyVO();
-                playMoneyVO.setPlayMoneyType(BackendConstants.INCOME);
-                playMoneyVO.setId(vo.getId());
-                playMoneyVO.setRemark(vo.getRemark());
-                playMoneyVO.setAmount(BigDecimal.valueOf(vo.getAmount().longValue()).multiply(recharge));
-                ResponseEntity playMoneyResponseEntity = doIncomePlayMoney(playMoneyVO, orderId);
-                if (playMoneyResponseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
-                    log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
-                            currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加打码量成功", BackendConstants.USER_ASSETS_MODULE);
-                    return ResponseUtil.success();
-                }
+            //获取充值打码量倍率  流水倍数  充值增加打码量
+            PlayMoneyVO playMoneyVO = new PlayMoneyVO();
+            playMoneyVO.setPlayMoneyType(BackendConstants.INCOME);
+            playMoneyVO.setId(vo.getId());
+            playMoneyVO.setRemark(vo.getRemark());
+            playMoneyVO.setAmount(BigDecimal.valueOf(vo.getAmount().longValue()).multiply(vo.getFlowMultiple()));
+            ResponseEntity playMoneyResponseEntity = doIncomePlayMoney(playMoneyVO, orderId);
+            if (playMoneyResponseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
+                log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                        currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加打码量成功", BackendConstants.USER_ASSETS_MODULE);
+                return ResponseUtil.success();
             }
 
         } else {
@@ -249,11 +252,19 @@ public class UserController {
 
     private SsOrderAddVO chargeOrder(BalanceVO vo, Admin currentUser) {
         SsOrderAddVO ssOrder = new SsOrderAddVO();
-        ssOrder.setUserId(vo.getId());
         ssOrder.setOrderType(OrderTypeEnum.CHARGE_ORDER.getCode());
         ssOrder.setOrderStatus(OrderStatusEnum.ORDER_SUCCESS.getCode());
+        ssOrder.setUserId(vo.getId());
+        ssOrder.setTgUserId(vo.getTgUserId());
         ssOrder.setAmount(new BigDecimal(vo.getAmount().intValue()));
-        ssOrder.setRemark(currentUser.getUserName() + "为用户userId=" + vo.getId() + "充值" + vo.getAmount());
+        ssOrder.setFlowMultiple(vo.getFlowMultiple());
+        ssOrder.setAdjustmentType(vo.getAdjustmentType());
+        ssOrder.setFileKey(vo.getFileKey());
+        if (StringUtils.isEmpty(vo.getRemark())) {
+            ssOrder.setRemark(currentUser.getUserName() + "为用户userId=" + vo.getId() + "充值" + vo.getAmount());
+        } else {
+            ssOrder.setRemark(vo.getRemark());
+        }
         return ssOrder;
     }
 
@@ -293,7 +304,7 @@ public class UserController {
 
     @ApiOperation(value = "用户下分")
     @PostMapping("reduceBalance")
-    public ResponseEntity reduceBalance(BalanceVO vo) {
+    public ResponseEntity reduceBalance(BalanceSubVO vo) {
         if (null == vo.getId() || vo.getId() < 0 || null == vo.getAmount() || vo.getAmount() <= 0) {
             return ResponseUtil.parameterNotNull();
         }
@@ -353,13 +364,20 @@ public class UserController {
         return responseEntity;
     }
 
-    private SsOrderAddVO createWithdrawOrder(BalanceVO vo, Admin currentUser, UserAssetsBO userAssetsBO) {
+    private SsOrderAddVO createWithdrawOrder(BalanceSubVO vo, Admin currentUser, UserAssetsBO userAssetsBO) {
         SsOrderAddVO ssOrder = new SsOrderAddVO();
-        ssOrder.setUserId(vo.getId());
         ssOrder.setOrderType(OrderTypeEnum.WITHDRAW_ORDER.getCode());
         ssOrder.setOrderStatus(OrderStatusEnum.ORDER_SUCCESS.getCode());
+        ssOrder.setUserId(vo.getId());
+        ssOrder.setTgUserId(vo.getTgUserId());
         ssOrder.setAmount(new BigDecimal(vo.getAmount().intValue()));
-        ssOrder.setRemark(currentUser.getUserName() + "为用户" + userAssetsBO.getUserName() + "提现" + vo.getAmount());
+        ssOrder.setAdjustmentType(vo.getAdjustmentType());
+        ssOrder.setFileKey(vo.getFileKey());
+        if (StringUtils.isEmpty(vo.getRemark())) {
+            ssOrder.setRemark(currentUser.getUserName() + "为用户" + userAssetsBO.getUserName() + "提现" + vo.getAmount());
+        } else {
+            ssOrder.setRemark(vo.getRemark());
+        }
         return ssOrder;
     }
 

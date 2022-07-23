@@ -18,6 +18,7 @@ import com.baisha.modulecommon.enums.order.OrderAdjustmentTypeEnum;
 import com.baisha.modulecommon.enums.order.OrderAdjustmentTypeTxEnum;
 import com.baisha.modulecommon.enums.order.OrderStatusEnum;
 import com.baisha.modulecommon.enums.order.OrderTypeEnum;
+import com.baisha.modulecommon.enums.user.UserTypeEnum;
 import com.baisha.modulecommon.reponse.ResponseCode;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
@@ -51,33 +52,53 @@ public class UserAssetsController {
     private CommonBusiness commonService;
 
 
-    @ApiOperation(value = "用户个人资产")
+    @ApiOperation(value = "用户个人信息资产")
     @GetMapping("findAssetsTgUserId")
     public ResponseEntity<UserAssetsBO> findAssetsTgUserId(TgUserVO vo) {
         if (StringUtils.isEmpty(vo.getTgUserId())) {
             return ResponseUtil.parameterNotNull();
         }
-        return findAssetsTgUserId(vo.getTgUserId());
+        UserAssetsBO bo = findAssetsTgUserId(vo.getTgUserId());
+        if (Objects.nonNull(bo)) {
+            return ResponseUtil.success(bo);
+        }
+        return ResponseUtil.fail();
     }
 
-    private ResponseEntity<UserAssetsBO> findAssetsTgUserId(String tgUserId) {
+    private UserAssetsBO findAssetsTgUserId(String tgUserId) {
         String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_BYTGUSERID + "?tgUserId=" + tgUserId;
         String result = HttpClient4Util.doGet(url);
         if (CommonUtil.checkNull(result)) {
-            return ResponseUtil.fail();
+            return null;
         }
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
-        return responseEntity;
+        if (Objects.nonNull(responseEntity) && responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
+            UserAssetsBO userAssetsBO = JSONObject.parseObject(JSONObject.toJSONString(responseEntity.getData()), UserAssetsBO.class);
+            if (null == userAssetsBO.getUserType()) {
+                userAssetsBO.setUserTypeName(UserTypeEnum.NORMAL.getName());
+            } else {
+                userAssetsBO.setUserTypeName(UserTypeEnum.nameOfCode(userAssetsBO.getUserType()).getName());
+            }
+            return userAssetsBO;
+        }
+        return null;
     }
 
-    @ApiOperation(value = "调整类型")
-    @GetMapping("getAdjustmentType")
-    public ResponseEntity<AdjustmentTypeBO> getAdjustmentType() {
+    @ApiOperation(value = "调整类型(添加额度)")
+    @GetMapping("addAdjustmentType")
+    public ResponseEntity<AdjustmentTypeBO> getAddAdjustmentType() {
         AdjustmentTypeBO bo = new AdjustmentTypeBO();
         //充值
         List<OrderAdjustmentTypeEnum> charge = OrderAdjustmentTypeEnum.getList();
         bo.setCharge(charge.stream().map(item -> OrderAdjustmentTypeBO.builder()
                 .code(item.getCode()).name(item.getName()).build()).toList());
+        return ResponseUtil.success(bo);
+    }
+
+    @ApiOperation(value = "调整类型(扣除额度)")
+    @GetMapping("subAdjustmentType")
+    public ResponseEntity<AdjustmentTypeBO> getsubAdjustmentType() {
+        AdjustmentTypeBO bo = new AdjustmentTypeBO();
         //提现
         List<OrderAdjustmentTypeTxEnum> withdraw = OrderAdjustmentTypeTxEnum.getList();
         bo.setWithdraw(withdraw.stream().map(item -> OrderAdjustmentTypeBO.builder()
@@ -86,15 +107,14 @@ public class UserAssetsController {
     }
 
 
-    @ApiOperation(value = "会员人工添加额度申请")
-    @PostMapping("userApplyAddBalance")
+    //@ApiOperation(value = "会员人工添加额度申请")
+    //@PostMapping("userApplyAddBalance")
     public ResponseEntity<SsOrderAddBO> doUserApplyAddBalance(UserApplyVO vo) {
         if (null == vo.getUserId() || null == vo.getTgUserId() || null == vo.getAmount()
                 || null == vo.getAdjustmentType() || null == vo.getFlowMultiple()) {
             return ResponseUtil.parameterNotNull();
         }
-        Integer ZERO = 0;
-        if (vo.getFlowMultiple().compareTo(ZERO) < 0 || vo.getAmount().compareTo(BigDecimal.ZERO) < 0) {
+        if (vo.getFlowMultiple().compareTo(BigDecimal.ZERO) < 0 || vo.getAmount().compareTo(BigDecimal.ZERO) < 0) {
             return new ResponseEntity("数字不规范");
         }
         //提交申请
@@ -120,8 +140,8 @@ public class UserAssetsController {
         return orderResponse;
     }
 
-    @ApiOperation(value = "会员人工扣除额度")
-    @PostMapping("userApplyReduceBalance")
+    //@ApiOperation(value = "会员人工扣除额度")
+    //@PostMapping("userApplyReduceBalance")
     public ResponseEntity<SsOrderAddBO> doUserApplyReduceBalance(UserApplyReduceVO vo) {
         if (null == vo.getUserId() || null == vo.getTgUserId() || null == vo.getAmount() || null == vo.getAdjustmentType()) {
             return ResponseUtil.parameterNotNull();
@@ -131,11 +151,10 @@ public class UserAssetsController {
         }
 
         //检查是否有打码量
-        ResponseEntity assetsResponse = findAssetsTgUserId(vo.getTgUserId());
-        if (Objects.isNull(assetsResponse) || assetsResponse.getCode() != ResponseCode.SUCCESS.getCode()) {
+        UserAssetsBO userAssetsBO = findAssetsTgUserId(vo.getTgUserId());
+        if (Objects.isNull(userAssetsBO)) {
             return new ResponseEntity<>("无资产");
         }
-        UserAssetsBO userAssetsBO = JSONObject.parseObject(assetsResponse.getData().toString(), UserAssetsBO.class);
         if (userAssetsBO.getPlayMoney().compareTo(BigDecimal.ONE) >= 0) {
             return new ResponseEntity("不能下分，流水不足");
         }
