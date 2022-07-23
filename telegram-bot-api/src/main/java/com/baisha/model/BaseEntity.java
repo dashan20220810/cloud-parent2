@@ -25,7 +25,7 @@ public abstract class BaseEntity implements Serializable {
     private Long id;
 
     @CreatedDate
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     @Column(updatable = false)
     private Date createTime;
 
@@ -34,7 +34,7 @@ public abstract class BaseEntity implements Serializable {
     private String createBy;
 
     @LastModifiedDate
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date updateTime;
 
     @LastModifiedBy

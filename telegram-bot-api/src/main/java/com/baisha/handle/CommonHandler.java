@@ -39,9 +39,10 @@ public class CommonHandler {
     @Autowired
     TgBotService tgBotService;
 
-    public boolean checkChatIsAudit(Chat chat) {
+    public boolean checkChatIsAudit(Chat chat, MyTelegramLongPollingBot bot) {
         // 判断此群是否通过审核，未通过不处理消息。
-        TgChat tgChat = tgChatService.findByChatId(chat.getId());
+        TgBot tgBot = tgBotService.findByBotName(bot.getBotUsername());
+        TgChat tgChat = tgChatService.findByChatIdAndBotId(chat.getId(), tgBot.getId());
         if (tgChat == null || Constants.close.equals(tgChat.getStatus())) {
             return false;
         }
@@ -144,6 +145,24 @@ public class CommonHandler {
             }
         }
         return result;
+    }
+
+    public void betBotSendMessage(String phone, String msg, String chatName) {
+        List<BotGroupVO> result = Lists.newArrayList();
+        String betBotSendMessageUrl = RequestPathEnum.TELEGRAM_BET_BOT_SEND_MESSAGE.getApiName();
+        Map<String, Object> betBotsParam = Maps.newHashMap();
+        betBotsParam.put("phone", phone);
+        betBotsParam.put("msg", msg);
+        betBotsParam.put("groups", chatName);
+        String betBots = TgHttpClient4Util.doPost(betBotSendMessageUrl, betBotsParam, DEFAULT_USER_ID);
+//        if (StrUtil.isNotEmpty(betBots)) {
+//            ResponseEntity response = JSONObject.parseObject(betBots, ResponseEntity.class);
+//            if (response.getCode() == 0 && null != response.getData()) {
+//                result = JSONArray.parseArray(response.getData().toString(), BotGroupVO.class);
+//            }
+//        }
+//        return result;
+        System.out.println("");
     }
 
     public Long getMinAmountLimit(String betContent, List<OddsAndLimitVO> redLimits) {

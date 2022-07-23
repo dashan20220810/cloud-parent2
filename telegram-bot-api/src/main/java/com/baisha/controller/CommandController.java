@@ -80,10 +80,15 @@ public class CommandController {
         log.info("桌台ID:{},局号:{}======群数量{}个", vo.getTableId(), vo.getBureauNum(), chatList.size());
 
         // 第三步: 循环不同的桌群配置，组装不同的推送消息并发送
-        URL countdownAddress = new URL(vo.getCountdownAddress());
+        URL countdownAddress = null;
+        if (StrUtil.isNotEmpty(vo.getCountdownAddress())) {
+            countdownAddress = new URL(vo.getCountdownAddress());
+        }
+        URL finalCountdownAddress = countdownAddress;
+
         List<CompletableFuture<TgChat>> futures = chatList.stream()
                 .map(tgChat -> CompletableFuture.supplyAsync(() -> {
-                    commandBusiness.startNewBureauLoop(vo, countdownAddress, tgChat);
+                    commandBusiness.startNewBureauLoop(vo, finalCountdownAddress, tgChat);
                     return tgChat;
                 }, asyncExecutor))
                 .collect(Collectors.toList());
@@ -92,7 +97,7 @@ public class CommandController {
         log.info("桌台ID:{},局号:{}======已发送的群数量{}个", vo.getTableId(), vo.getBureauNum(), chatList.size());
 
         // 机器人-异步投注
-//        betCommandBusiness.botStartBet(chatList);
+        betCommandBusiness.botStartBet(chatList);
 
         return ResponseUtil.success();
     }
