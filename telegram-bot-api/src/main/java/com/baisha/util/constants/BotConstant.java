@@ -37,14 +37,14 @@ public class BotConstant {
     public static final String SEALING_BET_INFO7 = "❗❗主动私聊的都是骗子❗❗\n";
     public static final String SEALING_BET_INFO10 = "唯一财务：";
     public static final String SEALING_BET_INFO12 = "唯一客服：";
-    public static final String SEALING_BET_INFO14 = "-------本期下注玩家-------\n";
+    public static final String SEALING_BET_INFO14 = "-------本局下注玩家-------\n";
     public static final String SEALING_BET_INFO16 = "总下注金额：";
     public static final String SEALING_BET_INFO17 = "\n";
     public static final String SEALING_BET_INFO19 = "前20位下注玩家：\n";
     public static final String SEALING_BET_INFO20 = "【";
     public static final String SEALING_BET_INFO21 = "】";
     public static final String SEALING_BET_INFO22 = "无";
-    public static final String SEALING_BET_INFO23 = "全部当局投注的用户：\n";
+    public static final String SEALING_BET_INFO23 = "全部本局投注的用户：\n";
 
     public static final String SETTLEMENT1 = "局号：";
     public static final String SETTLEMENT2 = "结算：";
