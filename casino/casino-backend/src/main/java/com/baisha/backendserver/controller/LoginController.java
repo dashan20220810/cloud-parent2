@@ -174,7 +174,7 @@ public class LoginController {
 
     @ApiOperation(("重置密碼(登陆用户)"))
     @PostMapping("resetPassword")
-    public ResponseEntity updatePassword(ResetPasswordVO vo) {
+    public ResponseEntity updatePassword(ResetPasswordVO vo) throws InterruptedException {
         if (null == vo.getId()) {
             return new ResponseEntity("ID为空");
         }
@@ -186,17 +186,11 @@ public class LoginController {
         if (Objects.isNull(admin)) {
             return new ResponseEntity("管理员不存在");
         }
-        String bcryptPassword = admin.getPassword();
-        boolean bcrypt = BackendServerUtil.checkBcrypt(vo.getNewPassword(), bcryptPassword);
-        if (bcrypt) {
-            return new ResponseEntity("新旧密码不能一样");
-        }
         if (! GoogleAuthUtil.check_code(vo.getGoogleAuthKey(), vo.getGoogleAuthCode())){
             return new ResponseEntity("google 驗證不通過");
         }
         //更新新密码
-        adminService.updatePasswordById(BackendServerUtil.bcrypt(vo.getNewPassword()), vo.getId());
-        adminService.updateAuthKeyById(vo.getGoogleAuthKey(), vo.getId());
+        adminService.updateAuthKeyAndPasswordById(vo.getGoogleAuthKey(),vo.getNewPassword(), vo.getId());
         log.info("{}重置管理员密码id={}", admin.getUserName(), vo.getId());
         JjwtUtil.Subject subject = new JjwtUtil.Subject();
         subject.setUserId(String.valueOf(admin.getId()));
