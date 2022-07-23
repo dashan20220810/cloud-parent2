@@ -104,7 +104,7 @@ public class Bet extends BaseEntity {
     private BigDecimal finalAmount;
 
     @ApiModelProperty(value = "结算时间")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date settleTime;
 
     @ApiModelProperty(value = "已返水")
