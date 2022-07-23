@@ -15,6 +15,8 @@ public interface TgBotRepository extends JpaRepository<TgBot, Long>, JpaSpecific
 
     TgBot findByBotName(String botName);
 
+    TgBot findByBotToken(String botToken);
+
     List<TgBot> findByStatus(Integer status);
 
     @Query(value = "update TgBot tg set tg.status = ?1 where tg.id = ?2")

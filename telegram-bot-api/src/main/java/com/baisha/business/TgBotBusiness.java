@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
@@ -41,7 +42,7 @@ public class TgBotBusiness {
         return tgBotService.getTgBotPage(spec, pageable);
     }
 
-    public boolean updateBotSession(Long id, Integer status) {
+    public Boolean updateBotSession(Long id, Integer status) {
         TgBot tgBot = tgBotService.findById(id);
         if (tgBot == null) {
             return false;
@@ -49,6 +50,6 @@ public class TgBotBusiness {
         if (Constants.open.equals(status)) {
             return controlBotBusiness.startupBot(tgBot.getBotName(), tgBot.getBotToken());
         }
-        return controlBotBusiness.shutdownBot(tgBot.getBotName(),tgBot.getBotToken());
+        return controlBotBusiness.shutdownBot(tgBot.getBotName());
     }
 }

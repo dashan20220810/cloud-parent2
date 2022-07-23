@@ -39,7 +39,7 @@ public class TgChat extends BaseEntity {
     @ApiModelProperty(value="机器人名称",required = true)
     private String botName;
 
-    //业务属性
+    // 业务属性
     @ApiModelProperty(value="状态 0禁用 1启用",required = true)
     private Integer status;
 

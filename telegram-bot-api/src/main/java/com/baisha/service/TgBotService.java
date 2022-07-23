@@ -25,6 +25,10 @@ public class TgBotService {
         return tgBotRepository.findByBotName(botName);
     }
 
+    public TgBot findByBotToken(String botToken) {
+        return tgBotRepository.findByBotToken(botToken);
+    }
+
     @CachePut(key = "#tgBot.id")
     public TgBot save(TgBot tgBot) {
         return tgBotRepository.save(tgBot);
@@ -37,7 +41,7 @@ public class TgBotService {
 
     @CachePut(key = "#id")
     public TgBot updateStatusById(Long id, Integer status) {
-        tgBotRepository.updateStatusById(status,id);
+        tgBotRepository.updateStatusById(status, id);
         return tgBotRepository.findById(id).get();
     }
 
