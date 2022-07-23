@@ -13,6 +13,9 @@ public class TgBotAutoAddVO {
     @ApiModelProperty(value = "TG用户ID(必须要真实的 1-15位) ", required = true)
     private String betBotId;
 
+    @ApiModelProperty(value = "机器人名称")
+    private String betBotName;
+
     @ApiModelProperty(value = "手机号", required = true)
     private String betBotPhone;
 

@@ -132,7 +132,7 @@ public class TgBotBetController {
         userSaveVO.setUserName(vo.getBetBotId());
         userSaveVO.setTgGroupId(BackendConstants.DEFAULT_TG_GROUP_ID);
         userSaveVO.setTgGroupName(BackendConstants.DEFAULT_TG_GROUP_NAME);
-        userSaveVO.setNickName("bot" + vo.getBetBotId());
+        userSaveVO.setNickName(vo.getBetBotName());
 
         String url = userServerUrl + UserServerConstants.USERSERVER_USER_SAVE;
         Map<String, Object> param = BackendServerUtil.objectToMap(userSaveVO);
