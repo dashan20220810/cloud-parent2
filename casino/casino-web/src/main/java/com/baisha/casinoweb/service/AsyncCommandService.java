@@ -401,8 +401,6 @@ public class AsyncCommandService {
 		final String noActive = pairImageVO.getGameNo();
 
 		GameInfo gameInfo = gameInfoBusiness.getGameInfo(noActive);
-		// 录单图图片地址
-		String recordingChartAddress = gameInfo.getRecordingChartAddress();
 		// 开牌图片地址
 		String picAddress = gameInfo.getPicAddress();
 		// 开牌视频地址
@@ -423,7 +421,8 @@ public class AsyncCommandService {
 		}
 		JSONObject json = JSONObject.parseObject(result);
 		JSONObject resultJson = json.getJSONObject("data");
-		gameInfo.setRecordingChartAddress(resultJson.getString("url"));
+		String recordingChartAddress = resultJson.getString("url");
+		gameInfo.setRecordingChartAddress(recordingChartAddress);
 		gameInfoBusiness.setGameInfo(noActive, gameInfo);
 		//发送视频地址给TG
 		sendVideoAddressToTg("截屏", null, gameInfo.getDeskId(), null, null,
