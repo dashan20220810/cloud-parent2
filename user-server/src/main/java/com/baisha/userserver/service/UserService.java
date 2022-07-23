@@ -10,9 +10,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -56,10 +56,14 @@ public class UserService {
     @Cacheable(key = "#id", unless = "#result == null")
     public User findById(Long id) {
         Optional<User> optional = userRepository.findById(id);
-        return optional.orElse(null);
+        if (optional.isPresent()) {
+            User user = optional.get();
+            return user;
+        }
+        return null;
     }
 
-    @CacheEvict
+    @CacheEvict(key = "#id")
     public void deleteById(Long id) {
         userRepository.deleteById(id);
     }
@@ -69,6 +73,8 @@ public class UserService {
     public User statusById(Integer status, Long id) {
         int i = userRepository.updateUserStatusById(status, id);
         if (i > 0) {
+            //entityManager.flush();
+            //entityManager.clear();
             return userRepository.findById(id).get();
         }
         return null;
@@ -87,10 +93,11 @@ public class UserService {
     public User updateUserType(Long id, Integer userType) {
         int i = userRepository.updateUserType(userType, id);
         log.info("i={}", i);
-        if (i > 0) {
-            User user = userRepository.findById(id).get();
-            return user;
-        }
-        return null;
+        entityManager.flush();
+        entityManager.clear();
+        User user = userRepository.findById(id).get();
+        return user;
+
+
     }
 }

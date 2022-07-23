@@ -48,4 +48,5 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query(value = "update User  u set u.userType = ?1 where u.id=?2")
     @Modifying
     int updateUserType(Integer userType, Long id);
+
 }

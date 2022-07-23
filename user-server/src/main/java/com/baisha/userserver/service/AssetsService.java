@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -20,6 +21,8 @@ public class AssetsService {
 
     @Autowired
     private AssetsRepository assetsRepository;
+    @Autowired
+    EntityManager entityManager;
 
     public Assets saveAssets(Assets assets) {
         assetsRepository.save(assets);
@@ -27,6 +30,8 @@ public class AssetsService {
     }
 
     public Assets getAssetsByUserId(Long id) {
+        entityManager.flush();
+        entityManager.clear();
         return assetsRepository.findByUserId(id);
     }
 
@@ -36,6 +41,8 @@ public class AssetsService {
             log.error("doIncreaseBalanceById amount is null");
             amount = BigDecimal.ZERO;
         }
+        entityManager.flush();
+        entityManager.clear();
         return assetsRepository.increaseBalanceById(amount, id);
     }
 
@@ -44,6 +51,8 @@ public class AssetsService {
             log.error("doReduceBalanceById amount is null");
             amount = BigDecimal.ZERO;
         }
+        entityManager.flush();
+        entityManager.clear();
         return assetsRepository.reduceBalanceById(amount, id);
     }
 
@@ -52,6 +61,8 @@ public class AssetsService {
             log.error("doIncreasePlayMoneyById amount is null");
             amount = BigDecimal.ZERO;
         }
+        entityManager.flush();
+        entityManager.clear();
         return assetsRepository.increasePlayMoneyById(amount, id);
     }
 
@@ -60,6 +71,8 @@ public class AssetsService {
             log.error("doReducePlayMoneyById amount is null");
             amount = BigDecimal.ZERO;
         }
+        entityManager.flush();
+        entityManager.clear();
         return assetsRepository.reducePlayMoneyById(amount, id);
     }
 
@@ -68,6 +81,8 @@ public class AssetsService {
             log.error("doSubtractBalanceById amount is null");
             amount = BigDecimal.ZERO;
         }
+        entityManager.flush();
+        entityManager.clear();
         return assetsRepository.doSubtractBalanceById(amount, id);
     }
 

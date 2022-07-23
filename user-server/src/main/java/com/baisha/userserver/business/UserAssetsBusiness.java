@@ -49,7 +49,7 @@ public class UserAssetsBusiness {
      * @return
      * @throws Exception
      */
-    @Transactional(rollbackFor = Exception.class)
+    //@Transactional(rollbackFor = Exception.class)
     public ResponseEntity doBalanceBusiness(User user, BalanceVO vo) {
         //使用用户ID 使用redisson 公平锁
         RLock fairLock = redisson.getFairLock(RedisConstants.USER_ASSETS + user.getId());
@@ -89,28 +89,9 @@ public class UserAssetsBusiness {
         try {
             boolean res = fairLock.tryLock(RedisConstants.WAIT_TIME, RedisConstants.UNLOCK_TIME, TimeUnit.SECONDS);
             if (res) {
-                //if (UserServerConstants.INCOME == vo.getBalanceType()) {
                 //只有收入
-                ResponseEntity response;
-                /*if (BalanceChangeEnum.RETURN_AMOUNT.getCode().equals(vo.getChangeType())) {
-                    if (Objects.nonNull(isExist)) {
-                        //如果不为空 表示次单已经返水  此时查询 是否因为 重新开牌 扣除了返水
-                        BalanceChange isExistReopen = balanceChangeService.findByUserIdAndChangeTypeAndRelateId(
-                                user.getId(), BalanceChangeEnum.RETURN_AMOUNT_REOPEN.getCode(), vo.getRelateId());
-                        if (Objects.nonNull(isExistReopen)) {
-                            //如果不为空 表示 重新开牌 已经 扣除了返水，这次是重新开奖后 的 重新返水
-                            log.info("==重新开奖后 的 重新返水==");
-                            //设置 改变类型
-                            vo.setChangeType(BalanceChangeEnum.RETURN_REAMOUNT.getCode());
-                            vo.setRemark(isExist.getRemark() + "(重新返水)");
-                            isExist = balanceChangeService.findByUserIdAndChangeTypeAndRelateId(
-                                    user.getId(), BalanceChangeEnum.RETURN_REAMOUNT.getCode(), vo.getRelateId());
-                        }
-                    }
-                }*/
-
                 //重新派彩 和 重新 返水 可以修改
-                response = doAddIncomeBalance(user, vo, isExist);
+                ResponseEntity response = doAddIncomeBalance(user, vo, isExist);
                 fairLock.unlock();
                 return response;
                 // }
@@ -241,7 +222,7 @@ public class UserAssetsBusiness {
      * @return
      * @throws Exception
      */
-    @Transactional(rollbackFor = Exception.class)
+    //@Transactional(rollbackFor = Exception.class)
     public ResponseEntity doPlayMoneyBusiness(User user, PlayMoneyVO vo) {
         //使用用户ID 使用redisson 公平锁
         RLock fairLock = redisson.getFairLock(RedisConstants.USER_ASSETS + user.getId());
@@ -356,7 +337,7 @@ public class UserAssetsBusiness {
      * @param vo
      * @return
      */
-    @Transactional(rollbackFor = Exception.class)
+    //@Transactional(rollbackFor = Exception.class)
     public ResponseEntity doSubtractBalanceBusiness(User user, BalanceVO vo) {
         //支持多次重新开奖,所以可以更新当前余额变化记录
         long start = System.currentTimeMillis();
