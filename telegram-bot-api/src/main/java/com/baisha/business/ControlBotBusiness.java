@@ -29,10 +29,6 @@ public class ControlBotBusiness {
         return botsApi;
     }
 
-    public BotSession getBotSession(String username) {
-        return this.botSessionMap.get(username);
-    }
-
     @Async
     public Boolean shutdownBot(String botName) {
         //1.检测人池中是否有该机器人实例,有则停止
