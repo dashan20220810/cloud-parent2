@@ -157,8 +157,8 @@ public class AsyncCommandService {
 		log.info("\r\n================= gameInfo : {}", gameInfo);
 //    	Date beginTime = newGameInfo.getBeginTime();
     	Date endTime = gameInfo.getEndTime();
-
-    	Date now = new Date();
+		Date now = new Date();
+		log.info("\n================= 局号 {} ,当前时间 {}, 结束时间 {} ", noActive, now, endTime);
 		if(endTime.after(now)){
 			int timeDiff = Integer.parseInt(String.valueOf((endTime.getTime()
 					- now.getTime()) / BigDecimalConstants.THOUSAND.intValue()));
@@ -328,12 +328,6 @@ public class AsyncCommandService {
 		final String consequences = settleFinishVO.getConsequences();
 		final String noActive = settleFinishVO.getGameNo();
 		final GameInfo gameInfo = gameInfoBusiness.getGameInfo(noActive);
-		// 录单图图片地址
-		String recordingChartAddress = gameInfo.getRecordingChartAddress();
-		// 开牌图片地址
-		String picAddress = gameInfo.getPicAddress();
-		// 开牌视频地址
-		String videoAddress = gameInfo.getVideoAddress();
 		log.info("开牌结果 gameInfo :{}", gameInfo);
 
     	String action = "结算";
@@ -398,20 +392,21 @@ public class AsyncCommandService {
 		for ( Long tgGroupId: allGroupIdSet ) {
 			top20WinUsers.put(tgGroupId, new ArrayList<>());
 		}
-		//发送视频地址给TG
-		sendVideoAddressToTg("截屏", null, gameInfo.getDeskId(), null, null,
-				videoAddress, picAddress, recordingChartAddress);
+		//通知tg结算结果
 		asyncApiService.tgSettlement(noActive, openCardResult, top20WinUsers);
-		openCardVideoService.saveOpenCardVideoAndPic(videoAddress, picAddress, recordingChartAddress, noActive);
     }
 
 	public void pairImage(PairImageVO pairImageVO) {
 		final String dealerIp = pairImageVO.getDealerIp();
 		final String noActive = pairImageVO.getGameNo();
-		DeskVO desk = deskBusiness.queryDeskByIp(dealerIp);
 
-		final String deskCode = desk.getDeskCode();
 		GameInfo gameInfo = gameInfoBusiness.getGameInfo(noActive);
+		// 录单图图片地址
+		String recordingChartAddress = gameInfo.getRecordingChartAddress();
+		// 开牌图片地址
+		String picAddress = gameInfo.getPicAddress();
+		// 开牌视频地址
+		String videoAddress = gameInfo.getVideoAddress();
 		InputStream inputStream = new ByteArrayInputStream(pairImageVO.getImageContent());
 		String result;
 		try {
@@ -430,6 +425,10 @@ public class AsyncCommandService {
 		JSONObject resultJson = json.getJSONObject("data");
 		gameInfo.setRecordingChartAddress(resultJson.getString("url"));
 		gameInfoBusiness.setGameInfo(noActive, gameInfo);
+		//发送视频地址给TG
+		sendVideoAddressToTg("截屏", null, gameInfo.getDeskId(), null, null,
+				videoAddress, picAddress, recordingChartAddress);
+		openCardVideoService.saveOpenCardVideoAndPic(videoAddress, picAddress, recordingChartAddress, noActive);
 	}
 
 	@Data
