@@ -10,8 +10,8 @@ import java.math.BigDecimal;
  * @author yihui
  */
 @Data
-@ApiModel(value = "后台-上分请求请对象")
-public class BalanceVO {
+@ApiModel(value = "后台-下分请求请对象")
+public class BalanceSubVO {
 
     @ApiModelProperty(value = "TG用户ID", required = true)
     private String tgUserId;
@@ -21,9 +21,6 @@ public class BalanceVO {
 
     @ApiModelProperty(value = "金额 大于0的整数(1-7位)", required = true)
     private Integer amount;
-
-    @ApiModelProperty(value = "流水倍数 >=0 (0-100 支持2位小数)", required = true)
-    private BigDecimal flowMultiple;
 
     @ApiModelProperty(value = "调整类型", required = true)
     private Integer adjustmentType;

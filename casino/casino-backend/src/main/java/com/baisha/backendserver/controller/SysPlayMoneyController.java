@@ -25,7 +25,7 @@ import java.util.Objects;
 @Slf4j
 @RestController
 @RequestMapping(value = "sys/playMoney")
-@Api(tags = "系统设置-打码量倍率")
+//@Api(tags = "系统设置-打码量倍率")
 public class SysPlayMoneyController {
 
     @Autowired
@@ -33,8 +33,8 @@ public class SysPlayMoneyController {
     @Autowired
     private SysPlayMoneyService sysPlayMoneyService;
 
-    @ApiOperation("获取信息")
-    @GetMapping(value = "getInfo")
+    //@ApiOperation("获取信息")
+    //@GetMapping(value = "getInfo")
     public ResponseEntity<SysPlayMoneyParameterBO> getSysPlayMoneyInfo() {
         SysPlayMoneyParameter sysPlayMoney = sysPlayMoneyService.getSysPlayMoney();
         SysPlayMoneyParameterBO bo = new SysPlayMoneyParameterBO();
@@ -42,8 +42,8 @@ public class SysPlayMoneyController {
         return ResponseUtil.success(bo);
     }
 
-    @ApiOperation("设置信息")
-    @PostMapping(value = "setInfo")
+    //@ApiOperation("设置信息")
+    //@PostMapping(value = "setInfo")
     public ResponseEntity<Long> setSysPlayMoneyInfo(SysPlayMoneyParameterVO vo) {
         if (null == vo.getRecharge() || vo.getRecharge().doubleValue() < 0) {
             return ResponseUtil.parameterNotNull();

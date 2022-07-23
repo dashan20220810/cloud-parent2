@@ -35,8 +35,8 @@ public class SsOrderAddVO {
     @ApiModelProperty(value = "调整类型")
     private Integer adjustmentType;
 
-    @ApiModelProperty(value = "流水倍数 >=0 整数(1-3位)")
-    private Integer flowMultiple;
+    @ApiModelProperty(value = "流水倍数 >=0 (0-100 支持2位小数)", required = true)
+    private BigDecimal flowMultiple;
 
     @ApiModelProperty(value = "附件key")
     private String fileKey;

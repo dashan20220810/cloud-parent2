@@ -22,8 +22,8 @@ public class UserApplyVO {
     @ApiModelProperty(value = "调整金额 大于0数字", required = true)
     private BigDecimal amount;
 
-    @ApiModelProperty(value = "流水倍数 >=0 整数(1-3位)", required = true)
-    private Integer flowMultiple;
+    @ApiModelProperty(value = "流水倍数 >=0 (0-100 支持2位小数)", required = true)
+    private BigDecimal flowMultiple;
 
     @ApiModelProperty(value = "调整类型", required = true)
     private Integer adjustmentType;
