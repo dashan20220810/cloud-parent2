@@ -215,18 +215,20 @@ public class UserController {
                     currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加余额成功", BackendConstants.USER_ASSETS_MODULE);
             //充值余额成功过后，在增加打码量
             //获取充值打码量倍率  流水倍数  充值增加打码量
-            PlayMoneyVO playMoneyVO = new PlayMoneyVO();
-            playMoneyVO.setPlayMoneyType(BackendConstants.INCOME);
-            playMoneyVO.setId(vo.getId());
-            playMoneyVO.setRemark(vo.getRemark());
-            playMoneyVO.setAmount(BigDecimal.valueOf(vo.getAmount().longValue()).multiply(vo.getFlowMultiple()));
-            ResponseEntity playMoneyResponseEntity = doIncomePlayMoney(playMoneyVO, orderId);
-            if (playMoneyResponseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
-                log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
-                        currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加打码量成功", BackendConstants.USER_ASSETS_MODULE);
-                return ResponseUtil.success();
+            BigDecimal playMoney = BigDecimal.valueOf(vo.getAmount().longValue()).multiply(vo.getFlowMultiple());
+            if (playMoney.compareTo(BigDecimal.ZERO) > 0) {
+                PlayMoneyVO playMoneyVO = new PlayMoneyVO();
+                playMoneyVO.setPlayMoneyType(BackendConstants.INCOME);
+                playMoneyVO.setId(vo.getId());
+                playMoneyVO.setRemark(vo.getRemark());
+                playMoneyVO.setAmount(playMoney);
+                ResponseEntity playMoneyResponseEntity = doIncomePlayMoney(playMoneyVO, orderId);
+                if (playMoneyResponseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
+                    log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                            currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加打码量成功", BackendConstants.USER_ASSETS_MODULE);
+                    return ResponseUtil.success();
+                }
             }
-
         } else {
             //删除订单
             doDeleteOrder(orderId);
