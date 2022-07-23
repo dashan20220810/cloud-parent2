@@ -10,8 +10,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,11 +23,14 @@ import java.util.Optional;
 @Slf4j
 @Service
 @CacheConfig(cacheNames = "user::info")
-@Transactional(rollbackFor = Exception.class)
+@Transactional
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    EntityManager entityManager;
 
     @Caching(put = {@CachePut(key = "#user.id")})
 //    @CachePut(key = "#p0.id")
