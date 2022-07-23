@@ -87,19 +87,19 @@ public class OrderBusiness {
     	
 		if ( tgGameInfo==null ) {
     		log.warn("下注 失败 无游戏资讯");
-			return "下注 失败 无游戏资讯";
+			return "无游戏资讯";
 		}
 		
 		if ( StringUtils.isBlank(noActive) ) {
     		log.warn("下注 失败 局号不符, {}");
-			return "下注 失败 局号不符";
+			return "局号不符";
 		}
 		
 		Date now = new Date();
 		
 		if ( tgGameInfo.getStatus()!= GameStatusEnum.Betting || (endTime!=null && now.after(endTime)) ) {
     		log.warn("下注 失败 非下注状态, {}, 本局结束时间: {}", tgGameInfo.getStatus().toString(), endTime);
-            return "下注 失败 非下注状态";
+            return "非下注状态";
 		}
     	
     	// 检核限红
@@ -140,7 +140,7 @@ public class OrderBusiness {
     	for (String betOption: betOptionList) {
 			if(BetOption.Z_X.contains(betOption) && !StringUtils.isEmpty(userInfo.getBetHistoryString())){
 				if(!userInfo.getBetOptionByUser(betOption)){
-					return "下注失败，不允许对冲下注";
+					return "不允许对冲下注";
 				}
 			}
 
@@ -158,12 +158,12 @@ public class OrderBusiness {
     		}
     		
     		if ( oddsBO.getMinAmount()==null || oddsBO.getMinAmount()==null ) {
-    			return "下注失败 限红配置有误";
+    			return "限红配置有误";
     		}
     		
         	if (!userInfo.checkUserBetAmount(betOption, amount
 					, oddsBO.getMinAmount().longValue(), oddsBO.getMaxAmount().longValue())) {
-                return String.format("下注失败 限红单注 %s %s-%s", betOption, oddsBO.getMinAmount(), oddsBO.getMaxAmount());
+                return String.format("限红单注 %s %s-%s", betOption, oddsBO.getMinAmount(), oddsBO.getMaxAmount());
         	}
     	}
     	
@@ -209,7 +209,7 @@ public class OrderBusiness {
 
 		if (!ValidateUtil.checkHttpResponse(action, result)) {
 			log.warn("\r\n===== 下注 失败, 下注api报错, 玩家id:{}, 局号:{}, 错误原因:{}", userId, noActive, result);
-            return String.format("下注 失败, %s", StringUtils.defaultString(result));
+            return String.format("%s", StringUtils.defaultString(result));
 		}
 
 		JSONObject betJson = JSONObject.parseObject(result);
@@ -229,7 +229,7 @@ public class OrderBusiness {
 
     		if (!ValidateUtil.checkHttpResponse(action, result)) {
     			log.warn("\r\n===== 下注 失败, 下分api报错, betId:{}, 玩家id:{}, 局号:{}, 错误原因:{}", betId.toString(), userId, noActive, result);
-                return String.format("下注 失败, 必须人工删除bet, id:%s, %s", betId.toString(), StringUtils.defaultString(result));
+                return String.format("必须人工删除bet, id:%s, %s", betId.toString(), StringUtils.defaultString(result));
     		}
             return withdrawResult;
     	}
