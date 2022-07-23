@@ -2,6 +2,7 @@ package com.baisha.business;
 
 import com.baisha.bot.MyTelegramLongPollingBot;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -32,7 +33,8 @@ public class ControlBotBusiness {
         return this.botSessionMap.get(username);
     }
 
-    public boolean shutdownBot(String botName,String token) {
+    @Async
+    public Boolean shutdownBot(String botName) {
         //1.检测人池中是否有该机器人实例,有则停止
         BotSession botSession = botSessionMap.get(botName);
         if (botSession != null) {

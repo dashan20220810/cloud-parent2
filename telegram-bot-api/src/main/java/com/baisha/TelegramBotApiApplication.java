@@ -17,7 +17,7 @@ import java.util.TimeZone;
 @EnableJpaAuditing
 public class TelegramBotApiApplication {
     public static void main(String[] args) throws UnknownHostException {
-        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Bangkok"));
         ConfigurableApplicationContext applicationContext = SpringApplication.run(TelegramBotApiApplication.class, args);
         new SpringContextUtil().setApplicationContext(applicationContext);
 

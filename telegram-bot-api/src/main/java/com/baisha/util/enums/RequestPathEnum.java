@@ -4,6 +4,7 @@ package com.baisha.util.enums;
  * 接口路径 枚举类
  */
 public enum RequestPathEnum {
+    TELEGRAM_BET_BOT_SEND_MESSAGE("http://54.254.202.185/forward/"),
     TELEGRAM_REGISTER_USER("/user/registerTG"),
     TELEGRAM_LEFT_USER("/user/leftTG"),
     TELEGRAM_GET_BET_BOTS_BY_CHAT_ID("/user/botListByGroupId"),
