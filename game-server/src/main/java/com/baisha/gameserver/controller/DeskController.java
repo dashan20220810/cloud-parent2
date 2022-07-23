@@ -110,8 +110,12 @@ public class DeskController {
         		String eMsg = e.getCause().getCause().getMessage();
         		if ( eMsg.contains(deskVO.getLocalIp()) ) {
             		return ResponseUtil.custom("内网IP已占用");
+        		} else if ( eMsg.contains(deskVO.getDeskCode()) ) {
+                	return ResponseUtil.custom("桌台编号已存在或被占用");
+        		} else if ( eMsg.contains(deskVO.getName()) ) {
+                	return ResponseUtil.custom("桌台名称已存在或被占用");
         		} else {
-            		return ResponseUtil.custom(eMsg);
+            		return ResponseUtil.fail();
         		}
         	}
     		return ResponseUtil.fail();
@@ -176,8 +180,10 @@ public class DeskController {
         		String eMsg = e.getCause().getCause().getMessage();
         		if ( eMsg.contains(deskVO.getLocalIp()) ) {
             		return ResponseUtil.custom("内网IP已占用");
+        		} else if ( eMsg.contains(deskVO.getName()) ) {
+                	return ResponseUtil.custom("桌台名称已存在或被占用");
         		} else {
-            		return ResponseUtil.custom(eMsg);
+            		return ResponseUtil.fail();
         		}
         	}
     		return ResponseUtil.fail();
