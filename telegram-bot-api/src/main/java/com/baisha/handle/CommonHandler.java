@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 
@@ -32,6 +33,9 @@ import static com.baisha.util.constants.BotConstant.DEFAULT_USER_ID;
 @Slf4j
 @Component
 public class CommonHandler {
+
+    @Value("${project.server-url.bet-bot-send-message-domain}")
+    private String betBotSendMessageDomain;
 
     @Autowired
     TgChatService tgChatService;
@@ -148,25 +152,17 @@ public class CommonHandler {
     }
 
     public void betBotSendMessage(String phone, String msg, String chatName) {
-        List<BotGroupVO> result = Lists.newArrayList();
-        String betBotSendMessageUrl = RequestPathEnum.TELEGRAM_BET_BOT_SEND_MESSAGE.getApiName();
-        Map<String, Object> betBotsParam = Maps.newHashMap();
-        betBotsParam.put("phone", phone);
-        betBotsParam.put("msg", msg);
-        betBotsParam.put("groups", chatName);
-        String betBots = TgHttpClient4Util.doPost(betBotSendMessageUrl, betBotsParam, DEFAULT_USER_ID);
-//        if (StrUtil.isNotEmpty(betBots)) {
-//            ResponseEntity response = JSONObject.parseObject(betBots, ResponseEntity.class);
-//            if (response.getCode() == 0 && null != response.getData()) {
-//                result = JSONArray.parseArray(response.getData().toString(), BotGroupVO.class);
-//            }
-//        }
-//        return result;
-        System.out.println("");
+        String betBotSendMessageUrl = betBotSendMessageDomain + RequestPathEnum.TELEGRAM_BET_BOT_SEND_MESSAGE.getApiName();
+        Map<String, Object> betBotSendMessageParam = Maps.newHashMap();
+        betBotSendMessageParam.put("phone", phone);
+        betBotSendMessageParam.put("msg", msg);
+        betBotSendMessageParam.put("groups", chatName);
+        // 直接发送，不需要返回值
+        TgHttpClient4Util.doPost(betBotSendMessageUrl, betBotSendMessageParam, DEFAULT_USER_ID);
     }
 
-    public Long getMinAmountLimit(String betContent, List<OddsAndLimitVO> redLimits) {
-        Long minAmount = null;
+    public Integer getMinAmountLimit(String betContent, List<OddsAndLimitVO> redLimits) {
+        Integer minAmount = 0;
         for (OddsAndLimitVO redLimit : redLimits) {
             if (betContent.equals(redLimit.getRuleCode())) {
                 minAmount = redLimit.getMinAmount();

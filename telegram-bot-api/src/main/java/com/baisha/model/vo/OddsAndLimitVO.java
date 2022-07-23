@@ -26,8 +26,8 @@ public class OddsAndLimitVO {
     private BigDecimal odds;
 
     @ApiModelProperty("最大限红")
-    private Long maxAmount;
+    private Integer maxAmount;
 
     @ApiModelProperty("最小限红")
-    private Long minAmount;
+    private Integer minAmount;
 }

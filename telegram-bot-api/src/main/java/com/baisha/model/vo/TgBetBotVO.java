@@ -19,6 +19,9 @@ public class TgBetBotVO {
     @ApiModelProperty(value = "机器人id")
     private String betBotId;
 
+    @ApiModelProperty(value = "机器人名称")
+    private String betBotName;
+
     @ApiModelProperty(value = "机器人手机号")
     private String betBotPhone;
 

@@ -44,7 +44,8 @@ public class TgBetBotController {
             tgBetBot.setBetBotId(vo.getBetBotId())
                     .setBetBotPhone(vo.getBetBotPhone());
         }
-        tgBetBot.setBetStartTime(vo.getBetStartTime())
+        tgBetBot.setBetBotName(vo.getBetBotName())
+                .setBetStartTime(vo.getBetStartTime())
                 .setBetEndTime(vo.getBetEndTime())
                 .setBetFrequency(vo.getBetFrequency())
                 .setBetContents(vo.getBetContents())
