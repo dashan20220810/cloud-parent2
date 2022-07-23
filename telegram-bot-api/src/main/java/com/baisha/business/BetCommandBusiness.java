@@ -15,8 +15,8 @@ public class BetCommandBusiness {
     @Autowired
     private CommandBusiness commandBusiness;
 
-//    @Async
-//    public void botStartBet(List<TgChat> chatList) {
-//        chatList.forEach(chat -> commandBusiness.botStartBet(chat));
-//    }
+    @Async
+    public void botStartBet(List<TgChat> chatList) {
+        chatList.forEach(chat -> commandBusiness.botStartBet(chat));
+    }
 }
