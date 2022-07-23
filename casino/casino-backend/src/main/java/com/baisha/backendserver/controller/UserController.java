@@ -7,6 +7,8 @@ import com.baisha.backendserver.business.CommonBusiness;
 import com.baisha.backendserver.business.PlayMoneyBusiness;
 import com.baisha.backendserver.model.Admin;
 import com.baisha.backendserver.model.BetStatistics;
+import com.baisha.backendserver.model.bo.CodeNameBO;
+import com.baisha.backendserver.model.bo.assets.OrderAdjustmentTypeBO;
 import com.baisha.backendserver.model.bo.order.SsOrderAddBO;
 import com.baisha.backendserver.model.bo.sys.SysPlayMoneyParameterBO;
 import com.baisha.backendserver.model.bo.user.*;
@@ -19,6 +21,7 @@ import com.baisha.backendserver.util.constants.BackendConstants;
 import com.baisha.backendserver.util.constants.UserServerConstants;
 import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
+import com.baisha.modulecommon.enums.order.OrderAdjustmentTypeTxEnum;
 import com.baisha.modulecommon.enums.order.OrderStatusEnum;
 import com.baisha.modulecommon.enums.order.OrderTypeEnum;
 import com.baisha.modulecommon.enums.user.UserTypeEnum;
@@ -129,26 +132,39 @@ public class UserController {
     }
 
 
-    /*@ApiOperation(("删除用户"))
-    @PostMapping("delete")
-    public ResponseEntity delete(IdVO vo) {
-        if (Objects.isNull(vo.getId())) {
+    @ApiOperation(value = "用户类型")
+    @GetMapping("getUserType")
+    public ResponseEntity<List<CodeNameBO>> getUserType() {
+        List<UserTypeEnum> userType = UserTypeEnum.getList();
+        List<CodeNameBO> list = userType.stream().map(item -> CodeNameBO.builder()
+                .code(String.valueOf(item.getCode())).name(item.getName()).build()).toList();
+        return ResponseUtil.success(list);
+    }
+
+    @ApiOperation(value = "修改用户类型")
+    @PostMapping("updateUserType")
+    public ResponseEntity updateUserType(UserTypeVO vo) {
+        if (StringUtils.isEmpty(vo.getUserName()) || null == vo.getUserType() || vo.getUserType() < 0) {
             return ResponseUtil.parameterNotNull();
         }
-        String url = userServerUrl + UserServerConstants.USERSERVER_USER_DELETE;
-        Map<String, Object> param = BackendServerUtil.objectToMap(vo);
+        String url = userServerUrl + UserServerConstants.USERSERVER_USER_TYPE;
+        Map<String, Object> param = new HashMap<>(16);
+        param.put("userName", vo.getUserName());
+        param.put("userType", vo.getUserType());
         String result = HttpClient4Util.doPost(url, param);
         if (CommonUtil.checkNull(result)) {
+            log.error("设置用户类型失败");
             return ResponseUtil.fail();
         }
+
         ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
         if (responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
             Admin currentUser = commonService.getCurrentUser();
-            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.DELETE,
-                    currentUser.getUserName() + "删除用户id={" + vo.getId() + "}", BackendConstants.USER_MODULE);
+            log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
+                    currentUser.getUserName() + "修改用户类型" + JSONObject.toJSONString(param) + "", BackendConstants.USER_MODULE);
         }
         return responseEntity;
-    }*/
+    }
 
     @ApiOperation(("启用/禁用用户"))
     @PostMapping("status")
@@ -334,7 +350,7 @@ public class UserController {
             return new ResponseEntity("该会员不能下分(BOT)");
         }
         if (userAssetsBO.getPlayMoney().compareTo(BigDecimal.ONE) >= 0) {
-            return new ResponseEntity("不能下分，打码量不足");
+            return new ResponseEntity("此会员当前流水不足，不能进行提款操作");
         }
         if (vo.getAmount().compareTo(userAssetsBO.getBalance()) > 0) {
             //操作金额大于查询余额时可以正常操作人工扣除额度，系统会扣除到余额为零

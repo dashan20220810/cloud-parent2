@@ -61,8 +61,9 @@ public class UserAssetsController {
         UserAssetsBO bo = findAssetsTgUserId(vo.getTgUserId());
         if (Objects.nonNull(bo)) {
             return ResponseUtil.success(bo);
+        } else {
+            return new ResponseEntity("会员不存在");
         }
-        return ResponseUtil.fail();
     }
 
     private UserAssetsBO findAssetsTgUserId(String tgUserId) {

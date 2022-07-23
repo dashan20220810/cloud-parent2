@@ -5,6 +5,7 @@ import com.baisha.userserver.util.UserServerUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ import javax.persistence.*;
  */
 @Slf4j
 @Data
+@EqualsAndHashCode(callSuper=false)
 @Entity
 @org.hibernate.annotations.Table(appliesTo = "user", comment = "会员")
 @Table(name = "User", indexes = {@Index(columnList = "tgUserId"), @Index(columnList = "inviteUserId"), @Index(columnList = "userType")})

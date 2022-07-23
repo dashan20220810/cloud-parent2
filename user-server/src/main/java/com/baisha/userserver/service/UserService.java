@@ -21,8 +21,8 @@ import java.util.Optional;
  */
 @Slf4j
 @Service
-@Transactional
 @CacheConfig(cacheNames = "user::info")
+@Transactional(rollbackFor = Exception.class)
 public class UserService {
 
     @Autowired
@@ -80,10 +80,12 @@ public class UserService {
     }
 
     @CachePut(key = "#id", unless = "#result == null")
-    public User updateUserType(Integer userType, Long id) {
+    public User updateUserType(Long id, Integer userType) {
         int i = userRepository.updateUserType(userType, id);
+        log.info("i={}", i);
         if (i > 0) {
-            return userRepository.findById(id).get();
+            User user = userRepository.findById(id).get();
+            return user;
         }
         return null;
     }

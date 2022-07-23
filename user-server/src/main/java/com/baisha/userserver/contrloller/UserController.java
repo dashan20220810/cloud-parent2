@@ -365,7 +365,7 @@ public class UserController {
         }
         User user = userService.findByUserName(vo.getUserName());
         if (Objects.nonNull(user)) {
-            userService.updateUserType(vo.getUserType(), user.getId());
+            userService.updateUserType(user.getId(), vo.getUserType());
         }
 
         return ResponseUtil.success();
