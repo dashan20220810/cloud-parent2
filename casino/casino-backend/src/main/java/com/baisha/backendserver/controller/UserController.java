@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
@@ -188,6 +189,12 @@ public class UserController {
             return new ResponseEntity("金额不规范");
         }
 
+        UserAssetsBO userAssetsBO = findAssetsTgUserId(vo.getTgUserId());
+        if (Objects.isNull(userAssetsBO)) {
+            return new ResponseEntity("用户资产不存在");
+        }
+        vo.setId(userAssetsBO.getUserId());
+
         //获取当前登陆用户
         Admin currentUser = commonService.getCurrentUser();
         //新增订单
@@ -305,28 +312,33 @@ public class UserController {
     @ApiOperation(value = "用户下分")
     @PostMapping("reduceBalance")
     public ResponseEntity reduceBalance(BalanceSubVO vo) {
-        if (null == vo.getId() || vo.getId() < 0 || null == vo.getAmount() || vo.getAmount() <= 0) {
+        if (null == vo.getId() || vo.getId() < 0
+                || null == vo.getAdjustmentType()
+                || StringUtils.isEmpty(vo.getTgUserId())
+                || null == vo.getAmount() || vo.getAmount().intValue() <= 0) {
             return ResponseUtil.parameterNotNull();
         }
-        if (BackendServerUtil.checkIntAmount(vo.getAmount())) {
+        if (BackendServerUtil.checkIntAmount(vo.getAmount().intValue())) {
             return new ResponseEntity("金额不规范");
         }
 
         //获取个人资产
-        ResponseEntity assetsResponse = findAssetsById(vo.getId());
-        if (assetsResponse.getCode() != ResponseCode.SUCCESS.getCode()) {
-            return assetsResponse;
+        UserAssetsBO userAssetsBO = findAssetsTgUserId(vo.getTgUserId());
+        if (Objects.isNull(userAssetsBO)) {
+            return new ResponseEntity("用户资产不存在");
         }
-        UserAssetsBO userAssetsBO = JSONObject.parseObject(assetsResponse.getData().toString(), UserAssetsBO.class);
-        if (userAssetsBO.getUserType().equals(UserTypeEnum.BOT.getCode())) {
+        vo.setId(userAssetsBO.getUserId());
+        if (null != userAssetsBO.getUserType() && userAssetsBO.getUserType().equals(UserTypeEnum.BOT.getCode())) {
             return new ResponseEntity("该会员不能下分(BOT)");
-        }
-        if (userAssetsBO.getBalance().compareTo(BigDecimal.valueOf(vo.getAmount())) < 0) {
-            return new ResponseEntity("下分金额不足 余额:" + userAssetsBO.getBalance());
         }
         if (userAssetsBO.getPlayMoney().compareTo(BigDecimal.ONE) >= 0) {
             return new ResponseEntity("不能下分，打码量不足");
         }
+        if (vo.getAmount().compareTo(userAssetsBO.getBalance()) > 0) {
+            //操作金额大于查询余额时可以正常操作人工扣除额度，系统会扣除到余额为零
+            vo.setAmount(userAssetsBO.getBalance());
+        }
+
         Admin currentUser = commonService.getCurrentUser();
         SsOrderAddVO order = createWithdrawOrder(vo, currentUser, userAssetsBO);
         ResponseEntity orderResponseEntity = doCreateOrder(order);
@@ -341,7 +353,7 @@ public class UserController {
         Map<String, Object> param = new HashMap<>(16);
         param.put("balanceType", BackendConstants.EXPENSES);
         param.put("userId", vo.getId());
-        param.put("amount", vo.getAmount());
+        param.put("amount", vo.getAmount().setScale(2, RoundingMode.DOWN));
         param.put("remark", vo.getRemark());
         param.put("changeType", BalanceChangeEnum.WITHDRAW.getCode());
         param.put("relateId", orderId);
@@ -401,6 +413,24 @@ public class UserController {
         return responseEntity;
     }
 
+    private UserAssetsBO findAssetsTgUserId(String tgUserId) {
+        String url = userServerUrl + UserServerConstants.USERSERVER_ASSETS_BYTGUSERID + "?tgUserId=" + tgUserId;
+        String result = HttpClient4Util.doGet(url);
+        if (CommonUtil.checkNull(result)) {
+            return null;
+        }
+        ResponseEntity responseEntity = JSON.parseObject(result, ResponseEntity.class);
+        if (Objects.nonNull(responseEntity) && responseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
+            UserAssetsBO userAssetsBO = JSONObject.parseObject(JSONObject.toJSONString(responseEntity.getData()), UserAssetsBO.class);
+            if (null == userAssetsBO.getUserType()) {
+                userAssetsBO.setUserTypeName(UserTypeEnum.NORMAL.getName());
+            } else {
+                userAssetsBO.setUserTypeName(UserTypeEnum.nameOfCode(userAssetsBO.getUserType()).getName());
+            }
+            return userAssetsBO;
+        }
+        return null;
+    }
 
     @GetMapping("changeBalancePage")
     @ApiOperation(("用户余额变动记录分页"))

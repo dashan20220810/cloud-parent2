@@ -39,20 +39,8 @@ public class BetPageBO extends BaseBO {
     @ApiModelProperty("tg_chat_id")
     private Long tgChatId;
 
-    //@ApiModelProperty("下注类型")
-    //private String betOption;
-
-    //@ApiModelProperty("下注类型名称")
-    //private String betOptionName;
-
-    //@ApiModelProperty("下注金额")
-    //private Long amount;
-
     @ApiModelProperty("客户端IP")
     private String clientIP;
-
-    //@ApiModelProperty("游戏轮号")
-    //private String noRun;
 
     @ApiModelProperty("游戏局号")
     private String noActive;
@@ -67,6 +55,7 @@ public class BetPageBO extends BaseBO {
     private BigDecimal finalAmount;
 
     @ApiModelProperty(value = "结算时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private String settleTime;
 
     @ApiModelProperty("注单状态名称")

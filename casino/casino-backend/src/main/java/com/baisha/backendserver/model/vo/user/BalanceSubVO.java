@@ -20,7 +20,7 @@ public class BalanceSubVO {
     private Long id;
 
     @ApiModelProperty(value = "金额 大于0的整数(1-7位)", required = true)
-    private Integer amount;
+    private BigDecimal amount;
 
     @ApiModelProperty(value = "调整类型", required = true)
     private Integer adjustmentType;

@@ -98,6 +98,7 @@ public class AssetsController {
         userAssetsBO.setUserName(user.getUserName());
         userAssetsBO.setNickName(user.getNickName());
         userAssetsBO.setTgUserId(user.getTgUserId());
+        userAssetsBO.setUserType(user.getUserType());
         return ResponseUtil.success(userAssetsBO);
     }
 
