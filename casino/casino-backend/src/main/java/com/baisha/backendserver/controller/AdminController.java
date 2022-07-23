@@ -164,7 +164,7 @@ public class AdminController {
         return ResponseUtil.success(pageList);
     }
 
-    @ApiOperation(("更新密码(登陆用户)"))
+   /* @ApiOperation(("更新密码(登陆用户)"))
     @PostMapping("updatePassword")
     public ResponseEntity updatePassword(ResetPasswordVO vo) {
         if (Admin.checkPassword(vo.getNewPassword())) {
@@ -184,7 +184,7 @@ public class AdminController {
         adminService.updatePasswordById(BackendServerUtil.bcrypt(vo.getNewPassword()), currentUser.getId());
         log.info("{}修改管理员密码id={}", currentUser.getUserName(), currentUser.getId());
         return ResponseUtil.success();
-    }
+    }*/
 
     @ApiOperation(("重置密码"))
     @PostMapping("updatePasswordById")
