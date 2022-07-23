@@ -226,9 +226,9 @@ public class UserController {
                 if (playMoneyResponseEntity.getCode() == ResponseCode.SUCCESS.getCode()) {
                     log.info("{} {} {} {}", currentUser.getUserName(), BackendConstants.UPDATE,
                             currentUser.getUserName() + "为用户id={" + vo.getId() + "}增加打码量成功", BackendConstants.USER_ASSETS_MODULE);
-                    return ResponseUtil.success();
                 }
             }
+            return ResponseUtil.success();
         } else {
             //删除订单
             doDeleteOrder(orderId);
