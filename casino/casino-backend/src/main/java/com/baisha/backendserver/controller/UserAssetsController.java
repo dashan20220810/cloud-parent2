@@ -86,24 +86,22 @@ public class UserAssetsController {
 
     @ApiOperation(value = "调整类型(添加额度)")
     @GetMapping("addAdjustmentType")
-    public ResponseEntity<AdjustmentTypeBO> getAddAdjustmentType() {
-        AdjustmentTypeBO bo = new AdjustmentTypeBO();
+    public ResponseEntity<List<OrderAdjustmentTypeBO>> getAddAdjustmentType() {
         //充值
         List<OrderAdjustmentTypeEnum> charge = OrderAdjustmentTypeEnum.getList();
-        bo.setCharge(charge.stream().map(item -> OrderAdjustmentTypeBO.builder()
-                .code(item.getCode()).name(item.getName()).build()).toList());
-        return ResponseUtil.success(bo);
+        List<OrderAdjustmentTypeBO> list = charge.stream().map(item -> OrderAdjustmentTypeBO.builder()
+                .code(item.getCode()).name(item.getName()).build()).toList();
+        return ResponseUtil.success(list);
     }
 
     @ApiOperation(value = "调整类型(扣除额度)")
     @GetMapping("subAdjustmentType")
-    public ResponseEntity<AdjustmentTypeBO> getsubAdjustmentType() {
-        AdjustmentTypeBO bo = new AdjustmentTypeBO();
+    public ResponseEntity<List<OrderAdjustmentTypeBO>> getSubAdjustmentType() {
         //提现
         List<OrderAdjustmentTypeTxEnum> withdraw = OrderAdjustmentTypeTxEnum.getList();
-        bo.setWithdraw(withdraw.stream().map(item -> OrderAdjustmentTypeBO.builder()
-                .code(item.getCode()).name(item.getName()).build()).toList());
-        return ResponseUtil.success(bo);
+        List<OrderAdjustmentTypeBO> list = withdraw.stream().map(item -> OrderAdjustmentTypeBO.builder()
+                .code(item.getCode()).name(item.getName()).build()).toList();
+        return ResponseUtil.success(list);
     }
 
 
