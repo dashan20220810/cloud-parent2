@@ -45,7 +45,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     List<User> findByIdIn(List<Long> userIds);
 
-    @Query(value = "update User  u set u.userType = ?2 where u.userName=?1")
+    @Query(value = "update User  u set u.userType = ?1 where u.id=?2")
     @Modifying
-    int updateUserType(String userName, Integer userType);
+    int updateUserType(Integer userType, Long id);
 }

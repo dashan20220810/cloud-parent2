@@ -363,7 +363,11 @@ public class UserController {
         if (null == vo.getUserType() || CommonUtil.checkNull(vo.getUserName())) {
             return ResponseUtil.parameterNotNull();
         }
-        userService.updateUserType(vo.getUserName(), vo.getUserType());
+        User user = userService.findByUserName(vo.getUserName());
+        if (Objects.nonNull(user)) {
+            userService.updateUserType(vo.getUserType(), user.getId());
+        }
+
         return ResponseUtil.success();
     }
 

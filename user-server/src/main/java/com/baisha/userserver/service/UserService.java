@@ -60,7 +60,8 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    @Caching(put = {@CachePut(key = "#id")})
+    //@Caching(put = {@CachePut(key = "#id")})
+    @CachePut(key = "#id", unless = "#result == null")
     public User statusById(Integer status, Long id) {
         int i = userRepository.updateUserStatusById(status, id);
         if (i > 0) {
@@ -78,7 +79,12 @@ public class UserService {
         return userRepository.findByIdIn(userIds);
     }
 
-    public int updateUserType(String userName, Integer userType) {
-        return userRepository.updateUserType(userName, userType);
+    @CachePut(key = "#id", unless = "#result == null")
+    public User updateUserType(Integer userType, Long id) {
+        int i = userRepository.updateUserType(userType, id);
+        if (i > 0) {
+            return userRepository.findById(id).get();
+        }
+        return null;
     }
 }
