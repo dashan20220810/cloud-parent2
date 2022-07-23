@@ -52,7 +52,7 @@ public class TelegramCallbackQueryHandler {
             return;
         }
         // 判断此群是否通过审核，未通过不处理消息。
-        if (!commonHandler.checkChatIsAudit(chat)) {
+        if (!commonHandler.checkChatIsAudit(chat, bot)) {
             return;
         }
 
