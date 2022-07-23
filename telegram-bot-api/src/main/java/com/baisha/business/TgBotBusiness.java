@@ -50,6 +50,7 @@ public class TgBotBusiness {
         if (Constants.open.equals(status)) {
             return controlBotBusiness.startupBot(tgBot.getBotName(), tgBot.getBotToken());
         }
+        // 异步执行
         return controlBotBusiness.shutdownBot(tgBot.getBotName());
     }
 }

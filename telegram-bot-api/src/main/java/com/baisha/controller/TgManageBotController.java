@@ -109,11 +109,6 @@ public class TgManageBotController {
         TgBot tgBot = tgBotService.findById(id);
         // 停止机器人
         controlBotBusiness.shutdownBot(tgBot.getBotName());
-        // 删除MAP
-        controlBotBusiness.botSessionMap.remove(tgBot.getBotName());
-
-
-
         // 删除机器人
         tgBotService.delBot(id);
         return ResponseUtil.success();

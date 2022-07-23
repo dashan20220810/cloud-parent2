@@ -38,6 +38,8 @@ public class ControlBotBusiness {
                 botSession.stop();
             }
         }
+        botSessionMap.remove(botName);
+        myBotMap.remove(botName);
         return true;
     }
 
@@ -49,17 +51,16 @@ public class ControlBotBusiness {
      * @return
      */
     public boolean startupBot(String botName, String token) {
-        // 1.检测人池中是否有该机器人实例,有直接启动
+        // 1.检测实例池中是否有该机器人实例，有直接启动
         BotSession botSession = botSessionMap.get(botName);
         if (botSession != null) {
             if (botSession.isRunning()) {
                 return true;
             }
-            // 有实例被停止启动机器人
             botSession.start();
             // 启动后再次判断
             if (botSession.isRunning()) {
-                return false;
+                return true;
             }
         }
 
@@ -69,12 +70,11 @@ public class ControlBotBusiness {
             myBot = new MyTelegramLongPollingBot(botName, token);
             botSession = getBotsApiInstance().registerBot(myBot);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
             log.error("启动机器人失败,username:{},token:{}", botName, token);
             return false;
         }
         if (botSession.isRunning()) {
-            //新加機器人放入实例池中
+            // 放入实例池中
             botSessionMap.put(botName, botSession);
             myBotMap.put(botName, myBot);
             return true;
