@@ -36,7 +36,7 @@ public class GameInfoBusiness {
     private RedissonClient redisUtil;
 
     public synchronized TgGameInfo getTgGameInfo( final String gameKey) {
-		Optional<RMapCache<String, TgGameInfo>> map = Optional.of(redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_INFO));
+		Optional<RMapCache<String, TgGameInfo>> map = Optional.ofNullable(redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_INFO));
 		return map.map(obj -> obj.get(gameKey)).orElse(new TgGameInfo());
     }
 
@@ -122,7 +122,7 @@ public class GameInfoBusiness {
 	}
 
 	public synchronized String getGameResult(final String currentActive) {
-		Optional<RMapCache<String, String>> map = Optional.of(redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_RESULT));
+		Optional<RMapCache<String, String>> map = Optional.ofNullable(redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_RESULT));
 		return map.map(obj -> obj.get(currentActive)).orElse(null);
 	}
 
@@ -132,7 +132,7 @@ public class GameInfoBusiness {
 	}
 
 	public synchronized GameInfo getGameInfo(String gameTimeKey) {
-		Optional<RMapCache<String, GameInfo>> map = Optional.of(redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME));
+		Optional<RMapCache<String, GameInfo>> map = Optional.ofNullable(redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME));
 		return map.map(obj -> obj.get(gameTimeKey)).orElse(new GameInfo());
 	}
 }
