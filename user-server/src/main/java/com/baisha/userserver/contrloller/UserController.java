@@ -251,6 +251,9 @@ public class UserController {
         if (null == vo.getUserType() || CommonUtil.checkNull(vo.getUserName())) {
             return ResponseUtil.parameterNotNull();
         }
+        if (vo.getUserType().equals(UserTypeEnum.NORMAL.getCode())) {
+            return new ResponseEntity("已经是正式/测试不能转正式");
+        }
         User user = userService.findByUserName(vo.getUserName());
         if (Objects.nonNull(user)) {
             userService.updateUserType(user.getId(), vo.getUserType());
@@ -370,8 +373,6 @@ public class UserController {
         }
         return ResponseUtil.success(new ArrayList<>());
     }
-
-
 
 
 }

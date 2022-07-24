@@ -200,7 +200,7 @@ public class UserAssetsBusiness {
             assetsService.saveAssets(assets);
             return assets;
         }
-        assetsService.doRefresh(assets);
+        //assetsService.doRefresh(assets);
         return assets;
     }
 
