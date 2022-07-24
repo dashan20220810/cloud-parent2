@@ -17,9 +17,9 @@ public class UserServerConstants {
 
 
     //加减余额同步key
-    public static String BALANCE = "BALANCE";
+    public static String BALANCE = "userServer_balance";
     //加减打码量同步key
-    public static String PLAYMONEY = "PLAYMONEY";
+    public static String PLAYMONEY = "userServer_playMoney";
 
 
 }

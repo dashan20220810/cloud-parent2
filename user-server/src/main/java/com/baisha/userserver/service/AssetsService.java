@@ -29,9 +29,12 @@ public class AssetsService {
         return assets;
     }
 
-    public Assets getAssetsByUserId(Long id) {
+    public void doFlushAndClear() {
         entityManager.flush();
         entityManager.clear();
+    }
+
+    public Assets getAssetsByUserId(Long id) {
         return assetsRepository.findByUserId(id);
     }
 
@@ -41,8 +44,6 @@ public class AssetsService {
             log.error("doIncreaseBalanceById amount is null");
             amount = BigDecimal.ZERO;
         }
-        entityManager.flush();
-        entityManager.clear();
         return assetsRepository.increaseBalanceById(amount, id);
     }
 
@@ -51,8 +52,6 @@ public class AssetsService {
             log.error("doReduceBalanceById amount is null");
             amount = BigDecimal.ZERO;
         }
-        entityManager.flush();
-        entityManager.clear();
         return assetsRepository.reduceBalanceById(amount, id);
     }
 
@@ -61,8 +60,6 @@ public class AssetsService {
             log.error("doIncreasePlayMoneyById amount is null");
             amount = BigDecimal.ZERO;
         }
-        entityManager.flush();
-        entityManager.clear();
         return assetsRepository.increasePlayMoneyById(amount, id);
     }
 
@@ -71,8 +68,6 @@ public class AssetsService {
             log.error("doReducePlayMoneyById amount is null");
             amount = BigDecimal.ZERO;
         }
-        entityManager.flush();
-        entityManager.clear();
         return assetsRepository.reducePlayMoneyById(amount, id);
     }
 
@@ -81,8 +76,6 @@ public class AssetsService {
             log.error("doSubtractBalanceById amount is null");
             amount = BigDecimal.ZERO;
         }
-        entityManager.flush();
-        entityManager.clear();
         return assetsRepository.doSubtractBalanceById(amount, id);
     }
 

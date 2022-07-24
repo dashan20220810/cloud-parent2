@@ -59,37 +59,37 @@ public class DirectReceiver {
         }
         log.info("=====betSettlementAward============START==========================");
         //同一个人，同步
-        synchronized (user.getId() + UserServerConstants.BALANCE + UserServerConstants.PLAYMONEY) {
-            if (vo.getPlayMoney().compareTo(BigDecimal.ZERO) > 0) {
-                PlayMoneyVO playMoneyVO = new PlayMoneyVO();
-                playMoneyVO.setUserId(vo.getUserId());
-                playMoneyVO.setAmount(vo.getPlayMoney());
-                playMoneyVO.setPlayMoneyType(UserServerConstants.EXPENSES);
-                playMoneyVO.setRemark("会员结算打码量，注单ID为" + vo.getBetId());
-                playMoneyVO.setRelateId(vo.getBetId());
-                if (vo.getIsReopen().equals(Constants.open)) {
-                    playMoneyVO.setChangeType(PlayMoneyChangeEnum.SETTLEMENT_REOPEN.getCode());
-                } else {
-                    playMoneyVO.setChangeType(PlayMoneyChangeEnum.SETTLEMENT.getCode());
-                }
-                rabbitBusiness.doUserPlayMoney(user, playMoneyVO);
+        //synchronized (user.getId() + UserServerConstants.BALANCE + UserServerConstants.PLAYMONEY) {
+        if (vo.getPlayMoney().compareTo(BigDecimal.ZERO) > 0) {
+            PlayMoneyVO playMoneyVO = new PlayMoneyVO();
+            playMoneyVO.setUserId(vo.getUserId());
+            playMoneyVO.setAmount(vo.getPlayMoney());
+            playMoneyVO.setPlayMoneyType(UserServerConstants.EXPENSES);
+            playMoneyVO.setRemark("会员结算打码量，注单ID为" + vo.getBetId());
+            playMoneyVO.setRelateId(vo.getBetId());
+            if (vo.getIsReopen().equals(Constants.open)) {
+                playMoneyVO.setChangeType(PlayMoneyChangeEnum.SETTLEMENT_REOPEN.getCode());
+            } else {
+                playMoneyVO.setChangeType(PlayMoneyChangeEnum.SETTLEMENT.getCode());
             }
-
-            if (vo.getFinalAmount().compareTo(BigDecimal.ZERO) > 0) {
-                BalanceVO balanceVO = new BalanceVO();
-                balanceVO.setUserId(vo.getUserId());
-                balanceVO.setBalanceType(UserServerConstants.INCOME);
-                balanceVO.setAmount(vo.getFinalAmount());
-                balanceVO.setRelateId(vo.getBetId());
-                if (vo.getIsReopen().equals(Constants.open)) {
-                    balanceVO.setChangeType(BalanceChangeEnum.BET_REWIN.getCode());
-                } else {
-                    balanceVO.setChangeType(BalanceChangeEnum.WIN.getCode());
-                }
-                balanceVO.setRemark("会员" + "在局号为" + vo.getNoActive() + "中奖");
-                rabbitBusiness.doUserBalance(user, balanceVO);
-            }
+            rabbitBusiness.doUserPlayMoney(user, playMoneyVO);
         }
+
+        if (vo.getFinalAmount().compareTo(BigDecimal.ZERO) > 0) {
+            BalanceVO balanceVO = new BalanceVO();
+            balanceVO.setUserId(vo.getUserId());
+            balanceVO.setBalanceType(UserServerConstants.INCOME);
+            balanceVO.setAmount(vo.getFinalAmount());
+            balanceVO.setRelateId(vo.getBetId());
+            if (vo.getIsReopen().equals(Constants.open)) {
+                balanceVO.setChangeType(BalanceChangeEnum.BET_REWIN.getCode());
+            } else {
+                balanceVO.setChangeType(BalanceChangeEnum.WIN.getCode());
+            }
+            balanceVO.setRemark("会员" + "在局号为" + vo.getNoActive() + "中奖");
+            rabbitBusiness.doUserBalance(user, balanceVO);
+        }
+        //}
         log.info("====betSettlementAward============END========================");
     }
 
@@ -126,9 +126,9 @@ public class DirectReceiver {
         balanceVO.setChangeType(vo.getChangeType());
         balanceVO.setRemark(vo.getRemark());
         //同一个人，同步
-        synchronized (user.getId() + UserServerConstants.BALANCE) {
-            rabbitBusiness.doUserSubtractBalance(user, balanceVO);
-        }
+        //synchronized (user.getId() + UserServerConstants.BALANCE) {
+        rabbitBusiness.doUserSubtractBalance(user, balanceVO);
+        //}
         log.info("====userSubtractAssets============END========================");
     }
 
@@ -165,9 +165,9 @@ public class DirectReceiver {
         playMoneyVO.setChangeType(vo.getChangeType());
         playMoneyVO.setRemark(vo.getRemark());
         //同一个人，同步
-        synchronized (user.getId() + UserServerConstants.PLAYMONEY) {
-            rabbitBusiness.doUserAddPlayMoney(user, playMoneyVO);
-        }
+        //synchronized (user.getId() + UserServerConstants.PLAYMONEY) {
+        rabbitBusiness.doUserAddPlayMoney(user, playMoneyVO);
+        //}
         log.info("====userAddPlayMoneyAssets============END========================");
     }
 
