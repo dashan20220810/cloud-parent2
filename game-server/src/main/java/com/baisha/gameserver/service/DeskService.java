@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.baisha.gameserver.model.Desk;
 import com.baisha.gameserver.repository.DeskRepository;
 import com.baisha.gameserver.vo.DeskPageVO;
+import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.modulecommon.util.PageUtil;
 
 import lombok.extern.slf4j.Slf4j;
@@ -125,6 +126,53 @@ public class DeskService {
         	return deskRepository.findById(id).get();
         }
         return null;
+    }
+    
+    /**
+     * 正確返回空字串
+     * @param deskId 新增null，修改必帶值
+     * @param deskCode
+     * @param name
+     * @param localIp
+     * @return
+     */
+    public String validateDuplicateField (Long deskId, String deskCode, String name, String localIp) {
+    	
+    	Desk desk = null;
+    	
+    	if (deskId==null) {
+    		desk = deskRepository.findByDeskCode(deskCode);
+    		if (desk != null) {
+    			return "桌台编号已存在或被占用";
+    		}
+
+    		desk = deskRepository.findByName(name);
+    		if (desk != null) {
+    			return "桌台名称已存在或被占用";
+    		}
+
+    		desk = deskRepository.findByLocalIp(localIp);
+    		if (desk != null) {
+    			return "内网IP已占用";
+    		}
+    	} else {
+    		desk = deskRepository.findByDeskCode(deskCode);
+    		if (desk != null && deskId != desk.getId()) {
+    			return "桌台编号已存在或被占用";
+    		}
+
+    		desk = deskRepository.findByName(name);
+    		if (desk != null && deskId != desk.getId()) {
+    			return "桌台名称已存在或被占用";
+    		}
+
+    		desk = deskRepository.findByLocalIp(localIp);
+    		if (desk != null && deskId != desk.getId()) {
+    			return "内网IP已占用";
+    		}
+    	}
+    	
+    	return "";
     }
 
 }

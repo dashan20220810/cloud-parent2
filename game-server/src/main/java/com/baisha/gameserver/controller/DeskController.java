@@ -2,6 +2,7 @@ package com.baisha.gameserver.controller;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -103,6 +104,11 @@ public class DeskController {
         }
 
         try {
+        	String validateDuplicate = deskService.validateDuplicateField(null, deskVO.getDeskCode(), deskVO.getName(), deskVO.getLocalIp());
+        	if (StringUtils.isNotBlank(validateDuplicate)) {
+        		return ResponseUtil.custom(validateDuplicate);
+        	}
+        	
         	deskService.save(desk);
         } catch (Exception e) {
         	log.error(e.getMessage(), e);
@@ -172,6 +178,11 @@ public class DeskController {
         }
 
         try {
+        	String validateDuplicate = deskService.validateDuplicateField(deskId, desk.getDeskCode(), deskVO.getName(), deskVO.getLocalIp());
+        	if (StringUtils.isNotBlank(validateDuplicate)) {
+        		return ResponseUtil.custom(validateDuplicate);
+        	}
+        	
             deskService.update(deskId, deskVO.getLocalIp(), deskVO.getVideoAddress(), deskVO.getNearVideoAddress()
                     , deskVO.getCloseVideoAddress(), deskVO.getGameCode(), deskVO.getStatus(), deskVO.getName());
         } catch (Exception e) {

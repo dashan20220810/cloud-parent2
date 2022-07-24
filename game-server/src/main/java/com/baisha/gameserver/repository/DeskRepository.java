@@ -19,6 +19,8 @@ public interface DeskRepository extends JpaRepository<Desk, Long>, JpaSpecificat
 
     Desk findByDeskCode ( String deskCode );
     
+    Desk findByName (String name);
+    
     /**
      * 更新状态
      * @param status
