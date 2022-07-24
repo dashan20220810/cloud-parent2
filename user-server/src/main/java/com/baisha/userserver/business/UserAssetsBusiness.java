@@ -55,15 +55,19 @@ public class UserAssetsBusiness {
             boolean res = fairLock.tryLock(RedisConstants.WAIT_TIME, RedisConstants.UNLOCK_TIME, TimeUnit.SECONDS);
             if (res) {
                 if (UserServerConstants.INCOME == vo.getBalanceType()) {
+                    long start = System.currentTimeMillis();
                     //收入
                     ResponseEntity response = doIncomeBalance(user, vo);
                     fairLock.unlock();
+                    log.info(" 会员userId={}新增余额 耗时{}毫秒", user.getId(), System.currentTimeMillis() - start);
                     return response;
                 }
                 if (UserServerConstants.EXPENSES == vo.getBalanceType()) {
                     //支出
+                    long start = System.currentTimeMillis();
                     ResponseEntity response = doReduceBalance(user, vo);
                     fairLock.unlock();
+                    log.info(" 会员userId={}减去余额 耗时{}毫秒", user.getId(), System.currentTimeMillis() - start);
                     return response;
                 }
             }
@@ -230,14 +234,18 @@ public class UserAssetsBusiness {
             if (res) {
                 if (UserServerConstants.INCOME == vo.getPlayMoneyType()) {
                     //收入
+                    long start = System.currentTimeMillis();
                     ResponseEntity response = doIncomePlayMoney(user, vo);
                     fairLock.unlock();
+                    log.info(" 会员userId={}新增打码量 耗时{}毫秒", user.getId(), System.currentTimeMillis() - start);
                     return response;
                 }
                 if (UserServerConstants.EXPENSES == vo.getPlayMoneyType()) {
                     //支出
+                    long start = System.currentTimeMillis();
                     ResponseEntity response = doReducePlayMoney(user, vo);
                     fairLock.unlock();
+                    log.info(" 会员userId={}减少打码量 耗时{}毫秒", user.getId(), System.currentTimeMillis() - start);
                     return response;
                 }
             }
@@ -350,6 +358,7 @@ public class UserAssetsBusiness {
                 //支出
                 ResponseEntity response = doReduceBalanceNegative(user, vo, isExist);
                 fairLock.unlock();
+                log.info("SubtractBalance 会员userId={}减少余额 耗时{}毫秒", user.getId(), System.currentTimeMillis() - start);
                 return response;
             }
         } catch (Exception e) {
@@ -405,6 +414,7 @@ public class UserAssetsBusiness {
                 //支出
                 ResponseEntity response = doSubtractPlayMoney(user, vo, isExist);
                 fairLock.unlock();
+                log.info("SubtractPlayMoney 会员userId={}减少打码量 耗时{}毫秒", user.getId(), System.currentTimeMillis() - start);
                 return response;
             }
         } catch (Exception e) {
