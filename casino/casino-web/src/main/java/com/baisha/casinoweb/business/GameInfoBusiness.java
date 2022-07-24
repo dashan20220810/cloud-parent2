@@ -1,9 +1,6 @@
 package com.baisha.casinoweb.business;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import com.baisha.modulecommon.BigDecimalConstants;
@@ -39,8 +36,8 @@ public class GameInfoBusiness {
     private RedissonClient redisUtil;
 
     public synchronized TgGameInfo getTgGameInfo( final String gameKey) {
-		RMapCache<String, TgGameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_INFO);
-		return map.get(gameKey);
+		Optional<RMapCache<String, TgGameInfo>> map = Optional.of(redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_INFO));
+		return map.map(obj -> obj.get(gameKey)).orElse(new TgGameInfo());
     }
 
     public synchronized void setTgGameInfo( final String gameKey, final TgGameInfo gameInfo ) {
@@ -124,9 +121,9 @@ public class GameInfoBusiness {
 		map.put(currentActive, openCardResult, BigDecimalConstants.ONE.longValue(), TimeUnit.DAYS);
 	}
 
-	public synchronized void getGameResult(final String currentActive) {
-		RMapCache<String, String> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_RESULT);
-		map.get(currentActive);
+	public synchronized String getGameResult(final String currentActive) {
+		Optional<RMapCache<String, String>> map = Optional.of(redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_RESULT));
+		return map.map(obj -> obj.get(currentActive)).orElse(null);
 	}
 
 	public synchronized void setGameInfo(String gameTimeKey, GameInfo newGameInfo) {
@@ -135,7 +132,7 @@ public class GameInfoBusiness {
 	}
 
 	public synchronized GameInfo getGameInfo(String gameTimeKey) {
-		RMapCache<String, GameInfo> map = redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME);
-		return map.get(gameTimeKey);
+		Optional<RMapCache<String, GameInfo>> map = Optional.of(redisUtil.getMapCache(RedisKeyConstants.SYS_GAME_TIME));
+		return map.map(obj -> obj.get(gameTimeKey)).orElse(new GameInfo());
 	}
 }
