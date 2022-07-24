@@ -93,7 +93,7 @@ public class CommandBusiness {
         String message = this.buildStartMessage(vo.getBureauNum(), tgChat.getMinAmount() + "",
                 tgChat.getMaxAmount() + "", tgChat.getMaxShoeAmount() + "");
         myBot.sendMessage(message, tgChat.getChatId()+"");
-        redisUtil.set(tgChat.getId()+"123", 0);
+        redisUtil.set(tgChat.getId() + CommonConstant.FORMER, 0);
     }
 
     @Async
@@ -112,7 +112,7 @@ public class CommandBusiness {
         // 组装TG信息
         String sealingLineMessage = this.buildSealingLineMessage(configInfo, vo, betUserAmountVO);
         myBot.sendMessage(sealingLineMessage, tgChat.getChatId()+"");
-        redisUtil.set(tgChat.getId()+"123", 1);
+        redisUtil.set(tgChat.getId() + CommonConstant.FORMER, 1);
     }
 
     @Async
@@ -133,15 +133,15 @@ public class CommandBusiness {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                Object object = redisUtil.get(tgChat.getId() + "123");
+                Object object = redisUtil.get(tgChat.getId() + CommonConstant.FORMER);
                 if (null != object && (Integer)object == 1) {
                     this.showOpenCardButton(vo, openCardAddress, tgChat, myBot);
-                    redisUtil.set(tgChat.getId()+"321", 0);
+                    redisUtil.set(tgChat.getId() + CommonConstant.LATTER, 0);
                     return;
                 }
             }
             this.showOpenCardButton(vo, openCardAddress, tgChat, myBot);
-            redisUtil.set(tgChat.getId()+"321", 0);
+            redisUtil.set(tgChat.getId() + CommonConstant.LATTER, 0);
         }
         if (null != videoResultAddress) {
             try {
@@ -160,10 +160,10 @@ public class CommandBusiness {
         if (null != picRoadAddress) {
             try {
                 myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(picRoadAddress))), tgChat.getChatId()+"");
-                redisUtil.set(tgChat.getId()+"321", 1);
+                redisUtil.set(tgChat.getId() + CommonConstant.LATTER, 1);
             } catch (Exception e) {
                 log.error("[开牌]======根据URL获取图片流-异常,图片地址:{}", picRoadAddress);
-                redisUtil.set(tgChat.getId()+"321", 1);
+                redisUtil.set(tgChat.getId() + CommonConstant.LATTER, 1);
             }
         }
     }
@@ -187,7 +187,7 @@ public class CommandBusiness {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            Object object = redisUtil.get(tgChat.getId() + "321");
+            Object object = redisUtil.get(tgChat.getId() + CommonConstant.LATTER);
             if (null != object && (Integer)object == 1) {
                 myBot.sendMessage(settlementMessage, tgChat.getChatId()+"");
                 return;
@@ -207,7 +207,7 @@ public class CommandBusiness {
         List<TgChatBetBotRelation> tgChatBetBotRelations = tgChatBetBotRelationService.findByTgChatId(tgChat.getId());
         tgChatBetBotRelations.forEach(tgChatBetBotRelation -> {
             TgBetBot tgBetBot = tgBetBotService.findById(tgChatBetBotRelation.getTgBetBotId());
-            if (null != tgBetBot && Objects.equals(tgBetBot.getStatus(), Constants.open)) {
+            if (null != tgBetBot && tgBetBot.getStatus().equals(Constants.open)) {
                 tgBetBots.add(tgBetBot);
             }
         });

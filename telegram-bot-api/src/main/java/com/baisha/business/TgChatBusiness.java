@@ -58,12 +58,13 @@ public class TgChatBusiness {
         for (TgBetBot tgBetBot : tgBetBots) {
             TgChatBetBotBindingVO vo = new TgChatBetBotBindingVO();
             vo.setTgBetBotId(tgBetBot.getId());
+            vo.setTgBetBotName(tgBetBot.getBetBotName());
             vo.setTgBetBotPhone(tgBetBot.getBetBotPhone());
             // 循环关系表
             if (CollUtil.isEmpty(relations)) {
                 vo.setBindingStatus(Constants.close);
                 result.add(vo);
-                break;
+                continue;
             }
             for (TgChatBetBotRelation relation : relations) {
                 if (tgBetBot.getId().equals(relation.getTgBetBotId())) {

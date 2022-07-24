@@ -14,6 +14,9 @@ public class TgChatBetBotBindingVO {
     @ApiModelProperty(value = "TgBetBot对象-主键")
     private Long tgBetBotId;
 
+    @ApiModelProperty(value = "TgBetBot对象-机器人名称")
+    private String tgBetBotName;
+
     @ApiModelProperty(value = "TgBetBot对象-机器人手机号")
     private String tgBetBotPhone;
 

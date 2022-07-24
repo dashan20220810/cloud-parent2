@@ -30,6 +30,14 @@ public class TgBetBotService {
         return tgBetBotRepository.findByBetBotId(betBotId);
     }
 
+    public TgBetBot findByBetBotPhone(String betBotPhone) {
+        return tgBetBotRepository.findByBetBotPhone(betBotPhone);
+    }
+
+    public TgBetBot findByBetBotName(String betBotName) {
+        return tgBetBotRepository.findByBetBotName(betBotName);
+    }
+
     @CachePut(key = "#tgBetBot.id")
     public TgBetBot save(TgBetBot tgBetBot) {
         return tgBetBotRepository.save(tgBetBot);

@@ -15,6 +15,10 @@ public interface TgBetBotRepository extends JpaRepository<TgBetBot, Long>, JpaSp
 
     TgBetBot findByBetBotId(String betBotId);
 
+    TgBetBot findByBetBotPhone(String betBotPhone);
+
+    TgBetBot findByBetBotName(String betBotName);
+
     List<TgBetBot> findByStatus(Integer status);
 
     @Query(value = "update TgBetBot tg set tg.status = ?1 where tg.id = ?2")

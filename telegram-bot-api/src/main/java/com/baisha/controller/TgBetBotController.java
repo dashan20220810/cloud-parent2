@@ -33,26 +33,55 @@ public class TgBetBotController {
     @Autowired
     private TgBetBotService tgBetBotService;
 
-    @ApiOperation("新增投注机器人")
+    @ApiOperation("新增/修改投注机器人")
     @PostMapping("addBetBot")
     public ResponseEntity addBetBot(TgBetBotVO vo) {
-        // 启动机器人成功，更新机器人资料
-        TgBetBot tgBetBot = tgBetBotService.findByBetBotId(vo.getBetBotId());
-        if (ObjectUtils.isEmpty(tgBetBot) || StringUtils.isEmpty(tgBetBot.getBetBotId())) {
+        if (null == vo.getId()) {
             // 新增
-            tgBetBot = new TgBetBot();
+            TgBetBot tgBetBot1 = tgBetBotService.findByBetBotId(vo.getBetBotId());
+            if (null != tgBetBot1) {
+                return ResponseUtil.custom("机器人用户ID已存在");
+            }
+            TgBetBot tgBetBot2 = tgBetBotService.findByBetBotPhone(vo.getBetBotPhone());
+            if (null != tgBetBot2) {
+                return ResponseUtil.custom("手机号已存在");
+            }
+            TgBetBot tgBetBot3 = tgBetBotService.findByBetBotName(vo.getBetBotName());
+            if (null != tgBetBot3) {
+                return ResponseUtil.custom("机器人名称已存在");
+            }
+            TgBetBot tgBetBot = new TgBetBot();
             tgBetBot.setBetBotId(vo.getBetBotId())
-                    .setBetBotPhone(vo.getBetBotPhone());
+                    .setBetBotName(vo.getBetBotName())
+                    .setBetBotPhone(vo.getBetBotPhone())
+                    .setBetStartTime(vo.getBetStartTime())
+                    .setBetEndTime(vo.getBetEndTime())
+                    .setBetFrequency(vo.getBetFrequency())
+                    .setBetContents(vo.getBetContents())
+                    .setMinMultiple(vo.getMinMultiple())
+                    .setMaxMultiple(vo.getMaxMultiple())
+                    .setStatus(Constants.open);
+            tgBetBotService.save(tgBetBot);
+
+            return ResponseUtil.success();
         }
-        tgBetBot.setBetBotName(vo.getBetBotName())
-                .setBetStartTime(vo.getBetStartTime())
-                .setBetEndTime(vo.getBetEndTime())
-                .setBetFrequency(vo.getBetFrequency())
-                .setBetContents(vo.getBetContents())
-                .setMinMultiple(vo.getMinMultiple())
-                .setMaxMultiple(vo.getMaxMultiple())
-                .setStatus(Constants.open);
-        tgBetBotService.save(tgBetBot);
+        // 修改
+        TgBetBot byId = tgBetBotService.findById(vo.getId());
+        if (null == byId) {
+            return ResponseUtil.custom("机器人不存在");
+        }
+//        TgBetBot tgBetBot4 = tgBetBotService.findByBetBotName(vo.getBetBotName());
+//        if (null != tgBetBot4) {
+//            return ResponseUtil.custom("机器人名称已存在");
+//        }
+        byId.setBetBotName(vo.getBetBotName())
+            .setBetStartTime(vo.getBetStartTime())
+            .setBetEndTime(vo.getBetEndTime())
+            .setBetFrequency(vo.getBetFrequency())
+            .setBetContents(vo.getBetContents())
+            .setMinMultiple(vo.getMinMultiple())
+            .setMaxMultiple(vo.getMaxMultiple());
+        tgBetBotService.save(byId);
 
         return ResponseUtil.success();
     }

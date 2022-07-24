@@ -144,13 +144,16 @@ public class TgBetBotBusiness {
         int indexAmount = TelegramBotUtil.getRandom(0, amounts.size() - 1);
         BigDecimal amount = amounts.get(indexAmount);
         // 下注机器人-开始下注
-        int random = TelegramBotUtil.getRandom(8, 16);
+        int random = TelegramBotUtil.getRandom(5, 15);
         try {
             Thread.sleep(Long.parseLong(random + "000"));
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 //            myBot.sendMessage(betContent + amount, tgChat.getChatId()+"");
+
+        log.info("下注机器人-开始下注,下注机器人:{},下注手机号:{},下注内容:{},群:{}", tgBetBot.getBetBotName(), tgBetBot.getBetBotPhone(), betContent + amount, tgChat.getChatName());
+
         // 直接发送，不需要返回值
         commonHandler.betBotSendMessage(tgBetBot.getBetBotPhone(), betContent + amount, tgChat.getChatName());
     }

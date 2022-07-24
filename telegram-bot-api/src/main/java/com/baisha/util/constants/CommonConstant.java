@@ -9,4 +9,7 @@ public class CommonConstant {
     public static final Integer CONSTANT_0 = 0;
 
     public static final String VIDEO_SUFFIX_MP4 = ".mp4";
+
+    public static final String FORMER = "former";
+    public static final String LATTER = "latter";
 }
