@@ -31,7 +31,6 @@ public class RabbitBusiness {
             } else {
                 userAssetsBusiness.doBalanceBusiness(user, balanceVO);
             }
-            assetsService.doFlushAndClear();
         }
     }
 
@@ -45,7 +44,6 @@ public class RabbitBusiness {
             } else {
                 userAssetsBusiness.doPlayMoneyBusiness(user, playMoneyVO);
             }
-            assetsService.doFlushAndClear();
         }
     }
 
@@ -53,7 +51,6 @@ public class RabbitBusiness {
     public void doUserSubtractBalance(User user, BalanceVO balanceVO) {
         synchronized (user.getId() + UserServerConstants.BALANCE) {
             userAssetsBusiness.doSubtractBalanceBusiness(user, balanceVO);
-            assetsService.doFlushAndClear();
         }
     }
 
@@ -61,7 +58,6 @@ public class RabbitBusiness {
     public void doUserAddPlayMoney(User user, PlayMoneyVO playMoneyVO) {
         synchronized (user.getId() + UserServerConstants.PLAYMONEY) {
             userAssetsBusiness.doUserAddPlayMoneyBusiness(user, playMoneyVO);
-            assetsService.doFlushAndClear();
         }
     }
 

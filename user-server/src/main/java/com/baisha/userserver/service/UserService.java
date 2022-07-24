@@ -32,6 +32,16 @@ public class UserService {
     @Autowired
     EntityManager entityManager;
 
+
+    public void doFlushAndClear() {
+        entityManager.flush();
+        entityManager.clear();
+    }
+
+    public void doRefresh(User user) {
+        entityManager.refresh(user);
+    }
+
     @Caching(put = {@CachePut(key = "#user.id")})
 //    @CachePut(key = "#p0.id")
     public User saveUser(User user) {
@@ -93,11 +103,14 @@ public class UserService {
     public User updateUserType(Long id, Integer userType) {
         int i = userRepository.updateUserType(userType, id);
         log.info("i={}", i);
-        entityManager.flush();
-        entityManager.clear();
-        User user = userRepository.findById(id).get();
-        return user;
+        if (i > 0) {
+            User user = userRepository.findById(id).get();
+            doRefresh(user);
+            return user;
+        }
 
-
+        return null;
     }
+
+
 }

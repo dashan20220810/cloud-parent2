@@ -1,6 +1,5 @@
 package com.baisha.userserver.business;
 
-import com.baisha.modulecommon.enums.BalanceChangeEnum;
 import com.baisha.modulecommon.reponse.ResponseEntity;
 import com.baisha.modulecommon.reponse.ResponseUtil;
 import com.baisha.userserver.model.Assets;
@@ -20,7 +19,6 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -202,6 +200,7 @@ public class UserAssetsBusiness {
             assetsService.saveAssets(assets);
             return assets;
         }
+        assetsService.doRefresh(assets);
         return assets;
     }
 

@@ -24,15 +24,22 @@ public class AssetsService {
     @Autowired
     EntityManager entityManager;
 
+
+    public void doRefresh(Assets assets) {
+        entityManager.refresh(assets);
+    }
+
+
+
     public Assets saveAssets(Assets assets) {
         assetsRepository.save(assets);
         return assets;
     }
 
-    public void doFlushAndClear() {
+    /*public void doFlushAndClear() {
         entityManager.flush();
         entityManager.clear();
-    }
+    }*/
 
     public Assets getAssetsByUserId(Long id) {
         return assetsRepository.findByUserId(id);
