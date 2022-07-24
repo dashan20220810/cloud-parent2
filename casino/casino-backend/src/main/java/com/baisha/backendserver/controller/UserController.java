@@ -136,8 +136,11 @@ public class UserController {
     @GetMapping("getUserType")
     public ResponseEntity<List<CodeNameBO>> getUserType() {
         List<UserTypeEnum> userType = UserTypeEnum.getList();
-        List<CodeNameBO> list = userType.stream().map(item -> CodeNameBO.builder()
-                .code(String.valueOf(item.getCode())).name(item.getName()).build()).toList();
+        List<CodeNameBO> list = userType.stream()
+                .map(item -> CodeNameBO.builder()
+                        .code(String.valueOf(item.getCode())).name(item.getName()).build())
+                .filter(item -> Integer.parseInt(item.getCode()) != UserTypeEnum.BOT.getCode())
+                .toList();
         return ResponseUtil.success(list);
     }
 
@@ -346,9 +349,9 @@ public class UserController {
             return new ResponseEntity("用户资产不存在");
         }
         vo.setId(userAssetsBO.getUserId());
-        if (null != userAssetsBO.getUserType() && userAssetsBO.getUserType().equals(UserTypeEnum.BOT.getCode())) {
+       /* if (null != userAssetsBO.getUserType() && userAssetsBO.getUserType().equals(UserTypeEnum.BOT.getCode())) {
             return new ResponseEntity("该会员不能下分(BOT)");
-        }
+        }*/
         if (userAssetsBO.getPlayMoney().compareTo(BigDecimal.ONE) >= 0) {
             return new ResponseEntity("此会员当前流水不足，不能进行提款操作");
         }
