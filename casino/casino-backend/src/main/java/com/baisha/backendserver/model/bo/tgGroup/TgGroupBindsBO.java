@@ -17,5 +17,8 @@ public class TgGroupBindsBO {
     @ApiModelProperty(value = "手机号（显示用）")
     private String tgBetBotPhone;
 
+    @ApiModelProperty(value = "机器人名称")
+    private String tgBetBotName;
+
 
 }

@@ -245,6 +245,20 @@ public class UserController {
         return ResponseUtil.success();
     }
 
+    @ApiOperation(value = ("设置用户类型"))
+    @PostMapping(value = "userType")
+    public ResponseEntity userType(UserTypeVO vo) {
+        if (null == vo.getUserType() || CommonUtil.checkNull(vo.getUserName())) {
+            return ResponseUtil.parameterNotNull();
+        }
+        User user = userService.findByUserName(vo.getUserName());
+        if (Objects.nonNull(user)) {
+            userService.updateUserType(user.getId(), vo.getUserType());
+        }
+
+        return ResponseUtil.success();
+    }
+
     @ApiOperation(("用户查询"))
     @GetMapping("query")
     public ResponseEntity<UserBO> query(UserSearchVO vo) {
@@ -357,19 +371,7 @@ public class UserController {
         return ResponseUtil.success(new ArrayList<>());
     }
 
-    @ApiOperation(value = ("设置用户类型"))
-    @PostMapping(value = "userType")
-    public ResponseEntity userType(UserTypeVO vo) {
-        if (null == vo.getUserType() || CommonUtil.checkNull(vo.getUserName())) {
-            return ResponseUtil.parameterNotNull();
-        }
-        User user = userService.findByUserName(vo.getUserName());
-        if (Objects.nonNull(user)) {
-            userService.updateUserType(user.getId(), vo.getUserType());
-        }
 
-        return ResponseUtil.success();
-    }
 
 
 }
