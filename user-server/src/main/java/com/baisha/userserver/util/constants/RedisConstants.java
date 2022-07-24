@@ -19,5 +19,10 @@ public class RedisConstants {
      */
     public static String USER_ASSETS = "userServer::assets::";
 
+    //加减余额同步key
+    public static String BALANCE = "userServer::balance::";
+    //加减打码量同步key
+    public static String PLAYMONEY = "userServer::playMoney::";
+
 
 }

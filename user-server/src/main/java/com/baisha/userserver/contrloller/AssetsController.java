@@ -9,13 +9,12 @@ import com.baisha.userserver.model.BalanceChange;
 import com.baisha.userserver.model.User;
 import com.baisha.userserver.model.bo.BalanceBO;
 import com.baisha.userserver.model.bo.UserAssetsBO;
-import com.baisha.userserver.model.bo.UserBO;
 import com.baisha.userserver.model.vo.UserIdVO;
 import com.baisha.userserver.model.vo.balance.BalanceVO;
 import com.baisha.userserver.model.vo.balance.PlayMoneyVO;
 import com.baisha.userserver.model.vo.user.UserTgIdVO;
 import com.baisha.userserver.service.UserService;
-import com.baisha.userserver.util.constants.UserServerConstants;
+import com.baisha.userserver.util.constants.RedisConstants;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -122,7 +121,7 @@ public class AssetsController {
         }
         ResponseEntity res;
         //同一个人，同步
-        synchronized (user.getId() + UserServerConstants.BALANCE) {
+        synchronized (RedisConstants.BALANCE + user.getId()) {
             if (vo.getChangeType().equals(BalanceChangeEnum.RETURN_REAMOUNT.getCode())) {
                 //因为重新开牌后，返水 被扣除，就会有重新返水
                 res = userAssetsService.doAddBalanceBusiness(user, vo);
@@ -152,7 +151,7 @@ public class AssetsController {
         }
         ResponseEntity res;
         //同一个人，同步
-        synchronized (user.getId() + UserServerConstants.PLAYMONEY) {
+        synchronized (RedisConstants.PLAYMONEY + user.getId()) {
             res = userAssetsService.doPlayMoneyBusiness(user, vo);
         }
         return res;

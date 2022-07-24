@@ -16,10 +16,7 @@ public class UserServerConstants {
     public static int EXPENSES = 2;
 
 
-    //加减余额同步key
-    public static String BALANCE = "userServer_balance";
-    //加减打码量同步key
-    public static String PLAYMONEY = "userServer_playMoney";
+
 
 
 }

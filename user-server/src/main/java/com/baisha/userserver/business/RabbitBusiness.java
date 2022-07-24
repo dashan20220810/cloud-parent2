@@ -5,8 +5,7 @@ import com.baisha.modulecommon.enums.PlayMoneyChangeEnum;
 import com.baisha.userserver.model.User;
 import com.baisha.userserver.model.vo.balance.BalanceVO;
 import com.baisha.userserver.model.vo.balance.PlayMoneyVO;
-import com.baisha.userserver.service.AssetsService;
-import com.baisha.userserver.util.constants.UserServerConstants;
+import com.baisha.userserver.util.constants.RedisConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -18,12 +17,10 @@ public class RabbitBusiness {
 
     @Autowired
     private UserAssetsBusiness userAssetsBusiness;
-    @Autowired
-    private AssetsService assetsService;
 
     @Async(value = "asyncExecutor")
     public void doUserBalance(User user, BalanceVO balanceVO) {
-        synchronized (user.getId() + UserServerConstants.BALANCE) {
+        synchronized (RedisConstants.BALANCE + user.getId()) {
             if (BalanceChangeEnum.BET_REWIN.getCode().equals(balanceVO.getChangeType())) {
                 //支持多次重新开奖
                 log.info("doUserBalance-重新派彩");
@@ -36,7 +33,7 @@ public class RabbitBusiness {
 
     @Async(value = "asyncExecutor")
     public void doUserPlayMoney(User user, PlayMoneyVO playMoneyVO) {
-        synchronized (user.getId() + UserServerConstants.PLAYMONEY) {
+        synchronized (RedisConstants.PLAYMONEY + user.getId()) {
             if (PlayMoneyChangeEnum.SETTLEMENT_REOPEN.getCode().equals(playMoneyVO.getChangeType())) {
                 //支持多次重新开奖
                 log.info("doUserPlayMoney-重新派彩");
@@ -49,14 +46,14 @@ public class RabbitBusiness {
 
     @Async(value = "asyncExecutor")
     public void doUserSubtractBalance(User user, BalanceVO balanceVO) {
-        synchronized (user.getId() + UserServerConstants.BALANCE) {
+        synchronized (RedisConstants.BALANCE + user.getId()) {
             userAssetsBusiness.doSubtractBalanceBusiness(user, balanceVO);
         }
     }
 
     @Async(value = "asyncExecutor")
     public void doUserAddPlayMoney(User user, PlayMoneyVO playMoneyVO) {
-        synchronized (user.getId() + UserServerConstants.PLAYMONEY) {
+        synchronized (RedisConstants.PLAYMONEY + user.getId()) {
             userAssetsBusiness.doUserAddPlayMoneyBusiness(user, playMoneyVO);
         }
     }
