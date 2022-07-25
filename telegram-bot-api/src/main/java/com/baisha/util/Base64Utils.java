@@ -8,76 +8,30 @@ import java.util.Base64;
 public class Base64Utils {
 
     /**
-     * 图片url 转化为File
+     * 图片 URL转化为InputStream
      * @param url
-     * @return File
+     * @return InputStream
      */
-    public static File urlToFile(URL url) {
-        InputStream is = null;
-        FileOutputStream fos = null;
+    public static InputStream picUrlToStream(URL url) {
         try {
-            File file = File.createTempFile("tmp", null);
             URLConnection urlConn = url.openConnection();
-            is = urlConn.getInputStream();
-            fos = new FileOutputStream(file);
-            byte[] buffer = new byte[4096];
-            int length;
-            while ((length = is.read(buffer)) > 0) {
-                fos.write(buffer, 0, length);
-            }
-            return file;
-        } catch (IOException e) {
+            return urlConn.getInputStream();
+        } catch (Exception e) {
             return null;
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                }
-            }
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                }
-            }
         }
     }
 
     /**
-     * MP4视频url 转化为File
+     * MP4视频 URL转化为InputStream
      * @param url
-     * @return File
+     * @return InputStream
      */
-    public static File videoToFile(URL url, String suffix) {
-        InputStream is = null;
-        FileOutputStream fos = null;
+    public static InputStream videoUrlToStream(URL url) {
         try {
-            File file = File.createTempFile("tmp", suffix);
             URLConnection urlConn = url.openConnection();
-            is = urlConn.getInputStream();
-            fos = new FileOutputStream(file);
-            byte[] buffer = new byte[4096];
-            int length;
-            while ((length = is.read(buffer)) > 0) {
-                fos.write(buffer, 0, length);
-            }
-            return file;
-        } catch (IOException e) {
+            return urlConn.getInputStream();
+        } catch (Exception e) {
             return null;
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                }
-            }
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                }
-            }
         }
     }
 

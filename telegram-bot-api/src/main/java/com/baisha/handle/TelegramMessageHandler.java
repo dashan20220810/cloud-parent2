@@ -214,7 +214,7 @@ public class TelegramMessageHandler {
         InlineKeyboardButton onlyFinance = new InlineKeyboardButton();
         onlyFinance.setText("唯一财务");
         onlyFinance.setCallbackData("唯一财务");
-        onlyFinance.setUrl("tg://user?id=" + configInfo.getOnlyFinanceTgId());
+        onlyFinance.setUrl("https://t.me/" + configInfo.getOnlyFinance());
 
         firstRow.add(checkUserBalance);
         firstRow.add(onlyFinance);
@@ -284,7 +284,7 @@ public class TelegramMessageHandler {
         InlineKeyboardButton onlyFinance = new InlineKeyboardButton();
         onlyFinance.setText("唯一财务");
         onlyFinance.setCallbackData("唯一财务");
-        onlyFinance.setUrl("tg://user?id=" + configInfo.getOnlyFinanceTgId());
+        onlyFinance.setUrl("https://t.me/" + configInfo.getOnlyFinance());
 
         firstRow.add(checkUserBalance);
         firstRow.add(onlyFinance);

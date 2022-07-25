@@ -1,27 +1,19 @@
 package com.baisha.business;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baisha.bot.MyTelegramLongPollingBot;
 import com.baisha.handle.CommonHandler;
 import com.baisha.model.TgBetBot;
-import com.baisha.model.TgBot;
 import com.baisha.model.TgChat;
 import com.baisha.model.TgChatBetBotRelation;
 import com.baisha.model.vo.*;
 import com.baisha.modulecommon.Constants;
-import com.baisha.modulecommon.enums.BetOption;
-import com.baisha.modulecommon.vo.mq.tgBotServer.BotGroupVO;
 import com.baisha.modulespringcacheredis.util.RedisUtil;
 import com.baisha.service.TgBetBotService;
 import com.baisha.service.TgBotService;
 import com.baisha.service.TgChatBetBotRelationService;
 import com.baisha.service.TgChatService;
 import com.baisha.util.Base64Utils;
-import com.baisha.util.TelegramBotUtil;
 import com.baisha.util.constants.CommonConstant;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +28,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.math.BigDecimal;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 
@@ -84,10 +77,20 @@ public class CommandBusiness {
         //3.3： 每个桌台推送开局消息
         // 倒计时视频
         if (null != countdownAddress) {
+            InputStream inputStream = null;
             try {
-                myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(countdownAddress, VIDEO_SUFFIX_MP4))), tgChat.getChatId()+"");
+                inputStream = Base64Utils.videoUrlToStream(countdownAddress);
+                myBot.SendAnimation(new InputFile(inputStream, UUID.randomUUID() + VIDEO_SUFFIX_MP4), tgChat.getChatId()+"");
             } catch (Exception e) {
                 log.error("[开始新局]======根据URL获取视频流-异常,视频地址:{}", countdownAddress);
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
         String message = this.buildStartMessage(vo.getBureauNum(), tgChat.getMinAmount() + "",
@@ -144,26 +147,58 @@ public class CommandBusiness {
             redisUtil.set(tgChat.getId() + CommonConstant.LATTER, 0);
         }
         if (null != videoResultAddress) {
+            InputStream inputStream = null;
             try {
-                myBot.SendAnimation(new InputFile(Objects.requireNonNull(Base64Utils.videoToFile(videoResultAddress, VIDEO_SUFFIX_MP4))), tgChat.getChatId()+"");
+                inputStream = Base64Utils.videoUrlToStream(videoResultAddress);
+                myBot.SendAnimation(new InputFile(inputStream, UUID.randomUUID() + VIDEO_SUFFIX_MP4), tgChat.getChatId()+"");
             } catch (Exception e) {
                 log.error("[开牌]======根据URL获取视频流-异常,视频地址:{}", videoResultAddress);
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
         if (null != picResultAddress) {
+            InputStream inputStream = null;
             try {
-                myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(picResultAddress))), tgChat.getChatId()+"");
+                String str = picResultAddress.toString();
+                inputStream = Base64Utils.picUrlToStream(picResultAddress);
+                myBot.SendPhoto(new InputFile(inputStream, UUID.randomUUID() + str.substring(str.lastIndexOf("."))), tgChat.getChatId()+"");
             } catch (Exception e) {
                 log.error("[开牌]======根据URL获取图片流-异常,图片地址:{}", picResultAddress);
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
         if (null != picRoadAddress) {
+            InputStream inputStream = null;
             try {
-                myBot.SendPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(picRoadAddress))), tgChat.getChatId()+"");
+                String str = picRoadAddress.toString();
+                inputStream = Base64Utils.picUrlToStream(picRoadAddress);
+                myBot.SendPhoto(new InputFile(inputStream, UUID.randomUUID() + str.substring(str.lastIndexOf("."))), tgChat.getChatId()+"");
                 redisUtil.set(tgChat.getId() + CommonConstant.LATTER, 1);
             } catch (Exception e) {
                 log.error("[开牌]======根据URL获取图片流-异常,图片地址:{}", picRoadAddress);
                 redisUtil.set(tgChat.getId() + CommonConstant.LATTER, 1);
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     }
@@ -212,7 +247,9 @@ public class CommandBusiness {
             }
         });
         // 每个机器人 异步发送消息
-        tgBetBots.forEach(tgBetBot -> tgBetBotBusiness.betBotSendMessage(tgChat, tgBetBot));
+        List<OddsAndLimitVO> redLimits = commonHandler.getRedLimit(DEFAULT_USER_ID);
+        log.info("所有全局玩法限红:{}", redLimits);
+        tgBetBots.forEach(tgBetBot -> tgBetBotBusiness.betBotSendMessage(tgChat, tgBetBot, redLimits));
     }
 
     public void muteAllUser(Long chatId, MyTelegramLongPollingBot myBot) {
@@ -312,33 +349,50 @@ public class CommandBusiness {
     }
 
     public void showOpenCardButton(OpenCardVO vo, URL openCardAddress, TgChat tgChat, MyTelegramLongPollingBot myBot) {
-        SendPhoto sp = new SendPhoto();
-        sp.setChatId(tgChat.getChatId()+"");
-        sp.setPhoto(new InputFile(Objects.requireNonNull(Base64Utils.urlToFile(openCardAddress))));
-        // 设置按钮
-        List<InlineKeyboardButton> firstRow = Lists.newArrayList();
-        // 实时开牌俯视地址
-        InlineKeyboardButton lookDownAddress = new InlineKeyboardButton();
-        lookDownAddress.setText("实时开牌俯视地址");
-        lookDownAddress.setCallbackData("实时开牌俯视地址");
-        lookDownAddress.setUrl(vo.getLookDownAddress());
-        // 实时开牌正面地址
-        InlineKeyboardButton frontAddress = new InlineKeyboardButton();
-        frontAddress.setText("实时开牌正面地址");
-        frontAddress.setCallbackData("实时开牌正面地址");
-        frontAddress.setUrl(vo.getFrontAddress());
+        InputStream inputStream = null;
+        try {
+            SendPhoto sp = new SendPhoto();
+            sp.setChatId(tgChat.getChatId()+"");
 
-        firstRow.add(lookDownAddress);
-        firstRow.add(frontAddress);
+            String str = openCardAddress.toString();
+            inputStream = Base64Utils.picUrlToStream(openCardAddress);
+            sp.setPhoto(new InputFile(inputStream, UUID.randomUUID() + str.substring(str.lastIndexOf("."))));
 
-        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-        rowList.add(firstRow);
+            // 设置按钮
+            List<InlineKeyboardButton> firstRow = Lists.newArrayList();
+            // 实时开牌俯视地址
+            InlineKeyboardButton lookDownAddress = new InlineKeyboardButton();
+            lookDownAddress.setText("实时开牌俯视地址");
+            lookDownAddress.setCallbackData("实时开牌俯视地址");
+            lookDownAddress.setUrl(vo.getLookDownAddress());
+            // 实时开牌正面地址
+            InlineKeyboardButton frontAddress = new InlineKeyboardButton();
+            frontAddress.setText("实时开牌正面地址");
+            frontAddress.setCallbackData("实时开牌正面地址");
+            frontAddress.setUrl(vo.getFrontAddress());
 
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(rowList);
-        sp.setReplyMarkup(inlineKeyboardMarkup);
-        // 展示
-        myBot.SendPhoto(sp);
+            firstRow.add(lookDownAddress);
+            firstRow.add(frontAddress);
+
+            List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+            rowList.add(firstRow);
+
+            InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+            inlineKeyboardMarkup.setKeyboard(rowList);
+            sp.setReplyMarkup(inlineKeyboardMarkup);
+            // 展示
+            myBot.SendPhoto(sp);
+        } catch (Exception e) {
+            log.error("[开牌]======根据URL获取图片流-异常,图片地址:{}", openCardAddress);
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public String buildSettlementMessage(SettlementVO vo, List<UserWinVO> userWinVOs) {
@@ -357,11 +411,11 @@ public class CommandBusiness {
         }
         userWinVOs.forEach(userWinVO -> {
             String username = userWinVO.getUsername();
-            String winAmount = userWinVO.getWinAmount();
+            String winStrAmount = userWinVO.getWinStrAmount();
             settlement.append(SEALING_BET_INFO20);
             settlement.append(username);
             settlement.append(SEALING_BET_INFO21);
-            settlement.append(winAmount);
+            settlement.append(winStrAmount);
             settlement.append(SEALING_BET_INFO17);
         });
 
