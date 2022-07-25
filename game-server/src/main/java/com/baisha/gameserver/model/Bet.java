@@ -112,7 +112,7 @@ public class Bet extends BaseEntity {
     private Boolean isReturned = false;
 
     @ApiModelProperty("备注(结算)")
-    @Column(name = "settle_remark", columnDefinition = "VARCHAR(100) COMMENT '备注(结算)'")
+    @Column(name = "settle_remark", columnDefinition = "VARCHAR(200) COMMENT '备注(结算)'")
     private String settleRemark;
 
     @ApiModelProperty(value = "返水金额")
@@ -129,12 +129,12 @@ public class Bet extends BaseEntity {
     public static boolean checkRequest(Bet bet) {
 
         if (bet.getUserId() == null) {
-        	log.warn(" user id required ");
+            log.warn(" user id required ");
             return false;
         }
 
         if (StringUtils.isBlank(bet.getUserName())) {
-        	log.warn(" user name required ");
+            log.warn(" user name required ");
             return false;
         }
 
@@ -143,22 +143,22 @@ public class Bet extends BaseEntity {
 //        }
 
         if ((bet.getAmountH() + bet.getAmountSs() + bet.getAmountX() + bet.getAmountXd() + bet.getAmountZ() + bet.getAmountZd()) <= 0L) {
-        	log.warn(" amount required ");
+            log.warn(" amount required ");
             return false;
         }
 
         if (StringUtils.isBlank(bet.getNoRun())) {
-        	log.warn(" noRun required ");
+            log.warn(" noRun required ");
             return false;
         }
 
         if (StringUtils.isBlank(bet.getNoActive())) {
-        	log.warn(" noActive required ");
+            log.warn(" noActive required ");
             return false;
         }
 
         if (StringUtils.isBlank(bet.getClientIP())) {
-        	log.warn(" client ip required ");
+            log.warn(" client ip required ");
             return false;
         }
 
@@ -178,17 +178,17 @@ public class Bet extends BaseEntity {
         }
 
         if (StringUtils.isBlank(bet.getOrderNo())) {
-        	log.warn(" order no required ");
+            log.warn(" order no required ");
             return false;
         }
 
         if (bet.getStatus() == null) {
-        	log.warn(" status required ");
+            log.warn(" status required ");
             return false;
         }
 
         if (isTgRequest && bet.getTgChatId() == null) {
-        	log.warn(" tg chat id required ");
+            log.warn(" tg chat id required ");
             return false;
         }
 
