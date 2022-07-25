@@ -6,6 +6,7 @@ import java.util.*;
 import com.baisha.modulecommon.vo.GameInfo;
 import com.baisha.modulecommon.vo.TgGameInfo;
 import com.baisha.modulecommon.vo.mq.webServer.BsOddsVO;
+import com.beust.jcommander.internal.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -266,9 +267,10 @@ public class OrderBusiness {
         }
         JSONObject json = JSONObject.parseObject(result);
 
-		List<BetResponseVO> betResponseVOList = JSONObject.parseArray(json.getString("data"), BetResponseVO.class);
+		List<BetResponseVO> betResponseVOList = Optional.ofNullable(JSONObject
+				.parseArray(json.getString("data"), BetResponseVO.class)).orElse(Lists.newArrayList());
 		betResponseVOList.forEach(obj->{
-			obj.setWinStrAmount(obj.getWinAmount().stripTrailingZeros().toPlainString());
+			obj.setWinStrAmount(Optional.of(obj.getWinAmount().stripTrailingZeros().toPlainString()).orElse(null));
 		});
 		return betResponseVOList;
 	}
