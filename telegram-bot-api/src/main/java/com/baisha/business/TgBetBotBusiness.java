@@ -1,5 +1,6 @@
 package com.baisha.business;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
@@ -54,7 +55,7 @@ public class TgBetBotBusiness {
     }
 
     @Async
-    public void betBotSendMessage(TgChat tgChat, TgBetBot tgBetBot) {
+    public void betBotSendMessage(TgChat tgChat, TgBetBot tgBetBot, List<OddsAndLimitVO> redLimits) {
         // 判断投注时间
         String startTime = tgBetBot.getBetStartTime();
         String endTime = tgBetBot.getBetEndTime();
@@ -116,16 +117,22 @@ public class TgBetBotBusiness {
         String betContent = betContents.get(index);
         // 计算限红、投注金额
         Integer minAmountLimit;
-        List<OddsAndLimitVO> redLimits = commonHandler.getRedLimit(DEFAULT_USER_ID);
         if (betContent.equals(BetOption.D.name())) {
             Integer minAmountLimitZD = commonHandler.getMinAmountLimit(BetOption.ZD.name(), redLimits);
             Integer minAmountLimitXD = commonHandler.getMinAmountLimit(BetOption.XD.name(), redLimits);
-            minAmountLimit = minAmountLimitZD + minAmountLimitXD;
+            List<Integer> list = Lists.newArrayList();
+            list.add(minAmountLimitZD);
+            list.add(minAmountLimitXD);
+            minAmountLimit = CollUtil.max(list);
         } else if (betContent.equals(BetOption.SB.name())) {
             Integer minAmountLimitZD = commonHandler.getMinAmountLimit(BetOption.ZD.name(), redLimits);
             Integer minAmountLimitXD = commonHandler.getMinAmountLimit(BetOption.XD.name(), redLimits);
             Integer minAmountLimitH = commonHandler.getMinAmountLimit(BetOption.H.name(), redLimits);
-            minAmountLimit = minAmountLimitZD + minAmountLimitXD + minAmountLimitH;
+            List<Integer> list = Lists.newArrayList();
+            list.add(minAmountLimitZD);
+            list.add(minAmountLimitXD);
+            list.add(minAmountLimitH);
+            minAmountLimit = CollUtil.max(list);
         } else if (betContent.equals(BetOption.SS.name())) {
             betContent = BetOption.SS.name() + "2";
             minAmountLimit = commonHandler.getMinAmountLimit(betContent, redLimits);
@@ -144,7 +151,7 @@ public class TgBetBotBusiness {
         int indexAmount = TelegramBotUtil.getRandom(0, amounts.size() - 1);
         BigDecimal amount = amounts.get(indexAmount);
         // 下注机器人-开始下注
-        int random = TelegramBotUtil.getRandom(5, 15);
+        int random = TelegramBotUtil.getRandom(5, 35);
         try {
             Thread.sleep(Long.parseLong(random + "000"));
         } catch (InterruptedException e) {

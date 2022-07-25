@@ -20,4 +20,7 @@ public class UserWinVO {
 
     @ApiModelProperty(value = "输赢金额")
     private String winAmount;
+
+    @ApiModelProperty(value = "输赢金额-优化")
+    private String winStrAmount;
 }

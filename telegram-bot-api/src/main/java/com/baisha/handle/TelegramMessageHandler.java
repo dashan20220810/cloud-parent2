@@ -387,7 +387,6 @@ public class TelegramMessageHandler {
         Map<String, Object> param = Maps.newHashMap();
         TgBetVO tgBetVO = parseBet(originText);
         if (StrUtil.isEmpty(tgBetVO.getCommand()) || null == tgBetVO.getAmount()) {
-//            bot.sendMessage(username + " 下注信息错误，请参照下注规则", chatId+"", message.getMessageId());
             return false;
         }
         param.put("betOption", tgBetVO.getCommand());
