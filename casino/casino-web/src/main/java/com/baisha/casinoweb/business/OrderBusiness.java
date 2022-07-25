@@ -270,7 +270,11 @@ public class OrderBusiness {
 		List<BetResponseVO> betResponseVOList = Optional.ofNullable(JSONObject
 				.parseArray(json.getString("data"), BetResponseVO.class)).orElse(Lists.newArrayList());
 		betResponseVOList.forEach(obj->{
-			obj.setWinStrAmount(Optional.of(obj.getWinAmount().stripTrailingZeros().toPlainString()).orElse(null));
+			if(null == obj.getWinAmount()){
+				obj.setWinStrAmount("-");
+			}else{
+				obj.setWinStrAmount(obj.getWinAmount().stripTrailingZeros().toPlainString());
+			}
 		});
 		return betResponseVOList;
 	}
