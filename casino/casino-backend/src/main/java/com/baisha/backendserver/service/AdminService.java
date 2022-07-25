@@ -72,11 +72,17 @@ public class AdminService {
 
     @CachePut(key = "#id")
     public Admin updateAuthKeyById(String googleAuthKey, Long id) {
-        adminRepository.updateAdminGoogleAuthKeyById(googleAuthKey, id);
+        Admin user = new Admin();
+        Optional<Admin> admin = adminRepository.findById(id);
+        if(admin.isPresent()){
+            user = admin.get();
+        }
+        user.setGoogleAuthKey(googleAuthKey);
+        adminRepository.save(user);
         return findAdminByIdSql(id);
     }
 
-    @CachePut(key = "#id")
+    @CacheEvict(key = "#id")
     public Admin updateAuthKeyAndPasswordById(String googleAuthKey,String password, Long id) {
         adminRepository.updateAdminPasswordById(password, id);
         adminRepository.updateAdminGoogleAuthKeyById(googleAuthKey, id);
