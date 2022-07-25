@@ -265,7 +265,12 @@ public class OrderBusiness {
             return null;
         }
         JSONObject json = JSONObject.parseObject(result);
-		return JSONObject.parseObject(json.getString("data"), new TypeReference<List<BetResponseVO>>(){});
+
+		List<BetResponseVO> betResponseVOList = JSONObject.parseArray(json.getString("data"), BetResponseVO.class);
+		betResponseVOList.forEach(obj->{
+			obj.setWinStrAmount(obj.getWinAmount().stripTrailingZeros().toPlainString());
+		});
+		return betResponseVOList;
 	}
 	
 	public BigDecimal todayTotalWater (Long tgChatId) {

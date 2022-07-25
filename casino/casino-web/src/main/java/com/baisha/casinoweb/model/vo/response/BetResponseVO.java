@@ -62,6 +62,9 @@ public class BetResponseVO {
 
     @ApiModelProperty(value = "输赢金额")
     private BigDecimal winAmount;
+
+    @ApiModelProperty(value = "输赢金额字符串")
+    private String winStrAmount;
     
     public Long getTotalAmount() {
     	return amountZ +amountX +amountH +amountZd +amountXd +amountSs;
