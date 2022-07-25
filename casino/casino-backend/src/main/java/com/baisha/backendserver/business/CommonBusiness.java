@@ -45,6 +45,7 @@ public class CommonBusiness {
         try {
             Admin admin = new Admin();
             if (authId == 0L){
+                admin.setId(0L);
                 admin.setUserName(superAdmin);
                 admin.setNickName(superAdmin);
                 admin.setPassword(adminPassword);

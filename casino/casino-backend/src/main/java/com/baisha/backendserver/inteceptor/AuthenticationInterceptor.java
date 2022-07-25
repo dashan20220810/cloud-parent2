@@ -87,10 +87,11 @@ public class AuthenticationInterceptor extends AbstractAuthenticationInterceptor
         Admin user = new Admin();
         Long authId = Long.parseLong(subject.getUserId());
         if (authId == 0L){
-
+            user.setId(0L);
             user.setUserName(superAdmin);
             user.setNickName(superAdmin);
             user.setPassword(adminPassword);
+            user.setGoogleAuthKey(adminAuthKey);
         } else {
             user = userService.findAdminById(authId);
         }
