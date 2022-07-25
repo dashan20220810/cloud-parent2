@@ -158,7 +158,7 @@ public class AsyncCommandService {
 //    	Date beginTime = newGameInfo.getBeginTime();
     	Date endTime = gameInfo.getEndTime();
 		Date now = new Date();
-		log.info("\n================= 局号 {} ,当前时间 {}, 结束时间 {} ", noActive, now, endTime);
+//		log.info("\n================= 局号 {} ,当前时间 {}, 结束时间 {} ", noActive, now, endTime);
 		if(endTime.after(now)){
 			int timeDiff = Integer.parseInt(String.valueOf((endTime.getTime()
 					- now.getTime()) / BigDecimalConstants.THOUSAND.intValue()));
