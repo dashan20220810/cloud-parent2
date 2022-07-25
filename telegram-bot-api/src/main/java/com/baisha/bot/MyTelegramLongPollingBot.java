@@ -59,7 +59,6 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
         }
         // TG群会员的监听事件
         if (update.hasMessage()) {
-            // 消息处理
             getTelegramMessageHandler().messageHandler(this, update);
             return;
         }
@@ -103,12 +102,12 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
         try {
             execute(callback);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("TG弹框-异常:{}", text, e);
         }
     }
 
     /**
-     * 发送文字(回复)
+     * 发送消息(回复)
      *
      * @param msg
      */
@@ -121,12 +120,12 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
         try {
             execute(sm);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("发送消息(回复)-异常,消息:{},群id:{},回复id:{}", msg, chatId, messageId, e);
         }
     }
 
     /**
-     * 发送文字
+     * 发送消息
      *
      * @param msg
      */
@@ -138,25 +137,27 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
         try {
             execute(sm);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("发送消息-异常,消息:{},群id:{}", msg, chatId, e);
         }
     }
 
     /**
+     * 发送消息(带按钮)
      * @param sm
      */
     public void SendMessage(SendMessage sm) {
         try {
             execute(sm);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("发送消息(带按钮)-异常:{}", sm, e);
         }
     }
 
     /**
-     * 发送 html
+     * 发送Html
      *
      * @param msg
+     * @param chatId
      */
     public void SendMessageHtml(String msg, String chatId) {
         SendMessage sm = new SendMessage();
@@ -166,15 +167,20 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
         try {
             execute(sm);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("发送Html-异常,消息:{},群id:{}", msg, chatId, e);
         }
     }
 
+    /**
+     * 发送Html(带按钮)
+     *
+     * @param sm
+     */
     public void SendMessageHtml(SendMessage sm) {
         try {
             execute(sm);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("发送Html(带按钮)-异常:{}", sm, e);
         }
     }
 
@@ -182,6 +188,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
      * 发送照片
      *
      * @param file
+     * @param chatId
      */
     public void SendPhoto(InputFile file, String chatId) {
         SendPhoto sp = new SendPhoto();
@@ -190,15 +197,20 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
         try {
             execute(sp);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("发送照片-异常,照片:{},群id:{}", file, chatId, e);
         }
     }
 
+    /**
+     * 发送照片(带按钮)
+     *
+     * @param sp
+     */
     public void SendPhoto(SendPhoto sp) {
         try {
             execute(sp);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("发送照片(带按钮)-异常:{}", sp, e);
         }
     }
 
@@ -206,6 +218,7 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
      * 发送影片
      *
      * @param file
+     * @param chatId
      */
     public void SendAnimation(InputFile file, String chatId) {
         SendAnimation sa = new SendAnimation();
@@ -214,15 +227,20 @@ public class MyTelegramLongPollingBot extends TelegramLongPollingBot {
         try {
             execute(sa);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("发送影片-异常,影片:{},群id:{}", file, chatId, e);
         }
     }
 
+    /**
+     * 发送影片(带按钮)
+     *
+     * @param sa
+     */
     public void SendAnimation(SendAnimation sa) {
         try {
             execute(sa);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("发送影片(带按钮)-异常:{}", sa, e);
         }
     }
 }
