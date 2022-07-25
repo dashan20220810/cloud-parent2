@@ -6,7 +6,7 @@ public class RedisConstants {
     /**
      * 等待时间 秒
      */
-    public static int WAIT_TIME = 5;
+    public static int WAIT_TIME = 10;
 
     /**
      * 自动解锁 秒
