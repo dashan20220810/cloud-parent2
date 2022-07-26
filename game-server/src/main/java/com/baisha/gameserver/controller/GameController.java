@@ -135,17 +135,12 @@ public class GameController {
         if (Objects.isNull(bsOdds)) {
             bsOdds = new BsOdds();
             bsOdds.setGameCode(gameCode);
-            bsOdds.setOdds(odds);
             bsOdds.setRuleCode(ruleCode);
             bsOdds.setRuleName(TgBaccRuleEnum.nameOfCode(ruleCode).getName());
-            bsOdds.setMinAmount(min);
-            bsOdds.setMaxAmount(max);
-        } else {
-            //更新
-            bsOdds.setOdds(odds);
-            bsOdds.setMinAmount(min);
-            bsOdds.setMaxAmount(max);
         }
+        bsOdds.setOdds(odds);
+        bsOdds.setMinAmount(min);
+        bsOdds.setMaxAmount(max);
         bsOddsService.save(bsOdds);
     }
 
