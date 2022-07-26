@@ -1,29 +1,30 @@
 package com.baisha.gameserver.model;
 
-import java.math.BigDecimal;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.Table;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Index;
+import javax.persistence.Table;
+import java.math.BigDecimal;
+
 /**
  * @author yihui
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 @Entity
-@org.hibernate.annotations.Table(appliesTo = "bs_odds", comment = "游戏玩法赔率")
-@Table(name = "BsOdds", indexes = {@Index(columnList = "gameCode"), @Index(columnList = "ruleCode")})
-@ApiModel(value = "游戏玩法赔率对象", description = "游戏玩法赔率")
-public class BsOdds extends BaseEntity {
+@org.hibernate.annotations.Table(appliesTo = "bs_desk_odds", comment = "游戏玩法赔率")
+@Table(name = "BsDeskOdds", indexes = {@Index(columnList = "gameCode"), @Index(columnList = "ruleCode"), @Index(columnList = "deskId")})
+@ApiModel(value = "桌台游戏玩法赔率对象", description = "桌台游戏玩法赔率")
+public class BsDeskOdds extends BaseEntity {
 
-    private static final long serialVersionUID = 8497677317292208992L;
+    @ApiModelProperty(value = "桌台ID")
+    @Column(columnDefinition = "bigint(11) comment '桌台ID'")
+    private Long deskId;
 
     @ApiModelProperty(value = "游戏编码")
     @Column(columnDefinition = "varchar(20) comment '游戏编码'")
@@ -43,18 +44,13 @@ public class BsOdds extends BaseEntity {
 
     // 最大限红
     @ApiModelProperty(value = "最大限红")
-    @Column(columnDefinition = "int(10) comment '最大限红'")
+    @Column(columnDefinition = "varchar(20) comment '最大限红'")
     private Integer maxAmount;
 
     // 最小限红
     @ApiModelProperty(value = "最小限红")
-    @Column(columnDefinition = "int(10) comment '最小限红'")
+    @Column(columnDefinition = "varchar(20) comment '最小限红'")
     private Integer minAmount;
-
-    // 最小限红
-    @ApiModelProperty(value = "当局最高限红")
-    @Column(columnDefinition = "int(10) comment '当局最高限红'")
-    private Integer maxActiveAmount;
 
 
 }

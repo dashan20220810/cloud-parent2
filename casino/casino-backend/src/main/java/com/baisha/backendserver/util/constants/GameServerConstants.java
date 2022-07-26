@@ -43,14 +43,14 @@ public class GameServerConstants {
     public static final String GAME_CODE_LIST = "/game/gameCode";
 
     /**
-     * 桌台游戏编码
+     * 获取游戏倍率限制列表
      */
-    public static final String GAME_ODDS_LIST = "/game/oddsList";
+    public static final String GAME_ODDS_LIST = "/game/global/oddsList";
 
     /**
      * 桌台游戏百家乐赔率
      */
-    public static final String GAME_SET_BACC_ODDS = "/game/bacc/odds";
+    public static final String GAME_SET_BACC_ODDS = "/game/global/bacc/odds";
 
 
     /**

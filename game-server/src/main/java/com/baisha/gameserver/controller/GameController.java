@@ -67,7 +67,7 @@ public class GameController {
 
 
     @GetMapping(value = "oddsList")
-    @ApiOperation(value = "获取游戏倍率限制列表")
+    @ApiOperation(value = "获取游戏倍率限制列表-提供给其他服务")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "gameCode", value = "游戏编码 默认BACC", dataTypeClass = String.class)
     })
@@ -82,8 +82,24 @@ public class GameController {
         return ResponseUtil.success(result);
     }
 
-    @PostMapping(value = "bacc/odds")
-    @ApiOperation(value = "设置游戏百家乐赔率")
+    @GetMapping(value = "global/oddsList")
+    @ApiOperation(value = "获取游戏倍率限制列表(全局)")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "gameCode", value = "游戏编码 默认BACC", dataTypeClass = String.class)
+    })
+    public ResponseEntity<List<BsOdds>> findAllGlobalOddsList(String gameCode) {
+        if (StringUtils.isEmpty(gameCode)) {
+            gameCode = GameTypeEnum.BACC.getCode();
+        }
+        List<BsOdds> result = bsOddsService.findAllByGameCode(gameCode);
+        if (CollectionUtils.isEmpty(result)) {
+            result = new ArrayList<>();
+        }
+        return ResponseUtil.success(result);
+    }
+
+    @PostMapping(value = "global/bacc/odds")
+    @ApiOperation(value = "设置游戏百家乐赔率(全局)")
     public ResponseEntity<String> setBaccOdds(GameBaccOddsVO vo) {
         if (StringUtils.isEmpty(vo.getGameCode())) {
             return ResponseUtil.parameterNotNull();
@@ -95,7 +111,7 @@ public class GameController {
                 || checkOdds(vo.getXd(), vo.getXdMinAmount(), vo.getXdMaxAmount())
                 || checkOdds(vo.getSs2(), vo.getSsMinAmount(), vo.getSsMaxAmount())
                 || checkOdds(vo.getSs3(), vo.getSsMinAmount(), vo.getSsMaxAmount())) {
-            return new ResponseEntity<String>("数据不规范(赔率0-100 限红为整数且大小正确)");
+            return new ResponseEntity<>("数据不规范(赔率0-100 限红为整数且大小正确)");
         }
         synchronized (vo.getGameCode()) {
             doSetBaccOdds(vo.getGameCode(), TgBaccRuleEnum.X.getCode(), vo.getX(), vo.getXMinAmount(), vo.getXMaxAmount());
