@@ -34,16 +34,17 @@ public class TestTasks {
 //	@Autowired
 //	private DealerBusiness dealerBusiness;
 	
-	private static Integer gameNo = 143;
+	private static Integer gameNo = 10;
 
     @Autowired
     RabbitTemplate rabbitTemplate;
 
 	@Autowired
 	private GamblingBusiness gamblingBusiness;
+
 	
-	@Scheduled(initialDelay = 2000, fixedRate = 110000)
-//	@Scheduled(initialDelay = 2000, fixedRate = 20000)  // TODO
+//	@Scheduled(initialDelay = 2000, fixedRate = 110000)
+//	@Scheduled(initialDelay = 2000, fixedRate = 30000)  // TODO
 	public void openNewGame() {
 
 		log.info("\r\n============  游戏开局测试 ============ ");
@@ -58,7 +59,7 @@ public class TestTasks {
 		String newActive = gamblingBusiness.generateNewActive("G01", gameNo);
         rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN_NEW_GAME, JSONObject
 				.toJSONString(OpenNewGameVO.builder().dealerIp("127.0.0.1")
-						.gameNo(newActive).startTime(DateUtils.addSeconds(new Date(), -10) )
+						.gameNo(newActive).startTime(DateUtils.addSeconds(new Date(), -10)).bootsNo("1")
 						.countDown(70).build())  );
 //        rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN_NEW_GAME, JSONObject.toJSONString(OpenNewGameVO.builder().dealerIp("192.168.26.23").gameNo(gameNo).build())  );
 //		rabbitTemplate.convertAndSend(MqConstants.WEB_OPEN_NEW_GAME, JSONObject.toJSONString(OpenNewGameVO.builder().dealerIp("127.0.0.1").gameNo(gameNo++).build())  );
@@ -86,22 +87,22 @@ public class TestTasks {
 
 //		dealerBusiness.open("127.0.0.1", option.toString());
 //		dealerBusiness.open("192.168.26.23", option.toString());
-//		File file = new File("/Users/developer/Desktop/Snipaste_2022-07-16_13-16-46.jpeg");
-//		byte[] data = new byte[0];
-//		try {
-//			FileInputStream fis =new FileInputStream(file);
-//			ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);
-//			byte[] b = new byte[1000];
-//			int num;
-//			while ((num = fis.read(b)) != -1) {
-//				bos.write(b, 0, num);
-//			}
-//			fis.close();
-//			data = bos.toByteArray();
-//			bos.close();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		File file = new File("/Users/developer/Desktop/Snipaste_2022-07-16_13-16-46.jpeg");
+		byte[] data = new byte[0];
+		try {
+			FileInputStream fis =new FileInputStream(file);
+			ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);
+			byte[] b = new byte[1000];
+			int num;
+			while ((num = fis.read(b)) != -1) {
+				bos.write(b, 0, num);
+			}
+			fis.close();
+			data = bos.toByteArray();
+			bos.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
         rabbitTemplate.convertAndSend(MqConstants.WEB_CLOSE_GAME
         		, JSONObject.toJSONString(OpenVO.builder().dealerIp("127.0.0.1").gameNo(newActive)
 						.consequences(String.valueOf(option.getOrder()))
