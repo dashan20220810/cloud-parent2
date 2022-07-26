@@ -264,10 +264,12 @@ public class AsyncCommandService {
     		return;
 		}
 
+		// 截屏结束时间发送
 		sendVideoEndScreenRecording(noActive, gameInfo.getStreamVideoCode());
 
         String settlement = JSONObject.toJSONString(BetSettleVO.builder().noActive(noActive)
 				.awardOption(openCardResult).build());
+		// 结算MQ
         rabbitTemplate.convertAndSend(MqConstants.BET_SETTLEMENT, settlement);
     }
 
