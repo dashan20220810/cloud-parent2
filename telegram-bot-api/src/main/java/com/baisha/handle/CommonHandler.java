@@ -164,7 +164,7 @@ public class CommonHandler {
     public Integer getMinAmountLimit(String betContent, List<OddsAndLimitVO> redLimits) {
         Integer minAmount = 20;
         for (OddsAndLimitVO redLimit : redLimits) {
-            if (betContent.equals(redLimit.getRuleCode())) {
+            if (betContent.equalsIgnoreCase(redLimit.getRuleCode())) {
                 minAmount = redLimit.getMinAmount();
                 break;
             }

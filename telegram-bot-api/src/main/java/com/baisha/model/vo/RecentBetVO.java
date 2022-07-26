@@ -25,6 +25,9 @@ public class RecentBetVO {
     @ApiModelProperty(value = "输赢金额")
     private BigDecimal winAmount;
 
+    @ApiModelProperty(value = "输赢金额-String")
+    private String winStrAmount;
+
     @ApiModelProperty("下注金额-庄")
     private Long amountZ;
 

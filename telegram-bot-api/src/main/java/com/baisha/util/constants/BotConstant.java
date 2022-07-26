@@ -61,7 +61,7 @@ public class BotConstant {
 
     public static final String RETURN_WATER1 = "返水金额：";
 
-    public static final String RECENT_BET1 = "期数   ";
+    public static final String RECENT_BET1 = "局号   ";
     public static final String RECENT_BET2 = "内容   ";
     public static final String RECENT_BET3 = "金额   ";
     public static final String RECENT_BET4 = "赔付";

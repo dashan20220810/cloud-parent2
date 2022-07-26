@@ -104,7 +104,7 @@ public class TelegramCallbackQueryHandler {
                 reply.append(RECENT_BET5);
                 reply.append(recentBetVO.getTotalAmount());
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
+                reply.append(StrUtil.isEmpty(recentBetVO.getWinStrAmount()) ? "-" : recentBetVO.getWinStrAmount());
                 reply.append(SEALING_BET_INFO17);
                 continue;
             }
@@ -117,7 +117,7 @@ public class TelegramCallbackQueryHandler {
                 reply.append(RECENT_BET5);
                 reply.append(recentBetVO.getTotalAmount());
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
+                reply.append(StrUtil.isEmpty(recentBetVO.getWinStrAmount()) ? "-" : recentBetVO.getWinStrAmount());
                 reply.append(SEALING_BET_INFO17);
                 continue;
             }
@@ -129,7 +129,7 @@ public class TelegramCallbackQueryHandler {
                 reply.append(RECENT_BET5);
                 reply.append(recentBetVO.getTotalAmount());
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
+                reply.append(StrUtil.isEmpty(recentBetVO.getWinStrAmount()) ? "-" : recentBetVO.getWinStrAmount());
                 reply.append(SEALING_BET_INFO17);
                 continue;
             }
@@ -141,7 +141,7 @@ public class TelegramCallbackQueryHandler {
                 reply.append(RECENT_BET5);
                 reply.append(recentBetVO.getTotalAmount());
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
+                reply.append(StrUtil.isEmpty(recentBetVO.getWinStrAmount()) ? "-" : recentBetVO.getWinStrAmount());
                 reply.append(SEALING_BET_INFO17);
                 continue;
             }
@@ -153,7 +153,7 @@ public class TelegramCallbackQueryHandler {
                 reply.append(RECENT_BET5);
                 reply.append(recentBetVO.getTotalAmount());
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
+                reply.append(StrUtil.isEmpty(recentBetVO.getWinStrAmount()) ? "-" : recentBetVO.getWinStrAmount());
                 reply.append(SEALING_BET_INFO17);
                 continue;
             }
@@ -165,7 +165,7 @@ public class TelegramCallbackQueryHandler {
                 reply.append(RECENT_BET5);
                 reply.append(recentBetVO.getTotalAmount());
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
+                reply.append(StrUtil.isEmpty(recentBetVO.getWinStrAmount()) ? "-" : recentBetVO.getWinStrAmount());
                 reply.append(SEALING_BET_INFO17);
                 continue;
             }
@@ -177,7 +177,7 @@ public class TelegramCallbackQueryHandler {
                 reply.append(RECENT_BET5);
                 reply.append(recentBetVO.getTotalAmount());
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
+                reply.append(StrUtil.isEmpty(recentBetVO.getWinStrAmount()) ? "-" : recentBetVO.getWinStrAmount());
                 reply.append(SEALING_BET_INFO17);
                 continue;
             }
@@ -189,7 +189,7 @@ public class TelegramCallbackQueryHandler {
                 reply.append(RECENT_BET5);
                 reply.append(recentBetVO.getTotalAmount());
                 reply.append(RECENT_BET5);
-                reply.append(recentBetVO.getWinAmount() == null ? "-" : recentBetVO.getWinAmount());
+                reply.append(StrUtil.isEmpty(recentBetVO.getWinStrAmount()) ? "-" : recentBetVO.getWinStrAmount());
                 reply.append(SEALING_BET_INFO17);
             }
         }
@@ -201,7 +201,7 @@ public class TelegramCallbackQueryHandler {
         String recentBetUrl = TelegramBotUtil.getCasinoWebDomain() + RequestPathEnum.TELEGRAM_ORDER_RECENT_BET.getApiName();
         Map<String, Object> recentBetParam = Maps.newHashMap();
         recentBetParam.put("tgChatId", chatId);
-        recentBetParam.put("queryAmount", 6);
+        recentBetParam.put("queryAmount", 5);
         String recentBet = TgHttpClient4Util.doPost(recentBetUrl, recentBetParam, userId);
         
         if (StrUtil.isNotEmpty(recentBet)) {
