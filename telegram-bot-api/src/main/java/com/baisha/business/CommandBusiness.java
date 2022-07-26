@@ -34,7 +34,6 @@ import java.net.URL;
 import java.util.*;
 
 import static com.baisha.util.constants.BotConstant.*;
-import static com.baisha.util.constants.CommonConstant.VIDEO_SUFFIX_MP4;
 
 @Slf4j
 @Service
@@ -79,10 +78,12 @@ public class CommandBusiness {
         if (null != countdownAddress) {
             InputStream inputStream = null;
             try {
+                log.info("[开始新局]======[倒计时]视频地址:{}", countdownAddress);
+                String str = countdownAddress.toString();
                 inputStream = Base64Utils.videoUrlToStream(countdownAddress);
-                myBot.SendAnimation(new InputFile(inputStream, UUID.randomUUID() + VIDEO_SUFFIX_MP4), tgChat.getChatId()+"");
+                myBot.SendAnimation(new InputFile(inputStream, str.substring(str.lastIndexOf("/") + 1)), tgChat.getChatId()+"");
             } catch (Exception e) {
-                log.error("[开始新局]======根据URL获取视频流-异常,视频地址:{}", countdownAddress);
+                log.error("[开始新局]======根据URL获取[倒计时]视频流-异常,视频地址:{}", countdownAddress);
             } finally {
                 if (inputStream != null) {
                     try {
@@ -149,10 +150,12 @@ public class CommandBusiness {
         if (null != videoResultAddress) {
             InputStream inputStream = null;
             try {
+                log.info("[开牌]======[牌面]视频地址:{}", videoResultAddress);
+                String str = videoResultAddress.toString();
                 inputStream = Base64Utils.videoUrlToStream(videoResultAddress);
-                myBot.SendAnimation(new InputFile(inputStream, UUID.randomUUID() + VIDEO_SUFFIX_MP4), tgChat.getChatId()+"");
+                myBot.SendAnimation(new InputFile(inputStream, str.substring(str.lastIndexOf("/") + 1)), tgChat.getChatId()+"");
             } catch (Exception e) {
-                log.error("[开牌]======根据URL获取视频流-异常,视频地址:{}", videoResultAddress);
+                log.error("[开牌]======根据URL获取[牌面]视频流-异常,视频地址:{}", videoResultAddress);
             } finally {
                 if (inputStream != null) {
                     try {
@@ -166,11 +169,12 @@ public class CommandBusiness {
         if (null != picResultAddress) {
             InputStream inputStream = null;
             try {
+                log.info("[开牌]======[牌面]图片地址:{}", picResultAddress);
                 String str = picResultAddress.toString();
                 inputStream = Base64Utils.picUrlToStream(picResultAddress);
-                myBot.SendPhoto(new InputFile(inputStream, UUID.randomUUID() + str.substring(str.lastIndexOf("."))), tgChat.getChatId()+"");
+                myBot.SendPhoto(new InputFile(inputStream, str.substring(str.lastIndexOf("/") + 1)), tgChat.getChatId()+"");
             } catch (Exception e) {
-                log.error("[开牌]======根据URL获取图片流-异常,图片地址:{}", picResultAddress);
+                log.error("[开牌]======根据URL获取[牌面]图片流-异常,图片地址:{}", picResultAddress);
             } finally {
                 if (inputStream != null) {
                     try {
@@ -184,12 +188,13 @@ public class CommandBusiness {
         if (null != picRoadAddress) {
             InputStream inputStream = null;
             try {
+                log.info("[开牌]======[路图]图片地址:{}", picRoadAddress);
                 String str = picRoadAddress.toString();
                 inputStream = Base64Utils.picUrlToStream(picRoadAddress);
-                myBot.SendPhoto(new InputFile(inputStream, UUID.randomUUID() + str.substring(str.lastIndexOf("."))), tgChat.getChatId()+"");
+                myBot.SendPhoto(new InputFile(inputStream, str.substring(str.lastIndexOf("/") + 1)), tgChat.getChatId()+"");
                 redisUtil.set(tgChat.getId() + CommonConstant.LATTER, 1);
             } catch (Exception e) {
-                log.error("[开牌]======根据URL获取图片流-异常,图片地址:{}", picRoadAddress);
+                log.error("[开牌]======根据URL获取[路图]图片流-异常,图片地址:{}", picRoadAddress);
                 redisUtil.set(tgChat.getId() + CommonConstant.LATTER, 1);
             } finally {
                 if (inputStream != null) {
@@ -354,9 +359,10 @@ public class CommandBusiness {
             SendPhoto sp = new SendPhoto();
             sp.setChatId(tgChat.getChatId()+"");
 
+            log.info("[开牌]======[开牌]图片地址:{}", openCardAddress);
             String str = openCardAddress.toString();
             inputStream = Base64Utils.picUrlToStream(openCardAddress);
-            sp.setPhoto(new InputFile(inputStream, UUID.randomUUID() + str.substring(str.lastIndexOf("."))));
+            sp.setPhoto(new InputFile(inputStream, str.substring(str.lastIndexOf("/") + 1)));
 
             // 设置按钮
             List<InlineKeyboardButton> firstRow = Lists.newArrayList();
@@ -383,7 +389,7 @@ public class CommandBusiness {
             // 展示
             myBot.SendPhoto(sp);
         } catch (Exception e) {
-            log.error("[开牌]======根据URL获取图片流-异常,图片地址:{}", openCardAddress);
+            log.error("[开牌]======根据URL获取[开牌]图片流-异常,图片地址:{}", openCardAddress);
         } finally {
             if (inputStream != null) {
                 try {
