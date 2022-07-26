@@ -16,7 +16,7 @@ import javax.persistence.Entity;
 public class Menu extends BaseEntity{
 
     @ApiModelProperty(value = "代碼")
-    @Column(unique = true, columnDefinition = "varchar(5) comment '代碼'")
+    @Column(unique = true, columnDefinition = "varchar(20) comment '代碼'")
     private String code;
 
     @ApiModelProperty(value = "菜單或功能名稱")
@@ -24,27 +24,27 @@ public class Menu extends BaseEntity{
     private String name;
 
     @ApiModelProperty(value = "上層節點id")
-    @Column(unique = true, columnDefinition = "bigint comment '上層節點id'")
+    @Column(columnDefinition = "bigint comment '上層節點id'")
     private Long parentId;
 
     @ApiModelProperty(value = "類型")
-    @Column(unique = true, columnDefinition = "tinyint comment '節點類型  1 一級菜單  2 二級菜單 3 功能按鈕'")
+    @Column(columnDefinition = "tinyint comment '節點類型  1 一級菜單  2 二級菜單 3 功能按鈕'")
     private Integer type;
 
     @ApiModelProperty(value = "api url")
-    @Column(unique = true, columnDefinition = "varchar(100) comment '功能對應的api url '")
+    @Column(columnDefinition = "varchar(100) comment '功能對應的api url '")
     private Integer apiUrl;
 
     @ApiModelProperty(value = "层次")
-    @Column(unique = true, columnDefinition = "tinyint comment '层次'")
+    @Column(columnDefinition = "tinyint comment '层次'")
     private Integer level;
 
-    @ApiModelProperty(value = "菜單功能id")
-    @Column(unique = true, columnDefinition = "bigint comment '菜單功能id'")
-    private Long menuId;
+    @ApiModelProperty(value = "树id的路径")
+    @Column(columnDefinition = "varchar(200) comment '树id的路径 整个层次上的路径id，逗号分隔'")
+    private String path;
 
     @ApiModelProperty(value = "狀態")
-    @Column(unique = true, columnDefinition = "tinyint(2) comment '状态 1 正常 ，0禁用'")
+    @Column(columnDefinition = "tinyint(2) comment '状态 1 正常 ，0禁用'")
     private Integer status;
 
 }

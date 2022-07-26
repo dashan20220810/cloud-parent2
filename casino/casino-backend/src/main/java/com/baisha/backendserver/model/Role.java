@@ -23,8 +23,16 @@ public class Role extends BaseEntity{
     @Column(unique = true, columnDefinition = "varchar(30) comment '名稱'")
     private String name;
 
+    @ApiModelProperty(value = "部門代號")
+    @Column(columnDefinition = "varchar(10) comment '部門代號'")
+    private String dep;
+
+    @ApiModelProperty(value = "備註")
+    @Column(columnDefinition = "varchar(50) comment '備註'")
+    private String remark;
+
     @ApiModelProperty(value = "狀態")
-    @Column(unique = true, columnDefinition = "tinyint(2) comment '状态 1 正常 ，0禁用'")
+    @Column(columnDefinition = "tinyint(2) comment '状态 1 正常 ，0禁用'")
     private Integer status;
 
 }
