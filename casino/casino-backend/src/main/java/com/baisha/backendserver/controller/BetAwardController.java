@@ -345,8 +345,8 @@ public class BetAwardController {
     }
 
 
-    @ApiOperation(value = "重新开牌(影响该局的会员)", notes = "必须重新选择奖项开奖 重新结算-(1加了钱的都得减 2 再次结算)")
-    @PostMapping(value = "reopen")
+    //@ApiOperation(value = "重新开牌(影响该局的会员)", notes = "必须重新选择奖项开奖 重新结算-(1加了钱的都得减 2 再次结算)")
+    //@PostMapping(value = "reopen")
     public ResponseEntity reopenBetResult(BetResultReopenVO vo) {
         if (CommonUtil.checkNull(vo.getNoActive(), vo.getAwardOption())) {
             return ResponseUtil.parameterNotNull();
