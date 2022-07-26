@@ -38,13 +38,12 @@ import java.util.stream.Collectors;
 
 /**
  * @author yihui
+ * 结算
  */
 @Slf4j
 @Service
 public class BetSettlementBusiness {
 
-    //@Value("${project.server-url.user-server-domain}")
-    private String userServerDomain;
     @Autowired
     private RabbitTemplate rabbitTemplate;
     @Autowired
@@ -106,66 +105,72 @@ public class BetSettlementBusiness {
         vo.setAwardOption(vo.getAwardOption().toUpperCase());
         List<Bet> settleList = new ArrayList<>();
         for (Bet bet : item) {
-            //派奖
-            BigDecimal finalAmount = BigDecimal.ZERO;
-            BigDecimal winAmount;
-            //总下注金额
-            Long betAmount = getBetAmount(bet);
-            //因为 中奖的奖项 可以 传多个(类似Z,ZD多个中奖) ,所以要循环
-            String[] awardOptionArr = vo.getAwardOption().split(",");
-            StringBuffer settleRemarkBuffer = new StringBuffer();
-            for (String awardOption : awardOptionArr) {
-                BetAwardBO betAwardBO = BaccNoCommissionUtil.getBetAward(bet, awardOption, gameBaccOdds);
-                if (Objects.isNull(betAwardBO)) {
-                    log.error("没有对应中奖选项awardOption={}", awardOption);
-                    continue;
+            //发生异常，不能影响其他注单 使用try catch
+            try {
+                //派奖
+                BigDecimal finalAmount = BigDecimal.ZERO;
+                BigDecimal winAmount;
+                //总下注金额
+                Long betAmount = getBetAmount(bet);
+                //因为 中奖的奖项 可以 传多个(类似Z,ZD多个中奖) ,所以要循环
+                String[] awardOptionArr = vo.getAwardOption().split(",");
+                StringBuffer settleRemarkBuffer = new StringBuffer();
+                for (String awardOption : awardOptionArr) {
+                    BetAwardBO betAwardBO = BaccNoCommissionUtil.getBetAward(bet, awardOption, gameBaccOdds);
+                    if (Objects.isNull(betAwardBO)) {
+                        log.error("没有对应中奖选项awardOption={}", awardOption);
+                        continue;
+                    }
+                    log.info("局{} 中奖选项{} 注单Id{} 中奖结果{}", vo.getNoActive(), awardOption, betAwardBO.getId(), JSONObject.toJSONString(betAwardBO));
+                    finalAmount = finalAmount.add(betAwardBO.getFinalAmount());
+                    settleRemarkBuffer.append(StringUtils.isNotEmpty(betAwardBO.getRemark()) ? betAwardBO.getRemark() : "");
                 }
-                log.info("局{} 中奖选项{} 注单Id{} 中奖结果{}", vo.getNoActive(), awardOption, betAwardBO.getId(), JSONObject.toJSONString(betAwardBO));
-                finalAmount = finalAmount.add(betAwardBO.getFinalAmount());
-                settleRemarkBuffer.append(StringUtils.isNotEmpty(betAwardBO.getRemark()) ? betAwardBO.getRemark() : "");
+                winAmount = finalAmount.subtract(BigDecimal.valueOf(betAmount));
+                //修改注单数据
+                int flag = betService.settleBet(bet.getId(), winAmount, finalAmount, settleRemarkBuffer.toString());
+                if (flag > 0) {
+                    //没有输赢金额 打码量为0
+                    BigDecimal playMoney = BigDecimal.ZERO;
+                    if (winAmount.compareTo(BigDecimal.ZERO) != 0) {
+                        playMoney = BigDecimal.valueOf(betAmount);
+
+                        log.info("输赢金额 {}", winAmount);
+                        //用户统计今日数据(输赢结果)
+                        statisticsWinAmount(bet, winAmount);
+
+                        log.info("通知后台更新输赢{}", winAmount);
+                        UserBetStatisticsVO userBetStatisticsVO = UserBetStatisticsVO.builder().userId(bet.getUserId())
+                                .betTime(DateUtil.getSimpleDateFormat().format(bet.getCreateTime()))
+                                .winAmount(winAmount).build();
+                        String userBetStatisticsJsonStr = JSONObject.toJSONString(userBetStatisticsVO);
+                        log.info("发送给后台MQ消息：{}", userBetStatisticsJsonStr);
+                        rabbitTemplate.convertAndSend(MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS, userBetStatisticsJsonStr);
+                    }
+
+                    log.info("=======================================================================================");
+                    log.info("通知用户中心更新余额{}和打码量{}", finalAmount, betAmount);
+                    BetSettleUserVO betSettleUserVO = BetSettleUserVO.builder().betId(bet.getId()).noActive(bet.getNoActive())
+                            .userId(bet.getUserId()).finalAmount(finalAmount)
+                            .playMoney(playMoney)
+                            .isReopen(isReopen ? Constants.open : Constants.close)
+                            .remark(settleRemarkBuffer.toString()).build();
+                    String betSettleUserJsonStr = JSONObject.toJSONString(betSettleUserVO);
+                    log.info("派奖-发送给用户中心MQ消息：{}", betSettleUserJsonStr);
+                    rabbitTemplate.convertAndSend(MqConstants.USER_SETTLEMENT_ASSETS, betSettleUserJsonStr);
+
+                    //如果是返水是true，就需要重新返水
+                    if (isReturn) {
+                        bet.setWinAmount(winAmount);
+                        log.info("重新开牌，重新返水");
+                        betBusiness.updateReturnAmountReopen(bet);
+                    }
+                }
+                settleList.add(bet);
+            } catch (Exception e) {
+                log.error("结算异常：{}", e.getMessage());
+                e.printStackTrace();
+                continue;
             }
-            winAmount = finalAmount.subtract(BigDecimal.valueOf(betAmount));
-            //修改注单数据
-            int flag = betService.settleBet(bet.getId(), winAmount, finalAmount, settleRemarkBuffer.toString());
-            if (flag > 0) {
-                //没有输赢金额 打码量为0
-                BigDecimal playMoney = BigDecimal.ZERO;
-                if (winAmount.compareTo(BigDecimal.ZERO) != 0) {
-                    playMoney = BigDecimal.valueOf(betAmount);
-
-                    log.info("输赢金额 {}", winAmount);
-                    //用户统计今日数据(输赢结果)
-                    statisticsWinAmount(bet, winAmount);
-
-                    log.info("通知后台更新输赢{}", winAmount);
-                    UserBetStatisticsVO userBetStatisticsVO = UserBetStatisticsVO.builder().userId(bet.getUserId())
-                            .betTime(DateUtil.getSimpleDateFormat().format(bet.getCreateTime()))
-                            .winAmount(winAmount).build();
-                    String userBetStatisticsJsonStr = JSONObject.toJSONString(userBetStatisticsVO);
-                    log.info("发送给后台MQ消息：{}", userBetStatisticsJsonStr);
-                    rabbitTemplate.convertAndSend(MqConstants.BACKEND_BET_SETTLEMENT_STATISTICS, userBetStatisticsJsonStr);
-                }
-
-                log.info("=======================================================================================");
-                log.info("通知用户中心更新余额{}和打码量{}", finalAmount, betAmount);
-                BetSettleUserVO betSettleUserVO = BetSettleUserVO.builder().betId(bet.getId()).noActive(bet.getNoActive())
-                        .userId(bet.getUserId()).finalAmount(finalAmount)
-                        .playMoney(playMoney)
-                        .isReopen(isReopen ? Constants.open : Constants.close)
-                        .remark(settleRemarkBuffer.toString()).build();
-                String betSettleUserJsonStr = JSONObject.toJSONString(betSettleUserVO);
-                log.info("派奖-发送给用户中心MQ消息：{}", betSettleUserJsonStr);
-                rabbitTemplate.convertAndSend(MqConstants.USER_SETTLEMENT_ASSETS, betSettleUserJsonStr);
-
-                //如果是返水是true，就需要重新返水
-                if (isReturn) {
-                    bet.setWinAmount(winAmount);
-                    log.info("重新开牌，重新返水");
-                    betBusiness.updateReturnAmountReopen(bet);
-                }
-            }
-
-            settleList.add(bet);
         }
         return settleList;
     }
