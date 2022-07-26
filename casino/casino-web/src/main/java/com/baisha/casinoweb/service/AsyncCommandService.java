@@ -384,9 +384,8 @@ public class AsyncCommandService {
 				
 				betHistoryList = betHistoryList.stream().sorted(Comparator
 						.comparingDouble(bet -> (-bet.getWinAmount()))).collect(Collectors.toList());
-				betHistoryList.forEach(obj -> {
-					obj.setWinStrAmount(BigDecimal.valueOf(obj.getWinAmount()).stripTrailingZeros().toPlainString());
-				});
+				betHistoryList.forEach(obj -> obj.setWinStrAmount(BigDecimal.valueOf(obj.getWinAmount())
+						.stripTrailingZeros().toPlainString()));
 				top20WinUsers.put(tgGroupId, betHistoryList.subList(0, Math.min(betHistoryList.size(), 20)));
 			}
 		}
