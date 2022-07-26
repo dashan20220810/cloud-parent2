@@ -362,16 +362,11 @@ public class TelegramMessageHandler {
         String username = (user.getFirstName() == null ? "" : user.getFirstName()) + (user.getLastName() == null ? "" : user.getLastName());
         welcome.append(username);
         welcome.append(WELCOME2);
-        welcome.append(chat.getTitle());
-        welcome.append(WELCOME3);
-        welcome.append(WELCOME4);
-        welcome.append(WELCOME5);
-        welcome.append(configInfo.getOnlyFinance());
-        welcome.append(SEALING_BET_INFO17);
-        welcome.append(WELCOME6);
         welcome.append(configInfo.getOnlyCustomerService());
         welcome.append(SEALING_BET_INFO17);
-        welcome.append(WELCOME7);
+        welcome.append(WELCOME3);
+        welcome.append(SEALING_BET_INFO17);
+        welcome.append(WELCOME4);
         bot.sendMessage(welcome.toString(), chat.getId()+"");
     }
 

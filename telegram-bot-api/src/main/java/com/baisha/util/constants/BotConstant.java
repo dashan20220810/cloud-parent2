@@ -10,17 +10,14 @@ public class BotConstant {
     public static final String BET_SUCCESS = "下注成功\n";
 
     public static final String WELCOME1 = "欢迎 ";
-    public static final String WELCOME2 = " 加入";
-    public static final String WELCOME3 = "：\n";
-    public static final String WELCOME4 = "请认准群财务/客服账号，私聊您的都是骗子，打错后果自负。\n";
-    public static final String WELCOME5 = "唯一财务：";
-    public static final String WELCOME6 = "唯一客服：";
-    public static final String WELCOME7 = "㊗️老板 旗开得胜 赢钱多多";
+    public static final String WELCOME2 = " 加入本群，本群为西港白沙.皇宫飞投 视频百家乐开奖群，由西港白沙.皇宫赌场全额担保(可前往现场 查阅真伪)，详情请咨询本群客服：";
+    public static final String WELCOME3 = "————温馨提示";
+    public static final String WELCOME4 = "若你需要上分娱乐，请前往上下分群，凡是冒充本群客服私聊上分的都是骗子，本群所有上下分均在群内进行，一旦被骗与本群无关";
 
     public static final String GAME_RULE1 = " 开始下注\n";
     public static final String GAME_RULE2 = "玩家可选庄/闲/和/庄对/闲对/对子/三宝/幸运6+金额进行投注：\n";
     public static final String GAME_RULE3 = "如 庄100(Z100)  闲200(X200)\n";
-    public static final String GAME_RULE4 = "或以字母代替：Z(庄)  X(闲)  H(和)  ZD(庄对)  XD(闲对)  D(庄对 闲对)  SB(庄对 闲对 和)  SS(幸运6)进行投注\n";
+    public static final String GAME_RULE4 = "或以字母代替：Z(庄1:0.95)  X(闲1:1)  H(和1:8)  ZD(庄对1:11)  XD(闲对1:11)  D(庄对 闲对)  SB(庄对 闲对 和)  SS(幸运6 1:12/1:20)进行投注\n";
     public static final String GAME_RULE6 = "❗❗单注限红：";
     public static final String GAME_RULE7 = "-";
     public static final String GAME_RULE13 = "(美金)❗❗\n";
