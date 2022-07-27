@@ -201,7 +201,7 @@ public class UserController {
             return ResponseUtil.parameterNotNull();
         }
         if (null == vo.getFlowMultiple() || vo.getFlowMultiple().compareTo(BigDecimal.ZERO) < 0
-                || vo.getFlowMultiple().compareTo(new BigDecimal("0.02")) > 0) {
+                || vo.getFlowMultiple().compareTo(new BigDecimal("100")) > 0) {
             return new ResponseEntity("流水倍数不规范");
         }
         if (BackendServerUtil.checkIntAmount(vo.getAmount())) {

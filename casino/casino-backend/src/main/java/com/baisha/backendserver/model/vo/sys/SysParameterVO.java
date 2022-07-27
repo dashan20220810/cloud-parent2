@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @ApiModel(value = "后台-系统参数请求对象")
 public class SysParameterVO {
 
-    @ApiModelProperty(value = "返水比例(0-1数字 支持3位小数)", required = true)
+    @ApiModelProperty(value = "返水比例(0-0.02数字 支持3位小数)", required = true)
     private BigDecimal rebate;
 
 
@@ -18,10 +18,11 @@ public class SysParameterVO {
         if (null == rebate) {
             return true;
         }
+
         if (rebate.compareTo(BigDecimal.ZERO) < 0) {
             return true;
         }
-        BigDecimal ge = new BigDecimal("1");
+        BigDecimal ge = new BigDecimal("0.02");
         if (rebate.compareTo(ge) > 0) {
             return true;
         }
