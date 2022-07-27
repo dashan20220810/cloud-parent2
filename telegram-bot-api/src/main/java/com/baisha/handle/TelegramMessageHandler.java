@@ -359,12 +359,23 @@ public class TelegramMessageHandler {
         // 注册成功之后的欢迎词
         StringBuilder welcome = new StringBuilder();
         welcome.append(WELCOME1);
-        String username = (user.getFirstName() == null ? "" : user.getFirstName()) + (user.getLastName() == null ? "" : user.getLastName());
-        welcome.append(username);
+
+        String username = user.getUserName();
+        String name = (user.getFirstName() == null ? "" : user.getFirstName()) + (user.getLastName() == null ? "" : user.getLastName());
+        String showname;
+        if (null != username) {
+            showname = "@" + username;
+        } else {
+            showname = name;
+        }
+        welcome.append(showname);
+
         welcome.append(WELCOME2);
         welcome.append(configInfo.getOnlyCustomerService());
         welcome.append(SEALING_BET_INFO17);
+        welcome.append(SEALING_BET_INFO17);
         welcome.append(WELCOME3);
+        welcome.append(SEALING_BET_INFO17);
         welcome.append(SEALING_BET_INFO17);
         welcome.append(WELCOME4);
         bot.sendMessage(welcome.toString(), chat.getId()+"");

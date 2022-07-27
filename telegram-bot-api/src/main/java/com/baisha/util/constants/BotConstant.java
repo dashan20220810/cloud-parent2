@@ -10,9 +10,9 @@ public class BotConstant {
     public static final String BET_SUCCESS = "下注成功\n";
 
     public static final String WELCOME1 = "欢迎 ";
-    public static final String WELCOME2 = " 加入本群，本群为西港白沙.皇宫飞投 视频百家乐开奖群，由西港白沙.皇宫赌场全额担保(可前往现场 查阅真伪)，详情请咨询本群客服：";
-    public static final String WELCOME3 = "————温馨提示";
-    public static final String WELCOME4 = "若你需要上分娱乐，请前往上下分群，凡是冒充本群客服私聊上分的都是骗子，本群所有上下分均在群内进行，一旦被骗与本群无关";
+    public static final String WELCOME2 = " 加入本群，本群为西港白沙.皇宫飞投 视频百家乐开奖群\uD83D\uDC4A由西港白沙.皇宫赌场全额担保(可前往现场 查阅真伪)，详情请咨询本群客服：";
+    public static final String WELCOME3 = "        ————温馨提示————";
+    public static final String WELCOME4 = "⚠️⚠️⚠️若你需要上分娱乐，请前往上下分群，⚠️⚠️⚠️凡是冒充本群客服私聊上分的都是骗子，⚠️⚠️⚠️本群所有上下分均在群内进行，一旦被骗与本群无关⚠️⚠️⚠️";
 
     public static final String GAME_RULE1 = " 开始下注\n";
     public static final String GAME_RULE2 = "玩家可选庄/闲/和/庄对/闲对/对子/三宝/幸运6+金额进行投注：\n";
