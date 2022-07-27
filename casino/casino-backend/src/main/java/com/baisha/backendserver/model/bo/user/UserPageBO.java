@@ -83,7 +83,7 @@ public class UserPageBO extends BaseBO {
     private BigDecimal winAmount = BigDecimal.ZERO;
 
     @ApiModelProperty(value = "最后投注时间")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     private Date lastBetTime;
 
 }
