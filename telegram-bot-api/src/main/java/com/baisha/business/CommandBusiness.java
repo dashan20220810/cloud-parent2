@@ -20,8 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChat;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.SetChatPermissions;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.ChatPermissions;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -258,25 +260,27 @@ public class CommandBusiness {
     }
 
     public void muteAllUser(Long chatId, MyTelegramLongPollingBot myBot) {
-        ChatPermissions chatPermissions = new ChatPermissions();
-        chatPermissions.setCanInviteUsers(true);
-        SetChatPermissions setChatPermissions = new SetChatPermissions(chatId +"", chatPermissions);
-        try {
-            myBot.execute(setChatPermissions);
-        } catch (TelegramApiException e) {
-            log.error("TG群{}-全员禁言失败", chatId);
-        }
+        updateChatPermission(chatId, myBot, false);
     }
 
     public void unmuteAllUser(TgChat tgChat, MyTelegramLongPollingBot myBot) {
-        ChatPermissions chatPermissions = new ChatPermissions();
-        chatPermissions.setCanSendMessages(true);
-        chatPermissions.setCanInviteUsers(true);
-        SetChatPermissions setChatPermissions = new SetChatPermissions(tgChat.getChatId() +"", chatPermissions);
+        updateChatPermission(tgChat.getId(), myBot, true);
+    }
+
+    private void updateChatPermission(Long chatId, MyTelegramLongPollingBot myBot, Boolean status) {
         try {
+            GetChat getChat = new GetChat(chatId.toString());
+            Chat chat = myBot.execute(getChat);
+            ChatPermissions permissions = chat.getPermissions();
+            permissions.setCanSendMessages(status);
+            SetChatPermissions setChatPermissions = new SetChatPermissions(chatId +"", permissions);
             myBot.execute(setChatPermissions);
         } catch (TelegramApiException e) {
-            log.error("TG群{}-全员解禁失败", tgChat.getChatId());
+            if (status) {
+                log.error("TG群{}-全员解禁失败", chatId);
+            } else {
+                log.error("TG群{}-全员禁言失败", chatId);
+            }
         }
     }
 
