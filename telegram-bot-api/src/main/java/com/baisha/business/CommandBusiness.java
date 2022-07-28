@@ -264,19 +264,26 @@ public class CommandBusiness {
     }
 
     public void unmuteAllUser(TgChat tgChat, MyTelegramLongPollingBot myBot) {
-        updateChatPermission(tgChat.getId(), myBot, true);
+        updateChatPermission(tgChat.getChatId(), myBot, true);
     }
 
-    private void updateChatPermission(Long chatId, MyTelegramLongPollingBot myBot, Boolean status) {
+    private void updateChatPermission(Long chatId, MyTelegramLongPollingBot myBot, Boolean isOpen) {
         try {
             GetChat getChat = new GetChat(chatId.toString());
             Chat chat = myBot.execute(getChat);
+
             ChatPermissions permissions = chat.getPermissions();
-            permissions.setCanSendMessages(status);
-            SetChatPermissions setChatPermissions = new SetChatPermissions(chatId +"", permissions);
+            permissions.setCanSendMessages(isOpen);
+            permissions.setCanSendMediaMessages(isOpen);
+            permissions.setCanAddWebPagePreviews(isOpen);
+            permissions.setCanSendPolls(isOpen);
+            permissions.setCanSendOtherMessages(isOpen);
+            permissions.setCanInviteUsers(permissions.getCanInviteUsers());
+
+            SetChatPermissions setChatPermissions = new SetChatPermissions(chatId.toString(), permissions);
             myBot.execute(setChatPermissions);
         } catch (TelegramApiException e) {
-            if (status) {
+            if (isOpen) {
                 log.error("TG群{}-全员解禁失败", chatId);
             } else {
                 log.error("TG群{}-全员禁言失败", chatId);
