@@ -259,10 +259,7 @@ public class CommandBusiness {
 
     public void muteAllUser(Long chatId, MyTelegramLongPollingBot myBot) {
         ChatPermissions chatPermissions = new ChatPermissions();
-        chatPermissions.setCanSendMessages(false);
-        chatPermissions.setCanSendMediaMessages(false);
-        chatPermissions.setCanSendOtherMessages(false);
-        chatPermissions.setCanSendPolls(false);
+        chatPermissions.setCanInviteUsers(true);
         SetChatPermissions setChatPermissions = new SetChatPermissions(chatId +"", chatPermissions);
         try {
             myBot.execute(setChatPermissions);
@@ -274,9 +271,7 @@ public class CommandBusiness {
     public void unmuteAllUser(TgChat tgChat, MyTelegramLongPollingBot myBot) {
         ChatPermissions chatPermissions = new ChatPermissions();
         chatPermissions.setCanSendMessages(true);
-        chatPermissions.setCanSendMediaMessages(true);
-        chatPermissions.setCanSendOtherMessages(true);
-        chatPermissions.setCanSendPolls(true);
+        chatPermissions.setCanInviteUsers(true);
         SetChatPermissions setChatPermissions = new SetChatPermissions(tgChat.getChatId() +"", chatPermissions);
         try {
             myBot.execute(setChatPermissions);
